@@ -1,0 +1,22 @@
+name: commit-check
+
+on:
+  pull_request:
+
+jobs:
+  commit-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: 커밋 메시지 컨벤션 검사
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          bad=$(git log --format=%s "origin/$BASE_REF"..HEAD | grep -vE '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert): .+' || true)
+          if [ -n "$bad" ]; then
+            echo "위반:"
+            echo "$bad"
+            exit 1
+          fi
