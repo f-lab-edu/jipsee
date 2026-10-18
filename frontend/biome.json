@@ -1,4 +1,63 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
-	"files": { "includes": ["**", "!.next", "!next-env.d.ts"] }
+	"files": {
+		"includes": ["**", "!.next", "!next-env.d.ts"]
+	},
+	"linter": {
+		"rules": {
+			"preset": "recommended",
+			"correctness": {
+				"noUnusedImports": "error",
+				"noUnusedVariables": "error",
+				"noUnusedFunctionParameters": "error",
+				"noUndeclaredVariables": "error",
+				"useHookAtTopLevel": "error"
+			},
+			"suspicious": {
+				"noExplicitAny": "error",
+				"noConsole": "error",
+				"noDuplicateElseIf": "error",
+				"noEvolvingTypes": "error"
+			},
+			"style": {
+				"noDefaultExport": "error",
+				"noNestedTernary": "error",
+				"noNonNullAssertion": "error",
+				"useImportType": "error",
+				"useExportType": "error",
+				"useConst": "error",
+				"useTemplate": "error"
+			},
+			"performance": {
+				"noAccumulatingSpread": "error",
+				"noImgElement": "error",
+				"noReExportAll": "error",
+				"noBarrelFile": "error"
+			},
+			"a11y": {
+				"useAltText": "error",
+				"useButtonType": "error",
+				"useValidAnchor": "error"
+			}
+		}
+	},
+	"overrides": [
+		{
+			"includes": [
+				"app/**/page.tsx",
+				"app/**/layout.tsx",
+				"app/**/error.tsx",
+				"app/**/not-found.tsx",
+				"app/**/loading.tsx",
+				"*.config.ts"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"noDefaultExport": "off"
+					}
+				}
+			}
+		}
+	]
 }
