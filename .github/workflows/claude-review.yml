@@ -40,7 +40,8 @@ jobs:
           if [ -f trusted/.github/review-rules/pr-review.md ] && [ -f trusted/frontend/CLAUDE.md ] && [ -d trusted/frontend/.claude/skills ]; then
             echo "dir=trusted" >> "$GITHUB_OUTPUT"
           else
-            echo "dir=." >> "$GITHUB_OUTPUT"
+            echo "trusted rules missing on base branch" >&2
+            exit 1
           fi
 
       - name: Claude 코드 리뷰
