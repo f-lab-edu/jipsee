@@ -1,0 +1,14 @@
+services:
+  flyway:
+    image: flyway/flyway:12.11.0
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: migrate
+    environment:
+      FLYWAY_URL: jdbc:mysql://mysql:3306/jipsee
+      FLYWAY_USER: jipsee
+      FLYWAY_PASSWORD: jipsee
+    volumes:
+      - ${SCHEMA_DIR:?SCHEMA_DIR must point to the schema folder}:/flyway/sql:ro
+    restart: "no"

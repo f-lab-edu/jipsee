@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+spring:
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/jipsee}
+    username: ${DB_USERNAME:jipsee}
+    password: ${DB_PASSWORD:jipsee}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
