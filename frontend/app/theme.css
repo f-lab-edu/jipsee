@@ -1,0 +1,13 @@
+/* Seed 브랜드 역할이 참조하는 carrot 팔레트를 blue로 대체 */
+:root[data-seed-color-mode="light-only"] {
+	--seed-color-palette-carrot-100: var(--seed-color-palette-blue-100);
+	--seed-color-palette-carrot-200: var(--seed-color-palette-blue-200);
+	--seed-color-palette-carrot-300: var(--seed-color-palette-blue-300);
+	--seed-color-palette-carrot-400: var(--seed-color-palette-blue-400);
+	--seed-color-palette-carrot-500: var(--seed-color-palette-blue-500);
+	--seed-color-palette-carrot-600: var(--seed-color-palette-blue-600);
+	--seed-color-palette-carrot-700: var(--seed-color-palette-blue-700);
+	--seed-color-palette-carrot-800: var(--seed-color-palette-blue-800);
+	--seed-color-palette-carrot-900: var(--seed-color-palette-blue-900);
+	--seed-color-palette-carrot-1000: var(--seed-color-palette-blue-1000);
+}

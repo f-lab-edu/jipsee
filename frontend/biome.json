@@ -20,13 +20,18 @@
 				"noEvolvingTypes": "error"
 			},
 			"style": {
-				"noDefaultExport": "error",
 				"noNestedTernary": "error",
 				"noNonNullAssertion": "error",
 				"useImportType": "error",
 				"useExportType": "error",
 				"useConst": "error",
-				"useTemplate": "error"
+				"useTemplate": "error",
+				"useFilenamingConvention": {
+					"level": "error",
+					"options": {
+						"filenameCases": ["camelCase"]
+					}
+				}
 			},
 			"performance": {
 				"noAccumulatingSpread": "error",
@@ -43,18 +48,26 @@
 	},
 	"overrides": [
 		{
-			"includes": [
-				"app/**/page.tsx",
-				"app/**/layout.tsx",
-				"app/**/error.tsx",
-				"app/**/not-found.tsx",
-				"app/**/loading.tsx",
-				"*.config.ts"
-			],
+			"includes": ["src/**/ui/**"],
 			"linter": {
 				"rules": {
 					"style": {
-						"noDefaultExport": "off"
+						"useFilenamingConvention": {
+							"level": "error",
+							"options": {
+								"filenameCases": ["PascalCase"]
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["app/**", "*.config.ts", ".dependency-cruiser.js"],
+			"linter": {
+				"rules": {
+					"style": {
+						"useFilenamingConvention": "off"
 					}
 				}
 			}
