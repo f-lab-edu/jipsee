@@ -1,3 +1,15 @@
+pre-commit:
+  parallel: true
+  commands:
+    biome:
+      root: frontend/
+      glob: "*.{js,jsx,mjs,ts,tsx,json,jsonc,css}"
+      run: pnpm biome check --no-errors-on-unmatched {staged_files}
+    boundaries:
+      root: frontend/
+      glob: "*.{ts,tsx}"
+      run: pnpm lint:boundaries
+
 commit-msg:
   commands:
     conventional-commit:
