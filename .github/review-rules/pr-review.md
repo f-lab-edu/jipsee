@@ -6,6 +6,7 @@ Rules for the Claude PR review. Review comments are written in Korean.
 
 - Review only changed files under `frontend/`.
 - Skip lockfiles, generated files, binaries and `.github/`.
+- Approval is withheld by the workflow when any changed file is outside `frontend/`. Do not treat unreviewed paths as approved.
 
 ## Execution order
 
