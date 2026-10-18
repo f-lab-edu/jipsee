@@ -1,0 +1,39 @@
+name: frontend-ci
+
+on:
+  pull_request:
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - name: pnpm 설치
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: frontend/package.json
+      - name: Node 설치
+        uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - name: 의존성 설치
+        run: pnpm install --frozen-lockfile
+      - name: Biome 검사
+        run: pnpm check
+      - name: 의존성 경계 검사
+        run: pnpm lint:boundaries
+      - name: 타입 검사
+        run: pnpm typecheck
+      - name: 빌드
+        run: pnpm build
