@@ -17,12 +17,12 @@
 
 ## 기술 스택
 
-| 영역   | 선택                                                         |
-| ------ | ------------------------------------------------------------ |
-| 백엔드 | Java 25, Spring Boot 4.1, Spring Batch 6, Spring AI 2.0      |
-| 프론트 | Next.js 16, TypeScript                                       |
-| 데이터 | MySQL 8.4, Redis 8.2                                         |
-| 인프라 | Oracle A1, Docker Compose, nginx, Cloudflare, GitHub Actions |
+| 영역       | 선택                                                         |
+| ---------- | ------------------------------------------------------------ |
+| 백엔드     | Java 25, Spring Boot 4.1, Spring Batch 6, Spring AI 2.0      |
+| 프론트엔드 | Next.js 16 (App Router), TypeScript, Seed Design, FSD, Biome |
+| 데이터     | MySQL 8.4, Redis 8.2                                         |
+| 인프라     | Oracle A1, Docker Compose, nginx, Cloudflare, GitHub Actions |
 
 ## 디렉터리 구조
 
@@ -32,7 +32,9 @@ jipsee/
 ├── frontend/    Next.js
 ├── infra/       Docker Compose, nginx, 관측 설정
 ├── docs/        기획서, 기술 명세
-└── .github/workflows/
+├── scripts/     커밋 제목 검사
+├── lefthook.yml Git 훅 (pre-commit, commit-msg)
+└── .github/     워크플로우, PR 템플릿, 리뷰 규칙
 ```
 
 ## 문서
@@ -40,6 +42,21 @@ jipsee/
 - [기획서 (PRD)](docs/prd.md)
 - [기술 명세](docs/tech-spec.md)
 
+## 개발 환경
+
+- Git 훅 설치: `lefthook install` (루트)
+- 프론트엔드 (`frontend/`, pnpm)
+  - 환경 변수: `.env.example` 참고
+  - `pnpm install`, `pnpm dev`
+  - 검증: `pnpm check`, `pnpm lint:boundaries`, `pnpm typecheck`, `pnpm build`
+
 ## 커밋 컨벤션
 
 Conventional Commits 형식 (`type: 제목`)
+
+- lefthook `commit-msg`와 GitHub Actions `commit-check`가 같은 스크립트(`scripts/check-commit-subject.sh`)로 검사
+
+## PR
+
+- PR 생성 시 `frontend-ci`(Biome, 레이어 경계, 타입, 빌드), `commit-check`, `claude-review` 실행
+- `claude-review`: Claude 코드 리뷰, `frontend/`만 변경되고 CRITICAL이 없으면 자동 승인
