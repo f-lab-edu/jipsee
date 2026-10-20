@@ -1,5 +1,22 @@
 # Jipsee ERD
 
+## 개요
+
+```mermaid
+erDiagram
+    user {
+        bigint id PK
+    }
+    building_parcel ||--o{ building_register : "필지 1개에 동 N개"
+    building_parcel {
+        bigint id PK
+    }
+    building_register {
+        bigint id PK
+        bigint building_parcel_id FK
+    }
+```
+
 ## user
 
 > 사용자 정보
