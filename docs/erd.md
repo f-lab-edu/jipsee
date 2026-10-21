@@ -15,6 +15,10 @@ erDiagram
         bigint id PK
         bigint building_parcel_id FK
     }
+    building_parcel ||--o| building_location : "필지 1개에 좌표 0 또는 1개"
+    building_location {
+        bigint building_parcel_id PK, FK
+    }
 ```
 
 ## user
@@ -89,3 +93,20 @@ erDiagram
 - 필지 1개(building_parcel)에 동 N개(building_register): 1:N, 동은 원본 그대로 나열
 - FULLTEXT(name, plat_plc, new_plat_plc) ngram: 건물명, 지번주소, 도로명주소 통합 검색
 - 원본이 0인 수치 필드는 0으로 저장, 화면에서 숨김 (승강기는 0이면 "없음" 표시)
+
+## building_location
+
+> 필지 좌표
+
+```mermaid
+erDiagram
+    building_parcel ||--o| building_location : "필지 1개에 좌표 0 또는 1개"
+    building_location {
+        bigint building_parcel_id PK, FK "필지 ID"
+        point location "좌표, 위도 경도 순서, SRID 4326, 지오코딩 결과"
+    }
+```
+
+- PK가 FK: 필지당 좌표 1개
+- 지오코딩에 성공한 필지만 행 생성
+- SPATIAL INDEX(location): 주변 거래 반경 검색
