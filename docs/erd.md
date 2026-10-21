@@ -24,6 +24,11 @@ erDiagram
         bigint id PK
         bigint building_parcel_id FK
     }
+    building_parcel |o--o{ sale_deal : "필지 1개에 거래 N건"
+    sale_deal {
+        bigint id PK
+        bigint building_parcel_id FK
+    }
 ```
 
 ## user
@@ -151,3 +156,35 @@ erDiagram
 - 재수집: (sgg_cd, deal_date) 월 범위 삭제 후 재적재
 - INDEX(sgg_cd, deal_date): 재수집 삭제
 - INDEX(building_parcel_id, deal_date): 거래 이력, 주변 거래 조회
+
+## sale_deal
+
+> 매매 거래
+
+```mermaid
+erDiagram
+    building_parcel |o--o{ sale_deal : "필지 1개에 거래 N건"
+    sale_deal {
+        bigint id PK "거래 ID, 자체 발급, 재수집 시 재발급"
+        char sgg_cd "시군구코드 5자리 (sggCd)"
+        varchar umd_nm "법정동 (umdNm)"
+        varchar jibun "지번 원본, N 또는 N-M (jibun)"
+        varchar mhouse_nm "단지명 (mhouseNm), 없으면 NULL"
+        smallint build_year "건축연도 (buildYear), 없으면 NULL"
+        decimal excl_use_ar "전용면적 ㎡ (excluUseAr)"
+        smallint floor "층, 지하 -1 (floor), 없으면 NULL"
+        date deal_date "계약일 (dealYear, dealMonth, dealDay)"
+        int deal_amount "거래금액 만원 (dealAmount)"
+        varchar cdeal_type "해제 여부, 해제는 O (cdealType), 해제가 아니면 NULL"
+        date cdeal_day "해제 사유 발생일, YY.MM.DD를 20YY-MM-DD로 변환 (cdealDay), 없으면 NULL"
+        bigint building_parcel_id FK "필지 ID, 매칭 실패 시 NULL"
+        varchar match_status "매칭 상태: CONFIRMED, ESTIMATED, PREVIOUS, FAILED"
+        timestamp collected_at "수집 시각"
+    }
+```
+
+- 필지 1개(building_parcel)에 거래 N건(sale_deal): 1:N, 매칭 실패 거래는 필지 없음
+- 유니크 제약 없음: 원본에 거래 ID가 없고 값이 같은 행이 존재
+- 재수집: (sgg_cd, deal_date) 월 범위 삭제 후 재적재
+- INDEX(sgg_cd, deal_date): 재수집 삭제
+- INDEX(building_parcel_id, deal_date): 거래 이력 조회
