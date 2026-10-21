@@ -45,7 +45,7 @@ erDiagram
     }
 ```
 
-- UNIQUE(provider, provider_user_id): 로그인 수단별 별도 계정
+- UNIQUE(provider, provider_user_id): 로그인 수단별 별도 계정, provider_user_id는 대소문자 구분
 - 탈퇴 시 행 삭제 (하드 삭제)
 
 ## building_parcel
@@ -101,6 +101,7 @@ erDiagram
 ```
 
 - 필지 1개(building_parcel)에 동 N개(building_register): 1:N, 동은 원본 그대로 나열
+- UNIQUE(mgmt_bldrgst_pk): 동 식별, 월 적재의 기준 키
 - FULLTEXT(name, plat_plc, new_plat_plc) ngram: 건물명, 지번주소, 도로명주소 통합 검색
 - 원본이 0인 수치 필드는 0으로 저장, 화면에서 숨김 (승강기는 0이면 "없음" 표시)
 
