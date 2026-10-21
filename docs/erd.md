@@ -42,7 +42,7 @@ erDiagram
 erDiagram
     building_parcel {
         bigint id PK "필지 ID, 자체 발급"
-        varchar name "건물명 bldNm, 없으면 NULL"
+        varchar name "건물명, bldNm이 있는 동 중 mgmt_bldrgst_pk가 가장 앞선 동의 값, 없으면 NULL"
         char sigungu_cd UK "시군구코드 5자리 (sigunguCd)"
         char bjdong_cd UK "법정동코드 뒤 5자리 (bjdongCd)"
         char plat_gb_cd UK "대지구분, 대지:0, 산:1, 블록:2 (platGbCd)"
