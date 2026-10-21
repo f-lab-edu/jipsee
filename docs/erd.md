@@ -19,6 +19,11 @@ erDiagram
     building_location {
         bigint building_parcel_id PK, FK
     }
+    building_parcel |o--o{ rent_deal : "필지 1개에 거래 N건"
+    rent_deal {
+        bigint id PK
+        bigint building_parcel_id FK
+    }
 ```
 
 ## user
@@ -110,3 +115,39 @@ erDiagram
 - PK가 FK: 필지당 좌표 1개
 - 지오코딩에 성공한 필지만 행 생성
 - SPATIAL INDEX(location): 주변 거래 반경 검색
+
+## rent_deal
+
+> 전월세 거래
+
+```mermaid
+erDiagram
+    building_parcel |o--o{ rent_deal : "필지 1개에 거래 N건"
+    rent_deal {
+        bigint id PK "거래 ID, 자체 발급, 재수집 시 재발급"
+        char sgg_cd "시군구코드 5자리 (sggCd)"
+        varchar umd_nm "법정동 (umdNm)"
+        varchar jibun "지번 원본, N 또는 N-M (jibun)"
+        varchar mhouse_nm "연립다세대명 (mhouseNm), 없으면 NULL"
+        smallint build_year "건축연도 (buildYear), 없으면 NULL"
+        decimal excl_use_ar "전용면적 ㎡ (excluUseAr)"
+        smallint floor "층, 지하 -1 (floor), 없으면 NULL"
+        date deal_date "계약일 (dealYear, dealMonth, dealDay)"
+        int deposit "보증금 만원 (deposit)"
+        int monthly_rent "월세 만원, 전세는 0 (monthlyRent)"
+        int pre_deposit "종전 계약 보증금 만원 (preDeposit), 없으면 NULL"
+        int pre_monthly_rent "종전 계약 월세 만원 (preMonthlyRent), 없으면 NULL"
+        varchar contract_term "계약기간 (contractTerm), 없으면 NULL"
+        varchar contract_type "계약 구분, 신규 또는 갱신 (contractType), 없으면 NULL"
+        varchar use_rr_right "갱신요구권 사용 (useRRRight), 없으면 NULL"
+        bigint building_parcel_id FK "필지 ID, 매칭 실패 시 NULL"
+        varchar match_status "매칭 상태: CONFIRMED, ESTIMATED, PREVIOUS, FAILED"
+        timestamp collected_at "수집 시각"
+    }
+```
+
+- 필지 1개(building_parcel)에 거래 N건(rent_deal): 1:N, 매칭 실패 거래는 필지 없음
+- 유니크 제약 없음: 원본에 거래 ID가 없고 값이 같은 행이 존재
+- 재수집: (sgg_cd, deal_date) 월 범위 삭제 후 재적재
+- INDEX(sgg_cd, deal_date): 재수집 삭제
+- INDEX(building_parcel_id, deal_date): 거래 이력, 주변 거래 조회
