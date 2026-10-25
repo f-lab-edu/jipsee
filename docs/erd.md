@@ -153,6 +153,7 @@ erDiagram
 ```
 
 - 필지 1개(building_parcel)에 거래 N건(rent_deal): 1:N, 매칭 실패 거래는 필지 없음
+- CHECK: match_status가 FAILED일 때만 building_parcel_id가 NULL
 - 유니크 제약 없음: 원본에 거래 ID가 없고 값이 같은 행이 존재
 - 재수집: (sgg_cd, deal_date) 월 범위 삭제 후 재적재
 - INDEX(sgg_cd, deal_date): 재수집 삭제
@@ -185,7 +186,25 @@ erDiagram
 ```
 
 - 필지 1개(building_parcel)에 거래 N건(sale_deal): 1:N, 매칭 실패 거래는 필지 없음
+- CHECK: match_status가 FAILED일 때만 building_parcel_id가 NULL
 - 유니크 제약 없음: 원본에 거래 ID가 없고 값이 같은 행이 존재
 - 재수집: (sgg_cd, deal_date) 월 범위 삭제 후 재적재
 - INDEX(sgg_cd, deal_date): 재수집 삭제
 - INDEX(building_parcel_id, deal_date): 거래 이력 조회
+
+## data_source
+
+> 데이터 출처별 기준 월
+
+```mermaid
+erDiagram
+    data_source {
+        varchar source PK "데이터 출처: RENT_DEAL, SALE_DEAL, BUILDING_REGISTER, LAW"
+        char base_ym "현재 기준 월 YYYYMM"
+        timestamp loaded_at "마지막 적재 시각"
+    }
+```
+
+- 다른 테이블과 관계 없음
+- 화면의 기준일 표시와 데이터 출처 카드의 현재 기준 월에 사용
+- 데이터명, 제공 기관, 갱신 주기, 원본 링크는 고정 값이라 저장하지 않음
