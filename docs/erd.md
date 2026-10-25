@@ -103,7 +103,7 @@ erDiagram
 - 필지 1개(building_parcel)에 동 N개(building_register): 1:N, 동은 원본 그대로 나열
 - UNIQUE(management_register_key): 동 식별, 월 적재의 기준 키
 - 적재 범위: 연립 또는 다세대 동이 있는 필지의 동 전부, 총괄표제부 제외
-- FULLTEXT(name, lot_address, road_address) ngram: 건물명, 지번주소, 도로명주소 통합 검색
+- FULLTEXT(name, lot_address, road_address) ngram: 건물명, 지번주소, 도로명주소 통합 검색. 결과는 building_parcel_id로 묶어 필지 단위로 반환, 건물명이 없는 필지는 주소로만 검색됨
 - 원본이 0인 수치 필드는 0으로 저장, 화면에서 숨김 (승강기는 0이면 "없음" 표시)
 
 ## building_location
