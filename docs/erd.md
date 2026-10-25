@@ -56,7 +56,7 @@ erDiagram
 erDiagram
     building_parcel {
         bigint id PK "필지 ID, 자체 발급"
-        varchar name "건물명, bldNm이 있는 동 중 management_register_key가 가장 앞선 동의 값, 없으면 NULL"
+        varchar name "건물명, bldNm이 있는 동 중 building_register.id가 가장 작은 동의 값, 없으면 NULL"
         char sigungu_code "시군구코드 5자리 (sigunguCd)"
         char legal_dong_code "법정동코드 뒤 5자리 (bjdongCd)"
         char land_type_code "대지구분, 대지:0, 산:1, 블록:2 (platGbCd)"
@@ -66,6 +66,8 @@ erDiagram
 ```
 
 - UNIQUE(sigungu_code, legal_dong_code, land_type_code, main_lot_number, sub_lot_number): 필지 식별을 위한 유니크 제약조건
+- 동이 모두 없어진 필지는 거래 FK 때문에 삭제하지 않고 유지, 검색 결과와 S2에는 나오지 않음. 같은 지번에 동이 다시 생기면 같은 필지에 연결
+- name은 월 적재에서 동이 바뀐 필지만 다시 계산, 동이 없으면 NULL
 - 예: 서울 종로구 부암동 208-13 = `11110`, `18400`, `0`, `0208`, `0013`
 
 ## building_register
