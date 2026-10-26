@@ -123,6 +123,7 @@ erDiagram
 
 - PK가 FK: 필지당 좌표 1개
 - 지오코딩에 성공한 필지만 행 생성
+- 지번주소(lot_address)로 지오코딩. 행이 없는 필지는 표제부 적재 때마다 다시 시도
 - SPATIAL INDEX(location): 주변 거래 반경 검색
 
 ## rent_deal
