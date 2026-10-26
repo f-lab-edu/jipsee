@@ -41,7 +41,7 @@ erDiagram
         bigint id PK "사용자 ID, 자동 증가"
         varchar provider "로그인 수단: GOOGLE, KAKAO, NAVER"
         varchar provider_user_id "로그인 수단이 발급한 사용자 고유 ID"
-        timestamp created_at "가입 시각"
+        datetime created_at "가입 시각"
     }
 ```
 
@@ -152,7 +152,7 @@ erDiagram
         varchar renewal_right_used "갱신요구권 사용 (useRRRight), 없으면 NULL"
         bigint building_parcel_id FK "필지 ID, 매칭 실패 시 NULL"
         varchar match_status "매칭 상태: CONFIRMED, ESTIMATED, PREVIOUS, FAILED"
-        timestamp collected_at "수집 시각"
+        datetime collected_at "수집 시각"
     }
 ```
 
@@ -185,7 +185,7 @@ erDiagram
         date cancellation_date "해제 사유 발생일, YY.MM.DD를 20YY-MM-DD로 변환 (cdealDay), 없으면 NULL"
         bigint building_parcel_id FK "필지 ID, 매칭 실패 시 NULL"
         varchar match_status "매칭 상태: CONFIRMED, ESTIMATED, PREVIOUS, FAILED"
-        timestamp collected_at "수집 시각"
+        datetime collected_at "수집 시각"
     }
 ```
 
@@ -205,7 +205,7 @@ erDiagram
     data_source {
         varchar source PK "데이터 출처: RENT_DEAL, SALE_DEAL, BUILDING_REGISTER, LAW"
         char base_year_month "현재 기준 월 YYYYMM"
-        timestamp loaded_at "마지막 적재 시각"
+        datetime loaded_at "마지막 적재 시각"
     }
 ```
 
