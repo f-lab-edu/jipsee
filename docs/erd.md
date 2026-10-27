@@ -29,6 +29,15 @@ erDiagram
         bigint id PK
         bigint building_parcel_id FK
     }
+    law ||--o{ law_article : "법령 1개에 조문 N개"
+    law["law (법령)"] {
+        varchar id PK
+    }
+    law_article["law_article (법령 조문)"] {
+        varchar law_id PK, FK
+        int article_number PK
+        int branch_number PK
+    }
     data_source["data_source (데이터 출처별 기준 월)"] {
         varchar source PK
     }
@@ -192,6 +201,50 @@ erDiagram
 - INDEX(sigungu_code, deal_date)를 재수집할 때 삭제할 행을 찾는 데 사용함
 - INDEX(building_parcel_id, deal_date)를 필지의 거래 이력 조회에 사용함
 
+## law
+
+> 법령
+
+```mermaid
+erDiagram
+    law {
+        varchar id PK "법령ID: 001248 주택임대차보호법, 004950 주택임대차보호법 시행령, 014450 전세사기피해자 지원 및 주거안정에 관한 특별법, 001706 민법"
+        varchar name "법령명 한글"
+        varchar serial_number "법령일련번호 (MST), 변경 감지용"
+        char effective_date "시행일자 YYYYMMDD, 변경 감지와 답변 기준일 표시용"
+        datetime loaded_at "적재 시각"
+    }
+```
+
+- 법령 4건 고정
+- 법령 1개(law)에 조문 N개(law_article): 1:N
+- 챗봇 답변의 기준일은 effective_date 사용. data_source의 LAW 행은 데이터 출처 카드 전용
+
+## law_article
+
+> 법령 조문
+
+```mermaid
+erDiagram
+    law ||--o{ law_article : "법령 1개에 조문 N개"
+    law_article {
+        varchar law_id PK, FK "법령ID"
+        int article_number PK "조문번호"
+        int branch_number PK "조문가지번호, 없으면 0"
+        varchar title "조문제목, 삭제 조문은 빈 값"
+        text content "조문내용과 항, 호, 목 본문을 줄바꿈으로 이어 붙인 원문"
+    }
+```
+
+- 법령 1개(law)에 조문 N개(law_article): 1:N
+- PK(law_id, article_number, branch_number): 조문 식별, 번호로 조회
+- 조문여부가 조문인 행만 저장, 장과 절 같은 전문 행은 제외
+- 민법은 제618조부터 제654조까지만 저장
+- 삭제 조문(예: 민법 제651조)도 원본 그대로 저장
+- 교체: 법령 API 응답과 serial_number 또는 effective_date가 다르면 해당 law_id의 law_article 행 전체 삭제 후 재적재, law 갱신까지 한 트랜잭션으로 처리
+- 파싱한 조문 수가 0이면 교체하지 않고 로그만 남김
+- FULLTEXT 인덱스 없음: 챗봇이 목차에서 조문을 고르고 번호로 조회
+
 ## data_source
 
 > 데이터 출처별 기준 월
@@ -206,3 +259,4 @@ erDiagram
 ```
 
 - 데이터명, 제공 기관, 갱신 주기, 원본 링크는 변하지 않는 값이므로 저장하지 않음
+- LAW 행은 데이터 출처 카드에만 사용하며, 챗봇 답변의 기준일에는 law.effective_date를 사용함
