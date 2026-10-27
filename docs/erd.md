@@ -208,18 +208,16 @@ erDiagram
 ```mermaid
 erDiagram
     law {
-        char id PK "법령ID 6자리: 001248 주택임대차보호법, 004950 주택임대차보호법 시행령, 014450 전세사기피해자 지원 및 주거안정에 관한 특별법, 001706 민법"
-        varchar name "법령명 한글, 25자 이내"
-        char law_key "법령키 19자리: 법령ID + 공포일자 + 공포번호, 변경 감지용"
-        char effective_date "시행일자 8자리 YYYYMMDD, 변경 감지와 답변 기준일 표시용"
+        char id PK "법령ID 6자리, 001248은 주택임대차보호법, 004950은 주택임대차보호법 시행령, 014450은 전세사기피해자 지원 및 주거안정에 관한 특별법, 001706은 민법"
+        varchar name "법령명 한글, 25자 이내 (법령명_한글)"
+        char law_key "법령키, 법령ID(6), 공포일자(8), 공포번호(5)를 이어 붙인 19자리 (법령키)"
+        char effective_date "시행일자, YYYYMMDD 형식 (시행일자), 변경 감지와 답변 기준일 표시에 사용함"
         datetime loaded_at "적재 시각"
     }
 ```
 
-- 법령 4건 고정
-- 법령 1개(law)에 조문 N개(law_article): 1:N
-- 챗봇 답변의 기준일은 effective_date 사용. data_source의 LAW 행은 데이터 출처 카드 전용
-- 본문 응답에 법령일련번호가 없어 법령키(law_key)로 변경 감지
+- 법령 4건을 고정으로 저장함
+- 본문 응답에 법령일련번호가 없으므로 law_key를 변경 감지에 사용함
 
 ## law_article
 
@@ -230,23 +228,20 @@ erDiagram
     law ||--o{ law_article : "법령 1개에 조문 N개"
     law_article {
         char law_id PK, FK "법령ID 6자리"
-        int article_number PK "조문번호: 제N조의 N"
-        int branch_number PK "조문가지번호: 제N조의M의 M, 없으면 0"
-        varchar title "조문제목, 36자 이내, 삭제 조문은 빈 값"
-        text content "조문내용과 항, 호, 목 본문을 줄바꿈으로 이어 붙인 원문"
+        int article_number PK "조문번호, 제N조의M에서 N (조문번호)"
+        int branch_number PK "조문가지번호, 제N조의M에서 M (조문가지번호), 가지가 없으면 0"
+        varchar title "조문제목, 36자 이내 (조문제목), 삭제 조문은 빈 값"
+        text content "조문내용과 항, 호, 목의 본문을 줄바꿈으로 이어 붙인 원문, 최대 2,539자와 5,883바이트"
     }
 ```
 
-- 법령 1개(law)에 조문 N개(law_article): 1:N
-- PK(law_id, article_number, branch_number): 조문 식별, 번호로 조회
-- 조문여부가 조문인 행만 저장, 장과 절 같은 전문 행은 제외
-- 민법은 제618조부터 제654조까지만 저장
-- 삭제 조문(예: 민법 제651조)도 원본 그대로 저장
-- 교체: API 응답의 law_key 또는 effective_date가 저장된 값과 다르면 해당 law_id의 law_article 행 전체 삭제 후 재적재, law 갱신까지 한 트랜잭션으로 처리
-- 파싱한 조문 수가 0이면 교체하지 않고 로그만 남김
-- varchar 길이는 2026-10-27 실측 최댓값 기준 (name 25자, title 36자). 초과 시 적재 실패와 로그
-- content 최대 2,539자, 5,883바이트 (2026-10-27 실측)
-- FULLTEXT 인덱스 없음: 챗봇이 목차에서 조문을 고르고 번호로 조회
+- FULLTEXT 인덱스를 두지 않음. 챗봇이 목차에서 조문을 골라 PK로 조회하기 때문임
+- 조문여부가 조문인 행만 저장하며, 장과 절 같은 전문 행은 제외함
+- 민법은 제618조부터 제654조까지만 저장함
+- 삭제 조문은 민법 제651조처럼 원본 그대로 저장함
+- API 응답의 law_key 또는 effective_date가 저장된 값과 다르면 해당 law_id의 law_article 행 전체를 삭제하고 다시 적재하며, law 갱신까지 한 트랜잭션으로 처리함
+- 파싱한 조문이 0건이면 교체하지 않고 로그만 남김
+- varchar 길이와 content 최대 길이는 2026-10-27 실측 최댓값 기준이며, varchar 길이를 초과하면 적재에 실패하고 로그를 남김
 
 ## data_source
 
