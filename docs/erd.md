@@ -29,7 +29,7 @@ erDiagram
         bigint id PK
         bigint building_parcel_id FK
     }
-    data_source["data_source (데이터 출처별 기준 월)"] {
+    data_source["data_source (데이터 출처별 마지막 수집 시각)"] {
         varchar source PK
     }
 ```
@@ -194,14 +194,13 @@ erDiagram
 
 ## data_source
 
-> 데이터 출처별 기준 월
+> 데이터 출처별 마지막 수집 시각
 
 ```mermaid
 erDiagram
     data_source {
         varchar source PK "데이터 출처, 값은 RENT_DEAL, SALE_DEAL, BUILDING_REGISTER, LAW 중 하나"
-        char base_year_month "현재 기준 월, YYYYMM 형식"
-        datetime loaded_at "마지막 적재 시각"
+        datetime loaded_at "마지막 수집 시각, 화면의 기준 월은 이 값을 KST로 바꾼 월로 표시함"
     }
 ```
 
