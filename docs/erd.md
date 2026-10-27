@@ -4,28 +4,28 @@
 
 ```mermaid
 erDiagram
-    user {
+    user["user (사용자 정보)"] {
         bigint id PK
     }
     building_parcel ||--o{ building_register : "필지 1개에 동 N개"
-    building_parcel {
+    building_parcel["building_parcel (필지)"] {
         bigint id PK
     }
-    building_register {
+    building_register["building_register (건축물대장 표제부 동)"] {
         bigint id PK
         bigint building_parcel_id FK
     }
     building_parcel ||--o| building_location : "필지 1개에 좌표 0 또는 1개"
-    building_location {
+    building_location["building_location (필지 좌표)"] {
         bigint building_parcel_id PK, FK
     }
     building_parcel |o--o{ rent_deal : "필지 1개에 거래 N건"
-    rent_deal {
+    rent_deal["rent_deal (전월세 거래)"] {
         bigint id PK
         bigint building_parcel_id FK
     }
     building_parcel |o--o{ sale_deal : "필지 1개에 거래 N건"
-    sale_deal {
+    sale_deal["sale_deal (매매 거래)"] {
         bigint id PK
         bigint building_parcel_id FK
     }
