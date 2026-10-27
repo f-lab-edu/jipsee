@@ -108,7 +108,7 @@ erDiagram
 - UNIQUE(management_register_key)이며 월 적재의 기준 키임
 - FULLTEXT(name, lot_address, road_address) ngram을 건물명, 지번주소, 도로명주소 검색에 사용함
 - 건물명이 없는 필지는 주소로만 검색할 수 있음
-- 동은 원본 그대로 나열
+- 동은 합치지 않고 동마다 1행으로 저장함
 
 ## building_location
 
@@ -141,7 +141,7 @@ erDiagram
         varchar house_name "연립다세대명 (mhouseNm), 값이 없으면 NULL"
         smallint build_year "건축연도 (buildYear), 값이 없으면 NULL"
         decimal exclusive_area "전용면적, 단위 ㎡ (excluUseAr)"
-        smallint floor "층, 지하 -1 (floor), 값이 없으면 NULL"
+        smallint floor "층, 지하 N층은 -N (floor), 값이 없으면 NULL"
         date deal_date "계약일 (dealYear, dealMonth, dealDay)"
         int deposit "보증금, 단위 만원 (deposit)"
         int monthly_rent "월세, 단위 만원, 전세 거래는 0 (monthlyRent)"
@@ -176,7 +176,7 @@ erDiagram
         varchar house_name "단지명 (mhouseNm), 값이 없으면 NULL"
         smallint build_year "건축연도 (buildYear), 값이 없으면 NULL"
         decimal exclusive_area "전용면적, 단위 ㎡ (excluUseAr)"
-        smallint floor "층, 지하 -1 (floor), 값이 없으면 NULL"
+        smallint floor "층, 지하 N층은 -N (floor), 값이 없으면 NULL"
         date deal_date "계약일 (dealYear, dealMonth, dealDay)"
         int deal_amount "거래금액, 단위 만원 (dealAmount)"
         varchar cancellation_type "해제 여부, 해제된 거래는 O (cdealType), 해제되지 않은 거래는 NULL"

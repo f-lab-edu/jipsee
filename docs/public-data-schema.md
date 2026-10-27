@@ -25,7 +25,7 @@
 | `mhouseNm`       | 연립다세대명                | 문자열                 |
 | `buildYear`      | 건축연도                    | 4자리                  |
 | `excluUseAr`     | 전용면적, 단위 ㎡           | 수치                   |
-| `floor`          | 층                          | 정수이며 지하는 `-1`임 |
+| `floor`          | 층                          | 정수이며 지하 N층은 `-N`임 |
 | `dealYear`       | 계약연도                    | 4자리                  |
 | `dealMonth`      | 계약월                      | 1~2자리                |
 | `dealDay`        | 계약일                      | 1~2자리                |
@@ -57,7 +57,7 @@
 | `mhouseNm`   | 단지명              | 문자열                 |
 | `buildYear`  | 건축연도            | 4자리                  |
 | `excluUseAr` | 전용면적, 단위 ㎡   | 수치                   |
-| `floor`      | 층                  | 정수이며 지하는 `-1`임 |
+| `floor`      | 층                  | 정수이며 지하 N층은 `-N`임 |
 | `dealYear`   | 계약연도            | 4자리                  |
 | `dealMonth`  | 계약월              | 1~2자리                |
 | `dealDay`    | 계약일              | 1~2자리                |
