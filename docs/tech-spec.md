@@ -25,7 +25,6 @@ Oct 18, 2026 · @윤상준
 | 데이터 접근      | JPA. 대량 적재, 공간 검색은 JdbcTemplate                     |
 | 수집 작업        | Spring Batch 6 + spring-boot-starter-batch-jdbc              |
 | 일정 실행        | 스케줄러 + ShedLock                                          |
-| DB 마이그레이션  | Flyway + flyway-mysql                                        |
 | 로그인           | OAuth2 Client (구글, 카카오, 네이버), Spring Session + Redis |
 | 요청 제한        | Bucket4j + Redis                                             |
 | 동시 연결        | Spring MVC + 가상 스레드                                     |
