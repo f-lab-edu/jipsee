@@ -29,6 +29,18 @@ erDiagram
         bigint id PK
         bigint building_parcel_id FK
     }
+    user ||--o{ chat : "사용자 1명에 대화 N개"
+    building_parcel |o--o{ chat : "필지 1개에 대화 N개"
+    chat["chat (챗봇 대화)"] {
+        bigint id PK
+        bigint user_id FK
+        bigint building_parcel_id FK
+    }
+    chat ||--o{ chat_message : "대화 1개에 메시지 N개"
+    chat_message["chat_message (챗봇 대화 메시지)"] {
+        bigint id PK
+        bigint chat_id FK
+    }
     data_source["data_source (데이터 출처별 마지막 수집 시각)"] {
         varchar source PK
     }
@@ -193,6 +205,48 @@ erDiagram
 - 유니크 제약을 두지 않음. 원본에 거래 ID가 없고 값이 같은 행이 있기 때문임
 - INDEX(sigungu_code, deal_date)를 재수집할 때 삭제할 행을 찾는 데 사용함
 - INDEX(building_parcel_id, deal_date)를 필지의 거래 이력 조회에 사용함
+
+## chat
+
+> 챗봇 대화
+
+```mermaid
+erDiagram
+    user ||--o{ chat : "사용자 1명에 대화 N개"
+    building_parcel |o--o{ chat : "필지 1개에 대화 N개"
+    chat {
+        bigint id PK "대화 ID, 자동으로 증가함"
+        bigint user_id FK "사용자 ID"
+        bigint building_parcel_id FK "필지 ID, S2에서 들어온 대화만 값이 있고 나머지는 NULL"
+        varchar title "대화 제목, 첫 질문의 앞부분, 길이는 목록 화면을 정한 뒤 확정함"
+        datetime created_at "대화 시작 시각"
+    }
+```
+
+- 사용자가 삭제하거나 탈퇴할 때까지 보관함
+- user_id FK에 ON DELETE CASCADE를 걸어, 탈퇴하면 대화도 함께 삭제함
+- 대화 목록은 chat_message.id 최댓값의 역순으로 정렬함. id는 작성 순서대로 증가하고 chat_id 인덱스에 함께 저장되어 있어, 테이블 행을 읽지 않고 인덱스만으로 구할 수 있음
+
+## chat_message
+
+> 챗봇 대화 메시지
+
+```mermaid
+erDiagram
+    chat ||--o{ chat_message : "대화 1개에 메시지 N개"
+    chat_message {
+        bigint id PK "메시지 ID, 자동으로 증가하며 대화 안의 순서로 사용함"
+        bigint chat_id FK "대화 ID"
+        varchar role "작성자, 값은 USER, ASSISTANT 중 하나"
+        text content "메시지 본문, 길이는 max_tokens를 정한 뒤 실측해 확정함"
+        int input_token_count "LLM 입력 토큰 수, 답변 1개에서 호출한 만큼 합산함, ASSISTANT만 값이 있음"
+        int output_token_count "LLM 출력 토큰 수, 답변 1개에서 호출한 만큼 합산함, ASSISTANT만 값이 있음"
+        datetime created_at "작성 시각"
+    }
+```
+
+- chat_id FK에 ON DELETE CASCADE를 걸어, 대화를 삭제하면 메시지도 함께 삭제함
+- 인덱스는 PK와 FK 인덱스만 둠. 대화의 메시지는 chat_id 인덱스로 찾고 id 순서로 정렬함
 
 ## data_source
 
