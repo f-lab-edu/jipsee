@@ -12,17 +12,17 @@ Oct 18, 2026 / @윤상준
 
 ### 백엔드
 
-| 영역             | 단계 | 선택                                                         |
-| ---------------- | ---- | ------------------------------------------------------------ |
-| 언어, 프레임워크 | 1    | Java 25 (LTS), Spring Boot 4.1                               |
-| 데이터 접근      | 1    | JPA를 쓰고, 대량 적재와 공간 검색은 JdbcTemplate을 사용함    |
-| 수집 작업        | 1    | Spring Batch 6 + spring-boot-starter-batch-jdbc              |
-| 일정 실행        | 1    | 스케줄러 + ShedLock                                          |
-| 로그인           | 2    | OAuth2 Client (구글, 카카오, 네이버), Spring Session + Redis |
-| 요청 제한        | 2    | Bucket4j + Redis                                             |
-| 동시 연결        | 1    | Spring MVC + 가상 스레드                                     |
-| 챗봇             | 2    | Spring AI 2.0, SSE                                           |
-| 봇 차단          | 2    | Cloudflare Turnstile                                         |
+| 영역             | 단계 | 선택                                                                                                   |
+| ---------------- | ---- | ------------------------------------------------------------------------------------------------------ |
+| 언어, 프레임워크 | 1    | Java 25 (LTS), Spring Boot 4.1                                                                         |
+| 데이터 접근      | 1    | JPA를 쓰고, 대량 적재와 공간 검색은 JdbcTemplate을 사용함                                              |
+| 수집 작업        | 1    | Spring Batch 6 + spring-boot-starter-batch-jdbc                                                        |
+| 일정 실행        | 1    | 스케줄러. 수집 날짜를 Job 파라미터로 넘겨, 같은 날짜의 Job이 두 번 실행되면 Spring Batch가 거부하게 함 |
+| 로그인           | 2    | OAuth2 Client (구글, 카카오, 네이버), Spring Session + Redis                                           |
+| 요청 제한        | 2    | Bucket4j + Redis                                                                                       |
+| 동시 연결        | 1    | Spring MVC + 가상 스레드                                                                               |
+| 챗봇             | 2    | Spring AI 2.0, SSE                                                                                     |
+| 봇 차단          | 2    | Cloudflare Turnstile                                                                                   |
 
 ### 데이터 저장소
 
