@@ -12,49 +12,51 @@ Oct 18, 2026 / @윤상준
 
 ### 백엔드
 
-| 영역             | 선택                                                         |
-| ---------------- | ------------------------------------------------------------ |
-| 언어, 프레임워크 | Java 25 (LTS), Spring Boot 4.1                               |
-| 데이터 접근      | JPA를 쓰고, 대량 적재와 공간 검색은 JdbcTemplate을 사용함    |
-| 수집 작업        | Spring Batch 6 + spring-boot-starter-batch-jdbc              |
-| 일정 실행        | 스케줄러 + ShedLock                                          |
-| 로그인           | OAuth2 Client (구글, 카카오, 네이버), Spring Session + Redis |
-| 요청 제한        | Bucket4j + Redis                                             |
-| 동시 연결        | Spring MVC + 가상 스레드                                     |
-| 챗봇             | Spring AI 2.0, SSE                                           |
-| 봇 차단          | Cloudflare Turnstile                                         |
+| 영역             | 단계 | 선택                                                         |
+| ---------------- | ---- | ------------------------------------------------------------ |
+| 언어, 프레임워크 | 1    | Java 25 (LTS), Spring Boot 4.1                               |
+| 데이터 접근      | 1    | JPA를 쓰고, 대량 적재와 공간 검색은 JdbcTemplate을 사용함    |
+| 수집 작업        | 1    | Spring Batch 6 + spring-boot-starter-batch-jdbc              |
+| 일정 실행        | 1    | 스케줄러 + ShedLock                                          |
+| 로그인           | 2    | OAuth2 Client (구글, 카카오, 네이버), Spring Session + Redis |
+| 요청 제한        | 2    | Bucket4j + Redis                                             |
+| 동시 연결        | 1    | Spring MVC + 가상 스레드                                     |
+| 챗봇             | 2    | Spring AI 2.0, SSE                                           |
+| 봇 차단          | 2    | Cloudflare Turnstile                                         |
 
 ### 데이터 저장소
 
-| 영역      | 선택                                                                                                                           |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| DB        | MySQL 8.4 LTS                                                                                                                  |
-| 시각      | DATETIME 타입에 UTC로 저장함 (hibernate.jdbc.time_zone=UTC)                                                                    |
-| 검색      | FULLTEXT ngram을 주소, 건물명, 법령에 사용함                                                                                   |
-| 건물 검색 | 결과는 building_parcel_id로 묶어 필지 단위로 반환하고, 지번 뒤에 숫자가 이어지는 일치는 제외하며, 검색어는 2글자 이상이어야 함 |
-| 반경 검색 | MBRContains 다음에 ST_Distance_Sphere를 적용함 (long-lat)                                                                      |
-| 공유 상태 | Redis 8.2 (appendonly)                                                                                                         |
+| 영역      | 단계 | 선택                                                                                                                           |
+| --------- | ---- | ------------------------------------------------------------------------------------------------------------------------------ |
+| DB        | 1    | MySQL 8.4 LTS                                                                                                                  |
+| 시각      | 1    | DATETIME 타입에 UTC로 저장함 (hibernate.jdbc.time_zone=UTC)                                                                    |
+| 검색      | 1    | FULLTEXT ngram을 주소, 건물명, 법령에 사용함                                                                                   |
+| 건물 검색 | 1    | 결과는 building_parcel_id로 묶어 필지 단위로 반환하고, 지번 뒤에 숫자가 이어지는 일치는 제외하며, 검색어는 2글자 이상이어야 함 |
+| 반경 검색 | 1    | MBRContains 다음에 ST_Distance_Sphere를 적용함 (long-lat)                                                                      |
+| 공유 상태 | 2    | Redis 8.2 (appendonly)                                                                                                         |
 
 ### 프론트
 
-| 영역       | 선택                                |
-| ---------- | ----------------------------------- |
-| 프레임워크 | Next.js 16 (App Router), TypeScript |
-| UI         | Seed Design                         |
-| 구조       | FSD                                 |
-| 린트, 포맷 | Biome                               |
+| 영역       | 단계 | 선택                                |
+| ---------- | ---- | ----------------------------------- |
+| 프레임워크 | 1    | Next.js 16 (App Router), TypeScript |
+| UI         | 1    | Seed Design                         |
+| 구조       | 1    | FSD                                 |
+| 린트, 포맷 | 1    | Biome                               |
 
 ### 인프라
 
-| 영역             | 선택                                     |
-| ---------------- | ---------------------------------------- |
-| 서버             | Oracle A1 (2 OCPU, 12GB, 오사카), Ubuntu |
-| 실행             | Docker Compose                           |
-| 앞단             | Cloudflare, nginx + certbot              |
-| CI/CD            | GitHub Actions                           |
-| 로깅 및 모니터링 | fluent-bit, Loki, Prometheus, Grafana    |
-| 에러 추적        | Sentry                                   |
-| 배포             | blue/green (nginx upstream을 전환함)     |
+| 영역             | 단계 | 선택                                     |
+| ---------------- | ---- | ---------------------------------------- |
+| 서버             | 1    | Oracle A1 (2 OCPU, 12GB, 오사카), Ubuntu |
+| 실행             | 1    | Docker Compose                           |
+| 앞단             | 1    | nginx + certbot                          |
+| CDN              | 2    | Cloudflare                               |
+| CI/CD            | 1    | GitHub Actions                           |
+| 로그             | 1    | 앱 로그 파일                             |
+| 로깅 및 모니터링 | 2    | fluent-bit, Loki, Prometheus, Grafana    |
+| 에러 추적        | 2    | Sentry                                   |
+| 배포             | 1    | blue/green (nginx upstream을 전환함)     |
 
 ## 3. 데이터 매칭
 
