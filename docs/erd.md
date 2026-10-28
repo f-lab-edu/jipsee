@@ -223,7 +223,7 @@ erDiagram
 
 - 사용자가 삭제하거나 탈퇴할 때까지 보관함
 - user_id FK에 ON DELETE CASCADE를 걸어, 탈퇴하면 대화도 함께 삭제함
-- 대화 목록은 마지막 메시지 시각의 역순으로 정렬하며, 마지막 메시지 시각은 chat_message.created_at의 최댓값으로 구함
+- 대화 목록은 chat_message.id 최댓값의 역순으로 정렬함. id는 작성 순서대로 증가하고 chat_id 인덱스에 함께 저장되어 있어, 테이블 행을 읽지 않고 인덱스만으로 구할 수 있음
 
 ## chat_message
 
