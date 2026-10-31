@@ -23,6 +23,7 @@ jipsee/
 ## 개발 환경
 
 - Git 훅 설치: 저장소 루트에서 `lefthook install` 실행
+- 백엔드: [backend/README.md](backend/README.md)를 참고
 - 프론트엔드 (`frontend/`에서 pnpm 사용)
   - 환경 변수: `.env.example`을 참고
   - 설치와 개발 서버 실행: `pnpm install`, `pnpm dev`
