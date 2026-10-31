@@ -239,7 +239,8 @@ erDiagram
         bigint user_id FK "사용자 ID"
         bigint building_parcel_id FK "필지 ID, S2에서 들어온 대화만 값이 있고 나머지는 NULL"
         varchar title "대화 제목, 첫 질문의 앞부분, 길이는 목록 화면을 정한 뒤 확정함"
-        datetime created_at "대화 시작 시각"
+        datetime created_at "대화 시작 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
+        datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
     }
 ```
 
@@ -261,7 +262,8 @@ erDiagram
         text content "메시지 본문, 길이는 max_tokens를 정한 뒤 실측해 확정함"
         int input_token_count "LLM 입력 토큰 수, 답변 1개에서 호출한 만큼 합산함, ASSISTANT만 값이 있음"
         int output_token_count "LLM 출력 토큰 수, 답변 1개에서 호출한 만큼 합산함, ASSISTANT만 값이 있음"
-        datetime created_at "작성 시각"
+        datetime created_at "작성 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
+        datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
     }
 ```
 
