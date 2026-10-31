@@ -49,21 +49,21 @@ public class Order extends BaseEntity {
 
 ## BaseEntity
 
-`created_at` / `updated_at` come from `BaseEntity`, never from `@CreationTimestamp` / `@UpdateTimestamp`.
-It lives in `kr.jipsee.global`, and `@EnableJpaAuditing` is declared in a `kr.jipsee.global` config class.
+Every table has `created_at` / `updated_at`. JPA entities extend `kr.jipsee.global.common.base.BaseEntity`, which fills them with Hibernate `@CreationTimestamp` / `@UpdateTimestamp`. No JPA auditing (`@EnableJpaAuditing`, `@CreatedDate`).
+Tables written with `JdbcTemplate` leave both columns out of the INSERT; the MySQL column defaults fill them. Keep the JVM and MySQL time zones the same.
 
 ```java
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
 @Getter
+@MappedSuperclass
 public abstract class BaseEntity {
 
-    @CreatedDate
-    @Column(updatable = false)
-    private Instant createdAt;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
-    @LastModifiedDate
-    private Instant updatedAt;
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }
 ```
 
@@ -211,4 +211,4 @@ jdbcTemplate.batchUpdate(
 - Agent writes N+1 without realizing — check for `items` access in loops
 - Agent expects Hibernate to batch IDENTITY inserts — use `JdbcTemplate.batchUpdate`
 - Agent uses `@Setter` / `@Data` / `@Builder` / `@AllArgsConstructor` — only `@Getter`, `@NoArgsConstructor(access = AccessLevel.PROTECTED)`, `@RequiredArgsConstructor`, `@Slf4j` are allowed
-- Agent uses `@CreationTimestamp` / `@UpdateTimestamp` — extend `BaseEntity` instead
+- Agent declares `createdAt` / `updatedAt` on an entity — extend `BaseEntity` instead

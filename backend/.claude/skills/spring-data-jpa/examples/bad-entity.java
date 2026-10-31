@@ -22,7 +22,7 @@ public class Order {
     private User user;
 
     // No @NoArgsConstructor(access = AccessLevel.PROTECTED) — JPA no-arg constructor not hidden from callers
-    // Does not extend BaseEntity (no createdAt / updatedAt auditing)
+    // Does not extend BaseEntity (no createdAt / updatedAt)
     // No factory method — public constructor allows invalid state
     // No behavior methods — service has to know internal rules
 }
