@@ -19,4 +19,6 @@ Spring Boot 4, Java 25, MySQL 8.4
 
 ## 검증
 
-`./gradlew build`
+Docker를 실행한 상태에서 `SCHEMA_DIR=<스키마 폴더> ./gradlew build`
+
+테스트는 Testcontainers MySQL에 `SCHEMA_DIR`의 SQL을 Flyway로 적용한 뒤 실행함
