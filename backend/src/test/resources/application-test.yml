@@ -1,0 +1,4 @@
+spring:
+  flyway:
+    locations: filesystem:${SCHEMA_DIR}
+    fail-on-missing-locations: true
