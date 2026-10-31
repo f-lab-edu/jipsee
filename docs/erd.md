@@ -41,6 +41,15 @@ erDiagram
         bigint id PK
         bigint chat_id FK
     }
+    law ||--o{ law_article : "법령 1개에 조문 N개"
+    law["law (법령)"] {
+        char id PK
+    }
+    law_article["law_article (법령 조문)"] {
+        char law_id PK, FK
+        int article_number PK
+        int branch_number PK
+    }
     data_source["data_source (데이터 출처별 마지막 수집 시각)"] {
         varchar source PK
     }
@@ -248,6 +257,48 @@ erDiagram
 - chat_id FK에 ON DELETE CASCADE를 걸어, 대화를 삭제하면 메시지도 함께 삭제함
 - 인덱스는 PK와 FK 인덱스만 둠. 대화의 메시지는 chat_id 인덱스로 찾고 id 순서로 정렬함
 
+## law
+
+> 법령
+
+```mermaid
+erDiagram
+    law {
+        char id PK "법령ID 6자리, 001248은 주택임대차보호법, 004950은 주택임대차보호법 시행령, 014450은 전세사기피해자 지원 및 주거안정에 관한 특별법, 001706은 민법"
+        varchar name "법령명 한글, 25자 이내 (법령명_한글)"
+        char law_key "법령키, 법령ID(6), 공포일자(8), 공포번호(5)를 이어 붙인 19자리 (법령키)"
+        char effective_date "시행일자, YYYYMMDD 형식 (시행일자), 변경 감지와 답변 기준일 표시에 사용함"
+        datetime loaded_at "적재 시각"
+    }
+```
+
+- 법령 4건을 고정으로 저장함
+- 본문 응답에 법령일련번호가 없으므로 law_key를 변경 감지에 사용함
+
+## law_article
+
+> 법령 조문
+
+```mermaid
+erDiagram
+    law ||--o{ law_article : "법령 1개에 조문 N개"
+    law_article {
+        char law_id PK, FK "법령ID 6자리"
+        int article_number PK "조문번호, 제N조의M에서 N (조문번호)"
+        int branch_number PK "조문가지번호, 제N조의M에서 M (조문가지번호), 가지가 없으면 0"
+        varchar title "조문제목, 36자 이내 (조문제목), 삭제 조문은 빈 값"
+        text content "조문내용과 항, 호, 목의 본문을 줄바꿈으로 이어 붙인 원문, 최대 2,539자와 5,883바이트"
+    }
+```
+
+- FULLTEXT 인덱스를 두지 않음. 챗봇이 목차에서 조문을 골라 PK로 조회하기 때문임
+- 조문여부가 조문인 행만 저장하며, 장과 절 같은 전문 행은 제외함
+- 민법은 제618조부터 제654조까지만 저장함
+- 삭제 조문은 민법 제651조처럼 원본 그대로 저장함
+- API 응답의 law_key 또는 effective_date가 저장된 값과 다르면 해당 law_id의 law_article 행 전체를 삭제하고 다시 적재하며, law 갱신까지 한 트랜잭션으로 처리함
+- 파싱한 조문이 0건이면 교체하지 않고 로그만 남김
+- varchar 길이와 content 최대 길이는 2026-10-27 실측 최댓값 기준이며, varchar 길이를 초과하면 적재에 실패하고 로그를 남김
+
 ## data_source
 
 > 데이터 출처별 마지막 수집 시각
@@ -261,3 +312,4 @@ erDiagram
 ```
 
 - 데이터명, 제공 기관, 갱신 주기, 원본 링크는 변하지 않는 값이므로 저장하지 않음
+- LAW 행은 데이터 출처 카드에만 사용하며, 챗봇 답변의 기준일에는 law.effective_date를 사용함
