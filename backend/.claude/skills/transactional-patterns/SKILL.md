@@ -1,9 +1,9 @@
 ---
 name: transactional-patterns
 description: >
-  Use when working with @Transactional, multi-step database operations, distributed
-  transactions, or any code that needs atomicity guarantees. Covers propagation rules,
-  isolation levels, read-only optimization, and common pitfalls.
+  Use when working with @Transactional, multi-step database operations, or any code that
+  needs atomicity guarantees. Covers propagation rules, read-only optimization, side effects
+  after commit, and common pitfalls.
 ---
 
 # Transactional Patterns
@@ -12,26 +12,34 @@ description: >
 
 - `@Transactional` belongs on **service methods**, never controllers or repositories
 - Default propagation is `REQUIRED` — joins existing transaction or creates one
-- Always use on methods that write to the DB or coordinate multiple writes
-- `@Transactional(readOnly = true)` on all read-only service methods — enables optimizations
+- Services are annotated at class level with `@Transactional(readOnly = true)`; each write method gets its own `@Transactional`
+- Service methods take ids (not entities) and return DTOs — entities never leave the service
 
 ```java
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true) // default for all methods in this service
+@RequiredArgsConstructor
 public class OrderService {
 
+    private final OrderRepository orderRepository;
+    private final InventoryService inventoryService;
+
     @Transactional // overrides readOnly for writes
-    public Order createOrder(CreateOrderRequest request) {
+    public OrderResponse createOrder(CreateOrderRequest request) {
         inventoryService.reserve(request.items()); // participates in same TX
-        return orderRepository.save(Order.from(request));
+        Order order = orderRepository.save(Order.create(request.customerEmail()));
+        return OrderResponse.from(order);
     }
 
-    public Optional<Order> findById(UUID id) {
-        return orderRepository.findById(id); // readOnly = true inherited
+    public OrderResponse findById(Long id) {
+        Order order = orderRepository.findById(id)
+            .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND)); // readOnly = true inherited
+        return OrderResponse.from(order);
     }
 }
 ```
+
+`readOnly = true` sets Hibernate's flush mode to manual (no dirty checking) and passes a read-only hint to the JDBC connection. It does not route to a replica.
 
 ## Propagation
 
@@ -45,7 +53,7 @@ public class OrderService {
 | `NEVER` | Must NOT have TX, throw if one exists |
 
 ```java
-// REQUIRES_NEW — for audit logging that must survive rollback
+// REQUIRES_NEW — for audit logging that must survive rollback (separate bean)
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public void logAuditEvent(AuditEvent event) {
     auditRepository.save(event); // commits independently of parent TX
@@ -53,16 +61,23 @@ public void logAuditEvent(AuditEvent event) {
 
 // Order TX rolls back, audit log still saved
 @Transactional
-public void processOrder(Order order) {
-    auditService.logAuditEvent(new AuditEvent("ORDER_START", order.getId()));
+public void processOrder(Long orderId) {
+    Order order = getOrder(orderId);
     try {
-        // ... process, may throw
-    } catch (Exception e) {
-        auditService.logAuditEvent(new AuditEvent("ORDER_FAILED", order.getId()));
+        order.process(); // may throw
+    } catch (RuntimeException e) {
+        auditService.logAuditEvent(new AuditEvent("ORDER_FAILED", orderId)); // id only, no FK
         throw e; // parent TX rolls back, audit TX already committed
     }
 }
 ```
+
+**MySQL lock-wait warning:** the `REQUIRES_NEW` transaction is a separate connection. If it inserts a row with a
+foreign key to a row the outer transaction just inserted or updated, it waits on the outer transaction's lock,
+and the outer transaction waits for the inner call to return. Result: lock wait timeout. Avoid it by either:
+
+- Using `@TransactionalEventListener(phase = AFTER_COMMIT)` for audit that only needs to exist after success (see "Side Effects After Commit")
+- Passing only the id and storing it in a plain column without an FK constraint (as in the example above)
 
 ## Self-Invocation Pitfall
 
@@ -71,22 +86,22 @@ public void processOrder(Order order) {
 @Service
 public class OrderService {
     @Transactional
-    public void processAll(List<UUID> ids) {
+    public void processAll(List<Long> ids) {
         ids.forEach(id -> this.processSingle(id)); // bypasses proxy!
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void processSingle(UUID id) { ... } // never creates new TX
+    public void processSingle(Long id) { ... } // never creates new TX
 }
 
-// ✅ FIX — inject self or extract to separate bean
+// ✅ FIX — extract to separate bean
 @Service
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderProcessor orderProcessor; // separate bean
 
     @Transactional
-    public void processAll(List<UUID> ids) {
+    public void processAll(List<Long> ids) {
         ids.forEach(id -> orderProcessor.processSingle(id)); // goes through proxy
     }
 }
@@ -94,64 +109,22 @@ public class OrderService {
 
 ## Handling Exceptions
 
-```java
-// @Transactional rolls back on RuntimeException by default
-// For checked exceptions, explicitly declare rollbackFor
-
-@Transactional(rollbackFor = InsufficientInventoryException.class) // checked exception
-public Order createOrder(CreateOrderRequest request) throws InsufficientInventoryException {
-    ...
-}
-
-// noRollbackFor — for non-fatal exceptions you want to commit anyway
-@Transactional(noRollbackFor = OptimisticLockException.class)
-public void updateWithRetry(UUID id) { ... }
-```
-
-## Optimistic Locking
+`BusinessException` extends `RuntimeException`, so the default rollback rule applies. Plain `@Transactional` is enough; no `rollbackFor`.
 
 ```java
-@Entity
-public class Order {
-    @Version
-    private Long version; // Hibernate handles conflicts automatically
-}
-
-// Handles concurrent updates
 @Transactional
-public Order updateStatus(UUID id, OrderStatus newStatus) {
-    Order order = orderRepository.findById(id).orElseThrow();
-    order.updateStatus(newStatus); // if another TX modified it, throws ObjectOptimisticLockingFailureException
-    return orderRepository.save(order);
+public OrderResponse createOrder(CreateOrderRequest request) {
+    ... // any RuntimeException (e.g. `BusinessException`) rolls back
 }
 ```
 
-## Distributed Transactions (Saga Pattern)
+Never swallow an exception inside a `@Transactional` method (`catch` and log only) — the TX commits as if nothing failed.
 
-For multi-service operations, use the Saga pattern instead of distributed TX:
+If a call needs a retry (e.g. deadlock or lock wait timeout), retry outside the transactional bean, so each attempt gets a fresh transaction.
 
-```java
-@Service
-@RequiredArgsConstructor
-public class OrderSaga {
+## No External Calls Inside a Transaction
 
-    @Transactional
-    public void execute(CreateOrderRequest request) {
-        Order order = orderRepository.save(Order.create(request));
-        try {
-            inventoryClient.reserve(request.items());       // step 1
-            paymentClient.charge(order.getId(), request.total()); // step 2
-            order.confirm();
-            orderRepository.save(order);
-        } catch (PaymentException e) {
-            inventoryClient.release(request.items()); // compensate step 1
-            order.fail("Payment failed");
-            orderRepository.save(order);
-            throw e;
-        }
-    }
-}
-```
+Do not call external APIs (HTTP clients, payment, messaging) inside a transaction. The DB connection and locks stay held while waiting on the network, and the remote side cannot be rolled back. Do the external call before or after the transaction, or bind it to the commit (next section).
 
 ## Side Effects After Commit
 
@@ -161,11 +134,11 @@ if the TX rolls back, you've already sent it. Bind the side effect to the commit
 ```java
 // Publisher — inside the TX
 @Transactional
-public Order place(UUID id) {
-    Order order = orderRepository.findById(id).orElseThrow();
+public OrderResponse place(Long id) {
+    Order order = getOrder(id);
     order.place();
     eventPublisher.publishEvent(new OrderPlaced(order.getId())); // not sent yet
-    return orderRepository.save(order);
+    return OrderResponse.from(order);
 }
 
 // Listener — runs ONLY if the TX commits successfully
@@ -176,13 +149,14 @@ public void onOrderPlaced(OrderPlaced event) {
 ```
 
 `AFTER_COMMIT` runs after the DB commits. Note: it runs **outside** the original transaction, so a
-new `@Transactional(REQUIRES_NEW)` is needed if the listener itself writes to the DB. This is the
-clean way to publish the domain events collected in the [[domain-driven-design]] aggregate.
+new `@Transactional(REQUIRES_NEW)` is needed if the listener itself writes to the DB.
 
 ## Gotchas
 - Agent puts `@Transactional` on controllers — only on service layer
-- Agent sends email / publishes events inside the TX — use `@TransactionalEventListener(AFTER_COMMIT)`
-- Agent forgets `readOnly = true` on read methods — missed DB optimization
+- Agent sends email / publishes events / calls external APIs inside the TX — use `@TransactionalEventListener(AFTER_COMMIT)` or call outside the TX
+- Agent forgets `readOnly = true` on read methods — put it at class level and override write methods with `@Transactional`
 - Agent calls `@Transactional` methods on `this` — self-invocation bypasses proxy
-- Agent expects checked exceptions to rollback — must add `rollbackFor`
+- Agent adds `rollbackFor` — `BusinessException` is a `RuntimeException`, default rollback applies
 - Agent uses `@Transactional` on `private` methods — Spring proxy can't intercept
+- Agent returns entities or takes entities as parameters on services — use ids in, DTOs out
+- Agent uses `REQUIRES_NEW` to insert an FK row to a row the outer TX just wrote — MySQL lock wait timeout

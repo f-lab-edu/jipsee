@@ -13,37 +13,31 @@ description: >
 @Entity
 @Table(name = "orders")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA requires no-arg, hide from callers
-public class Order {
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA requires no-arg, hidden from callers
+public class Order extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(updatable = false, nullable = false)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false)
     private String customerEmail;
 
     @Enumerated(EnumType.STRING) // always STRING, never ORDINAL
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "varchar(20)") // match the DDL length
     private OrderStatus status;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
-    @CreationTimestamp
-    @Column(updatable = false)
-    private Instant createdAt;
-
-    @UpdateTimestamp
-    private Instant updatedAt;
+    private Order(String customerEmail) {
+        this.customerEmail = customerEmail;
+        this.status = OrderStatus.PENDING;
+    }
 
     // Static factory, not public constructor
     public static Order create(String customerEmail) {
-        Order order = new Order();
-        order.customerEmail = customerEmail;
-        order.status = OrderStatus.PENDING;
-        return order;
+        return new Order(customerEmail);
     }
 
     // Behavior on entity, not in service
@@ -53,12 +47,36 @@ public class Order {
 }
 ```
 
+## BaseEntity
+
+Every table has `created_at` / `updated_at`. JPA entities extend `kr.jipsee.global.common.base.BaseEntity`, which fills them with Hibernate `@CreationTimestamp` / `@UpdateTimestamp`. No JPA auditing (`@EnableJpaAuditing`, `@CreatedDate`).
+Tables written with `JdbcTemplate` leave both columns out of the INSERT; the MySQL column defaults fill them. Keep the JVM and MySQL time zones the same.
+
+```java
+@Getter
+@MappedSuperclass
+public abstract class BaseEntity {
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+}
+```
+
 ## Rules
-- `@Enumerated(EnumType.STRING)` always — `ORDINAL` breaks on enum reordering
-- `GenerationType.UUID` for IDs — never expose auto-increment integers
-- `@NoArgsConstructor(access = PROTECTED)` — required by JPA, hidden from app code
-- `@Getter` from Lombok — no `@Setter` on entities (use behavior methods)
+- `@Enumerated(EnumType.STRING)` always, with `columnDefinition = "varchar(N)"` matching the DDL (`ddl-auto: validate`) — `ORDINAL` breaks on enum reordering
+- IDs are `Long` with `@GeneratedValue(strategy = GenerationType.IDENTITY)` — never UUID
+- Lombok is limited to `@Getter`, `@NoArgsConstructor(access = AccessLevel.PROTECTED)`, `@RequiredArgsConstructor`, `@Slf4j` — never `@Setter`, `@Data`, `@Builder`, `@AllArgsConstructor`
+- Entities carry `@Getter` and `@NoArgsConstructor(access = AccessLevel.PROTECTED)` — the no-arg constructor is required by JPA and hidden from app code
+- No setters on entities (use behavior methods)
+- Create entities through a constructor or static factory
+- `@ManyToOne(fetch = FetchType.LAZY)` always
 - Collections initialized inline (`= new ArrayList<>()`) — never null
+- The schema is managed outside this repo (no Flyway/migrations); entities are only validated
 
 ## N+1 Prevention
 
@@ -67,22 +85,17 @@ public class Order {
 **Fix with JOIN FETCH:**
 ```java
 @Query("SELECT o FROM Order o JOIN FETCH o.items WHERE o.id = :id")
-Optional<Order> findByIdWithItems(@Param("id") UUID id);
+Optional<Order> findByIdWithItems(@Param("id") Long id);
 
-// For lists — use @EntityGraph to avoid duplicates
+// For lists — use @EntityGraph to avoid N+1
 @EntityGraph(attributePaths = {"items", "items.product"})
 List<Order> findByStatus(OrderStatus status);
 ```
 
 **Fix with Projections for read-only views:**
 ```java
-// Interface projection — no entity loaded
-public interface OrderSummary {
-    UUID getId();
-    String getCustomerEmail();
-    OrderStatus getStatus();
-    Instant getCreatedAt();
-}
+// Record projection — no entity loaded
+public record OrderSummary(Long id, String customerEmail, OrderStatus status, Instant createdAt) {}
 
 List<OrderSummary> findByStatus(OrderStatus status); // fast, no lazy loading issues
 ```
@@ -90,7 +103,7 @@ List<OrderSummary> findByStatus(OrderStatus status); // fast, no lazy loading is
 ## Query Patterns
 
 ```java
-public interface OrderRepository extends JpaRepository<Order, UUID> {
+public interface OrderRepository extends JpaRepository<Order, Long> {
 
     // Derived query — simple conditions
     List<Order> findByStatusAndCustomerEmail(OrderStatus status, String email);
@@ -99,10 +112,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("SELECT o FROM Order o JOIN FETCH o.items WHERE o.status = :status")
     List<Order> findActiveOrdersWithItems(@Param("status") OrderStatus status);
 
-    // Native SQL — only when JPQL can't do it
-    @Query(value = "SELECT * FROM orders WHERE created_at > NOW() - INTERVAL '7 days'",
-           nativeQuery = true)
-    List<Order> findRecentOrders();
+    // Derived query with a time bound — compute the cutoff in the service
+    List<Order> findByCreatedAtAfter(Instant since);
 
     // Exists check — faster than findById + isPresent
     boolean existsByCustomerEmailAndStatus(String email, OrderStatus status);
@@ -112,14 +123,18 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 }
 ```
 
+Spatial, FULLTEXT, and bulk SQL go through `JdbcTemplate`, not `@Query(nativeQuery = true)`.
+
 ## Pagination
 
 ```java
 // Always use Pageable for list endpoints
 Page<Order> findByStatus(OrderStatus status, Pageable pageable);
 
-// In service
-Page<Order> orders = orderRepository.findByStatus(status, PageRequest.of(page, size, Sort.by("createdAt").descending()));
+// In service — map to DTO, entities never leave the service
+Page<OrderResponse> orders = orderRepository
+    .findByStatus(status, PageRequest.of(page, size, Sort.by("createdAt").descending()))
+    .map(OrderResponse::from);
 ```
 
 ## Bidirectional Relationships
@@ -134,11 +149,8 @@ private List<OrderItem> items = new ArrayList<>();
 @JoinColumn(name = "order_id", nullable = false)
 private Order order;
 
-// Helper on parent to keep both sides in sync
-public void addItem(OrderItem item) {
-    items.add(item);
-    item.setOrder(this);
-}
+// Keep both sides in sync through the parent's behavior method (see addItem above):
+// OrderItem.create(this, product, quantity) sets the child's order in its factory
 ```
 
 ## Deep Pagination — Keyset over OFFSET
@@ -158,35 +170,45 @@ Page<Order> findByStatus(OrderStatus status, Pageable pageable);
            OR (o.createdAt = :lastCreatedAt AND o.id < :lastId))
     ORDER BY o.createdAt DESC, o.id DESC
     """)
-List<Order> findNextPage(OrderStatus status, Instant lastCreatedAt, UUID lastId, Limit limit);
+List<Order> findNextPage(OrderStatus status, Instant lastCreatedAt, Long lastId, Limit limit);
 ```
 
 The `(createdAt, id)` tuple breaks ties so the cursor is stable when timestamps collide. Index `(status, created_at DESC, id DESC)`.
 
-## Batch Inserts
+## Bulk Inserts
 
-Saving a list one row at a time is N round-trips. Enable JDBC batching so Hibernate groups them:
+`GenerationType.IDENTITY` prevents Hibernate insert batching on MySQL (Hibernate needs the generated key
+per row), so `saveAll` on a big list is N round-trips. Use `JdbcTemplate.batchUpdate` for bulk inserts and
+enable `rewriteBatchedStatements=true` on the JDBC URL so the driver rewrites them into multi-row inserts:
 
-```yaml
-spring:
-  jpa:
-    properties:
-      hibernate:
-        jdbc.batch_size: 50
-        order_inserts: true
-        order_updates: true
+```
+jdbc:mysql://localhost:3306/jipsee?rewriteBatchedStatements=true
 ```
 
-Caveat: `GenerationType.IDENTITY` silently disables insert batching (Hibernate needs the generated key
-per row). `GenerationType.UUID` or a pooled sequence preserves it — another reason to prefer UUIDs.
+```java
+jdbcTemplate.batchUpdate(
+    "INSERT INTO orders (customer_email, status, created_at, updated_at) VALUES (?, ?, ?, ?)",
+    orders,
+    500,
+    (ps, order) -> {
+        ps.setString(1, order.customerEmail());
+        ps.setString(2, OrderStatus.PENDING.name());
+        ps.setTimestamp(3, Timestamp.from(now));
+        ps.setTimestamp(4, Timestamp.from(now));
+    });
+```
+
+`JdbcTemplate` bypasses auditing, so set `created_at` / `updated_at` yourself.
 
 ## Gotchas
 - Agent uses `FetchType.EAGER` — always use `LAZY` on `@ManyToOne` and `@ManyToMany`
 - Agent uses `@Enumerated(EnumType.ORDINAL)` — always use `STRING`
-- Agent uses `Long` IDs — use `UUID`
+- Agent uses UUID ids — use `Long` + `IDENTITY`
 - Agent calls `findAll()` for list endpoints — always use `Pageable`
 - Agent uses `OFFSET` pagination on huge tables — switch to keyset for deep pages
 - Agent adds setters to entities — use behavior methods instead
 - Agent forgets `orphanRemoval = true` on `@OneToMany` — child records become orphans
 - Agent writes N+1 without realizing — check for `items` access in loops
-- Agent batches inserts with `GenerationType.IDENTITY` — batching is silently off; use `UUID`/sequence
+- Agent expects Hibernate to batch IDENTITY inserts — use `JdbcTemplate.batchUpdate`
+- Agent uses `@Setter` / `@Data` / `@Builder` / `@AllArgsConstructor` — only `@Getter`, `@NoArgsConstructor(access = AccessLevel.PROTECTED)`, `@RequiredArgsConstructor`, `@Slf4j` are allowed
+- Agent declares `createdAt` / `updatedAt` on an entity — extend `BaseEntity` instead

@@ -1,78 +1,90 @@
-package com.example.order.service;
+package kr.jipsee.order.application;
 
-import com.example.order.dto.request.CreateOrderRequest;
-import com.example.order.entity.Order;
-import com.example.order.exception.OrderNotFoundException;
-import com.example.order.repository.OrderRepository;
+import kr.jipsee.global.core.exception.BusinessException;
+import kr.jipsee.global.core.exception.ErrorCode;
+import kr.jipsee.order.dao.AuditLogRepository;
+import kr.jipsee.order.dao.OrderRepository;
+import kr.jipsee.order.domain.AuditLog;
+import kr.jipsee.order.domain.Order;
+import kr.jipsee.order.dto.CreateOrderRequest;
+import kr.jipsee.order.dto.OrderResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.util.UUID;
-
-@Slf4j
 @Service
+@Transactional(readOnly = true)  // default: all public methods are read-only (flush mode manual, JDBC read-only hint; no replica routing)
 @RequiredArgsConstructor
-@Transactional(readOnly = true)  // default: all public methods are read-only
 public class TransactionalOrderService {
 
     private final OrderRepository orderRepository;
-    private final OrderEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
-    // Inherits class-level readOnly = true — DB can use read replicas
-    public Order findById(UUID id) {
-        return orderRepository.findById(id)
-            .orElseThrow(() -> new OrderNotFoundException(id));
+    // Inherits class-level readOnly = true
+    public OrderResponse findById(Long id) {
+        return OrderResponse.from(getOrder(id));
     }
 
     // Inherits class-level readOnly = true
-    public Page<Order> findAll(Pageable pageable) {
-        return orderRepository.findAll(pageable);
+    public Page<OrderResponse> findAll(Pageable pageable) {
+        return orderRepository.findAll(pageable).map(OrderResponse::from);
     }
 
-    // Override: write transaction with explicit rollback for checked exceptions
-    @Transactional(rollbackFor = Exception.class)
-    public Order createOrder(CreateOrderRequest request) {
-        Order order = Order.create(request.customerEmail());
-        order = orderRepository.save(order);
-        eventPublisher.publishOrderCreated(order);
-        return order;
+    // Override: write transaction. BusinessException is a RuntimeException, so no rollbackFor
+    @Transactional
+    public OrderResponse createOrder(CreateOrderRequest request) {
+        Order order = orderRepository.save(Order.create(request.customerEmail()));
+        eventPublisher.publishEvent(new OrderCreated(order.getId()));
+        return OrderResponse.from(order);
     }
 
     // Override: write transaction
-    @Transactional(rollbackFor = Exception.class)
-    public void cancel(UUID id) {
-        Order order = findById(id);
+    @Transactional
+    public void cancel(Long id) {
+        Order order = getOrder(id);
         order.cancel();
-        eventPublisher.publishOrderCancelled(order);
+        eventPublisher.publishEvent(new OrderCancelled(order.getId()));
+    }
+
+    private Order getOrder(Long id) {
+        return orderRepository.findById(id)
+            .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
     }
 }
 
+record OrderCreated(Long orderId) {}
+record OrderCancelled(Long orderId) {}
+
 /**
- * Separate bean for operations needing independent transactions.
- * REQUIRES_NEW via self-invocation does NOT work — Spring proxy is bypassed.
- * Always use a separate bean.
+ * Separate bean for the audit write. Runs only after the order TX commits, in its own TX.
+ * REQUIRES_NEW via self-invocation does NOT work (Spring proxy is bypassed), so keep it in its own bean.
+ * Stores only the order id in a plain column (no FK), so it never waits on the outer TX's locks.
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
-class OrderEventPublisher {
+class OrderAuditService {
 
     private final AuditLogRepository auditLogRepository;
 
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void publishOrderCreated(Order order) {
-        auditLogRepository.save(AuditLog.orderCreated(order));
-        log.info("Audit logged: order created {}", order.getId());
+    public void onOrderCreated(OrderCreated event) {
+        auditLogRepository.save(AuditLog.orderCreated(event.orderId()));
+        log.info("Audit logged: order created {}", event.orderId());
     }
 
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void publishOrderCancelled(Order order) {
-        auditLogRepository.save(AuditLog.orderCancelled(order));
-        log.info("Audit logged: order cancelled {}", order.getId());
+    public void onOrderCancelled(OrderCancelled event) {
+        auditLogRepository.save(AuditLog.orderCancelled(event.orderId()));
+        log.info("Audit logged: order cancelled {}", event.orderId());
     }
 }
