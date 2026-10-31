@@ -1,9 +1,34 @@
-// Copy-paste starting point for a chunk-oriented Spring Batch 5 job (Spring Boot 3.x).
+// Copy-paste starting point for a chunk-oriented Spring Batch 6 job (Spring Boot 4.1).
 // Replace Order / OrderRow / the reader query and writer SQL with your domain.
-// Do NOT add @EnableBatchProcessing — Boot auto-configures JobRepository + transaction manager.
+// Do NOT add @EnableBatchProcessing: Boot auto-configures JobRepository + transaction manager.
+// Do NOT add an incrementer: duplicate runs are prevented by deterministic identifying job params (e.g. runDate).
+
+import java.util.Map;
+import javax.sql.DataSource;
+
+import jakarta.persistence.EntityManagerFactory;
+
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.Step;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.infrastructure.item.ItemProcessor;
+import org.springframework.batch.infrastructure.item.ItemReader;
+import org.springframework.batch.infrastructure.item.ItemWriter;
+import org.springframework.batch.infrastructure.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.infrastructure.item.database.JpaPagingItemReader;
+import org.springframework.batch.infrastructure.item.database.builder.JdbcBatchItemWriterBuilder;
+import org.springframework.batch.infrastructure.item.database.builder.JpaPagingItemReaderBuilder;
+import org.springframework.batch.infrastructure.item.file.FlatFileParseException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.TransientDataAccessException;
+import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@RequiredArgsConstructor
 public class ChunkJobConfig {
 
     private static final int CHUNK_SIZE = 500;
@@ -11,7 +36,6 @@ public class ChunkJobConfig {
     @Bean
     public Job exampleJob(JobRepository jobRepository, Step exampleStep) {
         return new JobBuilder("exampleJob", jobRepository)
-            .incrementer(new RunIdIncrementer())
             .start(exampleStep)
             .build();
     }
@@ -23,7 +47,8 @@ public class ChunkJobConfig {
                             ItemProcessor<Order, OrderRow> processor,
                             ItemWriter<OrderRow> writer) {
         return new StepBuilder("exampleStep", jobRepository)
-            .<Order, OrderRow>chunk(CHUNK_SIZE, txManager)
+            .<Order, OrderRow>chunk(CHUNK_SIZE)
+            .transactionManager(txManager) // required: without it writes run on a resourceless, non-transactional manager
             .reader(reader)
             .processor(processor)
             .writer(writer)

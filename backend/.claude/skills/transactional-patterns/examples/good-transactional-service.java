@@ -1,52 +1,61 @@
-// ✅ GOOD — class-level readOnly, method-level override, proper propagation, separate bean for REQUIRES_NEW
+// ✅ GOOD — class-level readOnly, method-level override, ids in / DTOs out, side effects bound to commit
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final OrderAuditService auditService;  // separate bean to avoid self-invocation
+    private final ApplicationEventPublisher eventPublisher;
 
-    public Order findById(UUID id) {
-        return orderRepository.findById(id)
-            .orElseThrow(() -> new OrderNotFoundException(id));
+    public OrderResponse findById(Long id) {
+        return OrderResponse.from(getOrder(id));
     }
 
-    public Page<Order> findAll(Pageable pageable) {
-        return orderRepository.findAll(pageable);
+    public Page<OrderResponse> findAll(Pageable pageable) {
+        return orderRepository.findAll(pageable).map(OrderResponse::from);
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public Order createOrder(CreateOrderRequest request) {
-        Order order = Order.create(request.customerEmail());
-        order = orderRepository.save(order);
-        auditService.logCreation(order);  // REQUIRES_NEW — audit persists even if outer rolls back
-        return order;
+    @Transactional
+    public OrderResponse createOrder(CreateOrderRequest request) {
+        Order order = orderRepository.save(Order.create(request.customerEmail()));
+        eventPublisher.publishEvent(new OrderCreated(order.getId())); // handled after commit
+        return OrderResponse.from(order);
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void cancel(UUID id) {
-        Order order = orderRepository.findById(id)
-            .orElseThrow(() -> new OrderNotFoundException(id));
+    @Transactional
+    public void cancel(Long id) {
+        Order order = getOrder(id);
         order.cancel();
-        auditService.logCancellation(order);
+        eventPublisher.publishEvent(new OrderCancelled(order.getId()));
+    }
+
+    private Order getOrder(Long id) {
+        return orderRepository.findById(id)
+            .orElseThrow(() -> new OrderNotFoundException(id)); // RuntimeException: default rollback applies
     }
 }
 
+record OrderCreated(Long orderId) {}
+record OrderCancelled(Long orderId) {}
+
+// Separate bean. Runs only after the order TX commits, in its own TX.
+// Stores the plain orderId column (no FK), so it never waits on the outer TX's locks.
 @Service
 @RequiredArgsConstructor
-public class OrderAuditService {
+class OrderAuditService {
 
     private final AuditLogRepository auditLogRepository;
 
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void logCreation(Order order) {
-        auditLogRepository.save(AuditLog.orderCreated(order));
+    public void onOrderCreated(OrderCreated event) {
+        auditLogRepository.save(AuditLog.orderCreated(event.orderId()));
     }
 
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void logCancellation(Order order) {
-        auditLogRepository.save(AuditLog.orderCancelled(order));
+    public void onOrderCancelled(OrderCancelled event) {
+        auditLogRepository.save(AuditLog.orderCancelled(event.orderId()));
     }
 }

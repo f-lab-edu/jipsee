@@ -6,19 +6,19 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
-    public Order findById(UUID id) {                      // missing readOnly = true — DB can't optimize
+    public Order findById(Long id) {                      // missing readOnly = true; returns entity, not DTO
         return orderRepository.findById(id).orElse(null);
     }
 
     @Transactional
-    public void processOrders(List<UUID> orderIds) {
-        for (UUID id : orderIds) {
+    public void processOrders(List<Long> orderIds) {
+        for (Long id : orderIds) {
             this.processSingle(id);                       // self-invocation — proxy is bypassed, no TX
         }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)  // never reached via self-invocation
-    private void processSingle(UUID id) {                   // private method — proxy can't intercept
+    private void processSingle(Long id) {                   // private method — proxy can't intercept
         Order order = orderRepository.findById(id).orElseThrow();
         order.process();
     }
@@ -34,11 +34,12 @@ public class OrderService {
         }
     }
 
-    @Transactional                                        // missing rollbackFor = Exception.class
-    public void updateOrder(UUID id, UpdateOrderRequest request) throws BusinessException {
+    @Transactional
+    public void updateOrder(Long id, UpdateOrderRequest request) {
         Order order = orderRepository.findById(id).orElseThrow();
         order.update(request);
-        // checked exception won't trigger rollback without rollbackFor
-        externalService.notify(order);
+        // external call inside the transaction — holds the DB connection and locks while waiting on the network,
+        // and the remote side cannot be rolled back if this TX fails later
+        paymentClient.charge(order.getId(), request.amount());
     }
 }

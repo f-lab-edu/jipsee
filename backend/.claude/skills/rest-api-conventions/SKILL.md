@@ -1,60 +1,19 @@
 ---
 name: rest-api-conventions
 description: >
-  Use when generating REST controllers, response wrappers, DTOs, error handlers, or any
-  HTTP-facing code. Defines response envelope, HTTP status mapping, pagination, and versioning.
+  Use when generating REST controllers, DTOs, or any HTTP-facing code.
+  Defines HTTP status mapping, URL naming, and pagination.
 ---
 
 # REST API Conventions
 
-## Response Envelope
+Return the body directly. Errors are `ProblemDetail` (see problem-details-rfc9457).
 
-All endpoints return a consistent envelope:
+## Layers and DTOs
 
-```json
-{
-  "success": true,
-  "data": { },
-  "error": null,
-  "timestamp": "2026-04-13T10:00:00Z"
-}
-```
-
-Error response:
-```json
-{
-  "success": false,
-  "data": null,
-  "error": {
-    "code": "ORDER_NOT_FOUND",
-    "message": "Order with id 123 not found",
-    "details": []
-  },
-  "timestamp": "2026-04-13T10:00:00Z"
-}
-```
-
-## ApiResponse Wrapper
-
-```java
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public record ApiResponse<T>(
-    boolean success,
-    T data,
-    ApiError error,
-    Instant timestamp
-) {
-    public static <T> ApiResponse<T> ok(T data) {
-        return new ApiResponse<>(true, data, null, Instant.now());
-    }
-
-    public static <T> ApiResponse<T> error(String code, String message) {
-        return new ApiResponse<>(false, null, new ApiError(code, message, List.of()), Instant.now());
-    }
-}
-
-public record ApiError(String code, String message, List<String> details) {}
-```
+- Controller → Service → Repository, one direction only. No Facade or UseCase layer.
+- Services return DTOs. Entities never leave the service layer.
+- DTOs are records. Response DTOs expose static `from()` / `of()` factories. No mapper library (MapStruct etc.).
 
 ## HTTP Status Mapping
 
@@ -75,43 +34,40 @@ public record ApiError(String code, String message, List<String> details) {}
 
 - **Plural nouns** for resources: `/orders`, `/users`, `/products`
 - **Kebab-case** for multi-word: `/order-items`, not `/orderItems`
-- **Versioning in path**: `/api/v1/orders`
+- **No version prefix** in paths: `/orders`, not `/api/v1/orders`
 - **Nested resources** max 2 levels: `/orders/{id}/items` ✅, `/orders/{id}/items/{itemId}/notes` ❌ — flatten to `/order-item-notes/{id}`
-- **IDs as UUIDs** in path, never auto-increment integers exposed in URL
+- **IDs as `Long`** in path: `/orders/{id}` with `@PathVariable Long id`
 
 ```
-GET    /api/v1/orders              → list (paginated)
-POST   /api/v1/orders              → create
-GET    /api/v1/orders/{id}         → get one
-PUT    /api/v1/orders/{id}         → full update
-PATCH  /api/v1/orders/{id}         → partial update
-DELETE /api/v1/orders/{id}         → delete
-GET    /api/v1/orders/{id}/items   → nested resource
+GET    /orders              → list (paginated)
+POST   /orders              → create
+GET    /orders/{id}         → get one
+PUT    /orders/{id}         → full update
+PATCH  /orders/{id}         → partial update
+DELETE /orders/{id}         → delete
+GET    /orders/{id}/items   → nested resource
 ```
 
 ## Pagination
 
 ```json
 {
-  "success": true,
-  "data": {
-    "content": [...],
-    "page": 0,
-    "size": 20,
-    "totalElements": 150,
-    "totalPages": 8,
-    "last": false
-  }
+  "content": [...],
+  "page": 0,
+  "size": 20,
+  "totalElements": 150,
+  "totalPages": 8,
+  "last": false
 }
 ```
 
 Query params: `?page=0&size=20&sort=createdAt,desc`
 
-Use Spring Data `Pageable` in controllers:
+Use Spring Data `Pageable` in controllers. The service returns `Page<OrderResponse>`:
 ```java
 @GetMapping
-public ApiResponse<Page<OrderResponse>> list(Pageable pageable) {
-    return ApiResponse.ok(orderService.findAll(pageable).map(OrderResponse::from));
+public Page<OrderResponse> list(Pageable pageable) {
+    return orderService.findAll(pageable);
 }
 ```
 
@@ -127,37 +83,10 @@ spring:
         max-page-size: 100   # requests above this are silently clamped
 ```
 
-## Global Exception Handler
-
-```java
-@RestControllerAdvice
-@RequiredArgsConstructor
-public class GlobalExceptionHandler {
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleNotFound(EntityNotFoundException ex) {
-        return ResponseEntity.status(404).body(ApiResponse.error("NOT_FOUND", ex.getMessage()));
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException ex) {
-        List<String> details = ex.getBindingResult().getFieldErrors().stream()
-            .map(e -> e.getField() + ": " + e.getDefaultMessage()).toList();
-        return ResponseEntity.status(400)
-            .body(new ApiResponse<>(false, null, new ApiError("VALIDATION_FAILED", "Invalid input", details), Instant.now()));
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleGeneric(Exception ex) {
-        return ResponseEntity.status(500).body(ApiResponse.error("INTERNAL_ERROR", "An unexpected error occurred"));
-    }
-}
-```
-
 ## Gotchas
-- Agent returns raw objects without envelope — always wrap in `ApiResponse.ok(...)`
-- Agent uses `ResponseEntity<Map<String, Object>>` for errors — use `ApiResponse`
-- Agent puts exception handlers in controllers — always use `@RestControllerAdvice`
-- Agent uses `Long` IDs in URLs — use `UUID`
+- Agent wraps responses in an envelope — return the body directly; errors are `ProblemDetail`
+- Agent uses `ResponseEntity<Map<String, Object>>` for errors — use `ProblemDetail`
+- Agent puts exception handlers in controllers — use the single `GlobalExceptionHandler` (`@RestControllerAdvice`)
+- Agent uses UUID or a `/api/v1` prefix — ids are `Long`, paths have no version prefix
 - Agent accepts unbounded `Pageable` — set `spring.data.web.pageable.max-page-size` or one request can pull the whole table
-- Agent returns `Page<Entity>` serialized directly — exposes Hibernate internals; map to DTOs first
+- Agent returns `Page<Entity>` serialized directly — exposes Hibernate internals; the service must return DTOs
