@@ -32,7 +32,7 @@ public class OrderService {
 
     private Order getOrder(Long id) {
         return orderRepository.findById(id)
-            .orElseThrow(() -> new OrderNotFoundException(id)); // RuntimeException: default rollback applies
+            .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND)); // RuntimeException: default rollback applies
     }
 }
 

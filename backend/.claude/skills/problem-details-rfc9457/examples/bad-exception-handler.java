@@ -1,4 +1,4 @@
-// ❌ BAD — returns Map, missing RFC fields, exposes internals, wrong status codes
+// ❌ BAD — returns Map, not ProblemDetail, exposes internals, wrong status codes, one handler per exception class
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {                      // not extending ResponseEntityExceptionHandler
@@ -8,13 +8,13 @@ public class GlobalExceptionHandler {                      // not extending Resp
         return Map.of(                                     // returns Map, not ProblemDetail
             "error", ex.getMessage(),
             "status", 404
-        );                                                 // missing type, title, instance, timestamp
+        );                                                 // not ProblemDetail; use BusinessException + ErrorCode instead of OrderNotFoundException
     }
 
     @ExceptionHandler(BusinessRuleViolationException.class)
     public ResponseEntity<Map<String, String>> handleBusinessRule(BusinessRuleViolationException ex) {
         return ResponseEntity.ok(                          // returns 200 with error body!
-            Map.of("error", ex.getMessage()));             // should be 422 Unprocessable Entity
+            Map.of("error", ex.getMessage()));             // wrong status; per-exception class like this should be an ErrorCode constant
     }
 
     @ExceptionHandler(Exception.class)

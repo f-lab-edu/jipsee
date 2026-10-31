@@ -1,6 +1,8 @@
 // ✅ GOOD — Long IDENTITY id, STRING enum with columnDefinition, LAZY fetch, BaseEntity, behavior methods, no setters
 // Lombok limited to @Getter + @NoArgsConstructor(PROTECTED); constructor and factory are hand-written
 
+import kr.jipsee.global.core.exception.BusinessException;
+import kr.jipsee.global.core.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,26 +46,21 @@ public class Order extends BaseEntity {
 
     public void addItem(Product product, int quantity) {
         if (status != OrderStatus.PENDING)
-            throw new InvalidOrderStateException("Cannot add items to order in status: " + status);
+            throw new BusinessException(ErrorCode.INVALID_ORDER_STATE);
         items.add(OrderItem.create(this, product, quantity));
     }
 
     public void confirm() {
         if (status != OrderStatus.PENDING)
-            throw new InvalidOrderStateException("Can only confirm PENDING orders");
+            throw new BusinessException(ErrorCode.INVALID_ORDER_STATE);
         this.status = OrderStatus.CONFIRMED;
     }
 
     public void ship() {
         if (status != OrderStatus.CONFIRMED)
-            throw new InvalidOrderStateException("Can only ship CONFIRMED orders");
+            throw new BusinessException(ErrorCode.INVALID_ORDER_STATE);
         this.status = OrderStatus.SHIPPED;
     }
 }
 
-// Flat domain exception, extends RuntimeException directly
-class InvalidOrderStateException extends RuntimeException {
-    InvalidOrderStateException(String message) {
-        super(message);
-    }
-}
+// Domain errors: BusinessException + ErrorCode constant (INVALID_ORDER_STATE is added to the enum)

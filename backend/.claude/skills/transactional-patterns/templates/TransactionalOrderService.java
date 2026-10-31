@@ -1,10 +1,11 @@
 package kr.jipsee.order.application;
 
+import kr.jipsee.global.core.exception.BusinessException;
+import kr.jipsee.global.core.exception.ErrorCode;
 import kr.jipsee.order.dao.AuditLogRepository;
 import kr.jipsee.order.dao.OrderRepository;
 import kr.jipsee.order.domain.AuditLog;
 import kr.jipsee.order.domain.Order;
-import kr.jipsee.order.domain.OrderNotFoundException;
 import kr.jipsee.order.dto.CreateOrderRequest;
 import kr.jipsee.order.dto.OrderResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class TransactionalOrderService {
         return orderRepository.findAll(pageable).map(OrderResponse::from);
     }
 
-    // Override: write transaction. Custom exceptions are RuntimeException, so no rollbackFor
+    // Override: write transaction. BusinessException is a RuntimeException, so no rollbackFor
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request) {
         Order order = orderRepository.save(Order.create(request.customerEmail()));
@@ -54,7 +55,7 @@ public class TransactionalOrderService {
 
     private Order getOrder(Long id) {
         return orderRepository.findById(id)
-            .orElseThrow(() -> new OrderNotFoundException(id));
+            .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
     }
 }
 

@@ -33,7 +33,7 @@ public class OrderService {
 
     public OrderResponse findById(Long id) {
         Order order = orderRepository.findById(id)
-            .orElseThrow(() -> new OrderNotFoundException(id)); // readOnly = true inherited
+            .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND)); // readOnly = true inherited
         return OrderResponse.from(order);
     }
 }
@@ -109,12 +109,12 @@ public class OrderService {
 
 ## Handling Exceptions
 
-Project custom exceptions extend `RuntimeException`, so the default rollback rule applies. Plain `@Transactional` is enough; no `rollbackFor`.
+`BusinessException` extends `RuntimeException`, so the default rollback rule applies. Plain `@Transactional` is enough; no `rollbackFor`.
 
 ```java
 @Transactional
 public OrderResponse createOrder(CreateOrderRequest request) {
-    ... // any RuntimeException (e.g. InsufficientInventoryException) rolls back
+    ... // any RuntimeException (e.g. `BusinessException`) rolls back
 }
 ```
 
@@ -156,7 +156,7 @@ new `@Transactional(REQUIRES_NEW)` is needed if the listener itself writes to th
 - Agent sends email / publishes events / calls external APIs inside the TX — use `@TransactionalEventListener(AFTER_COMMIT)` or call outside the TX
 - Agent forgets `readOnly = true` on read methods — put it at class level and override write methods with `@Transactional`
 - Agent calls `@Transactional` methods on `this` — self-invocation bypasses proxy
-- Agent adds `rollbackFor` — project exceptions are `RuntimeException`, default rollback applies
+- Agent adds `rollbackFor` — `BusinessException` is a `RuntimeException`, default rollback applies
 - Agent uses `@Transactional` on `private` methods — Spring proxy can't intercept
 - Agent returns entities or takes entities as parameters on services — use ids in, DTOs out
 - Agent uses `REQUIRES_NEW` to insert an FK row to a row the outer TX just wrote — MySQL lock wait timeout

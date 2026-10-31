@@ -1,52 +1,23 @@
-// ✅ GOOD — extends ResponseEntityExceptionHandler, fixed detail strings, logger declared, null-safe validation
+// ✅ GOOD — one BusinessException + ErrorCode enum, one handler per kind, fixed detail strings, no title/instance/timestamp
 
-@Slf4j
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(OrderNotFoundException.class)
-    public ProblemDetail handleOrderNotFound(OrderNotFoundException ex, HttpServletRequest request) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-            HttpStatus.NOT_FOUND, "Order not found");        // fixed string, not ex.getMessage()
-        problem.setTitle("Order Not Found");
-        problem.setInstance(URI.create(request.getRequestURI()));
-        problem.setProperty("timestamp", Instant.now());
-        return problem;
-    }
-
-    @ExceptionHandler(BusinessRuleViolationException.class)
-    public ProblemDetail handleBusinessRule(BusinessRuleViolationException ex, HttpServletRequest request) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-            HttpStatus.UNPROCESSABLE_ENTITY, "Request violates a business rule");
-        problem.setTitle("Business Rule Violation");
-        problem.setInstance(URI.create(request.getRequestURI()));
-        problem.setProperty("timestamp", Instant.now());
-        return problem;
-    }
-
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex, HttpHeaders headers,
-            HttpStatusCode status, WebRequest request) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-            HttpStatus.BAD_REQUEST, "Request validation failed");
-        problem.setTitle("Validation Failed");
-        problem.setProperty("timestamp", Instant.now());
-        problem.setProperty("violations", ex.getBindingResult().getFieldErrors().stream()
-            .map(e -> Map.of("field", e.getField(),
-                "message", Objects.toString(e.getDefaultMessage(), "")))  // Map.of rejects null
-            .toList());
-        return ResponseEntity.badRequest().body(problem);
+    @ExceptionHandler(BusinessException.class)
+    public ProblemDetail handleBusinessException(BusinessException exception) {
+        ErrorCode errorCode = exception.getErrorCode();
+        return ProblemDetail.forStatusAndDetail(errorCode.getStatus(), errorCode.getDetail());
     }
 
     @ExceptionHandler(Exception.class)
-    public ProblemDetail handleGeneric(Exception ex, HttpServletRequest request) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-            HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
-        problem.setTitle("Internal Server Error");
-        problem.setInstance(URI.create(request.getRequestURI()));
-        problem.setProperty("timestamp", Instant.now());
-        log.error("Unhandled exception at {}", request.getRequestURI(), ex);
-        return problem;
+    public ProblemDetail handleGenericException(Exception exception) {
+        log.error("처리하지 못한 예외", exception);   // log the cause, never return it
+        ErrorCode errorCode = ErrorCode.INTERNAL_ERROR;
+        return ProblemDetail.forStatusAndDetail(errorCode.getStatus(), errorCode.getDetail());
     }
 }
+
+// Adding an error = adding one constant. No new exception class, no new handler method.
+//   ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),
+//   throw new BusinessException(ErrorCode.ORDER_NOT_FOUND);

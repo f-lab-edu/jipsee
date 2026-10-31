@@ -64,11 +64,11 @@ class OrderServiceTest {
         }
 
         @Test
-        @DisplayName("재고가 부족하면 InsufficientInventoryException을 던짐")
-        void 재고가_부족하면_InsufficientInventoryException을_던짐() {
+        @DisplayName("재고가 부족하면 OUT_OF_STOCK 오류를 던짐")
+        void 재고가_부족하면_OUT_OF_STOCK_오류를_던짐() {
             // given
             var request = new CreateOrderRequest("user@example.com", List.of());
-            willThrow(new InsufficientInventoryException("Out of stock"))
+            willThrow(new BusinessException(ErrorCode.OUT_OF_STOCK))
                 .given(inventoryService).reserve(any());
 
             // when
@@ -76,8 +76,8 @@ class OrderServiceTest {
 
             // then
             assertThat(thrown)
-                .isInstanceOf(InsufficientInventoryException.class)
-                .hasMessage("Out of stock");
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.OUT_OF_STOCK);
             then(orderRepository).shouldHaveNoInteractions();
         }
     }
@@ -260,8 +260,8 @@ class OrderIntegrationTest {
 @DisplayName("재고가 있으면 주문을 저장하고 반환함")
 void 재고가_있으면_주문을_저장하고_반환함()
 
-@DisplayName("존재하지 않는 주문을 조회하면 OrderNotFoundException을 던짐")
-void 존재하지_않는_주문을_조회하면_OrderNotFoundException을_던짐()
+@DisplayName("존재하지 않는 주문을 조회하면 ORDER_NOT_FOUND 오류를 던짐")
+void 존재하지_않는_주문을_조회하면_ORDER_NOT_FOUND_오류를_던짐()
 
 @DisplayName("이미 종료된 주문은 취소할 수 없음")
 void 이미_종료된_주문은_취소할_수_없음()
