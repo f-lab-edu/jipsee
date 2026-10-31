@@ -43,6 +43,8 @@ erDiagram
     }
 ```
 
+- 모든 테이블에 created_at, updated_at을 둠. 두 컬럼은 MySQL 기본값으로 채우며, JPA 엔티티는 BaseEntity가 같은 값을 넣음
+
 ## user
 
 > 사용자 정보
@@ -53,8 +55,9 @@ erDiagram
         bigint id PK "사용자 ID, 자동으로 증가함"
         varchar provider "로그인 수단, 값은 GOOGLE, KAKAO, NAVER 중 하나"
         varchar provider_user_id "로그인 수단이 발급한 사용자 고유 ID"
-        datetime created_at "가입 시각"
+        datetime created_at "가입 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
         datetime restricted_at "이용 제한 시각, 제한하지 않은 사용자는 NULL"
+        datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
     }
 ```
 
@@ -76,6 +79,8 @@ erDiagram
         char land_type_code "대지구분, 0은 대지, 1은 산, 2는 블록 (platGbCd)"
         char main_lot_number "지번 본번, 앞을 0으로 채운 4자리 (bun), 값이 없으면 0000"
         char sub_lot_number "지번 부번, 앞을 0으로 채운 4자리 (ji), 값이 없으면 0000"
+        datetime created_at "행 생성 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
+        datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
     }
 ```
 
@@ -113,6 +118,8 @@ erDiagram
         int outdoor_mechanical_parking_count "옥외 기계식 주차 대수 (oudrMechUtcnt), 값이 없으면 NULL"
         int indoor_self_propelled_parking_count "옥내 자주식 주차 대수 (indrAutoUtcnt), 값이 없으면 NULL"
         int outdoor_self_propelled_parking_count "옥외 자주식 주차 대수 (oudrAutoUtcnt), 값이 없으면 NULL"
+        datetime created_at "행 생성 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
+        datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
     }
 ```
 
@@ -131,6 +138,8 @@ erDiagram
     building_location {
         bigint building_parcel_id PK, FK "필지 ID"
         point location "지번주소(building_register.lot_address)를 지오코딩한 좌표, 위도 경도 순서, SRID 4326"
+        datetime created_at "행 생성 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
+        datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
     }
 ```
 
@@ -163,7 +172,8 @@ erDiagram
         varchar renewal_right_used "갱신요구권 사용 여부 (useRRRight), 값이 없으면 NULL"
         bigint building_parcel_id FK "필지 ID, 매칭에 실패하면 NULL"
         varchar match_status "매칭 상태, 값은 CONFIRMED, ESTIMATED, PREVIOUS, FAILED 중 하나"
-        datetime collected_at "수집 시각"
+        datetime created_at "행 생성 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
+        datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
     }
 ```
 
@@ -194,7 +204,8 @@ erDiagram
         date cancellation_date "해제 사유 발생일, 원본 YY.MM.DD를 20YY-MM-DD로 변환 (cdealDay), 값이 없으면 NULL"
         bigint building_parcel_id FK "필지 ID, 매칭에 실패하면 NULL"
         varchar match_status "매칭 상태, 값은 CONFIRMED, ESTIMATED, PREVIOUS, FAILED 중 하나"
-        datetime collected_at "수집 시각"
+        datetime created_at "행 생성 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
+        datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
     }
 ```
 
@@ -215,6 +226,8 @@ erDiagram
         char law_key "법령키, 법령ID(6), 공포일자(8), 공포번호(5)를 이어 붙인 19자리 (법령키)"
         char effective_date "시행일자, YYYYMMDD 형식 (시행일자), 변경 감지와 답변 기준일 표시에 사용함"
         datetime loaded_at "적재 시각"
+        datetime created_at "행 생성 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
+        datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
     }
 ```
 
@@ -234,6 +247,8 @@ erDiagram
         int branch_number PK "조문가지번호, 제N조의M에서 M (조문가지번호), 가지가 없으면 0"
         varchar title "조문제목, 36자 이내 (조문제목), 삭제 조문은 빈 값"
         text content "조문내용과 항, 호, 목의 본문을 줄바꿈으로 이어 붙인 원문, 최대 2,539자와 5,883바이트"
+        datetime created_at "행 생성 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
+        datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
     }
 ```
 
@@ -254,6 +269,8 @@ erDiagram
     data_source {
         varchar source PK "데이터 출처, 값은 RENT_DEAL, SALE_DEAL, BUILDING_REGISTER, LAW 중 하나"
         datetime loaded_at "마지막 수집 시각, 화면의 기준 월은 이 값을 KST로 바꾼 월로 표시함"
+        datetime created_at "행 생성 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
+        datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
     }
 ```
 
