@@ -57,11 +57,13 @@ erDiagram
         varchar provider "로그인 수단, 값은 GOOGLE, KAKAO, NAVER 중 하나"
         varchar provider_user_id "로그인 수단이 발급한 사용자 고유 ID"
         datetime created_at "가입 시각"
+        datetime restricted_at "이용 제한 시각, 제한하지 않은 사용자는 NULL"
     }
 ```
 
 - UNIQUE(provider, provider_user_id)이며 provider_user_id는 대소문자를 구분함
 - 탈퇴하면 행을 하드 삭제함
+- 운영자가 이용을 제한하면 restricted_at에 시각을 기록하고, 제한을 풀면 NULL로 되돌림. 제한 사유는 로그에 남김
 
 ## building_parcel
 
