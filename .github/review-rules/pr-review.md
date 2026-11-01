@@ -19,7 +19,7 @@ Rules for the Claude PR review. Review comments are written in Korean.
    - existing issue comments: `gh api --method GET repos/{REPO}/issues/{PR_NUMBER}/comments --paginate`
    - Run each command as its own Bash call, exactly as written. No `;`, `&&`, pipes or shell variables.
 2. Read the rules only for the areas the diff touches:
-   - `frontend/`: read `{RULES_DIR}/frontend/CLAUDE.md`, then the `react-best-practices`, `nextjs` and `fsd` skills it points to under `{RULES_DIR}/frontend/.claude/skills/`.
+   - `frontend/`: read `{RULES_DIR}/frontend/CLAUDE.md`, then the `code-conventions`, `fsd`, `react-best-practices` and `nextjs` skills it points to under `{RULES_DIR}/frontend/.claude/skills/`.
    - `backend/`: read `{RULES_DIR}/backend/CLAUDE.md` and `{RULES_DIR}/backend/README.md`, then the skills under `{RULES_DIR}/backend/.claude/skills/` whose description matches the changed code.
    - Other paths: no project rule file. Review for correctness, security and consistency with the surrounding files.
    - Read in parallel only the rule files relevant to the changed code.
