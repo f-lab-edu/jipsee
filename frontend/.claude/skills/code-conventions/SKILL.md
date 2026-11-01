@@ -20,3 +20,4 @@ Read the rule file for each item the change touches. Lint and format are Biome o
 | Seed flat imports | `rules/seed-flat-import.md` |
 | Seed components and tokens first, global base in app/theme.css | `rules/styles-seed-first.md` |
 | Test names in Korean, colocated test files | `rules/tests-korean-names.md` |
+| One-line JSDoc on exported functions and components | `rules/comments-jsdoc.md` |

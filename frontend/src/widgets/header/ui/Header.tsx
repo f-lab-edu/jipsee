@@ -9,6 +9,7 @@ interface HeaderProps {
 	session: Nullable<Session>;
 }
 
+/** 서비스 이름 링크와 계정 링크를 가진 헤더를 표시함 */
 export default function Header({ session }: HeaderProps) {
 	return (
 		<header>

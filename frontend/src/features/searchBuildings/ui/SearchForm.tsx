@@ -14,6 +14,7 @@ interface SearchFormProps {
 	defaultValue: string;
 }
 
+/** 검색어 입력창과 검색 버튼을 표시하고, 제출하면 홈으로 keyword 쿼리를 보냄 */
 export default function SearchForm({ defaultValue }: SearchFormProps) {
 	return (
 		<Box px="spacingX.globalGutter">
