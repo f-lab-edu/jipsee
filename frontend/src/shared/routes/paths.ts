@@ -5,4 +5,5 @@ export const paths = {
 	dataSources: "/policies/data-sources",
 	terms: "/policies/terms",
 	privacy: "/policies/privacy",
+	building: (id: number) => `/buildings/${id}`,
 } as const;
