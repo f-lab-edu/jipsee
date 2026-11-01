@@ -1,20 +1,12 @@
-import { HStack, Text } from "@seed-design/react";
-import Link from "next/link";
-import { footerLinks } from "@/widgets/footer/config/footerLinks";
+import DesktopFooter from "@/widgets/footer/ui/DesktopFooter";
+import MobileFooter from "@/widgets/footer/ui/MobileFooter";
 
-/** 푸터 링크 목록을 가로로 표시함 */
+/** 푸터 링크 목록을 모바일 복사본과 데스크톱 복사본으로 표시함 */
 export default function Footer() {
 	return (
 		<footer>
-			<HStack gap="x4" px="spacingX.globalGutter" py="x6">
-				{footerLinks.map((link) => (
-					<Link key={link.href} href={link.href}>
-						<Text fontSize="t3" color="fg.neutralSubtle">
-							{link.label}
-						</Text>
-					</Link>
-				))}
-			</HStack>
+			<MobileFooter />
+			<DesktopFooter />
 		</footer>
 	);
 }
