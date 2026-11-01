@@ -23,12 +23,12 @@ Oct 18, 2026 / @윤상준
 
 ### 데이터베이스
 
-| 영역      | 선택                                                        |
-| --------- | ----------------------------------------------------------- |
-| DB        | MySQL 8.4 LTS                                               |
-| 시각      | DATETIME 타입에 UTC로 저장함 (hibernate.jdbc.time_zone=UTC) |
-| 검색      | FULLTEXT ngram을 주소, 건물명에 사용함                      |
-| 반경 검색 | MBRContains 다음에 ST_Distance_Sphere를 적용함 (long-lat)   |
+| 영역      | 선택                                                            |
+| --------- | --------------------------------------------------------------- |
+| DB        | MySQL 8.4 LTS                                                   |
+| 시각      | DATETIME 타입에 KST로 저장함 (JVM은 Asia/Seoul, MySQL은 +09:00) |
+| 검색      | FULLTEXT ngram을 주소, 건물명에 사용함                          |
+| 반경 검색 | MBRContains 다음에 ST_Distance_Sphere를 적용함 (long-lat)       |
 
 ### 프론트엔드
 
