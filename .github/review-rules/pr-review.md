@@ -4,20 +4,25 @@ Rules for the Claude PR review. Review comments are written in Korean.
 
 ## Scope
 
-- Review only changed files under `frontend/`.
-- Skip lockfiles, generated files, binaries and `.github/`.
-- Approval is withheld by the workflow when any changed file is outside `frontend/`. Do not treat unreviewed paths as approved.
+- Review every changed file in the PR, including docs, infra and `.github/`.
+- Skip lockfiles, generated files and binaries.
+- The workflow withholds approval when `.github/`, any `CLAUDE.md` or any `.claude/` path changes. Review those files anyway.
 
 ## Execution order
 
-`{PR_NUMBER}` and `{RULES_DIR}` are given in the prompt.
+`{PR_NUMBER}`, `{REPO}` and `{RULES_DIR}` are given in the prompt.
 
 1. Gather info in parallel:
    - `gh pr diff {PR_NUMBER}`
-   - `gh pr view {PR_NUMBER}`
-   - existing inline comments: `gh api "repos/$GITHUB_REPOSITORY/pulls/{PR_NUMBER}/comments" --paginate`
-   - existing issue comments: `gh api "repos/$GITHUB_REPOSITORY/issues/{PR_NUMBER}/comments" --paginate`
-2. Read `{RULES_DIR}/frontend/CLAUDE.md`, then the `react-best-practices` and `nextjs` skills it points to under `{RULES_DIR}/frontend/.claude/skills/`. Read in parallel only the rule files relevant to the changed code.
+   - `gh pr view {PR_NUMBER} --json title,body,files`
+   - existing inline comments: `gh api --method GET repos/{REPO}/pulls/{PR_NUMBER}/comments --paginate`
+   - existing issue comments: `gh api --method GET repos/{REPO}/issues/{PR_NUMBER}/comments --paginate`
+   - Run each command as its own Bash call, exactly as written. No `;`, `&&`, pipes or shell variables.
+2. Read the rules only for the areas the diff touches:
+   - `frontend/`: read `{RULES_DIR}/frontend/CLAUDE.md`, then the `react-best-practices` and `nextjs` skills it points to under `{RULES_DIR}/frontend/.claude/skills/`.
+   - `backend/`: read `{RULES_DIR}/backend/CLAUDE.md` and `{RULES_DIR}/backend/README.md`, then the skills under `{RULES_DIR}/backend/.claude/skills/` whose description matches the changed code.
+   - Other paths: no project rule file. Review for correctness, security and consistency with the surrounding files.
+   - Read in parallel only the rule files relevant to the changed code.
 3. Read surrounding code with Read, Glob and Grep when the diff alone is not enough.
 4. Collect all candidate issues first, then rank them by severity and keep the top 10. Do not write comments in this step.
 5. Write the comments in parallel with `mcp__github_inline_comment__create_inline_comment`.
@@ -31,8 +36,13 @@ Project-specific CRITICAL cases (verified build failures or explicit project ban
 
 - Barrel files (`index.ts` that only re-exports) and re-exports. The project forbids them. Imports must point to each file directly.
 - Seed dotted access (for example `TextField.Root`) in a file without `"use client"`.
+- Backend: `@Enumerated(EnumType.STRING)` without `columnDefinition = "varchar(N)"`. `ddl-auto: validate` fails and the app does not start.
+- Backend: `ex.getMessage()` or other internal details put in a response body.
+- Backend: `@Setter`, `@Data`, `@Builder` or `@AllArgsConstructor`. The project forbids them.
+- Backend: access to another domain's repository instead of its service.
+- Backend: an entity returned from a service or exposed by a controller.
 
-FSD layer rules and Seed usage are defined in the frontend sources. Follow them as they are and do not restate them.
+FSD layer rules and Seed usage are defined in the frontend sources. Backend rules are defined in the backend `CLAUDE.md` and skills. Follow them as they are and do not restate them.
 
 ## Comment format
 
@@ -45,7 +55,7 @@ Write each comment in Korean, inline on the exact diff line.
 
 **제안**:
 ```tsx
-// corrected code
+// corrected code (use java for backend files)
 ```
 
 **근거**: `skill file path` > rule name
