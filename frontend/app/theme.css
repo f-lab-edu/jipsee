@@ -13,6 +13,44 @@
 	--seed-color-palette-carrot-1000: var(--seed-color-palette-blue-1000);
 }
 
+/* 브랜드 역할 토큰을 blue 단계로 덮어씀 */
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="light"] {
+	--seed-color-fg-brand: var(--seed-color-palette-blue-800);
+	--seed-color-fg-brand-contrast: var(--seed-color-palette-blue-800);
+	--seed-color-bg-brand-solid: var(--seed-color-palette-blue-700);
+	--seed-color-bg-brand-solid-pressed: var(--seed-color-palette-blue-800);
+	--seed-color-stroke-brand-solid: var(--seed-color-palette-blue-700);
+}
+
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"] {
+	--seed-color-fg-brand: var(--seed-color-palette-blue-700);
+	--seed-color-fg-brand-contrast: var(--seed-color-palette-blue-700);
+	--seed-color-bg-brand-solid: var(--seed-color-palette-blue-600);
+	--seed-color-bg-brand-solid-pressed: var(--seed-color-palette-blue-700);
+	--seed-color-stroke-brand-solid: var(--seed-color-palette-blue-600);
+}
+
+/* 파란색 채움 버튼 배경. 글자 색은 사용처에서 결정 */
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="light"]
+.brand-filled-button {
+	background: var(--seed-color-palette-blue-800);
+}
+
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="light"]
+	.brand-filled-button:active {
+	background: var(--seed-color-palette-blue-900);
+}
+
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"]
+	.brand-filled-button {
+	background: var(--seed-color-palette-blue-500);
+}
+
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"]
+	.brand-filled-button:active {
+	background: var(--seed-color-palette-blue-400);
+}
+
 body {
 	max-width: 480px;
 	margin: 0 auto;

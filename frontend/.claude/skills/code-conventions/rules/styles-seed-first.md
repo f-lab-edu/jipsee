@@ -27,3 +27,7 @@ Global base styles (body font, color, background, link reset) live in `app/theme
 	<Text fontSize="t3" color="fg.neutralSubtle">집씨</Text>
 </HStack>
 ```
+
+### Exceptions
+
+- The blue filled buttons (search, send) use the dedicated `.brand-filled-button` class in `app/theme.css` instead of overriding Seed tokens such as `bg.brandSolid` or `bg.informativeSolid`. Values must use `--seed-*` CSS variables.
