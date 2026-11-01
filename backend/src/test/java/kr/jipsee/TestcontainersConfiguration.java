@@ -8,9 +8,11 @@ import org.testcontainers.mysql.MySQLContainer;
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {
 
+    private static final String MYSQL_IMAGE = "mysql:8.4.11";
+
     @Bean
     @ServiceConnection
     MySQLContainer mysqlContainer() {
-        return new MySQLContainer("mysql:8.4.11");
+        return new MySQLContainer(MYSQL_IMAGE);
     }
 }
