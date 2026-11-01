@@ -1,6 +1,7 @@
 {
   "java.compile.nullAnalysis.mode": "automatic",
   "biome.configurationPath": "frontend/biome.json",
+  "biome.lsp.bin": "frontend/node_modules/.bin/biome",
   "[typescript]": { "editor.defaultFormatter": "biomejs.biome" },
   "[typescriptreact]": { "editor.defaultFormatter": "biomejs.biome" },
   "[javascript]": { "editor.defaultFormatter": "biomejs.biome" },
