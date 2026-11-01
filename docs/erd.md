@@ -7,6 +7,10 @@ erDiagram
     user["user (사용자 정보)"] {
         bigint id PK
     }
+    restricted_account["restricted_account (탈퇴한 이용 제한 사용자)"] {
+        varchar provider PK
+        varchar provider_user_id PK
+    }
     building_parcel ||--o{ building_register : "필지 1개에 동 N개"
     building_parcel["building_parcel (필지)"] {
         bigint id PK
@@ -76,6 +80,25 @@ erDiagram
 - UNIQUE(provider, provider_user_id)이며 provider_user_id는 대소문자를 구분함
 - 탈퇴하면 행을 하드 삭제함
 - 운영자가 이용을 제한하면 restricted_at에 시각을 기록하고, 제한을 풀면 NULL로 되돌림. 제한 사유는 로그에 남김
+
+## restricted_account
+
+> 탈퇴한 이용 제한 사용자. 재가입으로 제한을 피하지 못하게 60일 동안 보관함
+
+```mermaid
+erDiagram
+    restricted_account {
+        varchar provider PK "로그인 수단, 값은 GOOGLE, KAKAO, NAVER 중 하나"
+        varchar provider_user_id PK "로그인 수단이 발급한 사용자 고유 ID"
+        datetime restricted_at "이용 제한 시각, 탈퇴 시점의 user.restricted_at을 옮김"
+        datetime created_at "탈퇴 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
+        datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
+    }
+```
+
+- 이용 제한된 사용자가 탈퇴하면 user 행을 삭제하기 전에 이 테이블에 행을 넣음
+- 가입할 때 (provider, provider_user_id)가 이 테이블에 있으면 가입을 거부함
+- 매일 한 번 created_at이 60일을 넘은 행을 삭제함
 
 ## building_parcel
 
