@@ -49,19 +49,24 @@ FSD layer rules and Seed usage are defined in the frontend sources. Backend rule
 Write each comment in Korean, inline on the exact diff line.
 
 ````
-**[CRITICAL|WARNING]** rule name
+### 🔴 CRITICAL: rule name
 
-**문제**: why this code is a problem, briefly.
+#### 문제
 
-**제안**:
+why this code is a problem, briefly.
+
+#### 제안
+
 ```tsx
 // corrected code (use java for backend files)
 ```
 
-**근거**: `skill file path` > rule name
+#### 근거
+
+`skill file path` > rule name
 ````
 
-The basis line must cite the skill file and the rule the comment is derived from.
+For a warning, the title is `### 🟡 WARNING: rule name`. The 근거 section must cite the skill file and the rule the comment is derived from.
 
 ## Line number accuracy
 
