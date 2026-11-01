@@ -9,7 +9,7 @@ Lay out and style with Seed components and their style props, using Seed tokens 
 
 Global base styles (body font, color, background, link reset) live in `app/theme.css`, because `@seed-design/css` defines tokens but does not apply them to `body`.
 
-- The app is mobile first: `body` is a centered column with `max-width: 480px` (in `app/theme.css`). Elements with `position: fixed` must apply the same max width and centering, because fixed positioning ignores the body width.
+- Page width: below `lg` (1280px) the layout's inner column (`maxWidth` 480px, centered) holds the content; at `lg` and above `ContentContainer` holds it with a maximum of 1200 including padding. Use Seed responsive props (`{ base, lg }`) for properties that accept them, and split properties that do not (`bg`, `border*`, `borderRadius`, `position`, `alignItems`, `justifyContent`, `flexGrow`, `Text` `fontSize` and `lineHeight`) into a mobile element (`hideFrom="lg"`) and a desktop element (`display={{ base: "none", lg: "block" }}`).
 
 **Incorrect:**
 
@@ -31,3 +31,4 @@ Global base styles (body font, color, background, link reset) live in `app/theme
 ### Exceptions
 
 - The blue filled buttons (search, send) use the dedicated `.brand-filled-button` class in `app/theme.css` instead of overriding Seed tokens such as `bg.brandSolid` or `bg.informativeSolid`. Values must use `--seed-*` CSS variables.
+- The desktop page background (`body` background inside `@media (min-width: 1280px)` in `app/theme.css`) is an exception to Seed-first styling because `bg` accepts no responsive values and the page background is a `body` default style, not an element. The value must use a `--seed-*` CSS variable.

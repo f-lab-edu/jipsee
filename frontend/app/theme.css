@@ -52,11 +52,17 @@
 }
 
 body {
-	max-width: 480px;
-	margin: 0 auto;
+	margin: 0;
 	font-family: var(--seed-font-family);
 	color: var(--seed-color-fg-neutral);
 	background: var(--seed-color-bg-layer-default);
+}
+
+/* 데스크톱에서 페이지 배경을 layer-basement로 바꿈 */
+@media (min-width: 1280px) {
+	body {
+		background: var(--seed-color-bg-layer-basement);
+	}
 }
 
 a {
