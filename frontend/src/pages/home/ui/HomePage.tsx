@@ -1,11 +1,13 @@
-import { TextFieldInput, TextFieldRoot } from "@seed-design/react";
+import SearchForm from "@/features/searchBuildings/ui/SearchForm";
 
-export default function HomePage() {
+interface HomePageProps {
+	keyword: string;
+}
+
+export default function HomePage({ keyword }: HomePageProps) {
 	return (
 		<main>
-			<TextFieldRoot>
-				<TextFieldInput aria-label="seed" />
-			</TextFieldRoot>
+			<SearchForm key={keyword} defaultValue={keyword} />
 		</main>
 	);
 }
