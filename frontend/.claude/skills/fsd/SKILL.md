@@ -22,6 +22,14 @@ Deciding between entity and feature: a noun the backend returns is an entity. A 
 
 Two slices on the same layer need each other: move the shared part down a layer, or compose both in a higher layer. Do not import across.
 
+## Scope
+
+The frontend only displays what the backend returns. Data and business rules (search matching, query length limits, which building's value to show, computed fields) belong to the backend. Until the backend exists, the mock adapter in `api/` plays that role. `ui/` handles only display cases such as null.
+
+## Route groups
+
+Screens that share a header or layout go in one Next.js route group with its own `layout.tsx` (e.g. `app/(home)/layout.tsx` renders Header and Footer for S1). Screens with a different header (back-button header in S2~S6) get their own route group later. Route groups do not change URLs.
+
 ## Segment
 
 | Segment | Put here |
@@ -30,7 +38,7 @@ Two slices on the same layer need each other: move the shared part down a layer,
 | `api` | Adapter functions that fetch data, backend DTO types, DTO-to-contract mappers, mock data (`<name>Mock.ts`) |
 | `model` | Screen contract types, client state |
 | `lib` | Helpers used only inside the slice |
-| `config` | Constants and flags for the slice |
+| `config` | Constants and flags for the slice (e.g. `widgets/footer/config/footerLinks.ts`) |
 
 - `ui` imports contract types from `model` only. It never imports DTO types from `api`.
 - A backend change touches only `api`. If it forces a `ui` change, the contract type in `model` was shaped after the backend instead of the screen.
