@@ -24,13 +24,15 @@ Rules for the Claude PR review. Review comments are written in Korean.
    - Other paths: no project rule file. Review for correctness, security and consistency with the surrounding files.
    - Read in parallel only the rule files relevant to the changed code.
 3. Read surrounding code with Read, Glob and Grep when the diff alone is not enough.
-4. Collect all candidate issues first, then rank them by severity and keep the top 10. Do not write comments in this step.
-5. Write the comments in parallel with `mcp__github_inline_comment__create_inline_comment`.
+4. Review beyond the rules as a senior reviewer would. Look at design choices, naming, magic values, consistency between code, config and docs, how easy the API is for its clients (for example the frontend), error handling, edge cases and test quality.
+5. Collect all candidate issues first, then rank them by severity and keep the top 10. Do not write comments in this step.
+6. Write the comments in parallel with `mcp__github_inline_comment__create_inline_comment`.
 
 ## Severity
 
 - CRITICAL: must be fixed before merge (bug, type safety, security, broken build).
-- WARNING: recommended fix. Never blocks approval.
+- WARNING: recommended fix or design suggestion, with or without a matching project rule. Never blocks approval.
+- If a design suggestion conflicts with a project rule, follow the rule and do not flag the code.
 
 Project-specific CRITICAL cases (verified build failures or explicit project bans):
 
@@ -66,7 +68,8 @@ why this code is a problem, briefly.
 `skill file path` > rule name
 ````
 
-For a warning, the title is `### 🟡 WARNING: rule name`. The 근거 section must cite the skill file and the rule the comment is derived from.
+For a warning, the title is `### 🟡 WARNING: rule name`, or a short topic when no rule applies.
+The 근거 section cites the skill file and rule when one applies. Otherwise it gives the reasoning in one or two sentences.
 
 ## Line number accuracy
 
@@ -79,7 +82,7 @@ For a warning, the title is `### 🟡 WARNING: rule name`. The 근거 section mu
 
 - At most 10 inline comments. CRITICAL first.
 - Duplicate avoidance: if a comment for the same file and the same rule already exists, skip it, regardless of resolved state. Still count the issue if the problem persists in the current code.
-- If unsure whether the code violates a rule, skip it. Accuracy matters more than reaching 10.
+- If unsure whether the code violates a rule, do not mark it CRITICAL. A design concern you are unsure of may still be posted as a WARNING.
 - If nothing is worth flagging, post nothing.
 
 ## Approval decision
