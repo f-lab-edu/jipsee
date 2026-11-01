@@ -1,5 +1,6 @@
 /* Seed 브랜드 역할이 참조하는 carrot 팔레트를 blue로 대체 */
-:root[data-seed-color-mode="light-only"] {
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="light"],
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"] {
 	--seed-color-palette-carrot-100: var(--seed-color-palette-blue-100);
 	--seed-color-palette-carrot-200: var(--seed-color-palette-blue-200);
 	--seed-color-palette-carrot-300: var(--seed-color-palette-blue-300);
