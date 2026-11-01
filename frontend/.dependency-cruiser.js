@@ -55,6 +55,22 @@ module.exports = {
 			},
 		},
 		{
+			name: "segment-names",
+			comment: "슬라이스 안의 세그먼트는 ui, api, model, lib, config만 씀",
+			severity: "error",
+			from: {},
+			to: {
+				path: "^src/(pages|widgets|features|entities)/[^/]+/(?!(ui|api|model|lib|config)/)[^/]+/",
+			},
+		},
+		{
+			name: "no-shared-types",
+			comment: "shared/types 대신 shared/lib/<목적> 폴더에 둠",
+			severity: "error",
+			from: {},
+			to: { path: "^src/shared/types/" },
+		},
+		{
 			name: "no-circular",
 			comment: "순환 의존 금지",
 			severity: "error",
