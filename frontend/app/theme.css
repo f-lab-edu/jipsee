@@ -18,3 +18,8 @@ body {
 	color: var(--seed-color-fg-neutral);
 	background: var(--seed-color-bg-layer-default);
 }
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
