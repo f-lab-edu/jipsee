@@ -1,4 +1,4 @@
-import { HStack, Text } from "@seed-design/react";
+import { type BoxProps, HStack, Text } from "@seed-design/react";
 import Link from "next/link";
 import type { Session } from "@/entities/session/model/session";
 import { siteMetadata } from "@/shared/config/siteMetadata";
@@ -8,13 +8,19 @@ import AccountLink from "@/widgets/header/ui/AccountLink";
 
 interface HeaderProps {
 	session: Nullable<Session>;
+	background: BoxProps["bg"];
 }
 
-/** 서비스 이름 링크와 계정 링크를 가진 헤더를 표시함 */
-export default function Header({ session }: HeaderProps) {
+/**
+ * 헤더
+ *
+ * - 사용처가 정한 배경 위에 서비스 이름 링크와 계정 링크를 가진 헤더를 표시함
+ */
+export default function Header({ session, background }: HeaderProps) {
 	return (
 		<header>
 			<HStack
+				bg={background}
 				justifyContent="space-between"
 				alignItems="center"
 				px="spacingX.globalGutter"
