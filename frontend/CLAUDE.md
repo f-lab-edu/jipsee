@@ -8,4 +8,4 @@ Before writing or reviewing code in frontend/, follow the `code-conventions`, `f
 
 ## Verify
 
-Run in `frontend/` before committing: `pnpm check`, `pnpm lint:boundaries`, `pnpm typecheck`.
+Run in `frontend/` before committing: `pnpm check`, `pnpm lint:boundaries`, `pnpm typecheck`, `pnpm test`.
