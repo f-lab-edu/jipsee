@@ -1,8 +1,6 @@
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 import Footer from "@/widgets/footer/ui/Footer";
-
-afterEach(cleanup);
 
 describe("Footer", () => {
 	it("데이터 출처, 이용약관, 개인정보처리방침 링크를 순서대로 표시함", () => {

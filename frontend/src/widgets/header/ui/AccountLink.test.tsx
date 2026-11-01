@@ -1,8 +1,6 @@
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 import AccountLink from "@/widgets/header/ui/AccountLink";
-
-afterEach(cleanup);
 
 describe("AccountLink", () => {
 	it("세션이 있으면 /me로 가는 내 정보 링크를 표시하고 로그인 링크는 표시하지 않음", () => {
