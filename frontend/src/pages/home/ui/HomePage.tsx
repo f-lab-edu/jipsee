@@ -1,11 +1,18 @@
 import { TextFieldInput, TextFieldRoot } from "@seed-design/react";
+import { getSession } from "@/entities/session/api/getSession";
+import Header from "@/widgets/header/ui/Header";
 
-export default function HomePage() {
+export default async function HomePage() {
+	const session = await getSession();
+
 	return (
-		<main>
-			<TextFieldRoot>
-				<TextFieldInput aria-label="seed" />
-			</TextFieldRoot>
-		</main>
+		<>
+			<Header session={session} />
+			<main>
+				<TextFieldRoot>
+					<TextFieldInput aria-label="seed" />
+				</TextFieldRoot>
+			</main>
+		</>
 	);
 }
