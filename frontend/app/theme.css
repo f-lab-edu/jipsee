@@ -13,7 +13,8 @@
 }
 
 body {
-	margin: 0;
+	max-width: 480px;
+	margin: 0 auto;
 	font-family: var(--seed-font-family);
 	color: var(--seed-color-fg-neutral);
 	background: var(--seed-color-bg-layer-default);
