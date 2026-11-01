@@ -11,6 +11,7 @@ Before writing or reviewing code in frontend/, follow the `react-best-practices`
 - No barrel files (`index.ts`) and no re-exports. Import from each file directly.
 - Components use `export default function`. File names under `src/**/ui/` are PascalCase, other files in `src` are camelCase.
 - Seed Design: import flat names (`TextFieldRoot`). Dotted access (`TextField.Root`) needs `"use client"`.
+- Nullable types use `Nullable<T>` from `src/shared/lib/utilityTypes/nullable.ts`. Do not write `T | null`.
 - Biome only for lint and format (tabs). No ESLint or Prettier.
 
 ## Verify
