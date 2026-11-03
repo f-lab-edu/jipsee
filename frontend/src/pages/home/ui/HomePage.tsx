@@ -24,7 +24,7 @@ export default async function HomePage({ keyword, session }: HomePageProps) {
 	if (state === "found" && result !== null) {
 		return (
 			<HomeScreen session={session} state={state}>
-				<SearchForm key={keyword} defaultValue={keyword} />
+				<SearchForm key={keyword} defaultValue={keyword} variant="intro" />
 				<SearchResult result={result} />
 			</HomeScreen>
 		);
@@ -32,7 +32,7 @@ export default async function HomePage({ keyword, session }: HomePageProps) {
 
 	return (
 		<HomeScreen session={session} state={state}>
-			<SearchForm key={keyword} defaultValue={keyword} />
+			<SearchForm key={keyword} defaultValue={keyword} variant="intro" />
 		</HomeScreen>
 	);
 }

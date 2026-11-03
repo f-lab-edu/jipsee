@@ -31,8 +31,13 @@
 }
 
 /* 파란색 채움 버튼 배경. 글자 색은 사용처에서 결정 */
-:root[data-seed-color-mode="system"][data-seed-user-color-scheme="light"]
 .brand-filled-button {
+	cursor: pointer;
+	font-family: inherit;
+}
+
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="light"]
+	.brand-filled-button {
 	background: var(--seed-color-palette-blue-800);
 }
 
@@ -68,6 +73,80 @@ body {
 /* 헤더 서비스명 자간. Seed에 letterSpacing이 없음 */
 .service-name {
 	letter-spacing: -0.03em;
+}
+
+/* 검색창 intro 모양. Seed 입력 스타일시트가 theme.css 뒤에 로드되므로 :root로 우선순위를 높임 */
+:root .search-field--intro {
+	box-sizing: border-box;
+	height: var(--seed-dimension-x14);
+	padding-left: calc(var(--seed-dimension-x4) + 1.5px);
+	padding-right: calc(var(--seed-dimension-x1_5) + 1.5px);
+	gap: var(--seed-dimension-x1);
+	border-radius: var(--seed-radius-r3_5);
+}
+
+/* Seed의 1px 안쪽 선은 root의 box-shadow를 바꿔 없애고 ::after를 유일한 테두리로 칠함 */
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="light"]
+.search-field--intro {
+	box-shadow: 0 4px 14px
+		color-mix(in srgb, var(--seed-color-stroke-brand-solid) 14%, transparent);
+}
+
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"]
+	.search-field--intro {
+	box-shadow: 0 4px 14px
+		color-mix(in srgb, var(--seed-color-stroke-brand-solid) 20%, transparent);
+}
+
+:root .search-field--intro::after {
+	border-width: 1.5px;
+	border-color: var(--seed-color-stroke-brand-solid);
+}
+
+/* 포커스 색은 Seed의 neutralContrast를 그대로 두고 두께만 맞춤. Seed 규칙과 같은 구조의 선택자 */
+:root
+.search-field--intro:not([data-readonly]):is(:focus, [data-focus])::after {
+	border-width: 1.5px;
+}
+
+/* Seed가 입력 안쪽 여백을 :first-child, :last-child로 정하므로 0으로 고정 */
+:root .search-field__input {
+	padding-inline: 0;
+}
+
+:root .search-field__input::placeholder {
+	font-size: var(--seed-font-size-t4);
+	line-height: var(--seed-line-height-t5);
+}
+
+.search-field__leading,
+.search-field__trailing {
+	flex-shrink: 0;
+	margin: 0;
+}
+
+@media (min-width: 1280px) {
+	:root .search-field--intro {
+		height: 60px;
+		padding-inline: calc(var(--seed-dimension-x4_5) + 1.5px);
+		gap: var(--seed-dimension-x2_5);
+	}
+
+	:root[data-seed-color-mode="system"][data-seed-user-color-scheme="light"]
+		.search-field--intro {
+		box-shadow: 0 6px 20px
+			color-mix(in srgb, var(--seed-color-stroke-brand-solid) 12%, transparent);
+	}
+
+	:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"]
+		.search-field--intro {
+		box-shadow: 0 6px 20px
+			color-mix(in srgb, var(--seed-color-stroke-brand-solid) 20%, transparent);
+	}
+
+	:root .search-field__input::placeholder {
+		font-size: var(--seed-font-size-t5);
+	}
 }
 
 a {
