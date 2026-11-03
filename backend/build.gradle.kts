@@ -39,6 +39,7 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    jvmArgs("-Duser.timezone=Asia/Seoul")
 }
 
 spotless {
