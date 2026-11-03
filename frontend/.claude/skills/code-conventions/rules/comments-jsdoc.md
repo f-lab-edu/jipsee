@@ -7,10 +7,10 @@ tags: comments, jsdoc
 
 Put a JSDoc directly above every exported function and component, including route files (`page.tsx`, `layout.tsx`, `route.ts`). Skip test files, type-only files, constants, mock data, and config files.
 
-- The first line is a summary: what it does or shows, not how, in a Korean sentence ending in `-함`. Mention the important branch if there is one.
-- When the summary is not enough, add a description paragraph after a blank line.
-- Add `@param` or `@returns` only when the TypeScript type does not tell the meaning (a condition, a unit, when it returns `null`). Do not write a tag that only repeats the name or the type.
-- Write a JSDoc with only a summary on one line (`/** ... */`).
+- The summary line names what it is as `<area> > <name>` (just the name if it is top-level), for example `헤더 > 내 정보 영역`. Keep it short, with no sentence ending.
+- If there are branches, conditions, or a non-obvious behavior, add a blank ` *` line, then `- ` bullets. Each bullet is a short phrase ending in a noun form such as `출력`, `전달`, `반환`, `조회`. Keep the particles. Do not use stiff shorthand: write `출력하지 않음`, not `미출력`.
+- If there are no branches and nothing non-obvious, write a one-line `/** ... */`.
+- Add `@param` or `@returns` only when the TypeScript type does not tell the meaning (a condition, a unit, when it returns `null`). Tags follow the bullets after a blank ` *` line. Do not write a tag that only repeats the name or the type, and do not repeat a bullet in a tag.
 
 **Incorrect:**
 
@@ -30,16 +30,18 @@ export default function AccountLink({ session }: AccountLinkProps) {}
 **Correct:**
 
 ```tsx
-/** 로그인했으면 내 정보 링크를, 아니면 로그인 링크를 표시함 */
-export default function AccountLink({ session }: AccountLinkProps) {}
+/**
+ * 헤더 > 내 정보 영역
+ *
+ * - 로그인 시 내 정보 출력
+ * - 비로그인 시 로그인 경로 출력
+ *
+ * @param variant 모바일은 텍스트 링크, 데스크톱은 외곽선 버튼 모양
+ */
+export default function AccountLink({ session, variant }: AccountLinkProps) {}
 ```
 
-```ts
-/**
- * 검색어로 건물 목록을 가져옴
- *
- * @param keyword 2자 이상일 때만 요청함
- * @returns 검색어가 없으면 null
- */
-export async function searchBuildingsIfPresent(keyword: Nullable<string>) {}
+```tsx
+/** 헤더 > 로고 심볼 */
+export default function LogoSymbol({ size }: LogoSymbolProps) {}
 ```

@@ -9,7 +9,11 @@ export const metadata: Metadata = {
 	title: siteMetadata.name,
 };
 
-/** 모든 페이지에 공통으로 적용되는 루트 HTML 구조를 표시함 */
+/**
+ * 루트 레이아웃
+ *
+ * - 모든 페이지에 공통으로 적용되는 HTML 구조 출력
+ */
 export default function RootLayout({ children }: LayoutProps<"/">) {
 	return (
 		<html

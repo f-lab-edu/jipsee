@@ -9,7 +9,12 @@ interface BuildingSummaryItemProps {
 	building: BuildingSummary;
 }
 
-/** 건물명(없으면 주소), 주소, 상세 정보를 담은 건물 요약 링크를 표시함 */
+/**
+ * 건물 > 요약 링크
+ *
+ * - 건물명, 주소, 상세 정보 출력
+ * - 건물명이 없으면 주소로 대체
+ */
 export default function BuildingSummaryItem({
 	building,
 }: BuildingSummaryItemProps) {

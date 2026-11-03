@@ -5,7 +5,11 @@ interface ContentContainerProps {
 	children: ReactNode;
 }
 
-/** 내용을 lg 이상에서 좌우 여백을 포함해 최대 1200으로 가운데 정렬해 표시함 */
+/**
+ * 콘텐츠 컨테이너
+ *
+ * - lg 이상에서 좌우 여백을 포함해 최대 1200으로 가운데 정렬
+ */
 export default function ContentContainer({ children }: ContentContainerProps) {
 	return (
 		<VStack

@@ -13,7 +13,7 @@ interface HomePageProps {
 export default function HomePage({ keyword, session }: HomePageProps) {
 	return (
 		<>
-			<Header session={session} background="bg.layerDefault" />
+			<Header session={session} mobileBackground="bg.layerDefault" />
 			<main>
 				<SearchForm key={keyword} defaultValue={keyword} />
 				<SearchResult keyword={keyword} />

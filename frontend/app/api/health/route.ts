@@ -2,7 +2,13 @@ import { getApiUrl } from "@/shared/api/apiUrl";
 
 export const dynamic = "force-dynamic";
 
-/** 백엔드 헬스 체크 응답을 그대로 전달하고, 호출에 실패하면 오류 상태를 반환함 */
+/**
+ * API > 헬스 체크
+ *
+ * - 백엔드 헬스 체크 응답을 그대로 전달
+ * - API_URL을 읽지 못하면 500 반환
+ * - 호출에 실패하면 502 반환
+ */
 export async function GET() {
 	let apiUrl: string;
 	try {

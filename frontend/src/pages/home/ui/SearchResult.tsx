@@ -6,7 +6,12 @@ interface SearchResultProps {
 	keyword: string;
 }
 
-/** 검색어로 찾은 건물 목록을 표시하고, 검색어가 비었거나 결과가 없으면 아무것도 표시하지 않음 */
+/**
+ * 홈 > 검색 결과
+ *
+ * - 검색어가 비었거나 결과가 없으면 출력하지 않음
+ * - 결과가 있으면 건물 목록 출력
+ */
 export default async function SearchResult({ keyword }: SearchResultProps) {
 	if (keyword === "") {
 		return null;

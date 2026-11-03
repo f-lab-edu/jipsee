@@ -18,6 +18,6 @@ Read the rule file for each item the change touches. Lint and format are Biome o
 | No barrel files or re-exports | `rules/imports-no-barrel.md` |
 | File naming | `rules/files-naming.md` |
 | Seed flat imports | `rules/seed-flat-import.md` |
-| Seed components and tokens first, global base in app/theme.css | `rules/styles-seed-first.md` |
+| Seed components and tokens first, global base in app/theme.css, one-way style value flow (shared/config -> widgets/*/config -> ui) | `rules/styles-seed-first.md` |
 | Test names in Korean, colocated test files | `rules/tests-korean-names.md` |
-| JSDoc on exported functions and components (summary, tags only when needed) | `rules/comments-jsdoc.md` |
+| JSDoc: `area > name` summary, branch bullets, tags only when needed | `rules/comments-jsdoc.md` |
