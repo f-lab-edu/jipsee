@@ -1,4 +1,5 @@
 import type { IntroLayoutStyle } from "@/pages/home/model/introLayoutStyle";
+import { colors } from "@/shared/config/colors";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
 
@@ -10,7 +11,7 @@ export const introLayoutStyles = defineResponsiveStyles<IntroLayoutStyle>({
 			right: 0,
 			bottom: 0,
 			left: 0,
-			bg: "bg.brandWeak",
+			bg: colors.brandTintBackground,
 		},
 		titleRow: {
 			alignItems: "flex-end",

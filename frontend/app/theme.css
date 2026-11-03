@@ -71,14 +71,19 @@ button {
 	cursor: pointer;
 }
 
-/* 데스크톱 페이지 배경. 하늘색 배너와 맞추려고 브랜드 색을 3% 섞음 */
-@media (min-width: 1280px) {
+/* 하늘빛 배경. 브랜드 색을 3% 섞음. Seed에 이 단계의 색이 없음 */
+:root {
+	--jipsee-color-bg-brand-tint: color-mix(
+		in srgb,
+		var(--seed-color-bg-brand-solid) 3%,
+		var(--seed-color-bg-layer-default)
+	);
+}
+
+/* 480 열보다 넓은 화면의 페이지 배경. 열 바깥도 하늘빛으로 맞춤 */
+@media (min-width: 481px) {
 	body {
-		background: color-mix(
-			in srgb,
-			var(--seed-color-bg-brand-solid) 3%,
-			var(--seed-color-bg-layer-default)
-		);
+		background: var(--jipsee-color-bg-brand-tint);
 	}
 }
 

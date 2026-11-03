@@ -9,6 +9,7 @@ export const searchGuideStyles = defineResponsiveStyles<SearchGuideLayoutStyle>(
 			panel: {
 				gap: "x3",
 				p: "x4",
+				bg: "bg.layerDefault",
 				borderWidth: 1,
 				borderColor: "stroke.neutralMuted",
 				borderRadius: "r3_5",
