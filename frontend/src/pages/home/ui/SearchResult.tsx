@@ -1,24 +1,18 @@
 import { VStack } from "@seed-design/react";
-import { searchBuildings } from "@/entities/building/api/searchBuildings";
+import type { BuildingSearchResult } from "@/entities/building/model/buildingSearchResult";
 import BuildingSummaryItem from "@/entities/building/ui/BuildingSummaryItem";
 
 interface SearchResultProps {
-	keyword: string;
+	result: BuildingSearchResult;
 }
 
 /**
  * 홈 > 검색 결과
  *
- * - 검색어가 비었거나 결과가 없으면 출력하지 않음
- * - 결과가 있으면 건물 목록 출력
+ * - 결과가 found가 아니면 출력하지 않음
+ * - 결과가 found이면 건물 목록 출력
  */
-export default async function SearchResult({ keyword }: SearchResultProps) {
-	if (keyword === "") {
-		return null;
-	}
-
-	const result = await searchBuildings(keyword);
-
+export default function SearchResult({ result }: SearchResultProps) {
 	if (result.kind !== "found") {
 		return null;
 	}
