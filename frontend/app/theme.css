@@ -67,10 +67,14 @@ body {
 	background: var(--seed-color-bg-layer-default);
 }
 
-/* 데스크톱에서 페이지 배경을 layer-basement로 바꿈 */
+/* 데스크톱 페이지 배경. 하늘색 배너와 맞추려고 브랜드 색을 3% 섞음 */
 @media (min-width: 1280px) {
 	body {
-		background: var(--seed-color-bg-layer-basement);
+		background: color-mix(
+			in srgb,
+			var(--seed-color-bg-brand-solid) 3%,
+			var(--seed-color-bg-layer-default)
+		);
 	}
 }
 
