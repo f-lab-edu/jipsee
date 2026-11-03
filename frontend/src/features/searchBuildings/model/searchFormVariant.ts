@@ -1,1 +1,1 @@
-export type SearchFormVariant = "intro";
+export type SearchFormVariant = "intro" | "compact";

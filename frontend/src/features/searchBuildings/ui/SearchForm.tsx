@@ -1,4 +1,3 @@
-import IconMagnifyingglassLine from "@karrotmarket/react-monochrome-icon/IconMagnifyingglassLine";
 import {
 	Box,
 	HStack,
@@ -10,6 +9,7 @@ import {
 import Form from "next/form";
 import { searchFormStyles } from "@/features/searchBuildings/config/searchFormStyles";
 import type { SearchFormVariant } from "@/features/searchBuildings/model/searchFormVariant";
+import SearchIcon from "@/features/searchBuildings/ui/SearchIcon";
 import { paths } from "@/shared/routes/paths";
 
 interface SearchFormProps {
@@ -39,7 +39,7 @@ export default function SearchForm({ defaultValue, variant }: SearchFormProps) {
 						{...style.field}
 					>
 						<Box {...style.leading}>
-							<Icon svg={<IconMagnifyingglassLine />} {...style.leadingIcon} />
+							<Icon svg={<SearchIcon />} {...style.leadingIcon} />
 						</Box>
 						<TextFieldInput
 							placeholder="도로명 주소, 지번 주소, 건물명 등을 검색해주세요."
@@ -49,10 +49,7 @@ export default function SearchForm({ defaultValue, variant }: SearchFormProps) {
 						/>
 						<Box asChild {...style.iconButton}>
 							<button type="submit" aria-label="검색">
-								<Icon
-									svg={<IconMagnifyingglassLine />}
-									{...style.iconButtonIcon}
-								/>
+								<Icon svg={<SearchIcon />} {...style.iconButtonIcon} />
 							</button>
 						</Box>
 					</TextFieldRoot>

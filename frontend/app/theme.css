@@ -32,7 +32,6 @@
 
 /* 파란색 채움 버튼 배경. 글자 색은 사용처에서 결정 */
 .brand-filled-button {
-	cursor: pointer;
 	font-family: inherit;
 }
 
@@ -65,6 +64,11 @@ body {
 	font-family: var(--seed-font-family);
 	color: var(--seed-color-fg-neutral);
 	background: var(--seed-color-bg-layer-default);
+}
+
+/* 모든 버튼에 손가락 커서 */
+button {
+	cursor: pointer;
 }
 
 /* 데스크톱 페이지 배경. 하늘색 배너와 맞추려고 브랜드 색을 3% 섞음 */
@@ -159,6 +163,49 @@ body {
 
 	:root .search-field__input::placeholder {
 		font-size: var(--seed-font-size-t5);
+	}
+}
+
+/* 검색창 compact 모양. intro와 같은 방식이며 그림자가 없음 */
+:root .search-field--compact {
+	box-sizing: border-box;
+	height: var(--seed-dimension-x13);
+	padding-left: calc(var(--seed-dimension-x3_5) + 1px);
+	padding-right: calc(var(--seed-dimension-x1) + 1px);
+	gap: var(--seed-dimension-x1);
+	border-radius: var(--seed-radius-r3);
+	box-shadow: none;
+}
+
+:root .search-field--compact::after {
+	border-width: 1px;
+	border-color: var(--seed-color-stroke-neutral-weak);
+}
+
+:root
+	.search-field--compact:not([data-readonly]):is(:focus, [data-focus])::after {
+	border-width: 1px;
+}
+
+@media (min-width: 1280px) {
+	:root .search-field--compact {
+		height: var(--seed-dimension-x14);
+		padding-inline: calc(var(--seed-dimension-x4_5) + 1.5px);
+		gap: var(--seed-dimension-x2_5);
+		border-radius: var(--seed-radius-r3_5);
+	}
+
+	:root .search-field--compact::after {
+		border-width: 1.5px;
+		border-color: var(--seed-color-stroke-brand-solid);
+	}
+
+	:root
+		.search-field--compact:not([data-readonly]):is(
+			:focus,
+			[data-focus]
+		)::after {
+		border-width: 1.5px;
 	}
 }
 
