@@ -14,7 +14,6 @@ public class TestcontainersConfiguration {
     @Bean
     @ServiceConnection
     MySQLContainer mysqlContainer() {
-        return new MySQLContainer(MYSQL_IMAGE)
-                .withCommand(MYSQL_TIME_ZONE_OPTION);
+        return new MySQLContainer(MYSQL_IMAGE).withCommand(MYSQL_TIME_ZONE_OPTION);
     }
 }
