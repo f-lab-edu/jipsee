@@ -1,19 +1,17 @@
 import { Box, HStack } from "@seed-design/react";
 import ContentContainer from "@/shared/ui/ContentContainer";
 import { footerLinks } from "@/widgets/footer/config/footerLinks";
+import { footerStyles } from "@/widgets/footer/config/footerStyles";
 import FooterLink from "@/widgets/footer/ui/FooterLink";
 
-/** 데스크탑 Footer */
+/** 푸터 > 데스크톱 레이아웃 */
 export default function DesktopFooter() {
+	const style = footerStyles.desktop;
+
 	return (
-		<Box
-			display={{ base: "none", lg: "block" }}
-			data-testid="footer-desktop"
-			borderTopWidth={1}
-			borderColor="stroke.neutralMuted"
-		>
+		<Box {...style.container}>
 			<ContentContainer>
-				<HStack height="48px" gap="x6" alignItems="center">
+				<HStack {...style.linksRow}>
 					{footerLinks.map((link) => (
 						<FooterLink key={link.href} link={link} variant="desktop" />
 					))}

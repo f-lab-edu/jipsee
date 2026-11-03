@@ -28,7 +28,18 @@ Global base styles (body font, color, background, link reset) live in `app/theme
 </HStack>
 ```
 
+### Style value flow
+
+Style values flow one way: `shared/config` -> `widgets/*/config` -> `ui`.
+
+- `shared/config` holds tables used across widgets (e.g. `typography`).
+- `widgets/*/config` holds one style object per widget, built with `defineResponsiveStyles` (`shared/lib/defineResponsiveStyles.ts`) with a `mobile` and a `desktop` entry. It spreads `shared/config` values.
+- `ui` only spreads config values (`<Box {...style.container}>`). Components do not write raw style values such as heights, gaps, paddings, or sizes.
+- The mobile layout and the desktop layout are rendered through `shared/ui/ResponsiveLayout`, which owns `hideFrom` / `display` and the `data-testid` (`<testId>-mobile`, `<testId>-desktop`). The layout components do not set them.
+- A value injected by the caller (e.g. `mobileBackground`) is a prop, not config.
+
 ### Exceptions
 
 - The blue filled buttons (search, send) use the dedicated `.brand-filled-button` class in `app/theme.css` instead of overriding Seed tokens such as `bg.brandSolid` or `bg.informativeSolid`. Values must use `--seed-*` CSS variables.
 - The desktop page background (`body` background inside `@media (min-width: 1280px)` in `app/theme.css`) is an exception to Seed-first styling because `bg` accepts no responsive values and the page background is a `body` default style, not an element. The value must use a `--seed-*` CSS variable.
+- The header service name letter-spacing uses the dedicated `.service-name` class in `app/theme.css`, applied through `className` in the widget config, because Seed has no `letterSpacing` prop or token.

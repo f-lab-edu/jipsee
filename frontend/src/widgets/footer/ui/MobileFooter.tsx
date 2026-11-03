@@ -1,24 +1,15 @@
 import { Box, HStack } from "@seed-design/react";
 import { footerLinks } from "@/widgets/footer/config/footerLinks";
+import { footerStyles } from "@/widgets/footer/config/footerStyles";
 import FooterLink from "@/widgets/footer/ui/FooterLink";
 
-/** 모바일 Footer */
+/** 푸터 > 모바일 레이아웃 */
 export default function MobileFooter() {
+	const style = footerStyles.mobile;
+
 	return (
-		<Box
-			hideFrom="lg"
-			data-testid="footer-mobile"
-			borderTopWidth={1}
-			borderColor="stroke.neutralMuted"
-			px="x4"
-			pb="x1"
-		>
-			<HStack
-				height="39px"
-				gap="x5"
-				justifyContent="center"
-				alignItems="center"
-			>
+		<Box {...style.container}>
+			<HStack {...style.linksRow}>
 				{footerLinks.map((link) => (
 					<FooterLink key={link.href} link={link} variant="mobile" />
 				))}
