@@ -11,3 +11,16 @@
 	--seed-color-palette-carrot-900: var(--seed-color-palette-blue-900);
 	--seed-color-palette-carrot-1000: var(--seed-color-palette-blue-1000);
 }
+
+body {
+	max-width: 480px;
+	margin: 0 auto;
+	font-family: var(--seed-font-family);
+	color: var(--seed-color-fg-neutral);
+	background: var(--seed-color-bg-layer-default);
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}

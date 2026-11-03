@@ -70,7 +70,7 @@ jobs:
             exit 1
           fi
 
-      - name: 자동 승인
+      - name: 리뷰 결과 등록
         env:
           RESULT: ${{ steps.claude.outputs.structured_output }}
           EVENT_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -83,19 +83,35 @@ jobs:
             echo "approval skipped: review config changed"
             exit 0
           fi
-          if ! printf '%s' "$RESULT" | jq -e \
-            --arg event "$EVENT_HEAD_SHA" --arg current "$CURRENT_HEAD_SHA" '
-              type == "object"
-              and .review_status == "completed"
-              and .approval_recommendation == "approve"
-              and .critical_issue_count == 0
-              and .reviewed_head_commit_sha == $event
-              and .reviewed_head_commit_sha == $current
-            ' > /dev/null; then
-            echo "approval skipped: result did not meet the approval conditions"
+          REVIEWED_SHA="$(printf '%s' "$RESULT" | jq -r .reviewed_head_commit_sha)"
+          if [ "$REVIEWED_SHA" != "$EVENT_HEAD_SHA" ] || [ "$EVENT_HEAD_SHA" != "$CURRENT_HEAD_SHA" ]; then
+            echo "review skipped: head changed during the review"
             exit 0
           fi
+          CRITICAL="$(printf '%s' "$RESULT" | jq -r .critical_issue_count)"
+          WARNING="$(printf '%s' "$RESULT" | jq -r .warning_issue_count)"
           SUMMARY="$(printf '%s' "$RESULT" | jq -r .review_summary)"
-          BODY="$(printf 'Claude 리뷰 자동 승인\n\n- 요약: %s\n- 검토 커밋: %s' "$SUMMARY" "$EVENT_HEAD_SHA")"
+          COMMIT_LINK="[\`${EVENT_HEAD_SHA:0:7}\`]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$EVENT_HEAD_SHA)"
+          if printf '%s' "$RESULT" | jq -e '
+              .review_status == "completed"
+              and .approval_recommendation == "approve"
+              and .critical_issue_count == 0
+            ' > /dev/null; then
+            EVENT=APPROVE
+            BODY="$(printf '## ✅ Claude 리뷰 자동 승인\n\n### 결과\n\n| 항목 | 결과 |\n|---|---|\n| CRITICAL | %s |\n| WARNING | %s |\n| 검토 커밋 | %s |\n\n### 요약\n\n%s' \
+              "$CRITICAL" "$WARNING" "$COMMIT_LINK" "$SUMMARY")"
+            if [ "$WARNING" -gt 0 ]; then
+              BODY="$BODY"$'\n\n<sub>WARNING은 승인을 막지 않음. 인라인 댓글을 참고.</sub>'
+            fi
+          else
+            EVENT=COMMENT
+            if printf '%s' "$RESULT" | jq -e '.review_status == "completed"' > /dev/null; then
+              STATUS=완료
+            else
+              STATUS=미완료
+            fi
+            BODY="$(printf '## ⛔ Claude 리뷰 승인 보류\n\n### 결과\n\n| 항목 | 결과 |\n|---|---|\n| 리뷰 상태 | %s |\n| CRITICAL | %s |\n| WARNING | %s |\n| 검토 커밋 | %s |\n\n### 요약\n\n%s' \
+              "$STATUS" "$CRITICAL" "$WARNING" "$COMMIT_LINK" "$SUMMARY")"
+          fi
           gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/reviews" \
-            -f commit_id="$EVENT_HEAD_SHA" -f event=APPROVE -f body="$BODY"
+            -f commit_id="$EVENT_HEAD_SHA" -f event="$EVENT" -f body="$BODY"
