@@ -4,7 +4,6 @@ import { typography } from "@/shared/config/typography";
 
 export const searchFormStyles: Record<SearchFormVariant, SearchFormStyle> = {
 	intro: {
-		container: { px: "spacingX.globalGutter" },
 		row: { gap: "x3", alignItems: "center" },
 		fieldCell: { flexGrow: 1 },
 		field: { className: "search-field--intro" },

@@ -30,44 +30,39 @@ export default function SearchForm({ defaultValue, variant }: SearchFormProps) {
 	const style = searchFormStyles[variant];
 
 	return (
-		<Box {...style.container}>
-			<Form action={paths.home}>
-				<HStack {...style.row}>
-					<Box {...style.fieldCell}>
-						<TextFieldRoot
-							name="keyword"
-							defaultValue={defaultValue}
-							{...style.field}
-						>
-							<Box {...style.leading}>
+		<Form action={paths.home}>
+			<HStack {...style.row}>
+				<Box {...style.fieldCell}>
+					<TextFieldRoot
+						name="keyword"
+						defaultValue={defaultValue}
+						{...style.field}
+					>
+						<Box {...style.leading}>
+							<Icon svg={<IconMagnifyingglassLine />} {...style.leadingIcon} />
+						</Box>
+						<TextFieldInput
+							placeholder="도로명 주소, 지번 주소, 건물명 등을 검색해주세요."
+							aria-label="건물 검색"
+							enterKeyHint="search"
+							{...style.input}
+						/>
+						<Box asChild {...style.iconButton}>
+							<button type="submit" aria-label="검색">
 								<Icon
 									svg={<IconMagnifyingglassLine />}
-									{...style.leadingIcon}
+									{...style.iconButtonIcon}
 								/>
-							</Box>
-							<TextFieldInput
-								placeholder="도로명 주소, 지번 주소, 건물명 등을 검색해주세요."
-								aria-label="건물 검색"
-								enterKeyHint="search"
-								{...style.input}
-							/>
-							<Box asChild {...style.iconButton}>
-								<button type="submit" aria-label="검색">
-									<Icon
-										svg={<IconMagnifyingglassLine />}
-										{...style.iconButtonIcon}
-									/>
-								</button>
-							</Box>
-						</TextFieldRoot>
-					</Box>
-					<Box asChild {...style.textButton}>
-						<button type="submit">
-							<Text {...style.textButtonLabel}>검색</Text>
-						</button>
-					</Box>
-				</HStack>
-			</Form>
-		</Box>
+							</button>
+						</Box>
+					</TextFieldRoot>
+				</Box>
+				<Box asChild {...style.textButton}>
+					<button type="submit">
+						<Text {...style.textButtonLabel}>검색</Text>
+					</button>
+				</Box>
+			</HStack>
+		</Form>
 	);
 }

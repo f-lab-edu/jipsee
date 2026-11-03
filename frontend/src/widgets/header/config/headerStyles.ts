@@ -14,9 +14,8 @@ export const headerStyles = defineResponsiveStyles<HeaderStyle>({
 		logoSize: 28,
 		serviceName: {
 			...typography.size20,
-			fontWeight: "bold",
 			color: "fg.neutral",
-			className: "service-name",
+			className: "tight-letter-spacing extra-bold",
 		},
 	},
 	desktop: {
@@ -34,9 +33,8 @@ export const headerStyles = defineResponsiveStyles<HeaderStyle>({
 		logoSize: 32,
 		serviceName: {
 			...typography.size22,
-			fontWeight: "bold",
 			color: "fg.neutral",
-			className: "service-name",
+			className: "tight-letter-spacing extra-bold",
 		},
 	},
 });

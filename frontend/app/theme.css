@@ -58,6 +58,10 @@
 
 body {
 	margin: 0;
+	/* 페이지 기본 자간 */
+	letter-spacing: -0.01em;
+	/* 한글은 어절 단위로 줄바꿈 */
+	word-break: keep-all;
 	font-family: var(--seed-font-family);
 	color: var(--seed-color-fg-neutral);
 	background: var(--seed-color-bg-layer-default);
@@ -70,9 +74,14 @@ body {
 	}
 }
 
-/* 헤더 서비스명 자간. Seed에 letterSpacing이 없음 */
-.service-name {
+/* 제목 자간. Seed에 letterSpacing이 없음 */
+.tight-letter-spacing {
 	letter-spacing: -0.03em;
+}
+
+/* 서비스명 굵기. Seed fontWeight는 bold(700)까지 */
+:root .extra-bold {
+	font-weight: 800;
 }
 
 /* 검색창 intro 모양. Seed 입력 스타일시트가 theme.css 뒤에 로드되므로 :root로 우선순위를 높임 */

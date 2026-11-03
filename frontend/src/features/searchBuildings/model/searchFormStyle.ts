@@ -8,7 +8,6 @@ import type {
 } from "@seed-design/react";
 
 export interface SearchFormStyle {
-	container: BoxProps;
 	row: HStackProps;
 	fieldCell: BoxProps;
 	field: TextFieldRootProps;
