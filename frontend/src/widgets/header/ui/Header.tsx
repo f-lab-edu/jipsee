@@ -1,38 +1,33 @@
-import { type BoxProps, HStack, Text } from "@seed-design/react";
-import Link from "next/link";
+import type { BoxProps } from "@seed-design/react";
 import type { Session } from "@/entities/session/model/session";
-import { siteMetadata } from "@/shared/config/siteMetadata";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
-import { paths } from "@/shared/routes/paths";
-import AccountLink from "@/widgets/header/ui/AccountLink";
+import ResponsiveLayout from "@/shared/ui/ResponsiveLayout";
+import DesktopHeader from "@/widgets/header/ui/DesktopHeader";
+import MobileHeader from "@/widgets/header/ui/MobileHeader";
 
 interface HeaderProps {
 	session: Nullable<Session>;
-	background: BoxProps["bg"];
+	mobileBackground: BoxProps["bg"];
 }
 
 /**
  * 헤더
  *
- * - 사용처가 정한 배경 위에 서비스 이름 링크와 계정 링크를 가진 헤더를 표시함
+ * - 모바일과 데스크톱 레이아웃을 함께 렌더링
+ * - 모바일 배경은 사용처에서 주입
+ *
+ * @param mobileBackground 모바일 행 배경. 데스크톱 행은 항상 흰색
  */
-export default function Header({ session, background }: HeaderProps) {
+export default function Header({ session, mobileBackground }: HeaderProps) {
 	return (
 		<header>
-			<HStack
-				bg={background}
-				justifyContent="space-between"
-				alignItems="center"
-				px="spacingX.globalGutter"
-				py="x3"
-			>
-				<Link href={paths.home}>
-					<Text fontSize="t6" fontWeight="bold">
-						{siteMetadata.name}
-					</Text>
-				</Link>
-				<AccountLink session={session} />
-			</HStack>
+			<ResponsiveLayout
+				testId="header"
+				mobile={
+					<MobileHeader session={session} background={mobileBackground} />
+				}
+				desktop={<DesktopHeader session={session} />}
+			/>
 		</header>
 	);
 }
