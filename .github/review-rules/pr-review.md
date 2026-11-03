@@ -81,7 +81,8 @@ The 근거 section cites the skill file and rule when one applies. Otherwise it 
 ## Limits
 
 - At most 10 inline comments. CRITICAL first.
-- Duplicate avoidance: if a comment for the same file and the same rule already exists, skip it, regardless of resolved state. Still count the issue if the problem persists in the current code.
+- Duplicate avoidance: if a comment on the same file already raises the same issue, skip it, even if its title or wording differs, and regardless of resolved state. Still count the issue if the problem persists in the current code.
+- If the PR author replied to an existing comment to decline it or explain the intent, do not raise that issue again.
 - If unsure whether the code violates a rule, do not mark it CRITICAL. A design concern you are unsure of may still be posted as a WARNING.
 - If nothing is worth flagging, post nothing.
 
