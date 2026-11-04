@@ -29,6 +29,6 @@ public final class DealKeys {
     /** 수집 날짜가 속한 달을 포함해 최근 6개월의 기준 생성 */
     public static List<DealKey> recent(LocalDate collectDate, List<String> sigunguCodes) {
         YearMonth lastMonth = YearMonth.from(collectDate);
-        return of(lastMonth.minusMonths(DAILY_MONTHS - 1), lastMonth, sigunguCodes);
+        return of(lastMonth.minusMonths(DAILY_MONTHS - 1L), lastMonth, sigunguCodes);
     }
 }
