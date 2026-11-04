@@ -174,10 +174,11 @@ button {
 /* 검색창 compact 모양. intro와 같은 방식이며 그림자가 없음 */
 :root .search-field--compact {
 	box-sizing: border-box;
-	height: var(--seed-dimension-x13);
+	height: 44px;
+	min-height: 0;
 	padding-left: calc(var(--seed-dimension-x3_5) + 1px);
-	padding-right: calc(var(--seed-dimension-x1) + 1px);
-	gap: var(--seed-dimension-x1);
+	padding-right: calc(var(--seed-dimension-x0_5) + 1px);
+	gap: var(--seed-dimension-x0_5);
 	border-radius: var(--seed-radius-r3);
 	box-shadow: none;
 }

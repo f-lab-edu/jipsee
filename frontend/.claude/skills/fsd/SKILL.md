@@ -13,7 +13,7 @@ description: Use when deciding where frontend code goes (which FSD layer, slice,
 |---|---|---|
 | `app/` (root) | Routing files, root layout, global CSS, BFF Route Handlers (`app/api`). Keep route files thin: import the page and pass params | `app/page.tsx` |
 | `pages` | One slice per screen. Composes widgets, features, entities and calls adapters | `pages/home` |
-| `widgets` | Large UI blocks reused across screens, built from features and entities | `widgets/header`, `widgets/footer` |
+| `widgets` | Large UI blocks reused across screens, built from features and entities | `widgets/header`, `widgets/footer`, `widgets/searchGuide` |
 | `features` | A user action: something the user does | `features/searchBuildings`, `features/askChatbot` |
 | `entities` | A thing the backend owns: its screen contract type, adapter, and display of one item | `entities/building`, `entities/session` |
 | `shared` | No domain knowledge. API base URL, generic helpers and types | `shared/api/apiUrl.ts`, `shared/lib/utilityTypes/nullable.ts` |
@@ -30,7 +30,7 @@ The frontend only displays what the backend returns. Data and business rules (se
 
 Screens that share a header or layout go in one Next.js route group with its own `layout.tsx` (e.g. `app/(home)/layout.tsx` renders Footer for S1). Screens with a different header (back-button header in S2~S6) get their own route group later. Route groups do not change URLs.
 
-Exception: the home screen (S1) renders `Header` inside its own screen component (`HomePage` at first, then `HomeScreen`, which receives `session` from `HomePage`) because its background band depends on search state and layouts cannot read `searchParams`. S2 and later screens keep the header in their route group layout.
+Exception: the home screen (S1, `pages/home`) renders `Header` inside its own screen component (`HomePage`, then `HomeScreen`, which receives `session` from `HomePage`) because its mobile header background is injected by the screen and a layout cannot pass it. The search screen (`pages/search`) renders `SearchHeader` itself because its header holds the keyword from `searchParams`, which a layout cannot read. S3 and later screens keep the header in their route group layout.
 
 ## Segment
 

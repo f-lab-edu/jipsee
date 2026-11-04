@@ -7,4 +7,5 @@ export const homePageStyles: HomePageStyle = {
 		flexGrow: 1,
 		gap: { base: 0, lg: "x5" },
 	},
+	guideCell: { pt: { base: "x5", lg: 0 } },
 };

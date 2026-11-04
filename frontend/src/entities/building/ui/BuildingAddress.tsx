@@ -1,4 +1,5 @@
 import { Text } from "@seed-design/react";
+import { buildingAddressStyles } from "@/entities/building/config/buildingAddressStyles";
 import type { BuildingSummary } from "@/entities/building/model/buildingSummary";
 
 interface BuildingAddressProps {
@@ -15,9 +16,5 @@ export default function BuildingAddress({ building }: BuildingAddressProps) {
 		return null;
 	}
 
-	return (
-		<Text fontSize="t4" color="fg.neutralSubtle">
-			{building.address}
-		</Text>
-	);
+	return <Text {...buildingAddressStyles.text}>{building.address}</Text>;
 }

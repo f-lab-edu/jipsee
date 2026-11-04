@@ -19,13 +19,13 @@ function toKeyword(value: string | string[] | undefined) {}
 **Correct:**
 
 ```ts
-// src/pages/home/lib/toKeyword.ts
+// src/pages/search/lib/toKeyword.ts
 export function toKeyword(value: string | string[] | undefined) {}
 ```
 
 ```tsx
 // page.tsx
-import { toKeyword } from "@/pages/home/lib/toKeyword";
+import { toKeyword } from "@/pages/search/lib/toKeyword";
 
 export default function Page() {}
 ```

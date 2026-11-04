@@ -1,5 +1,6 @@
 export const paths = {
 	home: "/",
+	search: "/search",
 	login: "/login",
 	me: "/me",
 	dataSources: "/policies/data-sources",

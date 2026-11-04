@@ -22,7 +22,7 @@ interface SearchFormProps {
  *
  * - 검색어 입력 하나만 출력
  * - 모바일은 필드 안 아이콘 버튼, 데스크톱은 필드 안 돋보기와 필드 밖 텍스트 버튼 출력
- * - 제출 시 홈으로 keyword 쿼리 전달
+ * - 제출 시 검색 페이지로 keyword 쿼리 전달
  *
  * @param variant 검색창 모양. 모양별 스타일 값을 고름
  */
@@ -30,7 +30,7 @@ export default function SearchForm({ defaultValue, variant }: SearchFormProps) {
 	const style = searchFormStyles[variant];
 
 	return (
-		<Form action={paths.home}>
+		<Form action={paths.search} role="search">
 			<HStack {...style.row}>
 				<Box {...style.fieldCell}>
 					<TextFieldRoot
