@@ -36,7 +36,8 @@ export default function IntroBand() {
 								<Flex {...mobileStyle.titleRow}>
 									<VStack {...mobileStyle.titleBlock}>
 										<Text as="h1" {...mobileStyle.title}>
-											{introCopy.titleFirstLine} {introCopy.titleSecondLine}
+											{introCopy.titleFirstLine} <br />
+											{introCopy.titleSecondLine}
 										</Text>
 										<Text as="p" {...mobileStyle.description}>
 											{introCopy.description}
