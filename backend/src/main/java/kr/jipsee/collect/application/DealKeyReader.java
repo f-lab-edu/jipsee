@@ -23,8 +23,12 @@ public class DealKeyReader extends AbstractItemCountingItemStreamItemReader<Deal
     }
 
     @Override
-    protected void doOpen() {}
+    protected void doOpen() {
+        // 메모리 목록만 읽으므로 열 자원이 없음
+    }
 
     @Override
-    protected void doClose() {}
+    protected void doClose() {
+        // 메모리 목록만 읽으므로 닫을 자원이 없음
+    }
 }
