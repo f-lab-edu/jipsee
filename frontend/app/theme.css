@@ -243,3 +243,40 @@ a {
 	position: absolute;
 	inset: 0;
 }
+
+/* 모바일 챗봇 패널의 위로 퍼지는 그림자. Seed 그림자 토큰은 모두 아래로 퍼지고, 모드마다 색 기준이 달라 한 값으로 둘 수 없음 */
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="light"]
+.chat-panel-shadow {
+	box-shadow: 0 -6px 20px
+		color-mix(in srgb, var(--seed-color-palette-gray-1000) 6%, transparent);
+}
+
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"]
+	.chat-panel-shadow {
+	box-shadow: 0 -6px 20px
+		color-mix(in srgb, var(--seed-color-palette-static-black) 40%, transparent);
+}
+
+/* 챗봇 축소 바 입력 모양. root가 바 자체이고 Seed의 1px 안쪽 선과 비활성화 상태의 배경을 덮어씀 */
+:root .chat-input--compact,
+:root .chat-input--compact:is(:disabled, [disabled], [data-disabled]) {
+	box-sizing: border-box;
+	height: var(--seed-dimension-x12);
+	min-height: 0;
+	padding-left: var(--seed-dimension-x3_5);
+	padding-right: var(--seed-dimension-x1);
+	gap: var(--seed-dimension-x2);
+	border-radius: var(--seed-radius-r3);
+	box-shadow: none;
+	background-color: var(--seed-color-bg-neutral-weak);
+}
+
+/* Seed가 입력 안쪽 여백을 :first-child, :last-child로 정하므로 0으로 고정 */
+:root .chat-input--compact input:first-child,
+:root .chat-input--compact input:last-child {
+	padding-inline: 0;
+}
+
+:root .chat-input--compact input::placeholder {
+	font-size: var(--seed-font-size-t4);
+}

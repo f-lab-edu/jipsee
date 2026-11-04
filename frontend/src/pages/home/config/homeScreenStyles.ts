@@ -12,4 +12,5 @@ export const homeScreenStyles: HomeScreenStyle = {
 	},
 	bodyCell: { display: "flex", flexDirection: "column" },
 	body: { flexGrow: 1, gap: { base: 0, lg: "x5" } },
+	asideCell: { display: { base: "none", lg: "flex" }, flexDirection: "column" },
 };

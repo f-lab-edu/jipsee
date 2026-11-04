@@ -1,6 +1,8 @@
 import { Grid, GridItem, VStack } from "@seed-design/react";
 import type { ReactNode } from "react";
 import type { Session } from "@/entities/session/model/session";
+import ChatPanelDesktop from "@/features/askChatbot/ui/ChatPanelDesktop";
+import ChatPanelMobile from "@/features/askChatbot/ui/ChatPanelMobile";
 import { searchScreenStyles } from "@/pages/search/config/searchScreenStyles";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import ContentContainer from "@/shared/ui/ContentContainer";
@@ -18,6 +20,7 @@ interface SearchScreenProps {
  *
  * - 검색어를 담은 검색 헤더 출력
  * - 본문 셀에 children 출력
+ * - 데스크톱 aside 셀과 main 마지막 자식으로 모바일 축소 바 출력
  *
  * @param invalid 검색어가 2자 미만인지 여부. 헤더 검색창의 오류 줄 출력 여부
  */
@@ -38,8 +41,12 @@ export default function SearchScreen({
 						<GridItem {...style.bodyCell}>
 							<VStack {...style.body}>{children}</VStack>
 						</GridItem>
+						<GridItem {...style.asideCell}>
+							<ChatPanelDesktop session={session} />
+						</GridItem>
 					</Grid>
 				</ContentContainer>
+				<ChatPanelMobile session={session} layout="compact" />
 			</VStack>
 		</>
 	);

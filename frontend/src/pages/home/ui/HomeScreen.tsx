@@ -1,6 +1,8 @@
 import { Grid, GridItem, VStack } from "@seed-design/react";
 import type { ReactNode } from "react";
 import type { Session } from "@/entities/session/model/session";
+import ChatPanelDesktop from "@/features/askChatbot/ui/ChatPanelDesktop";
+import ChatPanelMobile from "@/features/askChatbot/ui/ChatPanelMobile";
 import { homeScreenStyles } from "@/pages/home/config/homeScreenStyles";
 import { colors } from "@/shared/config/colors";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
@@ -17,6 +19,7 @@ interface HomeScreenProps {
  *
  * - 하늘빛 모바일 헤더 배경으로 헤더 출력
  * - 본문 셀에 children 출력
+ * - 데스크톱 aside 셀과 main 마지막 자식으로 모바일 펼침 패널 출력
  */
 export default function HomeScreen({ session, children }: HomeScreenProps) {
 	const style = homeScreenStyles;
@@ -30,8 +33,12 @@ export default function HomeScreen({ session, children }: HomeScreenProps) {
 						<GridItem {...style.bodyCell}>
 							<VStack {...style.body}>{children}</VStack>
 						</GridItem>
+						<GridItem {...style.asideCell}>
+							<ChatPanelDesktop session={session} />
+						</GridItem>
 					</Grid>
 				</ContentContainer>
+				<ChatPanelMobile session={session} layout="expanded" />
 			</VStack>
 		</>
 	);

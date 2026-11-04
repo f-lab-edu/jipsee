@@ -5,4 +5,5 @@ export interface HomeScreenStyle {
 	grid: GridProps;
 	bodyCell: GridItemProps;
 	body: VStackProps;
+	asideCell: GridItemProps;
 }
