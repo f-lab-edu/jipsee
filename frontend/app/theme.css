@@ -200,6 +200,12 @@ button {
 	border-width: 1px;
 }
 
+/* 오류 상태의 ::after 두께를 평상시 두께에 맞추고 색을 stroke.criticalSolid로 정함. 포커스 중 두께는 위 포커스 규칙이 정함 */
+:root .search-field--compact:is(:invalid, [data-invalid])::after {
+	border-width: 1px;
+	border-color: var(--seed-color-stroke-critical-solid);
+}
+
 @media (min-width: 1280px) {
 	:root .search-field--compact {
 		height: var(--seed-dimension-x14);
@@ -219,6 +225,11 @@ button {
 			[data-focus]
 		)::after {
 		border-width: 1.5px;
+	}
+
+	:root .search-field--compact:is(:invalid, [data-invalid])::after {
+		border-width: 1.5px;
+		border-color: var(--seed-color-stroke-critical-solid);
 	}
 }
 

@@ -2,11 +2,11 @@ import type { MobileSearchHeaderStyle } from "@/widgets/header/model/mobileSearc
 
 export const mobileSearchHeaderStyles: MobileSearchHeaderStyle = {
 	row: {
-		height: "56px",
+		py: "x1_5",
 		pl: "x1",
 		pr: "spacingX.globalGutter",
 		gap: "x1",
-		alignItems: "center",
+		alignItems: "flex-start",
 		bg: "transparent",
 	},
 	backLink: {

@@ -43,7 +43,7 @@ export const searchFormStyles: Record<SearchFormVariant, SearchFormStyle> = {
 		textButtonLabel: { ...typography.size16, fontWeight: "bold" },
 	},
 	compact: {
-		row: { gap: "x3", alignItems: "center" },
+		row: { gap: "x3", alignItems: "flex-start" },
 		fieldCell: { flexGrow: 1 },
 		field: { className: "search-field--compact" },
 		input: { className: "search-field__input" },

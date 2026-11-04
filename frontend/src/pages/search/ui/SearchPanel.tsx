@@ -9,6 +9,7 @@ interface SearchPanelProps {
 	keyword: string;
 	baseMonth: YearMonth;
 	showsNoticeOnMobile: boolean;
+	invalid: boolean;
 }
 
 /**
@@ -20,11 +21,13 @@ interface SearchPanelProps {
  *
  * @param keyword 검색창의 초기 검색어. 바뀌면 검색창을 새로 만듦
  * @param showsNoticeOnMobile 모바일에서 기준 월 안내를 출력할지 여부. 데스크톱은 항상 출력
+ * @param invalid 검색어가 2자 미만인지 여부. 데스크톱 검색창의 오류 줄 출력 여부
  */
 export default function SearchPanel({
 	keyword,
 	baseMonth,
 	showsNoticeOnMobile,
+	invalid,
 }: SearchPanelProps) {
 	const style = searchPanelStyles;
 
@@ -46,7 +49,12 @@ export default function SearchPanel({
 					</Box>
 				</Flex>
 				<Box {...style.formCell}>
-					<SearchForm key={keyword} defaultValue={keyword} variant="compact" />
+					<SearchForm
+						key={keyword}
+						defaultValue={keyword}
+						variant="compact"
+						invalid={invalid}
+					/>
 				</Box>
 				{showsNoticeOnMobile && (
 					<Box {...style.mobileNoticeCell}>

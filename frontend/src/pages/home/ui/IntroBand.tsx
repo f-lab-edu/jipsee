@@ -66,7 +66,7 @@ export default function IntroBand() {
 					</Flex>
 				</Flex>
 				<VStack {...style.formGroup}>
-					<SearchForm defaultValue="" variant="intro" />
+					<SearchForm defaultValue="" variant="intro" invalid={false} />
 					<ResponsiveLayout
 						testId="intro-chips"
 						mobile={

@@ -8,6 +8,7 @@ import SearchHeader from "@/widgets/header/ui/SearchHeader";
 
 interface SearchScreenProps {
 	keyword: string;
+	invalid: boolean;
 	session: Nullable<Session>;
 	children: ReactNode;
 }
@@ -17,9 +18,12 @@ interface SearchScreenProps {
  *
  * - 검색어를 담은 검색 헤더 출력
  * - 본문 셀에 children 출력
+ *
+ * @param invalid 검색어가 2자 미만인지 여부. 헤더 검색창의 오류 줄 출력 여부
  */
 export default function SearchScreen({
 	keyword,
+	invalid,
 	session,
 	children,
 }: SearchScreenProps) {
@@ -27,7 +31,7 @@ export default function SearchScreen({
 
 	return (
 		<>
-			<SearchHeader keyword={keyword} session={session} />
+			<SearchHeader keyword={keyword} invalid={invalid} session={session} />
 			<VStack as="main" {...style.main}>
 				<ContentContainer>
 					<Grid {...style.grid}>
