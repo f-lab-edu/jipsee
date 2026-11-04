@@ -32,6 +32,18 @@ export const chatPanelDesktopStyles: ChatPanelDesktopStyle = {
 		fontWeight: "bold",
 		color: "fg.neutral",
 	},
+	historyLink: {
+		box: {
+			display: "flex",
+			alignItems: "center",
+			flexShrink: 0,
+			height: "44px",
+			px: "2px",
+			ml: "auto",
+		},
+		text: { ...typography.size13, fontWeight: "bold", color: "fg.brand" },
+	},
+	questionForm: { mt: "auto" },
 	loginLink: {
 		box: {
 			display: "flex",

@@ -14,6 +14,20 @@ export const chatCompactBarStyles: ChatCompactBarStyle = {
 		className: "chat-panel-shadow",
 	},
 	field: { className: "chat-input--compact" },
+	historyLink: {
+		box: {
+			display: "flex",
+			alignItems: "center",
+			justifyContent: "center",
+			flexShrink: 0,
+			width: "36px",
+			height: "36px",
+			ml: "-8px",
+			borderRadius: "r2",
+			color: "fg.neutralMuted",
+		},
+		icon: { size: "x5" },
+	},
 	loginLink: {
 		box: {
 			display: "flex",

@@ -271,12 +271,47 @@ a {
 	background-color: var(--seed-color-bg-neutral-weak);
 }
 
+/* 챗봇 질문 입력 모양. 실제 1px border를 쓰므로 Seed의 1px 안쪽 선을 없앰 */
+:root .chat-input--expanded,
+:root .chat-input--aside {
+	box-sizing: border-box;
+	min-height: 0;
+	border: 1px solid var(--seed-color-stroke-neutral-weak);
+	border-radius: var(--seed-radius-r3);
+	box-shadow: none;
+}
+
+:root .chat-input--expanded {
+	height: var(--seed-dimension-x12);
+	padding-left: var(--seed-dimension-x3_5);
+	padding-right: var(--seed-dimension-x1);
+	gap: var(--seed-dimension-x1);
+}
+
+:root .chat-input--aside {
+	height: var(--seed-dimension-x13);
+	padding-left: var(--seed-dimension-x4);
+	padding-right: var(--seed-dimension-x1_5);
+	gap: var(--seed-dimension-x1);
+}
+
 /* Seed가 입력 안쪽 여백을 :first-child, :last-child로 정하므로 0으로 고정 */
 :root .chat-input--compact input:first-child,
-:root .chat-input--compact input:last-child {
+:root .chat-input--compact input:last-child,
+:root .chat-input--expanded input:first-child,
+:root .chat-input--expanded input:last-child,
+:root .chat-input--aside input:first-child,
+:root .chat-input--aside input:last-child {
 	padding-inline: 0;
 }
 
-:root .chat-input--compact input::placeholder {
+:root .chat-input--compact input::placeholder,
+:root .chat-input--expanded input::placeholder {
 	font-size: var(--seed-font-size-t4);
+}
+
+/* 15px는 토큰이 없어 숫자로 씀 */
+:root .chat-input--aside input,
+:root .chat-input--aside input::placeholder {
+	font-size: 15px;
 }

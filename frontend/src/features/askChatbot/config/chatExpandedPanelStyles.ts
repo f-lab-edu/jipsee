@@ -20,6 +20,17 @@ export const chatExpandedPanelStyles: ChatExpandedPanelStyle = {
 	titleRow: { alignItems: "center", gap: "x2" },
 	titleIcon: { size: "x5", color: "bg.brandSolid" },
 	title: { ...typography.size16, fontWeight: "bold", color: "fg.neutral" },
+	historyLink: {
+		box: {
+			display: "flex",
+			alignItems: "center",
+			flexShrink: 0,
+			height: "44px",
+			px: "2px",
+			ml: "auto",
+		},
+		text: { ...typography.size13, fontWeight: "bold", color: "fg.brand" },
+	},
 	loginLink: {
 		box: {
 			display: "flex",
