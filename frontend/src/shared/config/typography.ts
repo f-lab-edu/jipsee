@@ -8,6 +8,7 @@ export const typography = {
 	size15: { fontSize: "15px", lineHeight: "t5" },
 	size16: { fontSize: "t5", lineHeight: "t5" },
 	size16LineHeight24: { fontSize: "t5", lineHeight: "t6" },
+	size18: { fontSize: "t6", lineHeight: "26px" },
 	size20: { fontSize: "t7", lineHeight: "28px" },
 	size22: { fontSize: "t8", lineHeight: "t8" },
 	size24: { fontSize: "t9", lineHeight: "t9" },
