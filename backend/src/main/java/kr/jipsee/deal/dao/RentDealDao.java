@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-/** rent_deal 테이블을 JdbcTemplate으로 CRUD */
+/** rent_deal DAO (JdbcTemplate) */
 @Repository
 @RequiredArgsConstructor
 public class RentDealDao {

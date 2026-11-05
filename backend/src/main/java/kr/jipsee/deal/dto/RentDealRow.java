@@ -3,7 +3,7 @@ package kr.jipsee.deal.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/** 실거래 데이터 수집 후 DB에 추가할 데이터 Row 하나 */
+/** 실거래 데이터 수집 후 rent_deal 테이블에 추가할 데이터 Row 하나 */
 public record RentDealRow(
         String sigunguCode,
         String legalDongName,
