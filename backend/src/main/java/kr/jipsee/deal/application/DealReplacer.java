@@ -9,6 +9,6 @@ public interface DealReplacer<T> {
     /** 해당 월의 데이터 개수 */
     int countByMonth(String sigunguCode, YearMonth dealMonth);
 
-    /** 기존의 (시군구, 월) row 데이터를 제거하고 rows로 채워넣음*/
+    /** 기존의 (시군구, 월) row 데이터를 제거하고 rows로 교체. rows는 모두 같은 시군구와 계약 월에 속해야 함 */
     void replace(String sigunguCode, YearMonth dealMonth, List<T> rows);
 }
