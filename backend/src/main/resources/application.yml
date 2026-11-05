@@ -7,7 +7,10 @@ spring:
     virtual:
       enabled: true
   datasource:
-    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/jipsee}?rewriteBatchedStatements=true
+    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/jipsee}
+    hikari:
+      data-source-properties:
+        rewriteBatchedStatements: true
     username: ${DB_USERNAME:jipsee}
     password: ${DB_PASSWORD:jipsee}
   jpa:
