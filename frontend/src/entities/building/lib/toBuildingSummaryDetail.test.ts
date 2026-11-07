@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { toBuildingDetail } from "@/entities/building/lib/toBuildingDetail";
+import { toBuildingSummaryDetail } from "@/entities/building/lib/toBuildingSummaryDetail";
 import type { BuildingSummary } from "@/entities/building/model/buildingSummary";
 
 const building: BuildingSummary = {
@@ -10,22 +10,22 @@ const building: BuildingSummary = {
 	latestNewJeonseMonth: { year: 2026, month: 6 },
 };
 
-describe("toBuildingDetail", () => {
+describe("toBuildingSummaryDetail", () => {
 	it("사용승인 연도와 최근 신규 전세 월이 있으면 둘 다 표시함", () => {
-		expect(toBuildingDetail(building)).toBe(
+		expect(toBuildingSummaryDetail(building)).toBe(
 			"2016년 사용승인, 최근 신규 전세 2026.06",
 		);
 	});
 
 	it("사용승인 연도가 없으면 전세 정보만 표시함", () => {
-		expect(toBuildingDetail({ ...building, useApprovalYear: null })).toBe(
-			"최근 신규 전세 2026.06",
-		);
+		expect(
+			toBuildingSummaryDetail({ ...building, useApprovalYear: null }),
+		).toBe("최근 신규 전세 2026.06");
 	});
 
 	it("최근 신규 전세 월이 없으면 12개월 신규 전세 없음으로 표시함", () => {
-		expect(toBuildingDetail({ ...building, latestNewJeonseMonth: null })).toBe(
-			"2016년 사용승인, 최근 12개월 신규 전세 없음",
-		);
+		expect(
+			toBuildingSummaryDetail({ ...building, latestNewJeonseMonth: null }),
+		).toBe("2016년 사용승인, 최근 12개월 신규 전세 없음");
 	});
 });

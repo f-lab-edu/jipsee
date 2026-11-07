@@ -7,7 +7,7 @@ import type { BuildingSummary } from "@/entities/building/model/buildingSummary"
  * - 사용승인 연도가 있으면 전세 정보 앞에 붙여 반환
  * - 없으면 전세 정보만 반환
  */
-export function toBuildingDetail(building: BuildingSummary): string {
+export function toBuildingSummaryDetail(building: BuildingSummary): string {
 	const jeonseDetail = toJeonseDetail(building);
 
 	if (building.useApprovalYear === null) {
