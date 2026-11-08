@@ -1,22 +1,18 @@
 import { test as base, expect } from "@playwright/test";
+import { makeT, type T } from "./buildingDetail/makeT";
+import { collectConsoleIssues } from "./collectConsoleIssues";
 
-/** 콘솔 오류, hydration 경고, pageerror가 있으면 테스트 끝에서 실패함 */
-export const test = base.extend<{ consoleIssues: undefined }>({
+/**
+ * - consoleIssues: 콘솔 오류, hydration 경고, pageerror가 있으면 테스트 끝에서 실패함
+ * - t: 건물 상세 검사용 객체. 테마는 test.use의 colorScheme을 따름
+ */
+export const test = base.extend<{ consoleIssues: undefined; t: T }>({
+	t: async ({ page, colorScheme }, use) => {
+		await use(makeT(page, colorScheme === "dark" ? "dark" : "light"));
+	},
 	consoleIssues: [
 		async ({ page }, use) => {
-			const issues: string[] = [];
-			page.on("console", (message) => {
-				const text = message.text();
-				if (/Failed to load resource/.test(text)) return;
-				const isHydrationWarning =
-					message.type() === "warning" && /hydrat/i.test(text);
-				if (message.type() === "error" || isHydrationWarning) {
-					issues.push(`${message.type()}: ${text.slice(0, 200)}`);
-				}
-			});
-			page.on("pageerror", (error) => {
-				issues.push(`pageerror: ${error.message.slice(0, 200)}`);
-			});
+			const issues = collectConsoleIssues(page);
 			await use(undefined);
 			expect(issues).toEqual([]);
 		},
