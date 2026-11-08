@@ -1,3 +1,4 @@
+import { toChartMarkerKind } from "@/pages/building/lib/toChartMarkerKind";
 import { toMonthPercent } from "@/pages/building/lib/toMonthPercent";
 import type { ChartAxis } from "@/pages/building/model/chartAxis";
 import type { ChartDeal } from "@/pages/building/model/chartDeal";
@@ -8,6 +9,7 @@ import type { ChartPoint } from "@/pages/building/model/chartPoint";
  *
  * - 거래마다 가로 비율은 계약 월, 세로 비율은 금액으로 계산해 반환
  * - 세로 비율은 위쪽 끝이 0, 아래쪽 끝이 100
+ * - 마커 종류도 함께 계산해 반환
  */
 export function toChartPoints(
 	chartDeals: ChartDeal[],
@@ -17,6 +19,7 @@ export function toChartPoints(
 		dealId: deal.id,
 		fromPreviousBuilding,
 		dealType,
+		markerKind: toChartMarkerKind(deal, fromPreviousBuilding),
 		xPercent: toMonthPercent(deal.month, axis.startYear, axis.total),
 		yPercent: ((axis.yMax - deal.amount) / (axis.yMax - axis.yMin)) * 100,
 	}));

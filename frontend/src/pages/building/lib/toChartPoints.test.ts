@@ -44,6 +44,21 @@ describe("toChartPoints", () => {
 		expect(sale?.yPercent).toBeCloseTo(8.33, 2);
 	});
 
+	it("거래 상태에 맞는 마커 종류를 채움", () => {
+		const kinds = toPoints(defaultBuilding).map(
+			({ dealType, dealId, markerKind }) => [dealType, dealId, markerKind],
+		);
+
+		expect(kinds).toContainEqual(["jeonse", 1, "default"]);
+		expect(kinds).toContainEqual(["sale", 3, "cancelled"]);
+		expect(kinds).toContainEqual(["jeonse", 4, "renewal"]);
+		expect(kinds).toContainEqual(["jeonse", 5, "similar"]);
+	});
+
+	it("이전 건물 거래의 마커 종류는 이전 건물임", () => {
+		expect(toPoints(fewDealsBuilding)[0]?.markerKind).toBe("previous");
+	});
+
 	it("거래 적음 건물의 이전 건물 점 위치가 캔버스 계산과 같음", () => {
 		const points = toPoints(fewDealsBuilding);
 

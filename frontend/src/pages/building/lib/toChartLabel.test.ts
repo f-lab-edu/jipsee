@@ -6,6 +6,7 @@ const jeonse: ChartPoint = {
 	dealId: 1,
 	fromPreviousBuilding: false,
 	dealType: "jeonse",
+	markerKind: "default",
 	xPercent: 0,
 	yPercent: 0,
 };
