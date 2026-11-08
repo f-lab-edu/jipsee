@@ -1,14 +1,19 @@
 import { Grid, GridItem, VStack } from "@seed-design/react";
 import type { BuildingDetail } from "@/entities/building/model/buildingDetail";
+import type { NearbyDealsCondition } from "@/entities/building/model/nearbyDealsCondition";
+import type { NearbyDealsResult } from "@/entities/building/model/nearbyDealsResult";
 import { desktopBuildingBodyStyles } from "@/pages/building/config/desktopBuildingBodyStyles";
 import BuildingInfoSection from "@/pages/building/ui/BuildingInfoSection";
 import BuildingTitleRow from "@/pages/building/ui/BuildingTitleRow";
 import DealHistorySection from "@/pages/building/ui/DealHistorySection";
+import NearbyDealsSection from "@/pages/building/ui/NearbyDealsSection";
 import type { YearMonth } from "@/shared/lib/dates/yearMonth";
 import ContentContainer from "@/shared/ui/ContentContainer";
 
 interface DesktopBuildingBodyProps {
 	detail: BuildingDetail;
+	condition: NearbyDealsCondition;
+	nearby: NearbyDealsResult;
 	registerBaseMonth: YearMonth;
 	rentDealBaseMonth: YearMonth;
 }
@@ -17,11 +22,13 @@ interface DesktopBuildingBodyProps {
  * 건물 상세 > 데스크톱 본문
  *
  * - 콘텐츠 컨테이너 안에 제목 줄과 본문 열, 380 폭 aside 열 출력
- * - 본문 열에 거래 이력 영역 출력
+ * - 본문 열에 거래 이력 영역, 주변 거래 영역 순서로 출력
  * - aside는 위 24에 붙어 따라오고 뷰포트보다 길면 안에서 스크롤
  */
 export default function DesktopBuildingBody({
 	detail,
+	condition,
+	nearby,
 	registerBaseMonth,
 	rentDealBaseMonth,
 }: DesktopBuildingBodyProps) {
@@ -37,6 +44,12 @@ export default function DesktopBuildingBody({
 							layout="desktop"
 							detail={detail}
 							rentDealBaseMonth={rentDealBaseMonth}
+						/>
+						<NearbyDealsSection
+							layout="desktop"
+							buildingId={detail.id}
+							condition={condition}
+							result={nearby}
 						/>
 					</GridItem>
 					<GridItem as="aside" {...style.asideCell}>

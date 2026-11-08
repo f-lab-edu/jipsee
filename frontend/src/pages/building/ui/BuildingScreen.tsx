@@ -1,5 +1,7 @@
 import { VStack } from "@seed-design/react";
 import type { BuildingDetail } from "@/entities/building/model/buildingDetail";
+import type { NearbyDealsCondition } from "@/entities/building/model/nearbyDealsCondition";
+import type { NearbyDealsResult } from "@/entities/building/model/nearbyDealsResult";
 import type { Session } from "@/entities/session/model/session";
 import { buildingScreenStyles } from "@/pages/building/config/buildingScreenStyles";
 import DesktopBuildingBody from "@/pages/building/ui/DesktopBuildingBody";
@@ -12,6 +14,8 @@ import BuildingHeader from "@/widgets/header/ui/BuildingHeader";
 
 interface BuildingScreenProps {
 	detail: BuildingDetail;
+	condition: NearbyDealsCondition;
+	nearby: NearbyDealsResult;
 	registerBaseMonth: YearMonth;
 	rentDealBaseMonth: YearMonth;
 	session: Nullable<Session>;
@@ -22,9 +26,12 @@ interface BuildingScreenProps {
  *
  * - 1280 미만은 한 열로 두고, md 이상에서 열 폭을 720까지 넓힘
  * - 건물명, 없으면 주소를 제목으로 둔 헤더, 본문, 푸터 순서로 출력
+ * - 주변 거래 조건과 결과를 모바일, 데스크톱 본문에 전달
  */
 export default function BuildingScreen({
 	detail,
+	condition,
+	nearby,
 	registerBaseMonth,
 	rentDealBaseMonth,
 	session,
@@ -44,6 +51,8 @@ export default function BuildingScreen({
 						mobile={
 							<MobileBuildingBody
 								detail={detail}
+								condition={condition}
+								nearby={nearby}
 								registerBaseMonth={registerBaseMonth}
 								rentDealBaseMonth={rentDealBaseMonth}
 							/>
@@ -51,6 +60,8 @@ export default function BuildingScreen({
 						desktop={
 							<DesktopBuildingBody
 								detail={detail}
+								condition={condition}
+								nearby={nearby}
 								registerBaseMonth={registerBaseMonth}
 								rentDealBaseMonth={rentDealBaseMonth}
 							/>
