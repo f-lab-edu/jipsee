@@ -14,6 +14,8 @@ export const nearbyDealsCopy = {
 		area: "면적",
 		amount: "금액",
 	},
+	noticeNone: "조건에 맞는 거래가 없어요",
+	noticeBody: "반경이나 기간을 넓혀 보세요",
 	confirmedDateNotice:
 		"확정일자를 기준으로 모은 거래라서 최근 1~2개월 거래는 일부 빠져 있을 수 있어요",
 } as const;

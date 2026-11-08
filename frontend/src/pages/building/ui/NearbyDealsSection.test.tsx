@@ -15,6 +15,7 @@ const jeonse: NearbyDeal = {
 	monthlyRent: null,
 };
 const condition = { radius: 500, period: 12, type: "jeonse" } as const;
+const threeDeals = [jeonse, { ...jeonse, id: 2 }, { ...jeonse, id: 3 }];
 const rentDealBaseMonth = { year: 2026, month: 9 };
 
 function renderSection(
@@ -37,26 +38,43 @@ describe("NearbyDealsSection", () => {
 		renderSection("mobile", {
 			kind: "found",
 			areaConditionApplied: false,
+			deals: threeDeals,
+		});
+
+		expect(screen.getByText("3건")).toBeTruthy();
+		expect(screen.getByText("2026.09 기준")).toBeTruthy();
+		expect(screen.getAllByRole("listitem")).toHaveLength(3);
+		expect(screen.getAllByRole("note")).toHaveLength(1);
+	});
+
+	it("거래가 기준보다 적으면 건수 줄 아래에 조건 확장 안내를 출력함", () => {
+		renderSection("mobile", {
+			kind: "found",
+			areaConditionApplied: false,
 			deals: [jeonse, { ...jeonse, id: 2 }],
 		});
 
-		expect(screen.getByText("2건")).toBeTruthy();
-		expect(screen.getByText("2026.09 기준")).toBeTruthy();
+		const notes = screen.getAllByRole("note");
+
+		expect(notes).toHaveLength(2);
+		expect(within(notes[0]).getByText("조건에 맞는 거래 2건")).toBeTruthy();
+		expect(
+			within(notes[0]).getByText("반경이나 기간을 넓혀 보세요"),
+		).toBeTruthy();
 		expect(screen.getAllByRole("listitem")).toHaveLength(2);
-		expect(screen.getAllByRole("note")).toHaveLength(1);
 	});
 
 	it("거래가 있으면 데스크톱에서 머리 행과 거래 행을 가진 표를 출력함", () => {
 		renderSection("desktop", {
 			kind: "found",
 			areaConditionApplied: false,
-			deals: [jeonse, { ...jeonse, id: 2 }],
+			deals: threeDeals,
 		});
 
 		const table = screen.getByRole("table", { name: "주변 전월세 거래" });
 
 		expect(within(table).getAllByRole("columnheader")).toHaveLength(5);
-		expect(within(table).getAllByRole("row")).toHaveLength(3);
+		expect(within(table).getAllByRole("row")).toHaveLength(4);
 	});
 
 	it("거래가 0건이어도 건수 줄과 확정일자 안내를 출력하고 목록은 출력하지 않음", () => {
@@ -67,7 +85,8 @@ describe("NearbyDealsSection", () => {
 		});
 
 		expect(screen.getByText("0건")).toBeTruthy();
-		expect(screen.getByRole("note")).toBeTruthy();
+		expect(screen.getAllByRole("note")).toHaveLength(2);
+		expect(screen.getByText("조건에 맞는 거래가 없어요")).toBeTruthy();
 		expect(screen.queryByRole("list")).toBeNull();
 	});
 
