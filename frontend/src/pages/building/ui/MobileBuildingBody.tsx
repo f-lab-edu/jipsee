@@ -46,6 +46,7 @@ export default function MobileBuildingBody({
 				buildingId={detail.id}
 				condition={condition}
 				result={nearby}
+				rentDealBaseMonth={rentDealBaseMonth}
 			/>
 		</>
 	);

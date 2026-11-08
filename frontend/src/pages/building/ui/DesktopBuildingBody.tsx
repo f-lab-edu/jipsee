@@ -50,6 +50,7 @@ export default function DesktopBuildingBody({
 							buildingId={detail.id}
 							condition={condition}
 							result={nearby}
+							rentDealBaseMonth={rentDealBaseMonth}
 						/>
 					</GridItem>
 					<GridItem as="aside" {...style.asideCell}>
