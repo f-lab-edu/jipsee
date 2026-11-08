@@ -3,6 +3,7 @@ import type { BuildingDetail } from "@/entities/building/model/buildingDetail";
 import type { NearbyDealsCondition } from "@/entities/building/model/nearbyDealsCondition";
 import type { NearbyDealsResult } from "@/entities/building/model/nearbyDealsResult";
 import type { Session } from "@/entities/session/model/session";
+import AskBuildingBar from "@/features/askChatbot/ui/AskBuildingBar";
 import { buildingScreenStyles } from "@/pages/building/config/buildingScreenStyles";
 import DesktopBuildingBody from "@/pages/building/ui/DesktopBuildingBody";
 import MobileBuildingBody from "@/pages/building/ui/MobileBuildingBody";
@@ -25,7 +26,7 @@ interface BuildingScreenProps {
  * 건물 상세 > 화면 뼈대
  *
  * - 1280 미만은 한 열로 두고, md 이상에서 열 폭을 720까지 넓힘
- * - 건물명, 없으면 주소를 제목으로 둔 헤더, 본문, 푸터 순서로 출력
+ * - 건물명, 없으면 주소를 제목으로 둔 헤더, 본문, 푸터, 모바일 질문 바 순서로 출력
  * - 주변 거래 조건과 결과를 모바일, 데스크톱 본문에 전달
  */
 export default function BuildingScreen({
@@ -64,11 +65,13 @@ export default function BuildingScreen({
 								nearby={nearby}
 								registerBaseMonth={registerBaseMonth}
 								rentDealBaseMonth={rentDealBaseMonth}
+								session={session}
 							/>
 						}
 					/>
 				</VStack>
 				<Footer />
+				<AskBuildingBar buildingId={detail.id} session={session} />
 			</VStack>
 		</VStack>
 	);
