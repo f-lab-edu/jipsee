@@ -7,7 +7,7 @@ Spring Boot 단일 모듈로 구성함. 패키지 루트는 `kr.jipsee`이고, �
 ## 구조
 
 - 도메인 패키지는 `kr.jipsee` 아래에 둠(building, deal, matching, collect, global). 코드가 생길 때만 만듦.
-- 도메인 패키지마다 필요한 만큼 `api`, `application`, `dao`, `domain`, `dto`, `exception` 하위 패키지를 둠.
+- 도메인 패키지마다 필요한 만큼 `api`, `application`, `client`, `config`, `dao`, `domain`, `dto`, `exception` 하위 패키지를 둠.
 - 예외 처리기, 기본 엔티티, 설정처럼 여러 도메인이 함께 쓰는 코드는 `kr.jipsee.global`에 둠.
 
 ## 규칙

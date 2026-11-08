@@ -1,4 +1,4 @@
-package kr.jipsee.collect.application;
+package kr.jipsee.collect.client;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;

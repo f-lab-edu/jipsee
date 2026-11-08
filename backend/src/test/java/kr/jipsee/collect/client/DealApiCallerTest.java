@@ -1,4 +1,4 @@
-package kr.jipsee.collect.application;
+package kr.jipsee.collect.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;

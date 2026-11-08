@@ -1,4 +1,4 @@
-package kr.jipsee.collect.application;
+package kr.jipsee.collect.client;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
