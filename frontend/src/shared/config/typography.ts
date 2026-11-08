@@ -12,6 +12,7 @@ export const typography = {
 	size18: { fontSize: "t6", lineHeight: "26px" },
 	size18LineHeight24: { fontSize: "t6", lineHeight: "t6" },
 	size20: { fontSize: "t7", lineHeight: "28px" },
+	size20LineHeight27: { fontSize: "t7", lineHeight: "t7" },
 	size22: { fontSize: "t8", lineHeight: "t8" },
 	size24: { fontSize: "t9", lineHeight: "t9" },
 	size26: { fontSize: "t10", lineHeight: "t10" },
