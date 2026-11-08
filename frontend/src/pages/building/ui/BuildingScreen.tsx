@@ -3,6 +3,8 @@ import type { BuildingDetail } from "@/entities/building/model/buildingDetail";
 import type { Session } from "@/entities/session/model/session";
 import { buildingScreenStyles } from "@/pages/building/config/buildingScreenStyles";
 import DesktopBuildingBody from "@/pages/building/ui/DesktopBuildingBody";
+import MobileBuildingBody from "@/pages/building/ui/MobileBuildingBody";
+import type { YearMonth } from "@/shared/lib/dates/yearMonth";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import ResponsiveLayout from "@/shared/ui/ResponsiveLayout";
 import Footer from "@/widgets/footer/ui/Footer";
@@ -10,6 +12,7 @@ import BuildingHeader from "@/widgets/header/ui/BuildingHeader";
 
 interface BuildingScreenProps {
 	detail: BuildingDetail;
+	registerBaseMonth: YearMonth;
 	session: Nullable<Session>;
 }
 
@@ -18,10 +21,10 @@ interface BuildingScreenProps {
  *
  * - 1280 미만은 한 열로 두고, md 이상에서 열 폭을 720까지 넓힘
  * - 건물명, 없으면 주소를 제목으로 둔 헤더, 본문, 푸터 순서로 출력
- * - 모바일 본문은 아직 없음
  */
 export default function BuildingScreen({
 	detail,
+	registerBaseMonth,
 	session,
 }: BuildingScreenProps) {
 	const style = buildingScreenStyles;
@@ -36,8 +39,18 @@ export default function BuildingScreen({
 				<VStack as="main" {...style.main}>
 					<ResponsiveLayout
 						testId="building-body"
-						mobile={null}
-						desktop={<DesktopBuildingBody detail={detail} />}
+						mobile={
+							<MobileBuildingBody
+								detail={detail}
+								registerBaseMonth={registerBaseMonth}
+							/>
+						}
+						desktop={
+							<DesktopBuildingBody
+								detail={detail}
+								registerBaseMonth={registerBaseMonth}
+							/>
+						}
 					/>
 				</VStack>
 				<Footer />
