@@ -1,6 +1,7 @@
 import { Box, HStack, Icon } from "@seed-design/react";
 import Link from "next/link";
 import SearchForm from "@/features/searchBuildings/ui/SearchForm";
+import { backButtonCopy } from "@/shared/config/backButtonCopy";
 import { paths } from "@/shared/routes/paths";
 import { mobileSearchHeaderStyles } from "@/widgets/header/config/mobileSearchHeaderStyles";
 import HeaderBackIcon from "@/widgets/header/ui/HeaderBackIcon";
@@ -30,7 +31,7 @@ export default function MobileSearchHeader({
 	return (
 		<HStack {...style.row}>
 			<Box asChild {...style.backLink}>
-				<Link href={paths.home} aria-label="뒤로 가기">
+				<Link href={paths.home} aria-label={backButtonCopy.label}>
 					<Icon svg={<HeaderBackIcon />} {...style.backIcon} />
 				</Link>
 			</Box>

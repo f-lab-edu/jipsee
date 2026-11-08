@@ -94,6 +94,17 @@ button {
 	}
 }
 
+/* 건물 상세 열 배경. Seed bg는 반응형 값을 받지 않으므로 lg 미만은 흰색, lg 이상은 투명으로 정함 */
+:root .building-column {
+	--seed-box-background: var(--seed-color-bg-layer-default);
+}
+
+@media (min-width: 1280px) {
+	:root .building-column {
+		--seed-box-background: transparent;
+	}
+}
+
 /* 제목 자간. Seed에 letterSpacing이 없음 */
 .tight-letter-spacing {
 	letter-spacing: -0.03em;
@@ -102,6 +113,11 @@ button {
 /* 서비스명 굵기. Seed fontWeight는 bold(700)까지 */
 :root .extra-bold {
 	font-weight: 800;
+}
+
+/* 기준선 정렬. Seed alignItems에 baseline이 없음. 같은 요소에 alignItems를 넘기지 않음 */
+.align-baseline {
+	--seed-box-align-items: baseline;
 }
 
 /* 검색창 intro 모양. Seed 입력 스타일시트가 theme.css 뒤에 로드되므로 :root로 우선순위를 높임 */

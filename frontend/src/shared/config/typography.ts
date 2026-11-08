@@ -14,5 +14,6 @@ export const typography = {
 	size22: { fontSize: "t8", lineHeight: "t8" },
 	size24: { fontSize: "t9", lineHeight: "t9" },
 	size26: { fontSize: "t10", lineHeight: "t10" },
+	size28: { fontSize: "t11", lineHeight: "t11" },
 	size34: { fontSize: "34px", lineHeight: "44px" },
 } as const satisfies Record<string, TextStyle>;
