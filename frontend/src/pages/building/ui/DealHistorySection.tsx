@@ -3,6 +3,7 @@ import type { BuildingDetail } from "@/entities/building/model/buildingDetail";
 import { dealHistoryCopy } from "@/pages/building/config/dealHistoryCopy";
 import { dealHistorySectionStyles } from "@/pages/building/config/dealHistorySectionStyles";
 import BuildingDealList from "@/pages/building/ui/BuildingDealList";
+import PreviousBuildingDeals from "@/pages/building/ui/PreviousBuildingDeals";
 import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
 
 interface DealHistorySectionProps {
@@ -15,6 +16,7 @@ interface DealHistorySectionProps {
  *
  * - 제목 아래에 현재 건물 거래 목록 출력
  * - 현재 건물 거래가 없으면 목록을 출력하지 않음
+ * - 이전 건물 거래가 있으면 현재 건물 목록 아래에 이전 건물 목록 출력
  * - 모바일은 흰 영역, 데스크톱은 테두리가 있는 카드로 출력
  *
  * @param layout 섹션 모양과 `id` 접미사를 정함
@@ -39,6 +41,9 @@ export default function DealHistorySection({
 					showsHeader={true}
 					showsStatusBadges={true}
 				/>
+			)}
+			{detail.previousDeals.length > 0 && (
+				<PreviousBuildingDeals layout={layout} deals={detail.previousDeals} />
 			)}
 		</VStack>
 	);
