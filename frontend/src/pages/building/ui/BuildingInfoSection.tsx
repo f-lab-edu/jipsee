@@ -3,6 +3,7 @@ import type { BuildingDetail } from "@/entities/building/model/buildingDetail";
 import DongInfoCard from "@/entities/building/ui/DongInfoCard";
 import { buildingInfoCopy } from "@/pages/building/config/buildingInfoCopy";
 import { buildingInfoSectionStyles } from "@/pages/building/config/buildingInfoSectionStyles";
+import ExternalLinks from "@/pages/building/ui/ExternalLinks";
 import { formatYearMonth } from "@/shared/lib/dates/formatYearMonth";
 import type { YearMonth } from "@/shared/lib/dates/yearMonth";
 import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
@@ -16,7 +17,7 @@ interface BuildingInfoSectionProps {
 /**
  * 건물 상세 > 건물 정보 영역
  *
- * - 제목, 동 카드, 건축물대장 기준 월 순서로 출력
+ * - 제목, 동 카드, 건축물대장 기준 월, 외부 링크 순서로 출력
  * - 모바일은 건물명이 있을 때만 제목 아래에 주소 출력
  * - 데스크톱은 주소 없이 테두리가 있는 카드로 출력
  *
@@ -51,6 +52,7 @@ export default function BuildingInfoSection({
 			<Text {...style.baseMonth}>
 				{`${buildingInfoCopy.baseMonthPrefix} ${formatYearMonth(registerBaseMonth)} ${buildingInfoCopy.baseMonthSuffix}`}
 			</Text>
+			<ExternalLinks layout={layout} />
 		</VStack>
 	);
 }
