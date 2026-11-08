@@ -1,7 +1,9 @@
 import type { TextStyle } from "@/shared/model/textStyle";
 
 export const typography = {
+	size11: { fontSize: "t1", lineHeight: "14px" },
 	size12: { fontSize: "t2", lineHeight: "t3" },
+	size12LineHeight14: { fontSize: "t2", lineHeight: "14px" },
 	size12LineHeight16: { fontSize: "t2", lineHeight: "t2" },
 	size13: { fontSize: "t3", lineHeight: "t3" },
 	size13LineHeight20: { fontSize: "t3", lineHeight: "20px" },

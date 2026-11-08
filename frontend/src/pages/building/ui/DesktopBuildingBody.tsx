@@ -10,6 +10,7 @@ import ContentContainer from "@/shared/ui/ContentContainer";
 interface DesktopBuildingBodyProps {
 	detail: BuildingDetail;
 	registerBaseMonth: YearMonth;
+	rentDealBaseMonth: YearMonth;
 }
 
 /**
@@ -22,6 +23,7 @@ interface DesktopBuildingBodyProps {
 export default function DesktopBuildingBody({
 	detail,
 	registerBaseMonth,
+	rentDealBaseMonth,
 }: DesktopBuildingBodyProps) {
 	const style = desktopBuildingBodyStyles;
 
@@ -31,7 +33,11 @@ export default function DesktopBuildingBody({
 				<BuildingTitleRow name={detail.name} address={detail.address} />
 				<Grid {...style.grid}>
 					<GridItem {...style.mainCell}>
-						<DealHistorySection layout="desktop" detail={detail} />
+						<DealHistorySection
+							layout="desktop"
+							detail={detail}
+							rentDealBaseMonth={rentDealBaseMonth}
+						/>
 					</GridItem>
 					<GridItem as="aside" {...style.asideCell}>
 						<VStack {...style.aside}>

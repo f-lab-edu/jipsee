@@ -7,6 +7,7 @@ import type { YearMonth } from "@/shared/lib/dates/yearMonth";
 interface MobileBuildingBodyProps {
 	detail: BuildingDetail;
 	registerBaseMonth: YearMonth;
+	rentDealBaseMonth: YearMonth;
 }
 
 /**
@@ -17,6 +18,7 @@ interface MobileBuildingBodyProps {
 export default function MobileBuildingBody({
 	detail,
 	registerBaseMonth,
+	rentDealBaseMonth,
 }: MobileBuildingBodyProps) {
 	return (
 		<>
@@ -26,7 +28,11 @@ export default function MobileBuildingBody({
 				registerBaseMonth={registerBaseMonth}
 			/>
 			<SectionDivider />
-			<DealHistorySection layout="mobile" detail={detail} />
+			<DealHistorySection
+				layout="mobile"
+				detail={detail}
+				rentDealBaseMonth={rentDealBaseMonth}
+			/>
 		</>
 	);
 }

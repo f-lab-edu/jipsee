@@ -13,6 +13,7 @@ import BuildingHeader from "@/widgets/header/ui/BuildingHeader";
 interface BuildingScreenProps {
 	detail: BuildingDetail;
 	registerBaseMonth: YearMonth;
+	rentDealBaseMonth: YearMonth;
 	session: Nullable<Session>;
 }
 
@@ -25,6 +26,7 @@ interface BuildingScreenProps {
 export default function BuildingScreen({
 	detail,
 	registerBaseMonth,
+	rentDealBaseMonth,
 	session,
 }: BuildingScreenProps) {
 	const style = buildingScreenStyles;
@@ -43,12 +45,14 @@ export default function BuildingScreen({
 							<MobileBuildingBody
 								detail={detail}
 								registerBaseMonth={registerBaseMonth}
+								rentDealBaseMonth={rentDealBaseMonth}
 							/>
 						}
 						desktop={
 							<DesktopBuildingBody
 								detail={detail}
 								registerBaseMonth={registerBaseMonth}
+								rentDealBaseMonth={rentDealBaseMonth}
 							/>
 						}
 					/>
