@@ -28,7 +28,7 @@ export default function NearbyDealsSummary({
 	const style = nearbyDealsSummaryStyles[layout];
 
 	return (
-		<HStack {...style.summary}>
+		<HStack data-area={`nearby-summary-${layout}`} {...style.summary}>
 			<Text as="p" {...style.count}>
 				{`${nearbyDealsCopy.summaryLabel} `}
 				<Text as="strong" {...style.countValue}>

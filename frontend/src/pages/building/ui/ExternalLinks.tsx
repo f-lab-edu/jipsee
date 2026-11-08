@@ -20,7 +20,7 @@ export default function ExternalLinks({ layout }: ExternalLinksProps) {
 	const style = externalLinksStyles[layout];
 
 	return (
-		<Grid {...style.container}>
+		<Grid data-area={`external-links-${layout}`} {...style.container}>
 			{externalLinks.map((link) => (
 				<Box asChild key={link.href} {...style.link}>
 					<a href={link.href} target="_blank" rel="noopener noreferrer">

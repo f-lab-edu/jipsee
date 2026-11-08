@@ -22,7 +22,11 @@ export default function LocationMissingNotice({
 	const style = locationMissingNoticeStyles[layout];
 
 	return (
-		<Box role="note" {...style.notice}>
+		<Box
+			role="note"
+			data-area={`location-missing-notice-${layout}`}
+			{...style.notice}
+		>
 			<Box {...style.iconCell}>
 				<Icon svg={<LocationMissingIcon />} {...style.icon} />
 			</Box>

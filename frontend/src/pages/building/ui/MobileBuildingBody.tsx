@@ -34,13 +34,13 @@ export default function MobileBuildingBody({
 				detail={detail}
 				registerBaseMonth={registerBaseMonth}
 			/>
-			<SectionDivider />
+			<SectionDivider area="section-divider-history" />
 			<DealHistorySection
 				layout="mobile"
 				detail={detail}
 				rentDealBaseMonth={rentDealBaseMonth}
 			/>
-			<SectionDivider />
+			<SectionDivider area="section-divider-nearby" />
 			<NearbyDealsSection
 				layout="mobile"
 				buildingId={detail.id}

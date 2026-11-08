@@ -23,7 +23,7 @@ export default function PreviousBuildingDeals({
 	const style = previousBuildingDealsStyles[layout];
 
 	return (
-		<VStack {...style.block}>
+		<VStack data-area={`previous-deals-${layout}`} {...style.block}>
 			<VStack {...style.heading}>
 				<Text as="h3" {...style.title}>
 					{previousBuildingDealsCopy.title}
@@ -34,6 +34,7 @@ export default function PreviousBuildingDeals({
 			</VStack>
 			<BuildingDealList
 				layout={layout}
+				area={`previous-deal-list-${layout}`}
 				deals={deals}
 				label={previousBuildingDealsCopy.title}
 				showsHeader={false}

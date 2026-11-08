@@ -25,7 +25,11 @@ export default function NearbyDealsNotice({
 	const style = nearbyDealsNoticeStyles[layout];
 
 	return (
-		<Box role="note" {...style.notice}>
+		<Box
+			role="note"
+			data-area={`nearby-expand-notice-${layout}`}
+			{...style.notice}
+		>
 			<Box {...style.iconCell}>
 				<Icon svg={<IconExclamationmarkCircleLine />} {...style.icon} />
 			</Box>

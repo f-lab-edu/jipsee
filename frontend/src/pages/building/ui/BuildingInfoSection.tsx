@@ -32,7 +32,12 @@ export default function BuildingInfoSection({
 	const titleId = `building-info-title-${layout}`;
 
 	return (
-		<VStack as="section" aria-labelledby={titleId} {...style.section}>
+		<VStack
+			as="section"
+			aria-labelledby={titleId}
+			data-area={`building-info-${layout}`}
+			{...style.section}
+		>
 			<VStack {...style.heading}>
 				<Text as="h2" id={titleId} {...style.title}>
 					{buildingInfoCopy.title}
@@ -47,6 +52,7 @@ export default function BuildingInfoSection({
 					key={index}
 					dong={dong}
 					layout={layout}
+					area={`dong-info-card-${layout}-${index + 1}`}
 				/>
 			))}
 			<Text {...style.baseMonth}>

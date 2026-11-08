@@ -39,7 +39,12 @@ export default function NearbyDealsFilterGroup<
 	const labelId = `nearby-filter-${name}-${layout}`;
 
 	return (
-		<Box role="group" aria-labelledby={labelId} {...style.group}>
+		<Box
+			role="group"
+			aria-labelledby={labelId}
+			data-area={labelId}
+			{...style.group}
+		>
 			<Box {...style.labelCell}>
 				<Text id={labelId} {...style.groupLabel}>
 					{label}

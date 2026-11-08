@@ -23,7 +23,7 @@ export default function BuildingTitleRow({
 	const style = buildingTitleRowStyles;
 
 	return (
-		<HStack {...style.row}>
+		<HStack data-area="building-title-row" {...style.row}>
 			<BackButton style={style.backButton}>
 				<Icon svg={<HeaderBackIcon />} {...style.backIcon} />
 			</BackButton>

@@ -9,6 +9,7 @@ import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
 
 interface BuildingDealListProps {
 	layout: ResponsiveVariant;
+	area: string;
 	deals: BuildingDeal[];
 	label: string;
 	showsHeader: boolean;
@@ -28,6 +29,7 @@ interface BuildingDealListProps {
  */
 export default function BuildingDealList({
 	layout,
+	area,
 	deals,
 	label,
 	showsHeader,
@@ -37,7 +39,7 @@ export default function BuildingDealList({
 
 	if (layout === "mobile") {
 		return (
-			<Box as="ul" {...style.list}>
+			<Box as="ul" data-area={area} {...style.list}>
 				{deals.map((deal) => (
 					<VStack as="li" key={`${deal.type}-${deal.id}`}>
 						<BuildingDealItem
@@ -51,7 +53,7 @@ export default function BuildingDealList({
 	}
 
 	return (
-		<Grid role="table" aria-label={label}>
+		<Grid role="table" aria-label={label} data-area={area}>
 			{showsHeader && (
 				<Grid role="row" columns={dealHistoryColumns} {...style.headerRow}>
 					<Box role="columnheader" {...style.headerCell}>

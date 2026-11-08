@@ -24,7 +24,12 @@ export default function AskBuildingCard({
 	const style = askBuildingStyles;
 
 	return (
-		<Box as="section" aria-label={askBuildingCopy.sectionLabel} {...style.card}>
+		<Box
+			as="section"
+			aria-label={askBuildingCopy.sectionLabel}
+			data-area="ask-building-card"
+			{...style.card}
+		>
 			<AskBuildingButton
 				buildingId={buildingId}
 				session={session}

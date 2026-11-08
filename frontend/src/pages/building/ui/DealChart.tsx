@@ -50,7 +50,7 @@ export default function DealChart({
 	const bandWidth = toPreviousBandWidth(deals, previousDeals, axis);
 
 	return (
-		<VStack {...style.root}>
+		<VStack data-area={`deal-chart-${layout}`} {...style.root}>
 			<DealChartLegend layout={layout} />
 			<Grid {...style.container}>
 				<Flex {...style.yLabels}>

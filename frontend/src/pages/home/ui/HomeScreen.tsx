@@ -27,11 +27,13 @@ export default function HomeScreen({ session, children }: HomeScreenProps) {
 	return (
 		<>
 			<Header session={session} mobileBackground={colors.brandTintBackground} />
-			<VStack as="main" {...style.main}>
+			<VStack as="main" data-area="main" {...style.main}>
 				<ContentContainer>
 					<Grid {...style.grid}>
 						<GridItem {...style.bodyCell}>
-							<VStack {...style.body}>{children}</VStack>
+							<VStack data-area="body" {...style.body}>
+								{children}
+							</VStack>
 						</GridItem>
 						<GridItem {...style.asideCell}>
 							<ChatPanelDesktop session={session} />

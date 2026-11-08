@@ -27,7 +27,12 @@ export default function ChatExpandedPanel({ session }: ChatExpandedPanelProps) {
 	const titleId = useId();
 
 	return (
-		<VStack as="section" aria-labelledby={titleId} {...style.root}>
+		<VStack
+			as="section"
+			aria-labelledby={titleId}
+			data-area="chat-panel-mobile"
+			{...style.root}
+		>
 			<HStack {...style.titleRow}>
 				<Icon svg={<ChatBubbleIcon />} {...style.titleIcon} />
 				<Text as="h2" id={titleId} {...style.title}>

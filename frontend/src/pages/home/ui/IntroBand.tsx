@@ -21,14 +21,14 @@ export default function IntroBand() {
 	const desktopStyle = introLayoutStyles.desktop;
 
 	return (
-		<Box {...style.root}>
+		<Box data-area="intro-band" {...style.root}>
 			<ResponsiveLayout
 				testId="intro-background"
 				mobile={<Box {...mobileStyle.background} />}
 				desktop={<Box {...desktopStyle.background} />}
 			/>
 			<VStack {...style.content}>
-				<Flex {...style.headingRow}>
+				<Flex data-area="intro-heading" {...style.headingRow}>
 					<VStack {...style.headingColumn}>
 						<ResponsiveLayout
 							testId="intro-title"
@@ -43,7 +43,10 @@ export default function IntroBand() {
 											{introCopy.description}
 										</Text>
 									</VStack>
-									<Flex {...mobileStyle.illustrationCell}>
+									<Flex
+										data-area="intro-illustration-mobile"
+										{...mobileStyle.illustrationCell}
+									>
 										<IntroIllustrationMobile />
 									</Flex>
 								</Flex>
@@ -61,11 +64,14 @@ export default function IntroBand() {
 							}
 						/>
 					</VStack>
-					<Flex {...style.desktopIllustrationCell}>
+					<Flex
+						data-area="intro-illustration-desktop"
+						{...style.desktopIllustrationCell}
+					>
 						<IntroIllustrationDesktop />
 					</Flex>
 				</Flex>
-				<VStack {...style.formGroup}>
+				<VStack data-area="intro-search" {...style.formGroup}>
 					<SearchForm defaultValue="" variant="intro" invalid={false} />
 					<ResponsiveLayout
 						testId="intro-chips"

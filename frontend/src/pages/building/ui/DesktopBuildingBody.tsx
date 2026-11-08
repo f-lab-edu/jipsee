@@ -45,7 +45,7 @@ export default function DesktopBuildingBody({
 			<VStack {...style.container}>
 				<BuildingTitleRow name={detail.name} address={detail.address} />
 				<Grid {...style.grid}>
-					<GridItem {...style.mainCell}>
+					<GridItem data-area="building-main-column" {...style.mainCell}>
 						<DealHistorySection
 							layout="desktop"
 							detail={detail}
@@ -59,7 +59,7 @@ export default function DesktopBuildingBody({
 							rentDealBaseMonth={rentDealBaseMonth}
 						/>
 					</GridItem>
-					<GridItem as="aside" {...style.asideCell}>
+					<GridItem as="aside" data-area="building-aside" {...style.asideCell}>
 						<VStack {...style.aside}>
 							<AskBuildingCard buildingId={detail.id} session={session} />
 							<BuildingInfoSection

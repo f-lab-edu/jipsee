@@ -48,7 +48,12 @@ export default function NearbyDealsSection({
 
 	if (result.kind === "noLocation") {
 		return (
-			<VStack as="section" aria-labelledby={titleId} {...style.section}>
+			<VStack
+				as="section"
+				aria-labelledby={titleId}
+				data-area={`nearby-deals-${layout}`}
+				{...style.section}
+			>
 				<Text as="h2" id={titleId} {...style.title}>
 					{nearbyDealsCopy.title}
 				</Text>
@@ -60,7 +65,12 @@ export default function NearbyDealsSection({
 	const noticeTitle = toNearbyNoticeTitle(result.deals.length);
 
 	return (
-		<VStack as="section" aria-labelledby={titleId} {...style.section}>
+		<VStack
+			as="section"
+			aria-labelledby={titleId}
+			data-area={`nearby-deals-${layout}`}
+			{...style.section}
+		>
 			<Text as="h2" id={titleId} {...style.title}>
 				{nearbyDealsCopy.title}
 			</Text>

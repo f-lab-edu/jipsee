@@ -20,7 +20,7 @@ export default function DealChartLegend({ layout }: DealChartLegendProps) {
 	const diameter = style.legendMarkerDiameter;
 
 	return (
-		<Flex {...style.legend}>
+		<Flex data-area={`deal-chart-legend-${layout}`} {...style.legend}>
 			{dealChartLegendItems.map((item) => (
 				<HStack key={item.label} {...style.legendItem}>
 					<svg

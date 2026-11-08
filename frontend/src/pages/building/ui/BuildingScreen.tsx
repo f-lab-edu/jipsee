@@ -46,7 +46,7 @@ export default function BuildingScreen({
 					session={session}
 					title={detail.name ?? detail.address}
 				/>
-				<VStack as="main" {...style.main}>
+				<VStack as="main" data-area="main" {...style.main}>
 					<ResponsiveLayout
 						testId="building-body"
 						mobile={

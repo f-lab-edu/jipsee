@@ -33,7 +33,7 @@ export default function NearbyDealsFilter({
 	const { groups, chips } = nearbyFilterLabels;
 
 	return (
-		<Box {...style.container}>
+		<Box data-area={`nearby-filter-${layout}`} {...style.container}>
 			<NearbyDealsFilterGroup
 				layout={layout}
 				buildingId={buildingId}

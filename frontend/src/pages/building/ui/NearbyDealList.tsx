@@ -29,7 +29,7 @@ export default function NearbyDealList({ layout, deals }: NearbyDealListProps) {
 
 	if (layout === "mobile") {
 		return (
-			<Box as="ul" {...style.list}>
+			<Box as="ul" data-area="nearby-deal-list-mobile" {...style.list}>
 				{deals.map((deal) => (
 					<VStack as="li" key={`${deal.type}-${deal.id}`}>
 						<NearbyDealItem deal={deal} />
@@ -40,7 +40,11 @@ export default function NearbyDealList({ layout, deals }: NearbyDealListProps) {
 	}
 
 	return (
-		<Grid role="table" aria-label={nearbyDealsCopy.title}>
+		<Grid
+			role="table"
+			aria-label={nearbyDealsCopy.title}
+			data-area="nearby-deal-list-desktop"
+		>
 			<Grid role="row" columns={nearbyDealColumns} {...style.headerRow}>
 				<Box role="columnheader" {...style.headerCell}>
 					<Text {...style.headerText}>{nearbyDealsCopy.columns.building}</Text>

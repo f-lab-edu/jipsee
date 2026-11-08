@@ -20,7 +20,7 @@ export default function AreaFixedRow({ layout }: AreaFixedRowProps) {
 	const style = areaFixedRowStyles[layout];
 
 	return (
-		<Box {...style.row}>
+		<Box data-area={`nearby-area-fixed-${layout}`} {...style.row}>
 			<Box {...style.labelCell}>
 				<Text {...style.label}>{nearbyDealsCopy.areaLabel}</Text>
 			</Box>

@@ -22,7 +22,11 @@ export default function ConfirmedDateNotice({
 	const style = confirmedDateNoticeStyles[layout];
 
 	return (
-		<Box role="note" {...style.notice}>
+		<Box
+			role="note"
+			data-area={`confirmed-date-notice-${layout}`}
+			{...style.notice}
+		>
 			<Box {...style.iconCell}>
 				<Icon svg={<BaseMonthNoticeIcon />} {...style.icon} />
 			</Box>

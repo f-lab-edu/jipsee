@@ -7,6 +7,7 @@ import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
 interface DongInfoCardProps {
 	dong: BuildingDong;
 	layout: ResponsiveVariant;
+	area: string;
 }
 
 /**
@@ -17,12 +18,16 @@ interface DongInfoCardProps {
  *
  * @param layout 동 이름 글자 크기가 모바일 16, 데스크톱 15로 다름
  */
-export default function DongInfoCard({ dong, layout }: DongInfoCardProps) {
+export default function DongInfoCard({
+	dong,
+	layout,
+	area,
+}: DongInfoCardProps) {
 	const style = dongInfoCardStyles[layout];
 	const rows = toDongInfoRows(dong);
 
 	return (
-		<VStack {...style.card}>
+		<VStack data-area={area} {...style.card}>
 			{dong.name !== null && (
 				<Text as="h3" {...style.title}>
 					{dong.name}

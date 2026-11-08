@@ -22,7 +22,12 @@ export default function ChatCompactBar({ session }: ChatCompactBarProps) {
 	const style = chatCompactBarStyles;
 
 	return (
-		<Box as="section" aria-label={chatPanelCopy.compactLabel} {...style.root}>
+		<Box
+			as="section"
+			aria-label={chatPanelCopy.compactLabel}
+			data-area="chat-compact-bar"
+			{...style.root}
+		>
 			{session && (
 				<ChatQuestionForm variant="compactBar">
 					<ChatHistoryIconLink style={style.historyLink} />

@@ -28,7 +28,12 @@ export default function ChatPanelDesktop({ session }: ChatPanelDesktopProps) {
 	const titleId = useId();
 
 	return (
-		<VStack as="aside" aria-labelledby={titleId} {...style.root}>
+		<VStack
+			as="aside"
+			aria-labelledby={titleId}
+			data-area="chat-panel-desktop"
+			{...style.root}
+		>
 			<HStack {...style.titleRow}>
 				<Box {...style.iconBox}>
 					<Icon svg={<ChatBubbleIcon />} {...style.icon} />

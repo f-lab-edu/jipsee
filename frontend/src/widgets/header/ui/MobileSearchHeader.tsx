@@ -35,7 +35,7 @@ export default function MobileSearchHeader({
 					<Icon svg={<HeaderBackIcon />} {...style.backIcon} />
 				</Link>
 			</Box>
-			<Box {...style.formCell}>
+			<Box data-area="mobile-search-form" {...style.formCell}>
 				<SearchForm
 					key={keyword}
 					defaultValue={keyword}

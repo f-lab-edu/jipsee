@@ -23,7 +23,11 @@ export default function DealChartPreviousBand({
 	const style = dealChartStyles[layout];
 
 	return (
-		<Box width={`${widthPercent}%`} {...style.previousBand}>
+		<Box
+			width={`${widthPercent}%`}
+			data-area={`deal-chart-previous-band-${layout}`}
+			{...style.previousBand}
+		>
 			<svg aria-hidden="true" {...style.previousBandSvg}>
 				<rect {...style.previousBandFill} />
 				<line {...style.previousBandEdge} />

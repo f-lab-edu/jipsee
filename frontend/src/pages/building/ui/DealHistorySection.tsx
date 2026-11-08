@@ -35,7 +35,12 @@ export default function DealHistorySection({
 	const titleId = `deal-history-title-${layout}`;
 
 	return (
-		<VStack as="section" aria-labelledby={titleId} {...style.section}>
+		<VStack
+			as="section"
+			aria-labelledby={titleId}
+			data-area={`deal-history-${layout}`}
+			{...style.section}
+		>
 			<Text as="h2" id={titleId} {...style.title}>
 				{dealHistoryCopy.title}
 			</Text>
@@ -48,6 +53,7 @@ export default function DealHistorySection({
 			{detail.deals.length > 0 && (
 				<BuildingDealList
 					layout={layout}
+					area={`deal-list-${layout}`}
 					deals={detail.deals}
 					label={dealHistoryCopy.currentDealsLabel}
 					showsHeader={true}
