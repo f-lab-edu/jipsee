@@ -1,6 +1,7 @@
 import type {
 	BoxProps,
 	HStackProps,
+	IconProps,
 	TextProps,
 	VStackProps,
 } from "@seed-design/react";
@@ -13,6 +14,16 @@ export interface MeSectionStyle {
 	providerName: TextProps;
 	logout: BoxProps;
 	logoutText: TextProps;
+	policySection: VStackProps;
+	policyRow: HStackProps;
+	policyLabel: TextProps;
+	policyArrowCell: BoxProps;
+	policyArrow: Omit<IconProps, "svg">;
+	withdraw: BoxProps;
+	withdrawBody: VStackProps;
+	withdrawButton: BoxProps;
+	withdrawButtonText: TextProps;
+	withdrawDescription: TextProps;
 }
 
 export interface MeStyle {
@@ -20,6 +31,8 @@ export interface MeStyle {
 	mobileBody: VStackProps;
 	mobileTitleBox: BoxProps;
 	mobileTitle: TextProps;
+	mobileDivider: BoxProps;
+	mobileSpacer: BoxProps;
 	desktopBody: VStackProps;
 	desktopColumn: VStackProps;
 	desktopTitleBox: BoxProps;
