@@ -41,7 +41,7 @@ export const loginButtonStyles: LoginButtonStyle = {
 		position: "absolute",
 		top: 0,
 		bottom: 0,
-		left: "x4",
+		left: "16px",
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",

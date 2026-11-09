@@ -1,8 +1,13 @@
 export type Rgba = { r: number; g: number; b: number; a: number };
 
-/** rgb(), rgba(), color(srgb ...) 문자열을 0~255 범위의 rgba로 바꿈 */
+/** #rrggbb, rgb(), rgba(), color(srgb ...) 문자열을 0~255 범위의 rgba로 바꿈 */
 export function parseColor(value: string | null | undefined): Rgba | null {
 	const text = String(value).trim();
+	const hex = text.match(/^#([0-9a-f]{6})$/i);
+	if (hex) {
+		const n = Number.parseInt(hex[1], 16);
+		return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255, a: 1 };
+	}
 	const rgb = text.match(/^rgba?\(([^)]+)\)$/);
 	if (rgb) {
 		const p = rgb[1]

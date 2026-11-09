@@ -159,6 +159,13 @@ button {
 	word-break: keep-all;
 }
 
+/* 탈퇴 확인 창의 제목과 설명. Seed 제목과 설명 클래스가 Text 글자 값을 덮어쓰는 순서가 로드 순서에 따라 달라짐 */
+:root .withdraw-dialog-content .seed-text {
+	font-size: var(--seed-font-size);
+	line-height: var(--seed-line-height);
+	font-weight: var(--seed-font-weight);
+}
+
 /* 제목 자간. Seed에 letterSpacing이 없음 */
 .tight-letter-spacing {
 	letter-spacing: -0.03em;

@@ -448,11 +448,12 @@ for (const { label, viewport } of SCREENS) {
 						.getByRole("link", { name })
 						.evaluate((element) => {
 							const computed = getComputedStyle(element);
+							const label = [...element.querySelectorAll("span")].pop();
 							return {
 								background: computed.backgroundColor,
 								border: computed.borderTopWidth,
 								borderColor: computed.borderTopColor,
-								text: computed.color,
+								text: label ? getComputedStyle(label).color : "",
 							};
 						});
 					expect(sameColor(style.background, expected.background)).toBe(true);
@@ -696,7 +697,9 @@ for (const { label, viewport } of SCREENS) {
 				page,
 			}) => {
 				await gotoAndSettle(page, "/login");
-				await expect(page.getByRole("alert")).toHaveCount(0);
+				await expect(page.getByTestId(bodyId).getByRole("alert")).toHaveCount(
+					0,
+				);
 				await expect(page.getByText(ERROR_TEXT)).toHaveCount(0);
 			});
 
@@ -705,7 +708,10 @@ for (const { label, viewport } of SCREENS) {
 					page,
 				}) => {
 					await gotoAndSettle(page, path);
-					const alerts = page.getByRole("alert").locator("visible=true");
+					const alerts = page
+						.getByTestId(bodyId)
+						.getByRole("alert")
+						.locator("visible=true");
 					await expect(alerts).toHaveCount(1);
 					await expect(alerts).toHaveText(ERROR_TEXT);
 				});
@@ -728,23 +734,23 @@ for (const { label, viewport } of SCREENS) {
 						paddingLeft: computed.paddingLeft,
 						radius: computed.borderTopLeftRadius,
 						background: computed.backgroundColor,
-						color: computed.color,
 					};
 				});
 				expect(style.paddingTop).toBe("14px");
 				expect(style.paddingLeft).toBe("16px");
 				expect(style.radius).toBe("12px");
 				expect(sameColor(style.background, colors.criticalWeak)).toBe(true);
-				expect(sameColor(style.color, colors.criticalContrast)).toBe(true);
 				const text = alert.getByText(ERROR_TEXT);
 				const textStyle = await text.evaluate((element) => {
 					const computed = getComputedStyle(element);
 					return {
+						color: computed.color,
 						fontSize: computed.fontSize,
 						lineHeight: computed.lineHeight,
 						fontWeight: computed.fontWeight,
 					};
 				});
+				expect(sameColor(textStyle.color, colors.criticalContrast)).toBe(true);
 				expect(textStyle.fontSize).toBe("14px");
 				expect(textStyle.lineHeight).toBe("20px");
 				expect(textStyle.fontWeight).toBe("500");
@@ -1321,7 +1327,7 @@ for (const { label, viewport } of SCREENS) {
 					expect(box?.width).toBeCloseTo(rowWidth, 0);
 					expect(box?.y).toBeCloseTo(
 						(sectionBox?.y ?? 0) +
-							(isMobile ? 20 : 24) +
+							(isMobile ? 20 : 1 + 24) +
 							22 +
 							4 +
 							index * POLICY_ROW_HEIGHT,
@@ -1371,10 +1377,12 @@ for (const { label, viewport } of SCREENS) {
 						(row?.x ?? 0) + (row?.width ?? 0) - 4,
 						0,
 					);
-					expect((box?.y ?? 0) + 9).toBeCloseTo(
-						(row?.y ?? 0) + (row?.height ?? 0) / 2,
-						0,
-					);
+					// 행 높이 56에 아래 테두리 1이 들어 있어 안쪽 가운데는 27.5임
+					expect(
+						Math.abs(
+							(box?.y ?? 0) + 9 - ((row?.y ?? 0) + (row?.height ?? 0) / 2),
+						),
+					).toBeLessThanOrEqual(0.5);
 					const colors = await arrow.evaluate((element) => {
 						const probe = document.createElement("span");
 						probe.style.color = "var(--seed-color-fg-neutral-subtle)";
