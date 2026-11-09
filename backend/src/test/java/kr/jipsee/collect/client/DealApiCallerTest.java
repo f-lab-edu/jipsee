@@ -168,6 +168,21 @@ class DealApiCallerTest {
         }
 
         @Test
+        @DisplayName("JSON이 아닌 본문의 5xx가 한 번 오고 이후 성공하면 결과를 반환함")
+        void JSON이_아닌_본문의_5xx가_한_번_오고_이후_성공하면_결과를_반환함() {
+            server.expect(request -> {})
+                    .andRespond(withStatus(HttpStatus.BAD_GATEWAY)
+                            .contentType(MediaType.TEXT_PLAIN)
+                            .body("Bad Gateway"));
+            server.expect(request -> {}).andRespond(withSuccess(TWO_ITEMS_BODY, MediaType.APPLICATION_JSON));
+
+            DealPage<DealItem> page = call();
+
+            assertThat(page.items()).hasSize(2);
+            server.verify();
+        }
+
+        @Test
         @DisplayName("5xx가 계속되면 처음 한 번과 재시도 세 번 뒤에 실패함")
         void 서버_오류가_계속되면_처음_한_번과_재시도_세_번_뒤에_실패함() {
             server.expect(ExpectedCount.times(4), request -> {}).andRespond(withServerError());

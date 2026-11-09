@@ -49,9 +49,9 @@ class DealItemTest {
         @Test
         @DisplayName("공백 1자가 아닌 값은 다듬지 않고 그대로 반환함")
         void 공백_1자가_아닌_값은_다듬지_않고_그대로_반환함() {
-            DealItem item = item("{\"a\":\"효동빌라　\",\"b\":\"  \",\"c\":\" 가 \"}");
+            DealItem item = item("{\"a\":\"효동빌라\u3000\",\"b\":\"  \",\"c\":\" 가 \"}");
 
-            assertThat(item.optionalText("a")).isEqualTo("효동빌라　");
+            assertThat(item.optionalText("a")).isEqualTo("효동빌라\u3000");
             assertThat(item.optionalText("b")).isEqualTo("  ");
             assertThat(item.optionalText("c")).isEqualTo(" 가 ");
         }
