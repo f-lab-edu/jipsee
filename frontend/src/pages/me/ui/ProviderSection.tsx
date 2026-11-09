@@ -2,6 +2,7 @@ import { Box, HStack, Text, VStack } from "@seed-design/react";
 import { providerNames } from "@/entities/session/config/providerNames";
 import type { Provider } from "@/entities/session/model/session";
 import ProviderIcon from "@/entities/session/ui/ProviderIcon";
+import LogoutButton from "@/features/logout/ui/LogoutButton";
 import { meCopy } from "@/pages/me/config/meCopy";
 import { meSectionStyles, meStyles } from "@/pages/me/config/meStyles";
 import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
@@ -45,11 +46,7 @@ export default function ProviderSection({
 				</Box>
 				<Text {...style.providerName}>{providerNames[provider]}</Text>
 			</HStack>
-			<Box asChild {...style.logout}>
-				<button type="button">
-					<Text {...style.logoutText}>{meCopy.logout}</Text>
-				</button>
-			</Box>
+			<LogoutButton />
 		</VStack>
 	);
 }

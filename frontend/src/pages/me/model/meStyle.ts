@@ -12,8 +12,6 @@ export interface MeSectionStyle {
 	title: TextProps;
 	provider: HStackProps;
 	providerName: TextProps;
-	logout: BoxProps;
-	logoutText: TextProps;
 	policySection: VStackProps;
 	policyRow: HStackProps;
 	policyLabel: TextProps;

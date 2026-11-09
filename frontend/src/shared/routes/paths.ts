@@ -4,6 +4,8 @@ export const paths = {
 	login: "/login",
 	loginWithNext: (next: string) => `/login?next=${encodeURIComponent(next)}`,
 	oauthAuthorization: (segment: string) => `/oauth2/authorization/${segment}`,
+	logoutAction: "/api/auth/logout",
+	withdrawAction: "/api/account/withdraw",
 	chat: "/chat",
 	chatWithBuilding: (id: number) => `/chat?buildingId=${id}`,
 	me: "/me",

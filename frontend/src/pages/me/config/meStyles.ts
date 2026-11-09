@@ -67,16 +67,6 @@ const sectionShared: Omit<
 		fontWeight: "bold",
 		color: "fg.neutral",
 	},
-	logout: {
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "center",
-		width: "full",
-		height: "48px",
-		borderRadius: "r3",
-		bg: "bg.neutralWeak",
-	},
-	logoutText: { ...typography.size15, fontWeight: "bold", color: "fg.neutral" },
 	// Box가 content-box이므로 행 높이 56에서 아래 구분선 1을 뺌
 	policyRow: {
 		alignItems: "center",

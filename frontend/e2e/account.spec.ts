@@ -1544,3 +1544,61 @@ for (const { label, viewport } of SCREENS) {
 		});
 	}
 }
+
+// 커밋 7: 로그아웃 (A7)
+// 기대값: 설계 문서 5절 S5(로그아웃은 /api/auth/logout에 POST하는 폼의 제출 버튼)와 Route Handler 표. 버튼 모양은 A5와 같음
+// 개발 환경에 백엔드(API_URL)가 없으므로 제출하면 502가 나는 것까지만 확인함. Origin이 없는 직접 POST는 403임
+const LOGOUT_ACTION = "/api/auth/logout";
+
+let a7Number = 1;
+
+for (const { label, viewport } of SCREENS) {
+	const layout = viewport === MOBILE ? "mobile" : "desktop";
+
+	test.describe(`${label} ${viewport.width}x${viewport.height} 로그아웃`, () => {
+		test.use({ viewport, colorScheme: "light" });
+		test.skip(
+			process.env.TC_SESSION !== "in",
+			"로그인 TC는 TC_SESSION=in일 때만 돌림",
+		);
+		const section = `[data-area="provider-section-${layout}"]`;
+
+		test(`${caseId("A7", a7Number++)} ${label} 로그아웃 버튼이 ${LOGOUT_ACTION}에 POST하는 폼의 제출 버튼임`, async ({
+			page,
+		}) => {
+			await gotoAndSettle(page, "/me");
+			const form = page.locator(section).locator("form");
+			await expect(form).toHaveCount(1);
+			await expect(form).toHaveAttribute("method", "post");
+			await expect(form).toHaveAttribute("action", LOGOUT_ACTION);
+			const button = form.getByRole("button", { name: ME_TEXT.logout });
+			await expect(button).toHaveCount(1);
+			await expect(button).toHaveAttribute("type", "submit");
+		});
+
+		test(`${caseId("A7", a7Number++)} ${label} 백엔드가 없을 때 로그아웃 폼을 제출하면 ${LOGOUT_ACTION}가 502를 반환함`, async ({
+			page,
+		}) => {
+			await gotoAndSettle(page, "/me");
+			const responsePromise = page.waitForResponse(
+				(response) =>
+					new URL(response.url()).pathname === LOGOUT_ACTION &&
+					response.request().method() === "POST",
+			);
+			await page
+				.locator(section)
+				.getByRole("button", { name: ME_TEXT.logout })
+				.click();
+			expect((await responsePromise).status()).toBe(502);
+		});
+
+		test(`${caseId("A7", a7Number++)} ${label} Origin이 없는 직접 POST는 ${LOGOUT_ACTION}가 403을 반환함`, async ({
+			page,
+		}) => {
+			const response = await page.request.post(LOGOUT_ACTION, {
+				maxRedirects: 0,
+			});
+			expect(response.status()).toBe(403);
+		});
+	});
+}
