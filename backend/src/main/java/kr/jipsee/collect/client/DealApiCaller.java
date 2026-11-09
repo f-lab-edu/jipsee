@@ -117,13 +117,13 @@ public class DealApiCaller {
         }
     }
 
-    /** 오류 코드 22, 23을 먼저 검증하고, 그다음 상태 코드로 실패 여부 검증 */
+    /** 오류 코드 22, 23, 상태 코드, 그 밖의 오류 코드 순으로 실패 판단 */
     private static void throwIfFailed(String errorCode, HttpStatusCode status, String requestInfo) {
         switch (errorCode) {
             case "22" -> throw new DealApiException("호출 한도 초과(22): " + requestInfo);
             case "23" -> throw new DealApiTransientException("초당 요청 수 초과(23): " + requestInfo);
             case null, default -> {
-                // 22, 23이 아니면 아래 상태 코드로 판단
+                // 22, 23이 아니면 아래에서 판단
             }
         }
 
@@ -133,6 +133,10 @@ public class DealApiCaller {
 
         if (!status.is2xxSuccessful()) {
             throw new DealApiException("HTTP " + status + ": " + requestInfo);
+        }
+
+        if (errorCode != null) {
+            throw new DealApiException("오류 응답(" + errorCode + "): " + requestInfo);
         }
     }
 

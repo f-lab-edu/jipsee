@@ -134,21 +134,6 @@ class DealApiCallerTest {
             assertThat(page.totalCount()).isZero();
             assertThat(page.items()).isEmpty();
         }
-
-        @Test
-        @DisplayName("resultCode가 000이 아니어도 totalCount가 있으면 그 값을 담아 반환함")
-        void resultCode가_000이_아니어도_totalCount가_있으면_그_값을_담아_반환함() {
-            server.expect(request -> {})
-                    .andRespond(withSuccess(
-                            "{\"response\":{\"header\":{\"resultCode\":\"99\",\"resultMsg\":\"ERROR\"},\"body\":{\"totalCount\":0}}}",
-                            MediaType.APPLICATION_JSON));
-
-            DealPage<DealItem> page = call();
-
-            assertThat(page.resultCode()).isEqualTo("99");
-            assertThat(page.totalCount()).isZero();
-            assertThat(page.items()).isEmpty();
-        }
     }
 
     @Nested
@@ -334,6 +319,23 @@ class DealApiCallerTest {
             Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
 
             assertThat(thrown).isInstanceOf(DealApiException.class).hasMessageContaining("20");
+            server.verify();
+        }
+
+        @Test
+        @DisplayName("응답 상태가 200이어도 resultCode가 000이 아니면 DealApiException으로 실패함")
+        void 응답_상태가_200이어도_resultCode가_000이_아니면_DealApiException으로_실패함() {
+            server.expect(request -> {})
+                    .andRespond(withSuccess(
+                            "{\"response\":{\"header\":{\"resultCode\":\"99\",\"resultMsg\":\"ERROR\"},\"body\":{\"totalCount\":0}}}",
+                            MediaType.APPLICATION_JSON));
+
+            Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
+
+            assertThat(thrown)
+                    .isInstanceOf(DealApiException.class)
+                    .isNotInstanceOf(DealApiTransientException.class)
+                    .hasMessageContaining("99");
             server.verify();
         }
 
