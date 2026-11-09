@@ -26,7 +26,7 @@ interface BuildingScreenProps {
  * 건물 상세 > 화면 뼈대
  *
  * - 1280 미만은 한 열로 두고, md 이상에서 열 폭을 720까지 넓힘
- * - 건물명, 없으면 주소를 제목으로 둔 헤더, 본문, 푸터, 모바일 질문 바 순서로 출력
+ * - 헤더, 본문, 푸터, 모바일 질문 바 순서로 출력
  * - 주변 거래 조건과 결과를 모바일, 데스크톱 본문에 전달
  */
 export default function BuildingScreen({
@@ -42,10 +42,7 @@ export default function BuildingScreen({
 	return (
 		<VStack {...style.page}>
 			<VStack {...style.column}>
-				<BuildingHeader
-					session={session}
-					title={detail.name ?? detail.address}
-				/>
+				<BuildingHeader session={session} />
 				<VStack as="main" data-area="main" {...style.main}>
 					<ResponsiveLayout
 						testId="building-body"

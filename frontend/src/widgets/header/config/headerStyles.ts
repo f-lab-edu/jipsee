@@ -10,6 +10,7 @@ export const headerStyles = defineResponsiveStyles<HeaderStyle>({
 			justifyContent: "space-between",
 			alignItems: "center",
 		},
+		leftGroup: { alignItems: "center" },
 		brandLink: { gap: "x2", alignItems: "center" },
 		logoSize: 28,
 		serviceName: {

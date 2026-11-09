@@ -32,4 +32,30 @@ describe("Header", () => {
 			"--seed-box-background: var(--seed-color-bg-brand-weak)",
 		);
 	});
+
+	it("모바일 헤더에 뒤로 가기 요소는 로고 줄에, 둘째 줄 요소는 그 아래에 표시함", () => {
+		render(
+			<Header
+				session={null}
+				mobileBackground="transparent"
+				mobileBack={<button type="button">뒤로</button>}
+				mobileBottom={<p>둘째 줄</p>}
+			/>,
+		);
+
+		const mobile = within(screen.getByTestId("header-mobile"));
+		const back = mobile.getByRole("button", { name: "뒤로" });
+		const logo = mobile.getByRole("link", { name: "집씨 홈" });
+		const bottom = mobile.getByText("둘째 줄");
+
+		expect(
+			back.compareDocumentPosition(logo) & Node.DOCUMENT_POSITION_FOLLOWING,
+		).toBeTruthy();
+		expect(
+			logo.compareDocumentPosition(bottom) & Node.DOCUMENT_POSITION_FOLLOWING,
+		).toBeTruthy();
+		expect(
+			within(screen.getByTestId("header-desktop")).queryByText("뒤로"),
+		).toBeNull();
+	});
 });

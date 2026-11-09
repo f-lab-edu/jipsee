@@ -60,7 +60,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
-	test("C3-14 모바일에서 건물명이 있으면 헤더 제목이 건물명이고 부제가 없음", async ({
+	test("C3-14 모바일에서 건물명이 있으면 본문 카드 첫 줄 제목이 건물명이고 헤더에 제목이 없음 (2026-11-09 피드백 7번)", async ({
 		t,
 	}) => {
 		for (const [id, name] of Object.entries(NAMES)) {
@@ -68,10 +68,20 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			const m = await t.measure();
 			t.eq(`id ${id} h1 개수`, m.h1s.length, 1);
 			t.eq(`id ${id} h1 글자`, m.h1s[0]?.text, name);
-			t.eq(`id ${id} 헤더 안 글자 전체`, m.headerText, name);
+			t.eq(
+				`id ${id} h1이 헤더 밖 main 안에 있음`,
+				[m.h1s[0]?.inHeader, m.h1s[0]?.inMain],
+				[false, true],
+			);
+			t.ok(
+				`id ${id} 헤더 안에 건물명 없음`,
+				!(m.headerText ?? "").includes(name),
+				m.headerText,
+				"로고와 계정 링크만 있음",
+			);
 		}
 	});
-	test("C3-15 모바일에서 건물명이 없으면 헤더 제목이 주소이고 부제가 없음", async ({
+	test("C3-15 모바일에서 건물명이 없으면 본문 카드 첫 줄 제목이 주소이고 부제가 없음 (2026-11-09 피드백 7번)", async ({
 		t,
 	}) => {
 		await t.goto("/buildings/4");
@@ -83,7 +93,11 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			m.h1s[0]?.text,
 			"마포구 망원동 16-2로 끝남",
 		);
-		t.eq("헤더 안 글자 전체", m.headerText, m.h1s[0]?.text);
+		t.eq(
+			"h1이 헤더 밖 main 안에 있음",
+			[m.h1s[0]?.inHeader, m.h1s[0]?.inMain],
+			[false, true],
+		);
 	});
 });
 test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
@@ -126,7 +140,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 	test.describe(`${MOBILE.width}x${MOBILE.height} ${theme}`, () => {
 		test.use({ viewport: MOBILE, colorScheme: theme });
 
-		test(`${caseId("C3", 18 + 2 * themeIndex)} 모바일 헤더의 크기, 뒤로 가기 버튼 위치, 제목 글자가 캔버스와 같음 (${theme})`, async ({
+		test(`${caseId("C3", 18 + 2 * themeIndex)} 모바일 로고 헤더의 크기, 뒤로 가기 버튼 위치, 본문 첫 줄 제목 글자가 설계와 같음 (${theme}, 2026-11-09 피드백 7번)`, async ({
 			t,
 		}) => {
 			await t.goto("/buildings/1");
@@ -135,36 +149,36 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			t.near("헤더 높이", m.header?.h, 56);
 			t.near("헤더 y", m.header?.y, 0);
 			t.near("헤더 폭", m.header?.w, 390);
-			t.near("헤더 아래 border 두께", m.headerBorder?.w, 1, 0.1);
+			t.eq("헤더 아래 border 없음", m.headerBorder ?? null, null);
 			t.eq("보이는 뒤로 가기 버튼 개수", m.backs.length, 1);
 			const b = m.backs[0];
 			t.near("뒤로 가기 w", b?.rect.w, 44);
 			t.near("뒤로 가기 h", b?.rect.h, 44);
-			t.near("뒤로 가기 x", b?.rect.x, 4);
-			t.near("뒤로 가기 y", b?.rect.y, 5.5);
+			t.near("뒤로 가기 x (gutter 16, margin-left -10)", b?.rect.x, 6);
+			t.near("뒤로 가기 y (헤더 56 가운데)", b?.rect.y, 6);
 			t.eq("보이는 h1 개수", m.h1s.length, 1);
 			const h = m.h1s[0];
 			t.eq("h1 글자", h?.text, "망원빌라");
-			t.near("h1 x", h?.rect.x, 50);
+			t.near("h1 x (카드 안쪽 gutter 16 + border 1)", h?.rect.x, 33);
+			t.near(
+				"h1 y (헤더 아래 카드 border 1, 위 padding 20)",
+				h?.rect.y,
+				(m.header?.b ?? Number.NaN) + 1 + 20,
+			);
 			t.eq("h1 글자 크기", h?.fs, "18px");
 			t.eq("h1 굵기", h?.fw, "700");
 			t.eq("h1 줄 높이", h?.lh, "24px");
 			t.near("h1 높이(한 줄)", h?.rect.h, 24);
-			t.eq("모바일 헤더에 로고 링크 없음", m.logoVisible, 0);
-			t.eq("모바일 헤더에 로그인 링크 없음", m.loginVisible, 0);
+			t.eq("모바일 헤더에 로고 링크 하나", m.logoVisible, 1);
+			t.eq("모바일 헤더에 로그인 링크 하나", m.loginVisible, 1);
 			t.eq("모바일 헤더에 내 정보 링크 없음", m.myInfoVisible, 0);
 		});
-		test(`${caseId("C3", 19 + 2 * themeIndex)} 모바일 헤더의 배경, 아래 border 색, 제목 색이 토큰과 같음 (${theme})`, async ({
+		test(`${caseId("C3", 19 + 2 * themeIndex)} 모바일 헤더의 배경과 제목 색이 토큰과 같음 (${theme}, 2026-11-09 피드백 7번)`, async ({
 			t,
 		}) => {
 			await t.goto("/buildings/1");
 			const m = await t.measure();
-			t.color("헤더 배경 bg.layerDefault", m.bgHeader, t.tokens.layerDefault);
-			t.color(
-				"헤더 아래 border stroke.neutralMuted",
-				m.headerBorder?.color,
-				t.tokens.strokeMuted,
-			);
+			t.color("헤더 배경 투명이라 하늘빛 열 배경이 보임", m.bgHeader, m.tint);
 			t.color("h1 색 fg.neutral", m.h1s[0]?.color, t.tokens.fgNeutral);
 		});
 	});
@@ -312,12 +326,11 @@ test.describe("1279x900 light", () => {
 			const m = await t.measure();
 			const h1 = m.h1s[0];
 			let h1Place = "none";
-			if (h1?.inHeader) h1Place = "header";
-			else if (h1?.inMain) h1Place = "main";
+			if (h1?.inMain) h1Place = "main";
 			t.eq(`${label} 보이는 h1 개수`, m.h1s.length, 1);
 			t.eq(`${label} 보이는 뒤로 가기 버튼 개수`, m.backs.length, 1);
-			t.eq(`${label} 로고 링크 개수`, m.logoVisible, expectDesktop ? 1 : 0);
-			t.eq(`${label} h1 위치`, h1Place, expectDesktop ? "main" : "header");
+			t.eq(`${label} 로고 링크 개수`, m.logoVisible, 1);
+			t.eq(`${label} h1 위치`, h1Place, "main");
 			t.near(`${label} 헤더 높이`, m.header?.h, expectDesktop ? 64 : 56);
 		};
 		await step("1279", 1279, false);
@@ -346,7 +359,11 @@ async function s1FooterBg(t: T) {
 async function bgNarrow(t: T) {
 	await t.goto("/buildings/1");
 	const m = await t.measure();
-	t.color("헤더 bg.layerDefault", m.bgHeader, t.tokens.layerDefault);
+	t.color(
+		"헤더 배경 투명이라 하늘빛 열 배경(2026-11-09 피드백 7번)",
+		m.bgHeader,
+		m.tint,
+	);
 	t.color("main 카드 바깥 하늘빛(2026-11-09 피드백)", m.bgMain, m.tint);
 	const cardBg = await t.page.evaluate(() => {
 		const card = document.querySelector(
@@ -360,7 +377,7 @@ async function bgNarrow(t: T) {
 test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
-	test("C3-38 390px에서 헤더와 본문 카드는 흰색 토큰이고 푸터는 하늘빛임 (light)", async ({
+	test("C3-38 390px에서 헤더와 푸터는 하늘빛이고 본문 카드는 흰색 토큰임 (light)", async ({
 		t,
 	}) => {
 		await bgNarrow(t);
@@ -409,7 +426,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "dark" });
 
-	test("C3-39 390px에서 헤더와 본문 카드는 흰색 토큰이고 푸터는 하늘빛임 (dark)", async ({
+	test("C3-39 390px에서 헤더와 푸터는 하늘빛이고 본문 카드는 흰색 토큰임 (dark)", async ({
 		t,
 	}) => {
 		await bgNarrow(t);

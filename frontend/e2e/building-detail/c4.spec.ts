@@ -17,7 +17,12 @@ import { c4MobileGeometry } from "../support/buildingDetail/c4MobileGeometry";
 import type { Theme } from "../support/buildingDetail/tokens";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
-import { DESKTOP, MOBILE, MOBILE_CARD } from "../support/viewports";
+import {
+	DESKTOP,
+	MOBILE,
+	MOBILE_CARD,
+	MOBILE_TITLE_HEIGHT,
+} from "../support/viewports";
 
 const THEMES: Theme[] = ["light", "dark"];
 
@@ -47,9 +52,9 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		t.eq("aria-labelledby가 가리키는 글자", m.labelledByText, "건물 정보");
 		t.near("섹션 x", m.section?.rect.x, MOBILE_CARD.x);
 		t.near(
-			"섹션 y (헤더 아래 카드 border 1)",
+			"섹션 y (헤더 아래 카드 border 1과 건물명 제목 블록 44)",
 			m.section?.rect.y,
-			(m.headerBottom ?? Number.NaN) + 1,
+			(m.headerBottom ?? Number.NaN) + 1 + MOBILE_TITLE_HEIGHT,
 		);
 		t.near("섹션 w", m.section?.rect.w, MOBILE_CARD.width);
 		t.eq(
@@ -59,7 +64,11 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		);
 		t.eq("섹션 border 없음", m.section?.bw, "0px");
 		t.near("제목 x", m.h2?.rect.x, MOBILE_CARD.x + 16);
-		t.near("제목 y", m.h2?.rect.y, (m.headerBottom ?? Number.NaN) + 20);
+		t.near(
+			"제목 y",
+			m.h2?.rect.y,
+			(m.headerBottom ?? Number.NaN) + 1 + MOBILE_TITLE_HEIGHT + 20,
+		);
 		t.near("제목 h", m.h2?.rect.h, 24);
 		t.eq(
 			"제목 글자 18/24 굵게",
