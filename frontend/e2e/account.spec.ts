@@ -1,6 +1,7 @@
 // S4 로그인, S5 내 정보 UI TC
 // 기대값: 설계 문서(2026-11-08-s4-s5-account-design.md) 5절의 로그인 링크 표와 캔버스 S4, S5 보드. 2026-11-09 피드백이 설계 문서와 다르면 피드백을 따름
 // 로그인한 상태의 TC는 앱의 sessionMock이 { provider: "GOOGLE" } 같은 값일 때만 의미가 있어 TC_SESSION=in일 때만 돌림. 기본 실행은 로그아웃 TC만 돎
+// S5 TC는 sessionMock의 제공자를 TC_PROVIDER(google, kakao, naver. 기본 kakao)로 알려 줘야 함. 제공자별 TC는 그 값과 맞을 때만 돎
 import { expect } from "@playwright/test";
 import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
@@ -807,4 +808,422 @@ for (const { label, viewport } of SCREENS) {
 			);
 		});
 	});
+}
+
+// 커밋 5: S5 라우트, 화면 뼈대, 로그인 수단 (A5)
+// 기대값: 설계 문서 3절 S5 표, 4절 문구, 5절 S5 동작, 캔버스 S5MeMobile과 S5MeDesktop(Dark 포함), 2026-11-09 피드백 7번과 8번
+// 피드백 7번에 따라 모바일 헤더는 뒤로 가기, 로고 헤더이고 제목이 없음. 그래서 모바일 h1은 본문 첫 줄의 "내 정보"임(캔버스는 헤더의 "내 정보" 18/24 700)
+// 모바일 제목 줄은 위 패딩 20에 줄 24이고, 그 아래에 캔버스와 같은 로그인 수단 섹션(패딩 20 16 24)이 이어짐
+// 캔버스의 섹션 높이는 패딩 20, 제목 22, 간격 12, 제공자 표시 74(아이콘 40 + 패딩 32 + 테두리 2), 간격 12, 로그아웃 48, 패딩 24임
+const ME_PROVIDERS = {
+	google: {
+		name: "구글 계정",
+		iconSize: 20,
+		border: 1,
+		colors: {
+			light: { background: "#FFFFFF", border: "#747775" },
+			dark: { background: "#131314", border: "#8E918F" },
+		},
+	},
+	kakao: {
+		name: "카카오 계정",
+		iconSize: 20,
+		border: 0,
+		colors: {
+			light: { background: "#FEE500", border: null },
+			dark: { background: "#FEE500", border: null },
+		},
+	},
+	naver: {
+		name: "네이버 계정",
+		iconSize: 16,
+		border: 0,
+		colors: {
+			light: { background: "#03C75A", border: null },
+			dark: { background: "#03C75A", border: null },
+		},
+	},
+};
+type MeProvider = keyof typeof ME_PROVIDERS;
+const ME_PROVIDER_KEYS = Object.keys(ME_PROVIDERS) as MeProvider[];
+const CURRENT_PROVIDER = (process.env.TC_PROVIDER ?? "kakao") as MeProvider;
+const ME_TEXT = {
+	title: "내 정보",
+	provider: "로그인 수단",
+	logout: "로그아웃",
+};
+const NEUTRAL_WEAK = { light: "rgb(243, 244, 245)", dark: "rgb(43, 46, 53)" };
+const SECTION_HEIGHT = 20 + 22 + 12 + 74 + 12 + 48 + 24;
+// 데스크톱 카드는 패딩 24 두 번과 테두리 2가 더해짐
+const CARD_HEIGHT = 24 + 22 + 12 + 74 + 12 + 48 + 24 + 2;
+
+let a5Number = 1;
+
+test.describe("로그아웃 /me", () => {
+	test.skip(
+		process.env.TC_SESSION === "in",
+		"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
+	);
+
+	test(`${caseId("A5", a5Number++)} 로그인하지 않은 /me가 화면을 그리기 전에 /login?next=%2Fme로 보냄`, async ({
+		page,
+	}) => {
+		const response = await page.request.get("/me", { maxRedirects: 0 });
+		expect(response.status()).toBe(307);
+		const location = new URL(response.headers().location, "http://localhost");
+		expect(location.pathname + location.search).toBe("/login?next=%2Fme");
+	});
+
+	test(`${caseId("A5", a5Number++)} 로그인하지 않은 /me를 열면 로그인 화면에 닿고 제공자 버튼에 ?next=%2Fme가 붙음`, async ({
+		page,
+	}) => {
+		await gotoAndSettle(page, "/me");
+		expect(new URL(page.url()).pathname + new URL(page.url()).search).toBe(
+			"/login?next=%2Fme",
+		);
+		await expect(
+			page
+				.getByRole("link", { name: "구글로 계속하기" })
+				.locator("visible=true"),
+		).toHaveAttribute("href", "/oauth2/authorization/google?next=%2Fme");
+	});
+});
+
+for (const { label, viewport } of SCREENS) {
+	const isMobile = viewport === MOBILE;
+	const layout = isMobile ? "mobile" : "desktop";
+
+	for (const theme of THEMES) {
+		test.describe(`${label} ${viewport.width}x${viewport.height} ${theme} 내 정보`, () => {
+			test.use({ viewport, colorScheme: theme });
+			test.skip(
+				process.env.TC_SESSION !== "in",
+				"로그인 TC는 TC_SESSION=in일 때만 돌림",
+			);
+			const token = TOKENS[theme];
+			const provider = ME_PROVIDERS[CURRENT_PROVIDER];
+			const section = `[data-area="provider-section-${layout}"]`;
+
+			test(`${caseId("A5", a5Number++)} ${label} ${theme} /me는 200이고 문서 제목이 내 정보 | 집씨임`, async ({
+				page,
+			}) => {
+				expect(await gotoAndSettle(page, "/me")).toBe(200);
+				await expect(page).toHaveTitle("내 정보 | 집씨");
+			});
+
+			test(`${caseId("A5", a5Number++)} ${label} ${theme} 보이는 h1은 내 정보 하나이고 ${isMobile ? "18/24" : "26/35"} 700 fg.neutral임`, async ({
+				page,
+			}) => {
+				await gotoAndSettle(page, "/me");
+				const title = page.locator("h1:visible");
+				await expect(title).toHaveCount(1);
+				await expect(title).toHaveText(ME_TEXT.title);
+				const style = await title.evaluate((element) => {
+					const computed = getComputedStyle(element);
+					return {
+						fontSize: computed.fontSize,
+						lineHeight: computed.lineHeight,
+						fontWeight: computed.fontWeight,
+						color: computed.color,
+					};
+				});
+				expect(style.fontSize).toBe(isMobile ? "18px" : "26px");
+				expect(style.lineHeight).toBe(isMobile ? "24px" : "35px");
+				expect(style.fontWeight).toBe("700");
+				expect(sameColor(style.color, token.fgNeutral)).toBe(true);
+			});
+
+			test(`${caseId("A5", a5Number++)} ${label} ${theme} 헤더의 내 정보 링크에 aria-current=page가 있고 /me로 감`, async ({
+				page,
+			}) => {
+				await gotoAndSettle(page, "/me");
+				const link = page
+					.getByTestId(`header-${layout}`)
+					.getByRole("link", { name: ME_TEXT.title });
+				await expect(link).toHaveAttribute("aria-current", "page");
+				await expect(link).toHaveAttribute("href", "/me");
+			});
+
+			if (isMobile) {
+				test(`${caseId("A5", a5Number++)} 모바일 ${theme} 헤더에 제목이 없고 뒤로 가기 44x44가 로고 왼쪽, 내 정보 링크가 오른쪽에 있음`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/me");
+					const header = page.getByTestId("header-mobile");
+					await expect(header.locator("h1")).toHaveCount(0);
+					const back = await header
+						.getByRole("button", { name: "뒤로 가기" })
+						.boundingBox();
+					const logo = await header
+						.getByRole("link", { name: "집씨 홈" })
+						.boundingBox();
+					const account = await header
+						.getByRole("link", { name: ME_TEXT.title })
+						.boundingBox();
+					expect(back?.width).toBe(44);
+					expect(back?.height).toBe(44);
+					expect((back?.x ?? 0) + (back?.width ?? 0)).toBeLessThanOrEqual(
+						logo?.x ?? 0,
+					);
+					expect((logo?.x ?? 0) + (logo?.width ?? 0)).toBeLessThanOrEqual(
+						account?.x ?? 0,
+					);
+				});
+
+				test(`${caseId("A5", a5Number++)} 모바일 ${theme} 제목 줄이 본문 맨 위 패딩 20 아래에 있고 로그인 수단 섹션이 그 아래에 붙으며 섹션 높이가 ${SECTION_HEIGHT}임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/me");
+					const main = await page.locator('[data-area="main"]').boundingBox();
+					const title = await page.locator("h1:visible").boundingBox();
+					const box = await page.locator(section).boundingBox();
+					expect(title?.y).toBeCloseTo((main?.y ?? 0) + 20, 0);
+					expect(title?.x).toBe(16);
+					expect(title?.height).toBe(24);
+					expect(box?.x).toBe(0);
+					expect(box?.width).toBe(viewport.width);
+					expect(box?.y).toBeCloseTo((main?.y ?? 0) + 44, 0);
+					expect(box?.height).toBeCloseTo(SECTION_HEIGHT, 0);
+				});
+
+				test(`${caseId("A5", a5Number++)} 모바일 ${theme} 섹션이 패딩 20 16 24이고 테두리와 모서리가 없으며 배경이 bg.layerDefault임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/me");
+					const style = await page.locator(section).evaluate((element) => {
+						const computed = getComputedStyle(element);
+						return {
+							top: computed.paddingTop,
+							right: computed.paddingRight,
+							bottom: computed.paddingBottom,
+							left: computed.paddingLeft,
+							border: computed.borderTopWidth,
+							radius: computed.borderTopLeftRadius,
+							background: computed.backgroundColor,
+						};
+					});
+					expect(style.top).toBe("20px");
+					expect(style.right).toBe("16px");
+					expect(style.bottom).toBe("24px");
+					expect(style.left).toBe("16px");
+					expect(style.border).toBe("0px");
+					expect(style.radius).toBe("0px");
+					expect(sameColor(style.background, token.layerDefault)).toBe(true);
+				});
+			} else {
+				test(`${caseId("A5", a5Number++)} 데스크톱 ${theme} 열이 폭 480으로 가운데에 있고 h1이 본문 맨 위 40 아래에 있음`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/me");
+					const main = await page.locator('[data-area="main"]').boundingBox();
+					const column = await page
+						.locator('[data-area="me-column"]')
+						.boundingBox();
+					const title = await page.locator("h1:visible").boundingBox();
+					expect(column?.width).toBe(480);
+					expect(
+						Math.abs((column?.x ?? 0) + 240 - viewport.width / 2),
+					).toBeLessThanOrEqual(1);
+					expect(column?.y).toBeCloseTo((main?.y ?? 0) + 40, 0);
+					expect(title?.y).toBeCloseTo(column?.y ?? 0, 0);
+					expect(title?.height).toBe(35);
+				});
+
+				test(`${caseId("A5", a5Number++)} 데스크톱 ${theme} 카드가 h1 아래 24(여백 8 + 간격 16)에 폭 480, 모서리 20, 테두리 1, 패딩 24이고 높이가 ${CARD_HEIGHT}임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/me");
+					const title = await page.locator("h1:visible").boundingBox();
+					const card = page.locator(section);
+					const box = await card.boundingBox();
+					expect(box?.width).toBe(480);
+					expect(box?.y).toBeCloseTo(
+						(title?.y ?? 0) + (title?.height ?? 0) + 8 + 16,
+						0,
+					);
+					expect(box?.height).toBeCloseTo(CARD_HEIGHT, 0);
+					const style = await card.evaluate((element) => {
+						const computed = getComputedStyle(element);
+						return {
+							tag: element.tagName,
+							labelledBy: element.getAttribute("aria-labelledby"),
+							radius: computed.borderTopLeftRadius,
+							border: computed.borderTopWidth,
+							borderColor: computed.borderTopColor,
+							padding: computed.paddingTop,
+							background: computed.backgroundColor,
+						};
+					});
+					expect(style.tag).toBe("SECTION");
+					expect(style.radius).toBe("20px");
+					expect(style.border).toBe("1px");
+					expect(style.padding).toBe("24px");
+					expect(sameColor(style.borderColor, token.strokeMuted)).toBe(true);
+					expect(sameColor(style.background, token.layerDefault)).toBe(true);
+				});
+			}
+
+			test(`${caseId("A5", a5Number++)} ${label} ${theme} 섹션이 로그인 수단 h2를 가리키고 h2가 16/22 700 fg.neutral임`, async ({
+				page,
+			}) => {
+				await gotoAndSettle(page, "/me");
+				const labelledBy = await page
+					.locator(section)
+					.getAttribute("aria-labelledby");
+				const heading = page.locator(`h2[id="${labelledBy}"]`);
+				await expect(heading).toHaveText(ME_TEXT.provider);
+				expect(await heading.locator("visible=true").count()).toBe(1);
+				const style = await heading.evaluate((element) => {
+					const computed = getComputedStyle(element);
+					return {
+						fontSize: computed.fontSize,
+						lineHeight: computed.lineHeight,
+						fontWeight: computed.fontWeight,
+						color: computed.color,
+					};
+				});
+				expect(style.fontSize).toBe("16px");
+				expect(style.lineHeight).toBe("22px");
+				expect(style.fontWeight).toBe("700");
+				expect(sameColor(style.color, token.fgNeutral)).toBe(true);
+			});
+
+			test(`${caseId("A5", a5Number++)} ${label} ${theme} 제공자 표시가 테두리 1 stroke.neutralWeak, 모서리 14, 패딩 16, 높이 74이고 이름이 ${provider.name} 16/22 700임`, async ({
+				page,
+			}) => {
+				await gotoAndSettle(page, "/me");
+				const name = page.locator(section).getByText(provider.name);
+				await expect(name).toHaveCount(1);
+				const row = name.locator("xpath=..");
+				const box = await row.boundingBox();
+				const sectionBox = await page.locator(section).boundingBox();
+				const contentWidth = isMobile ? viewport.width - 32 : 480 - 2 - 48;
+				expect(box?.width).toBeCloseTo(contentWidth, 0);
+				expect(box?.height).toBeCloseTo(74, 0);
+				const rowStyle = await row.evaluate((element) => {
+					const computed = getComputedStyle(element);
+					return {
+						border: computed.borderTopWidth,
+						borderColor: computed.borderTopColor,
+						radius: computed.borderTopLeftRadius,
+						padding: computed.paddingTop,
+						gap: computed.columnGap,
+					};
+				});
+				expect(rowStyle.border).toBe("1px");
+				expect(sameColor(rowStyle.borderColor, token.strokeWeak)).toBe(true);
+				expect(rowStyle.radius).toBe("14px");
+				expect(rowStyle.padding).toBe("16px");
+				expect(rowStyle.gap).toBe("12px");
+				// 섹션 위 패딩과 제목 22, 간격 12 아래에 놓임
+				const sectionTop = (sectionBox?.y ?? 0) + (isMobile ? 20 : 25);
+				expect(box?.y).toBeCloseTo(sectionTop + 22 + 12, 0);
+				const nameStyle = await name.evaluate((element) => {
+					const computed = getComputedStyle(element);
+					return {
+						fontSize: computed.fontSize,
+						lineHeight: computed.lineHeight,
+						fontWeight: computed.fontWeight,
+						color: computed.color,
+					};
+				});
+				expect(nameStyle.fontSize).toBe("16px");
+				expect(nameStyle.lineHeight).toBe("22px");
+				expect(nameStyle.fontWeight).toBe("700");
+				expect(sameColor(nameStyle.color, token.fgNeutral)).toBe(true);
+			});
+
+			for (const key of ME_PROVIDER_KEYS) {
+				const expected = ME_PROVIDERS[key];
+				const colors = expected.colors[theme];
+
+				test(`${caseId("A5", a5Number++)} ${label} ${theme} ${key} 아이콘 원이 40이고 배경 ${colors.background}, 테두리 ${colors.border ?? "없음"}이며 심볼 ${expected.iconSize}가 가운데에 있음`, async ({
+					page,
+				}) => {
+					test.skip(
+						CURRENT_PROVIDER !== key,
+						"sessionMock의 제공자가 다르면 돌리지 않음",
+					);
+					await gotoAndSettle(page, "/me");
+					const name = page.locator(section).getByText(expected.name);
+					const circle = name.locator("xpath=../*[1]");
+					const box = await circle.boundingBox();
+					expect(box?.width).toBe(40);
+					expect(box?.height).toBe(40);
+					const style = await circle.evaluate((element) => {
+						const computed = getComputedStyle(element);
+						return {
+							background: computed.backgroundColor,
+							border: computed.borderTopWidth,
+							borderColor: computed.borderTopColor,
+							radius: Number.parseFloat(computed.borderTopLeftRadius),
+						};
+					});
+					expect(sameColor(style.background, colors.background)).toBe(true);
+					expect(style.border).toBe(`${expected.border}px`);
+					if (colors.border) {
+						expect(sameColor(style.borderColor, colors.border)).toBe(true);
+					}
+					expect(style.radius).toBeGreaterThanOrEqual(20);
+					const symbol = circle.locator("svg");
+					const symbolBox = await symbol.boundingBox();
+					expect(symbolBox?.width).toBe(expected.iconSize);
+					expect(symbolBox?.height).toBe(expected.iconSize);
+					expect(
+						Math.abs(
+							(symbolBox?.x ?? 0) +
+								expected.iconSize / 2 -
+								((box?.x ?? 0) + 20),
+						),
+					).toBeLessThanOrEqual(1);
+					expect(
+						Math.abs(
+							(symbolBox?.y ?? 0) +
+								expected.iconSize / 2 -
+								((box?.y ?? 0) + 20),
+						),
+					).toBeLessThanOrEqual(1);
+					// 아이콘 원 오른쪽 12 뒤에 이름이 옴
+					const nameBox = await name.boundingBox();
+					expect(nameBox?.x).toBeCloseTo((box?.x ?? 0) + 40 + 12, 0);
+				});
+			}
+
+			test(`${caseId("A5", a5Number++)} ${label} ${theme} 로그아웃 버튼이 제공자 표시 아래 12에 높이 48, 모서리 12, bg.neutralWeak이고 글자가 15 700 fg.neutral임`, async ({
+				page,
+			}) => {
+				await gotoAndSettle(page, "/me");
+				const button = page
+					.locator(section)
+					.getByRole("button", { name: ME_TEXT.logout });
+				await expect(button).toHaveCount(1);
+				const box = await button.boundingBox();
+				const row = await page
+					.locator(section)
+					.getByText(provider.name)
+					.locator("xpath=..")
+					.boundingBox();
+				const contentWidth = isMobile ? viewport.width - 32 : 480 - 2 - 48;
+				expect(box?.height).toBe(48);
+				expect(box?.width).toBeCloseTo(contentWidth, 0);
+				expect(box?.y).toBeCloseTo((row?.y ?? 0) + (row?.height ?? 0) + 12, 0);
+				const style = await button.evaluate((element) => {
+					const computed = getComputedStyle(element);
+					const text = getComputedStyle(element.firstElementChild as Element);
+					return {
+						radius: computed.borderTopLeftRadius,
+						background: computed.backgroundColor,
+						fontSize: text.fontSize,
+						fontWeight: text.fontWeight,
+						color: text.color,
+					};
+				});
+				expect(style.radius).toBe("12px");
+				expect(sameColor(style.background, NEUTRAL_WEAK[theme])).toBe(true);
+				expect(style.fontSize).toBe("15px");
+				expect(style.fontWeight).toBe("700");
+				expect(sameColor(style.color, token.fgNeutral)).toBe(true);
+			});
+		});
+	}
 }

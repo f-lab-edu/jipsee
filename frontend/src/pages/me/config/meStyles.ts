@@ -1,0 +1,99 @@
+import { providerColors } from "@/entities/session/config/providerColors";
+import type { MeSectionStyle, MeStyle } from "@/pages/me/model/meStyle";
+import { typography } from "@/shared/config/typography";
+import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+const iconShared = {
+	display: "flex",
+	alignItems: "center",
+	justifyContent: "center",
+	flexShrink: 0,
+	width: "40px",
+	height: "40px",
+	borderRadius: "full",
+} as const;
+
+export const meStyles: MeStyle = {
+	main: { flexGrow: 1 },
+	mobileBody: { flexGrow: 1, bg: "bg.layerDefault" },
+	mobileTitleBox: { pt: "x5", px: "spacingX.globalGutter" },
+	mobileTitle: {
+		...typography.size18LineHeight24,
+		fontWeight: "bold",
+		color: "fg.neutral",
+		maxLines: 1,
+	},
+	desktopBody: { flexGrow: 1, alignItems: "center", px: "x6", py: "x10" },
+	desktopColumn: { width: "480px", gap: "x4" },
+	desktopTitleBox: { pb: "x2" },
+	desktopTitle: {
+		...typography.size26,
+		fontWeight: "bold",
+		color: "fg.neutral",
+	},
+	// Box가 content-box이므로 구글은 테두리 1을 폭과 높이에서 뺌
+	providerIcon: {
+		GOOGLE: {
+			...iconShared,
+			width: "38px",
+			height: "38px",
+			bg: providerColors.GOOGLE.background,
+			borderWidth: 1,
+			borderColor: providerColors.GOOGLE.border,
+		},
+		KAKAO: { ...iconShared, bg: providerColors.KAKAO.background },
+		NAVER: { ...iconShared, bg: providerColors.NAVER.background },
+	},
+	providerIconSize: { GOOGLE: 20, KAKAO: 20, NAVER: 16 },
+};
+
+const sectionShared: Omit<MeSectionStyle, "section"> = {
+	title: { ...typography.size16, fontWeight: "bold", color: "fg.neutral" },
+	provider: {
+		alignItems: "center",
+		gap: "x3",
+		p: "x4",
+		borderWidth: 1,
+		borderColor: "stroke.neutralWeak",
+		borderRadius: "r3_5",
+	},
+	providerName: {
+		...typography.size16,
+		fontWeight: "bold",
+		color: "fg.neutral",
+	},
+	logout: {
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "center",
+		width: "full",
+		height: "48px",
+		borderRadius: "r3",
+		bg: "bg.neutralWeak",
+	},
+	logoutText: { ...typography.size15, fontWeight: "bold", color: "fg.neutral" },
+};
+
+export const meSectionStyles = defineResponsiveStyles<MeSectionStyle>({
+	mobile: {
+		...sectionShared,
+		section: {
+			gap: "x3",
+			pt: "x5",
+			px: "spacingX.globalGutter",
+			pb: "x6",
+			bg: "bg.layerDefault",
+		},
+	},
+	desktop: {
+		...sectionShared,
+		section: {
+			gap: "x3",
+			p: "x6",
+			bg: "bg.layerDefault",
+			borderRadius: "r5",
+			borderWidth: 1,
+			borderColor: "stroke.neutralMuted",
+		},
+	},
+});

@@ -19,6 +19,36 @@ describe.each(["mobile", "desktop"] as const)("AccountLink %s", (variant) => {
 		expect(screen.queryByText("로그인")).toBeNull();
 	});
 
+	it("현재 경로가 /me이면 내 정보 링크에 aria-current가 page로 붙고 다른 경로이면 붙지 않음", () => {
+		const { rerender } = render(
+			<AccountLink
+				session={{ provider: "GOOGLE" }}
+				variant={variant}
+				currentPath="/me"
+			/>,
+		);
+
+		expect(
+			screen
+				.getByRole("link", { name: "내 정보" })
+				.getAttribute("aria-current"),
+		).toBe("page");
+
+		rerender(
+			<AccountLink
+				session={{ provider: "GOOGLE" }}
+				variant={variant}
+				currentPath="/"
+			/>,
+		);
+
+		expect(
+			screen
+				.getByRole("link", { name: "내 정보" })
+				.hasAttribute("aria-current"),
+		).toBe(false);
+	});
+
 	it("세션이 없으면 현재 경로를 next로 담은 /login 링크를 표시함", () => {
 		render(
 			<AccountLink
