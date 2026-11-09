@@ -13,6 +13,7 @@ export const chatCompactBarStyles: ChatCompactBarStyle = {
 		borderColor: "stroke.neutralMuted",
 		className: "chat-panel-shadow",
 	},
+	loggedOut: { gap: "x2" },
 	field: { className: "chat-input--compact" },
 	historyLink: {
 		box: {
@@ -32,12 +33,11 @@ export const chatCompactBarStyles: ChatCompactBarStyle = {
 		box: {
 			display: "flex",
 			alignItems: "center",
-			flexShrink: 0,
-			height: "36px",
-			px: "x3",
-			borderRadius: "r2",
+			justifyContent: "center",
+			height: "44px",
+			borderRadius: "r3",
 			bg: "bg.brandWeak",
 		},
-		text: { ...typography.size13, fontWeight: "bold", color: "fg.brand" },
+		text: { ...typography.size15, fontWeight: "bold", color: "fg.brand" },
 	},
 };

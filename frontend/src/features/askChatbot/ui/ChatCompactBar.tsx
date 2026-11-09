@@ -1,4 +1,4 @@
-import { Box, TextFieldInput, TextFieldRoot } from "@seed-design/react";
+import { Box, TextFieldInput, TextFieldRoot, VStack } from "@seed-design/react";
 import type { Session } from "@/entities/session/model/session";
 import { chatCompactBarStyles } from "@/features/askChatbot/config/chatCompactBarStyles";
 import { chatPanelCopy } from "@/features/askChatbot/config/chatPanelCopy";
@@ -16,7 +16,7 @@ interface ChatCompactBarProps {
  *
  * - 화면 아래에 붙는 section
  * - 로그인 시 입력 앞에 지난 대화 아이콘 링크를 둔 질문 입력 폼 출력
- * - 비로그인 시 비활성화된 입력과 입력 안 오른쪽에 로그인 유도 버튼 출력
+ * - 비로그인 시 한 줄을 모두 쓰는 비활성화된 입력과 그 아래 줄에 로그인 유도 버튼 출력
  */
 export default function ChatCompactBar({ session }: ChatCompactBarProps) {
 	const style = chatCompactBarStyles;
@@ -34,13 +34,15 @@ export default function ChatCompactBar({ session }: ChatCompactBarProps) {
 				</ChatQuestionForm>
 			)}
 			{!session && (
-				<TextFieldRoot disabled {...style.field}>
-					<TextFieldInput
-						aria-label={chatPanelCopy.questionLabel}
-						placeholder={chatPanelCopy.compactPlaceholder}
-					/>
+				<VStack {...style.loggedOut}>
+					<TextFieldRoot disabled {...style.field}>
+						<TextFieldInput
+							aria-label={chatPanelCopy.questionLabel}
+							placeholder={chatPanelCopy.compactPlaceholder}
+						/>
+					</TextFieldRoot>
 					<ChatLoginLink style={style.loginLink} />
-				</TextFieldRoot>
+				</VStack>
 			)}
 		</Box>
 	);
