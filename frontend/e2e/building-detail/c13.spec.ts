@@ -409,7 +409,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 				loginHref(id),
 			);
 		}
-		// 이동 확인 (S4 로그인 라우트가 생기기 전이라 404 화면이 나오는 것이 정상임)
+		// 이동 확인
 		await t.goto("/buildings/1", 300);
 		await t.page
 			.locator("a", { hasText: ASK_TEXT })

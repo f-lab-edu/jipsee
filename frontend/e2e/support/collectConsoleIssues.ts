@@ -17,7 +17,7 @@ export function collectConsoleIssues(page: Page): string[] {
 		) {
 			return;
 		}
-		// 아직 없는 /login과 /policies/ 페이지를 미리 가져오다 나는 404임. 요청 주소로 판별해 다른 404는 그대로 실패시킴
+		// 아직 없는 /policies/ 페이지를 미리 가져오다 나는 404임. 요청 주소로 판별해 다른 404는 그대로 실패시킴
 		if (
 			message.type() === "error" &&
 			/Failed to load resource/.test(text) &&

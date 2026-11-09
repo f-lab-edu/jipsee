@@ -87,4 +87,29 @@ describe("Header", () => {
 		expect(style).toContain("--seed-box-position: sticky");
 		expect(style).toContain("--seed-box-top: 0");
 	});
+
+	it("계정 링크를 숨기면 모바일과 데스크톱 헤더에 로그인 링크를 표시하지 않음", () => {
+		render(
+			<Header
+				session={null}
+				currentPath="/login"
+				mobileBackground="bg.layerDefault"
+				hidesAccountLink
+			/>,
+		);
+
+		expect(screen.queryByRole("link", { name: "로그인" })).toBeNull();
+	});
+
+	it("계정 링크를 숨기지 않으면 모바일과 데스크톱 헤더에 로그인 링크를 표시함", () => {
+		render(
+			<Header
+				session={null}
+				currentPath="/"
+				mobileBackground="bg.layerDefault"
+			/>,
+		);
+
+		expect(screen.getAllByRole("link", { name: "로그인" })).toHaveLength(2);
+	});
 });

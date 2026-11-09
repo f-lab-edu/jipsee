@@ -13,6 +13,7 @@ interface HeaderProps {
 	mobileBackground: BoxProps["bg"];
 	mobileBack?: ReactNode;
 	mobileBottom?: ReactNode;
+	hidesAccountLink?: boolean;
 }
 
 /**
@@ -26,6 +27,7 @@ interface HeaderProps {
  * @param mobileBackground 모바일 헤더 배경. 데스크톱 행은 항상 흰색
  * @param mobileBack 모바일 로고 왼쪽에 둘 뒤로 가기 요소
  * @param mobileBottom 모바일 로고 줄 아래에 둘 둘째 줄
+ * @param hidesAccountLink 모바일과 데스크톱의 계정 링크를 숨길지 여부
  */
 export default function Header({
 	session,
@@ -33,6 +35,7 @@ export default function Header({
 	mobileBackground,
 	mobileBack,
 	mobileBottom,
+	hidesAccountLink = false,
 }: HeaderProps) {
 	return (
 		<Box as="header" {...headerRootStyles.root}>
@@ -45,9 +48,16 @@ export default function Header({
 						background={mobileBackground}
 						back={mobileBack}
 						bottom={mobileBottom}
+						hidesAccountLink={hidesAccountLink}
 					/>
 				}
-				desktop={<DesktopHeader session={session} currentPath={currentPath} />}
+				desktop={
+					<DesktopHeader
+						session={session}
+						currentPath={currentPath}
+						hidesAccountLink={hidesAccountLink}
+					/>
+				}
 			/>
 		</Box>
 	);
