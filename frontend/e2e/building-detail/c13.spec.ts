@@ -95,7 +95,7 @@ for (const [modeIndex, mode] of MODES.entries()) {
 				if (!s) return;
 				t.near("x", s.x, 0);
 				t.near("w", s.w, 390);
-				t.near(`h (${lbl})`, s.h, BAR_H[mode]);
+				t.near(`h (${lbl})`, s.h, BAR_H);
 				t.near("맨 위에서 바 아래 끝이 뷰포트 아래에 붙음", s.b, m.vh);
 				t.eq("position", s.pos, "sticky");
 				t.eq("bottom", s.bottomCss, "0px");
@@ -108,7 +108,7 @@ for (const [modeIndex, mode] of MODES.entries()) {
 				);
 				t.color("배경 bg.layerFloating", s.bg, ASK_TOKENS[theme].floating);
 				t.eq("radius 없음", s.radius, "0px");
-				t.eq("안쪽 세로 배치와 간격 8", [s.dir, s.gap], ["column", "8px"]);
+				t.eq("안쪽 세로 배치", s.dir, "column");
 				t.ok(
 					"그림자는 위쪽으로 6 번지고 흐림 20",
 					/0px -6px 20px 0px/.test(s.shadow),
@@ -124,7 +124,6 @@ for (const [modeIndex, mode] of MODES.entries()) {
 				c13CheckAskInner(t, m, "바", {
 					...BAR_GEOM,
 					btnY: s.y + 13,
-					noGuide: mode === "in",
 				});
 			});
 		});
@@ -146,7 +145,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		] as const) {
 			const m = await scrollAsk(t, r);
 			t.near(`${name}에서 바 아래 끝`, m.sec?.b, m.vh);
-			t.near(`${name}에서 바 높이`, m.sec?.h, BAR_H.out);
+			t.near(`${name}에서 바 높이`, m.sec?.h, BAR_H);
 		}
 		const m = await scrollAsk(t, 1);
 		t.ok(
@@ -216,7 +215,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		]) {
 			await t.goto(u, 400);
 			const m = await scrollAsk(t, 1);
-			t.near(`${u} 바 높이`, m.sec?.h, BAR_H.out);
+			t.near(`${u} 바 높이`, m.sec?.h, BAR_H);
 			t.near(`${u} 바 아래 끝`, m.sec?.b, m.vh);
 			t.near(`${u} 푸터 아래 끝 = 바 위쪽`, m.footer?.b, m.sec?.y, 1);
 		}
@@ -271,7 +270,7 @@ for (const [modeIndex, mode] of MODES.entries()) {
 					t.near(`id ${id} y (aside 위, 캔버스 161)`, s.y, 161);
 					t.near(`id ${id} y가 aside 위쪽과 같음`, s.y, m.aside?.y);
 					t.near(`id ${id} y가 거래 이력 섹션 위쪽과 같음`, s.y, m.dealHist?.y);
-					t.near(`id ${id} h (${lbl}, 캔버스 + border 2)`, s.h, CARD_H[mode]);
+					t.near(`id ${id} h (${lbl}, 캔버스 + border 2)`, s.h, CARD_H);
 					t.eq(`id ${id} position이 sticky가 아님`, s.pos, "static");
 					t.eq(`id ${id} padding 24`, s.pad, "24px 24px 24px 24px");
 					t.eq(`id ${id} border 1px 네 면`, s.bw, "1px 1px 1px 1px");
@@ -286,21 +285,13 @@ for (const [modeIndex, mode] of MODES.entries()) {
 						s.bg,
 						ASK_TOKENS[theme].floating,
 					);
-					t.eq(
-						`id ${id} 안쪽 세로 배치와 간격 10`,
-						[s.dir, s.gap],
-						["column", "10px"],
-					);
+					t.eq(`id ${id} 안쪽 세로 배치`, s.dir, "column");
 					t.eq(`id ${id} 그림자 없음`, s.shadow, "none");
+					t.near(`id ${id} 건물 정보 y = 카드 아래 + 16`, m.info?.y, s.b + 16);
 					t.near(
-						`id ${id} 건물 정보 y = 카드 아래 + 16 (캔버스 309 + border 2)`,
+						`id ${id} 건물 정보 y 절대값 (aside 161 + 카드 106 + 간격 16)`,
 						m.info?.y,
-						s.b + 16,
-					);
-					t.near(
-						`id ${id} 건물 정보 y 절대값 (캔버스 309 + 카드 border 2)`,
-						m.info?.y,
-						311 - (mode === "in" ? 28 : 0),
+						283,
 					);
 				}
 				await t.goto("/buildings/1", 400);
@@ -308,7 +299,6 @@ for (const [modeIndex, mode] of MODES.entries()) {
 				c13CheckAskInner(t, m1, "카드", {
 					...CARD_GEOM,
 					btnY: (m1.sec?.y ?? Number.NaN) + 25,
-					noGuide: mode === "in",
 				});
 			});
 		});
@@ -324,7 +314,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 		skipUnlessMode("out");
 		await t.goto("/buildings/1", 500);
 		const m0 = await askMeasure(t);
-		// 카드 134 + 간격 16 + 건물 정보가 뷰포트 900 - 48보다 길어 aside 안에서 스크롤됨
+		// 카드 106 + 간격 16 + 건물 정보가 뷰포트 900 - 48보다 길어 aside 안에서 스크롤됨
 		t.eq("aside overflow-y", m0.asideScroll?.oy, "auto");
 		t.ok(
 			"aside 내용이 aside보다 김",
@@ -381,11 +371,7 @@ test.describe(`1279x900 light`, () => {
 			t.eq(`${w}px 보이는 질문하기 영역 개수`, m.visibleCount, 1);
 			t.eq(`${w}px 보이는 aside 개수`, m.aside ? 1 : 0, desktop ? 1 : 0);
 			t.eq(`${w}px 질문하기 영역이 aside 안`, m.sec?.inAside, desktop);
-			t.near(
-				`${w}px 질문하기 영역 h`,
-				m.sec?.h,
-				desktop ? CARD_H.out : BAR_H.out,
-			);
+			t.near(`${w}px 질문하기 영역 h`, m.sec?.h, desktop ? CARD_H : BAR_H);
 			t.ok(
 				`${w}px 가로 스크롤 없음`,
 				m.scrollW <= m.vw,
@@ -471,10 +457,9 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
-	test(`C13-20 로그인에서는 안내 한 줄이 어디에도 없음 (모바일, 데스크톱)`, async ({
+	test(`C13-20 로그인 여부와 상관없이 안내 한 줄과 잠금 아이콘이 어디에도 없음 (모바일, 데스크톱, 2026-11-09 피드백 10번)`, async ({
 		t,
 	}) => {
-		skipUnlessMode("in");
 		for (const [w, h] of [
 			[390, 844],
 			[1440, 900],
@@ -482,7 +467,8 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			await t.page.setViewportSize({ width: w, height: h });
 			await t.goto("/buildings/1", 300);
 			const m = await askMeasure(t);
-			t.eq(`${w}px 안내 한 줄`, m.guide, null);
+			t.eq(`${w}px 안내 문구를 가진 요소 개수`, m.guideCount, 0);
+			t.eq(`${w}px 질문하기 영역 안 잠금 svg 개수`, m.lockCount, 0);
 			t.ok(
 				`${w}px 본문 전체에 안내 문구가 없음`,
 				!(await t.page.evaluate(() => document.body.innerText)).includes(
@@ -494,31 +480,12 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		}
 	});
 });
-test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
-	test.use({ viewport: MOBILE, colorScheme: "light" });
-
-	test(`C13-21 로그아웃에서는 안내 한 줄이 보이는 영역마다 하나씩이고 문구가 설계 3절과 같음`, async ({
-		t,
-	}) => {
-		skipUnlessMode("out");
-		for (const [w, h] of [
-			[390, 844],
-			[1440, 900],
-		]) {
-			await t.page.setViewportSize({ width: w, height: h });
-			await t.goto("/buildings/1", 300);
-			const m = await askMeasure(t);
-			t.eq(`${w}px 보이는 안내 문구 개수`, m.guideCount, 1);
-			t.eq(`${w}px 안내 문구`, m.guide?.text, ASK_GUIDE);
-		}
-	});
-});
 
 // ---- 좁은 화면과 id ----
 test.describe(`320x700 light`, () => {
 	test.use({ viewport: { width: 320, height: 700 }, colorScheme: "light" });
 
-	test(`C13-22 320px에서 바와 버튼과 안내가 가로 스크롤 없이 폭 안에 들어옴`, async ({
+	test(`C13-22 320px에서 바와 버튼이 가로 스크롤 없이 폭 안에 들어옴`, async ({
 		t,
 	}) => {
 		skipUnlessMode("out");
@@ -542,15 +509,7 @@ test.describe(`320x700 light`, () => {
 				"버튼 안",
 			);
 			t.near(`id ${id} 버튼 h`, m.btn?.h, 52);
-			t.ok(
-				`id ${id} 안내가 한 줄(h 18) 안`,
-				(m.guide?.h ?? nan) <= 18.5 &&
-					(m.guide?.icon.x ?? nan) >= (m.guide?.x ?? nan) - 0.5 &&
-					(m.guide?.tr.r ?? nan) <= (m.guide?.r ?? nan) + 0.5,
-				[m.guide?.h, m.guide?.icon.x, m.guide?.tr.r],
-				"한 줄이고 폭 안",
-			);
-			t.near(`id ${id} 바 h`, m.sec?.h, BAR_H.out);
+			t.near(`id ${id} 바 h`, m.sec?.h, BAR_H);
 		}
 	});
 });

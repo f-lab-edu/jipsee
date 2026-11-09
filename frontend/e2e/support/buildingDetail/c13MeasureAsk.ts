@@ -61,21 +61,8 @@ export type AskMeasure = {
 		d: string;
 		ariaHidden: string | null;
 	};
-	guide?:
-		| (AskRect & {
-				jc: string;
-				ai: string;
-				gap: string;
-				text: string;
-				tr: AskRect;
-				fs: string;
-				lh: string;
-				fw: string;
-				color: string;
-				icon: AskRect & { color: string; d: string; ariaHidden: string | null };
-		  })
-		| null;
 	guideCount?: number;
+	lockCount?: number;
 };
 
 /** 질문하기 영역 측정. 보이는 영역(모바일 바 또는 데스크톱 카드)과 주변 요소를 모음. 페이지 안에서 실행하므로 외부 변수를 쓰지 않음 */
@@ -231,43 +218,11 @@ export function c13MeasureAsk(): AskMeasure {
 			};
 		}
 	}
-	const gp = [...sec.querySelectorAll("div, p")].find(
-		(e) =>
-			!(btn?.contains(e) ?? false) &&
-			e.querySelector("svg") &&
-			/누르면/.test(e.textContent ?? ""),
-	);
-	out.guide = null;
-	if (gp) {
-		const g = getComputedStyle(gp);
-		const gt = firstText(gp);
-		const gs = gp.querySelector("svg");
-		if (gt && gs) {
-			const gtp = getComputedStyle(gt.parentElement as Element);
-			out.guide = {
-				...R(gp),
-				jc: g.justifyContent,
-				ai: g.alignItems,
-				gap: g.columnGap,
-				text: text(gt),
-				tr: TR(gt),
-				fs: gtp.fontSize,
-				lh: gtp.lineHeight,
-				fw: gtp.fontWeight,
-				color: gtp.color,
-				icon: {
-					...R(gs),
-					color: getComputedStyle(gs).color,
-					d: shapeOf(gs)
-						.map((e) => e.getAttribute("d") || e.getAttribute("width") || "")
-						.join("|"),
-					ariaHidden: gs.getAttribute("aria-hidden"),
-				},
-			};
-		}
-	}
 	out.guideCount = [...sec.querySelectorAll("*")].filter(
 		(e) => e.children.length === 0 && /누르면 로그인/.test(e.textContent ?? ""),
+	).length;
+	out.lockCount = [...sec.querySelectorAll("svg")].filter((svg) =>
+		shapeOf(svg).some((e) => e.getAttribute("d")?.startsWith("M8 11V7a4 4")),
 	).length;
 	return out;
 }

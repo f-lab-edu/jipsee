@@ -7,7 +7,4 @@ export interface AskBuildingStyle {
 	button: Record<ResponsiveVariant, BoxProps>;
 	buttonIcon: Omit<IconProps, "svg">;
 	buttonText: TextProps;
-	guide: BoxProps;
-	guideIcon: Omit<IconProps, "svg">;
-	guideText: TextProps;
 }

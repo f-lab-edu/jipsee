@@ -1,4 +1,4 @@
-import { ASK_GUIDE, ASK_LOCK_PATH, ASK_TEXT, ASK_TOKENS } from "./c13Fixtures";
+import { ASK_TEXT, ASK_TOKENS } from "./c13Fixtures";
 import type { AskMeasure } from "./c13MeasureAsk";
 import type { T } from "./makeT";
 
@@ -8,18 +8,16 @@ export type AskGeom = {
 	btnW: number;
 	btnH: number;
 	btnRadius: string;
-	guideGap: number;
-	noGuide: boolean;
 };
 
-/** 공통 확인: 모바일 바와 데스크톱 카드가 안쪽 버튼과 안내를 같은 방식으로 가짐 */
+/** 공통 확인: 모바일 바와 데스크톱 카드가 안쪽 버튼을 같은 방식으로 가짐 */
 export function c13CheckAskInner(
 	t: T,
 	m: AskMeasure,
 	label: string,
 	g: AskGeom,
 ) {
-	const { btn, btnIcon, guide } = m;
+	const { btn, btnIcon } = m;
 	t.ok(`${label} 질문하기 링크가 있음`, !!btn, btn, "링크가 있음");
 	if (!btn) return;
 	t.eq(`${label} 버튼은 링크(a)`, btn.tag, "A");
@@ -61,44 +59,4 @@ export function c13CheckAskInner(
 			1.5,
 		);
 	}
-	if (g.noGuide) {
-		t.eq(`${label} 안내 한 줄이 없음`, m.guide, null);
-		return;
-	}
-	t.ok(`${label} 안내 한 줄이 있음`, !!guide, guide, "있음");
-	if (!guide) return;
-	t.eq(`${label} 안내 문구`, guide.text, ASK_GUIDE);
-	t.near(`${label} 안내 x`, guide.x, g.btnX);
-	t.near(`${label} 안내 y (버튼 아래 간격)`, guide.y, btn.b + g.guideGap);
-	t.near(`${label} 안내 w`, guide.w, g.btnW);
-	t.near(`${label} 안내 h`, guide.h, 18);
-	t.eq(
-		`${label} 안내 글자 크기와 줄 높이`,
-		[guide.fs, guide.lh, guide.fw],
-		["13px", "18px", "400"],
-	);
-	t.color(
-		`${label} 안내 글자색 fg.neutralMuted`,
-		guide.color,
-		t.tokens.fgMuted,
-	);
-	t.eq(`${label} 안내 가운데 정렬`, [guide.ai, guide.jc], ["center", "center"]);
-	t.eq(`${label} 아이콘과 문구 간격`, guide.gap, "4px");
-	t.near(`${label} 안내 아이콘 w`, guide.icon.w, 14);
-	t.near(`${label} 안내 아이콘 h`, guide.icon.h, 14);
-	t.color(`${label} 안내 아이콘 색`, guide.icon.color, t.tokens.fgMuted);
-	t.eq(`${label} 안내 아이콘 모양(잠금)`, guide.icon.d, ASK_LOCK_PATH);
-	t.eq(`${label} 안내 아이콘 aria-hidden`, guide.icon.ariaHidden, "true");
-	t.near(
-		`${label} 안내 아이콘 오른쪽과 문구 왼쪽 간격 4`,
-		guide.tr.x - guide.icon.r,
-		4,
-		1.5,
-	);
-	t.near(
-		`${label} 안내 묶음이 가운데`,
-		guide.icon.x - guide.x,
-		guide.r - guide.tr.r,
-		1.5,
-	);
 }

@@ -17,7 +17,6 @@ export const askBuildingStyles: AskBuildingStyle = {
 		hideFrom: "lg",
 		display: "flex",
 		flexDirection: "column",
-		gap: "x2",
 		position: "sticky",
 		bottom: 0,
 		pt: "x3",
@@ -31,7 +30,6 @@ export const askBuildingStyles: AskBuildingStyle = {
 	card: {
 		display: "flex",
 		flexDirection: "column",
-		gap: "x2_5",
 		p: "x6",
 		bg: "bg.layerFloating",
 		borderRadius: "r5",
@@ -48,12 +46,4 @@ export const askBuildingStyles: AskBuildingStyle = {
 		fontWeight: "bold",
 		color: "fg.onBrandSolid",
 	},
-	guide: {
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "center",
-		gap: "x1",
-	},
-	guideIcon: { size: "14px", color: "fg.neutralMuted" },
-	guideText: { ...typography.size13, color: "fg.neutralMuted" },
 };
