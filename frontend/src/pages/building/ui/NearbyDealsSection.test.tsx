@@ -42,6 +42,10 @@ describe("NearbyDealsSection", () => {
 		});
 
 		expect(screen.getByText("3건")).toBeTruthy();
+		expect(screen.getByText("을 찾았어요", { exact: false })).toBeTruthy();
+		expect(
+			screen.getByText(/확정일자를 기준으로 수집한 거래예요/),
+		).toBeTruthy();
 		expect(screen.getByText("2026.09 기준")).toBeTruthy();
 		expect(screen.getAllByRole("listitem")).toHaveLength(3);
 		expect(screen.getAllByRole("note")).toHaveLength(1);
@@ -97,6 +101,8 @@ describe("NearbyDealsSection", () => {
 		expect(screen.queryByText("2026.09 기준")).toBeNull();
 		expect(screen.queryByRole("listitem")).toBeNull();
 		expect(screen.getAllByRole("note")).toHaveLength(1);
-		expect(screen.queryByText(/확정일자를 기준으로 모은 거래/)).toBeNull();
+		expect(
+			screen.queryByText(/확정일자를 기준으로 수집한 거래예요/),
+		).toBeNull();
 	});
 });

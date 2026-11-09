@@ -61,6 +61,7 @@ export type NearbyDealsMeasure = {
 		pb: string;
 		display: string;
 		label: NearbyText;
+		suffix: NearbyText;
 		count: {
 			t: string;
 			tag: string;
@@ -181,6 +182,7 @@ export function measureNearbyDeals(): NearbyDealsMeasure {
 			pb: rc.paddingBottom,
 			display: rc.display,
 			label: tinfo(tn[0]),
+			suffix: tinfo(tn[2]),
 			count: {
 				t: text(strong),
 				tag: strong.tagName,

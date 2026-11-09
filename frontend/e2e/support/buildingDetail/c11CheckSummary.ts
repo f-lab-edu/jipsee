@@ -1,6 +1,6 @@
 import { C6_TOKENS } from "./c6Tokens";
 import { c11Bounds } from "./c11Bounds";
-import { C11_BASE, C11_SUMMARY } from "./c11Fixtures";
+import { C11_BASE, C11_SUMMARY, C11_SUMMARY_SUFFIX } from "./c11Fixtures";
 import type { C11Measure } from "./c11Measure";
 import { hexToRgb } from "./hexToRgb";
 import type { T } from "./makeT";
@@ -21,6 +21,7 @@ export function c11CheckSummary(
 	const mob = layout === "mobile";
 	t.eq(`${label} 앞 문구`, s.label.t, C11_SUMMARY);
 	t.eq(`${label} 굵은 건수 문구`, s.count.t, `${count}건`);
+	t.eq(`${label} 뒤 문구`, s.suffix.t, C11_SUMMARY_SUFFIX);
 	t.eq(`${label} 건수가 strong 요소`, s.count.tag, "STRONG");
 	t.eq(`${label} 기준 월 문구`, s.base.t, C11_BASE);
 	t.eq(
@@ -37,6 +38,16 @@ export function c11CheckSummary(
 		`${label} 기준 월 글자 ${mob ? "12/16" : "13/18"} regular`,
 		[s.base.fs, s.base.lh, s.base.fw],
 		mob ? ["12px", "16px", "400"] : ["13px", "18px", "400"],
+	);
+	t.eq(
+		`${label} 뒤 문구 글자 ${mob ? "15/22" : "16/24"} regular`,
+		[s.suffix.fs, s.suffix.lh, s.suffix.fw],
+		mob ? ["15px", "22px", "400"] : ["16px", "24px", "400"],
+	);
+	t.color(
+		`${label} 뒤 문구 색 fg.neutral`,
+		s.suffix.color,
+		hexToRgb(tk.fgNeutral),
 	);
 	t.color(
 		`${label} 앞 문구 색 fg.neutral`,
@@ -72,6 +83,7 @@ export function c11CheckSummary(
 	t.near(`${label} 앞 문구 x가 안쪽 왼쪽 끝`, s.label.x, b.l, 1);
 	t.near(`${label} 기준 월 오른쪽 끝이 안쪽 오른쪽 끝`, s.base.r, b.r, 1);
 	t.near(`${label} 건수가 앞 문구 바로 뒤(공백 포함)`, s.count.x, s.label.r, 1);
+	t.near(`${label} 뒤 문구가 건수 바로 뒤`, s.suffix.x, s.count.r, 1);
 	t.near(
 		`${label} 줄이 필터 바로 아래 ${mob ? 16 : 20}`,
 		s.prevGap ?? undefined,

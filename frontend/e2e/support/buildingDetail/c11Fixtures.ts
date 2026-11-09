@@ -13,8 +13,9 @@ export const C11_TOKENS = {
 
 export const C11_BASE = "2026.09 기준";
 export const C11_SUMMARY = "조건에 맞는 거래";
+export const C11_SUMMARY_SUFFIX = "을 찾았어요";
 export const C11_NOTICE =
-	"확정일자를 기준으로 모은 거래라서 최근 1~2개월 거래는 일부 빠져 있을 수 있어요";
+	"확정일자를 기준으로 수집한 거래예요. 최근 1~2개월 거래는 일부 빠져 있을 수 있어요";
 export const C11_HEADS = ["건물", "구분", "계약", "면적", "금액"];
 
 /** [계약 월, 구분 칩, 면적, 금액]. 건물명은 설계 12절 18번에 따라 실제 이름처럼 바꾼 값이라 검사하지 않음 */
