@@ -26,6 +26,7 @@ public class DealApiCaller {
     /** 한 페이지에 요청하는 거래 수 (numOfRows) */
     public static final int PAGE_SIZE = 1000;
 
+    private static final String RESPONSE = "response";
     private static final DateTimeFormatter DEAL_YMD = DateTimeFormatter.ofPattern("yyyyMM");
     private static final Pattern XML_REASON_CODE =
             Pattern.compile("<returnReasonCode>\\s*(\\d+)\\s*</returnReasonCode>");
@@ -63,7 +64,7 @@ public class DealApiCaller {
         return retryTemplate.invoke(() -> callOnce(path, sigunguCode, dealMonth, pageNo));
     }
 
-    /** API를 한 번 호출하고 오류 코드, 상태 코드, 본문 순으로 판단 */
+    /** API를 한 번 호출하고 오류 코드, 상태 코드, 본문 순으로 검증 */
     private DealPage<DealItem> callOnce(String path, String sigunguCode, YearMonth dealMonth, int pageNo) {
         String dealYmd = dealMonth.format(DEAL_YMD);
         String requestInfo = "LAWD_CD=" + sigunguCode + ", DEAL_YMD=" + dealYmd + ", pageNo=" + pageNo;
@@ -77,12 +78,12 @@ public class DealApiCaller {
             throw new DealApiException("오류 응답(" + errorCode + "): " + requestInfo); // 정상 응답은 JSON만 옴
         }
 
-        JsonNode root = readJson(body, requestInfo);
+        JsonNode root = readJson(body, response.status(), requestInfo);
         throwIfFailed(findErrorCode(root), response.status(), requestInfo);
         return toPage(root, requestInfo);
     }
 
-    /** HTTP 호출. 원인 예외는 서비스 키가 담길 수 있어 잇지 않음 */
+    /** HTTP 호출 */
     private Response fetch(String path, String sigunguCode, String dealYmd, int pageNo, String requestInfo) {
         try {
             return restClient
@@ -103,21 +104,27 @@ public class DealApiCaller {
         return matcher.find() ? matcher.group(1) : null;
     }
 
-    /** JSON 파싱. 실패하면 DealApiException */
-    private JsonNode readJson(String body, String requestInfo) {
+    /** JSON 파싱. 실패하면 5xx는 DealApiTransientException, 그 밖은 DealApiException */
+    private JsonNode readJson(String body, HttpStatusCode status, String requestInfo) {
         try {
             return jsonMapper.readTree(body);
         } catch (JacksonException e) {
+            if (status.is5xxServerError()) {
+                throw new DealApiTransientException("서버 오류(" + status + "): " + requestInfo);
+            }
+
             throw new DealApiException("JSON이 아닌 응답: " + requestInfo);
         }
     }
 
-    /** 오류 코드 22, 23을 먼저 보고, 그다음 상태 코드로 실패 판단 */
+    /** 오류 코드 22, 23을 먼저 검증하고, 그다음 상태 코드로 실패 여부 검증 */
     private static void throwIfFailed(String errorCode, HttpStatusCode status, String requestInfo) {
         switch (errorCode) {
             case "22" -> throw new DealApiException("호출 한도 초과(22): " + requestInfo);
             case "23" -> throw new DealApiTransientException("초당 요청 수 초과(23): " + requestInfo);
-            case null, default -> {}
+            case null, default -> {
+                // 22, 23이 아니면 아래 상태 코드로 판단
+            }
         }
 
         if (status.is5xxServerError()) {
@@ -141,7 +148,7 @@ public class DealApiCaller {
             return reasonCode.asString();
         }
 
-        JsonNode resultCode = root.path("response").path("header").path("resultCode");
+        JsonNode resultCode = root.path(RESPONSE).path("header").path("resultCode");
 
         if (!resultCode.isMissingNode() && !"000".equals(resultCode.asString())) {
             return resultCode.asString();
@@ -152,13 +159,13 @@ public class DealApiCaller {
 
     /** 정상 JSON 응답을 DealPage로 변환. item은 2건 이상이면 배열, 1건이면 객체, 0건이면 없음 */
     private static DealPage<DealItem> toPage(JsonNode root, String requestInfo) {
-        JsonNode resultCode = root.path("response").path("header").path("resultCode");
+        JsonNode resultCode = root.path(RESPONSE).path("header").path("resultCode");
 
         if (resultCode.isMissingNode()) {
             throw new DealApiException("resultCode 없음: " + requestInfo);
         }
 
-        JsonNode body = root.path("response").path("body");
+        JsonNode body = root.path(RESPONSE).path("body");
         JsonNode totalCount = body.path("totalCount");
 
         if (totalCount.isMissingNode()) {
