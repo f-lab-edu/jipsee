@@ -88,20 +88,13 @@ describe("Header", () => {
 		expect(style).toContain("--seed-box-top: 0");
 	});
 
-	it("계정 링크를 숨기면 모바일과 데스크톱 헤더에 로그인 링크를 표시하지 않음", () => {
-		render(
-			<Header
-				session={null}
-				currentPath="/login"
-				mobileBackground="bg.layerDefault"
-				hidesAccountLink
-			/>,
-		);
+	it("currentPath가 없으면 모바일과 데스크톱 헤더에 로그인 링크를 표시하지 않음", () => {
+		render(<Header session={null} mobileBackground="bg.layerDefault" />);
 
 		expect(screen.queryByRole("link", { name: "로그인" })).toBeNull();
 	});
 
-	it("계정 링크를 숨기지 않으면 모바일과 데스크톱 헤더에 로그인 링크를 표시함", () => {
+	it("currentPath가 있으면 모바일과 데스크톱 헤더에 로그인 링크를 표시함", () => {
 		render(
 			<Header
 				session={null}

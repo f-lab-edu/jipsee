@@ -9,11 +9,10 @@ import MobileHeader from "@/widgets/header/ui/MobileHeader";
 
 interface HeaderProps {
 	session: Nullable<Session>;
-	currentPath: string;
+	currentPath?: string;
 	mobileBackground: BoxProps["bg"];
 	mobileBack?: ReactNode;
 	mobileBottom?: ReactNode;
-	hidesAccountLink?: boolean;
 }
 
 /**
@@ -23,11 +22,10 @@ interface HeaderProps {
  * - 스크롤해도 화면 위에 고정(sticky)
  * - 모바일 배경은 사용처에서 주입. 고정 헤더라 본문이 비치지 않게 불투명한 값을 넘김
  *
- * @param currentPath 로그인 링크가 돌아올 현재 경로(쿼리 포함)
+ * @param currentPath 로그인 링크가 돌아올 현재 경로(쿼리 포함). 없으면 계정 링크를 숨김
  * @param mobileBackground 모바일 헤더 배경. 데스크톱 행은 항상 흰색
  * @param mobileBack 모바일 로고 왼쪽에 둘 뒤로 가기 요소
  * @param mobileBottom 모바일 로고 줄 아래에 둘 둘째 줄
- * @param hidesAccountLink 모바일과 데스크톱의 계정 링크를 숨길지 여부
  */
 export default function Header({
 	session,
@@ -35,7 +33,6 @@ export default function Header({
 	mobileBackground,
 	mobileBack,
 	mobileBottom,
-	hidesAccountLink = false,
 }: HeaderProps) {
 	return (
 		<Box as="header" {...headerRootStyles.root}>
@@ -48,16 +45,9 @@ export default function Header({
 						background={mobileBackground}
 						back={mobileBack}
 						bottom={mobileBottom}
-						hidesAccountLink={hidesAccountLink}
 					/>
 				}
-				desktop={
-					<DesktopHeader
-						session={session}
-						currentPath={currentPath}
-						hidesAccountLink={hidesAccountLink}
-					/>
-				}
+				desktop={<DesktopHeader session={session} currentPath={currentPath} />}
 			/>
 		</Box>
 	);

@@ -4,7 +4,6 @@ import LoginIntro from "@/pages/login/ui/LoginIntro";
 import LoginNotice from "@/pages/login/ui/LoginNotice";
 import LoginProviders from "@/pages/login/ui/LoginProviders";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
-import { paths } from "@/shared/routes/paths";
 import ResponsiveLayout from "@/shared/ui/ResponsiveLayout";
 import Header from "@/widgets/header/ui/Header";
 import HeaderBackButton from "@/widgets/header/ui/HeaderBackButton";
@@ -33,10 +32,8 @@ export default function LoginPage({ next, hasError }: LoginPageProps) {
 		<>
 			<Header
 				session={null}
-				currentPath={paths.login}
 				mobileBackground="bg.layerDefault"
 				mobileBack={<HeaderBackButton />}
-				hidesAccountLink
 			/>
 			<VStack as="main" data-area="main" {...style.main}>
 				<ResponsiveLayout
