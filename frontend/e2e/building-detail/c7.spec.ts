@@ -13,7 +13,7 @@ import { measureDeals } from "../support/buildingDetail/measureDeals";
 import type { Theme } from "../support/buildingDetail/tokens";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
-import { DESKTOP, MOBILE } from "../support/viewports";
+import { DESKTOP, MOBILE, MOBILE_CARD } from "../support/viewports";
 
 const THEMES: Theme[] = ["light", "dark"];
 
@@ -35,10 +35,17 @@ for (const [layoutIndex, [name, viewport, layout]] of (
 				const tk = C6_TOKENS[theme];
 				t.ok("거래 이력 섹션이 보임", m.found, m.found, "있음");
 				if (layout === "mobile") {
-					const rowX = 16;
+					const rowX = MOBILE_CARD.x + 16;
 					c7CheckPrevBlock(t, m, layout, tk, rowX);
 					t.eq("모바일 ul 하나, li 하나", [m.ulCount, m.liCount], [1, 1]);
-					checkMobileDeals(t, m, [PREV_DEAL], tk, 0, 390);
+					checkMobileDeals(
+						t,
+						m,
+						[PREV_DEAL],
+						tk,
+						MOBILE_CARD.x,
+						MOBILE_CARD.width,
+					);
 					checkDealsBottom(t, m, 24);
 				} else {
 					const rowX = 177;
@@ -159,6 +166,13 @@ test.describe("320x700 light", () => {
 		await t.goto("/buildings/3", 400);
 		const m = await t.page.evaluate(measureDeals, "prev" as const);
 		t.ok("가로 스크롤 없음", m.scrollW <= m.vw, m.scrollW, `문서 폭 ≤ ${m.vw}`);
-		checkMobileDeals(t, m, [PREV_DEAL], C6_TOKENS.light, 0, 320);
+		checkMobileDeals(
+			t,
+			m,
+			[PREV_DEAL],
+			C6_TOKENS.light,
+			MOBILE_CARD.x,
+			320 - 2 * MOBILE_CARD.x,
+		);
 	});
 });

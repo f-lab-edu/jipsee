@@ -26,7 +26,7 @@ import { c11MeasureLongName } from "../support/buildingDetail/c11MeasureLongName
 import type { Theme } from "../support/buildingDetail/tokens";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
-import { DESKTOP, MOBILE } from "../support/viewports";
+import { DESKTOP, MOBILE, MOBILE_CARD } from "../support/viewports";
 
 const THEMES: Theme[] = ["light", "dark"];
 const LAYOUTS = [
@@ -361,7 +361,7 @@ test.describe("320x700 light", () => {
 				m.scrollW,
 				`문서 폭 ≤ ${m.vw}`,
 			);
-			t.near(`${l} 섹션 w`, m.section.w, 320, 0.5);
+			t.near(`${l} 섹션 w`, m.section.w, 320 - 2 * MOBILE_CARD.x, 0.5);
 			const b = c11Bounds(m, "mobile");
 			for (const [i, r] of m.lis.entries()) {
 				const name = r.texts[0];

@@ -71,11 +71,11 @@ button {
 	cursor: pointer;
 }
 
-/* 하늘빛 배경. 브랜드 색을 3% 섞음. Seed에 이 단계의 색이 없음 */
+/* 하늘빛 배경. 브랜드 색을 8% 섞음. Seed에 이 단계의 색이 없음 */
 :root {
 	--jipsee-color-bg-brand-tint: color-mix(
 		in srgb,
-		var(--seed-color-bg-brand-solid) 3%,
+		var(--seed-color-bg-brand-solid) 8%,
 		var(--seed-color-bg-layer-default)
 	);
 }
@@ -97,6 +97,20 @@ button {
 /* 건물 상세 열 배경. Seed bg는 반응형 값을 받지 않으므로 lg 미만은 흰색, lg 이상은 투명으로 정함 */
 :root .building-column {
 	--seed-box-background: var(--seed-color-bg-layer-default);
+}
+
+/* 480 이하 건물 상세. 열을 하늘빛으로 두고 본문을 흰 카드로 감쌈 */
+@media (max-width: 480px) {
+	:root .building-column {
+		--seed-box-background: var(--jipsee-color-bg-brand-tint);
+	}
+
+	.mobile-tinted-card {
+		margin-inline: var(--seed-dimension-spacing-x-global-gutter);
+		border: 1px solid var(--seed-color-stroke-neutral-muted);
+		border-radius: var(--seed-radius-r5);
+		overflow: hidden;
+	}
 }
 
 @media (min-width: 1280px) {

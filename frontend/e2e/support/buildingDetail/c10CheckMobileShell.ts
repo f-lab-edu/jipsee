@@ -1,3 +1,4 @@
+import { MOBILE_CARD } from "../viewports";
 import { C6_TOKENS } from "./c6Tokens";
 import type { C10Measure } from "./c10MeasureNearby";
 import { hexToRgb } from "./hexToRgb";
@@ -15,8 +16,8 @@ export function c10CheckMobileShell(t: T, m: C10Measure, label: string) {
 		m.section?.labelledBy,
 		"nearby-deals-title-mobile",
 	);
-	t.near(`${label} 섹션 x`, m.section?.rect.x, 0, 0.5);
-	t.near(`${label} 섹션 w`, m.section?.rect.w, m.vw, 0.5);
+	t.near(`${label} 섹션 x`, m.section?.rect.x, MOBILE_CARD.x, 0.5);
+	t.near(`${label} 섹션 w`, m.section?.rect.w, m.vw - 2 * MOBILE_CARD.x, 0.5);
 	t.eq(
 		`${label} 섹션 padding 위20 좌우16 아래24`,
 		m.section?.pad,
@@ -39,7 +40,7 @@ export function c10CheckMobileShell(t: T, m: C10Measure, label: string) {
 		m.title?.color,
 		hexToRgb(tk.fgNeutral),
 	);
-	t.near(`${label} 제목 x`, m.title?.rect.x, 16, 0.5);
+	t.near(`${label} 제목 x`, m.title?.rect.x, MOBILE_CARD.x + 16, 0.5);
 	t.near(
 		`${label} 제목 y`,
 		m.title?.rect.y,

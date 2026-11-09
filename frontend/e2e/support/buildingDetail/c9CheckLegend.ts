@@ -35,7 +35,7 @@ export function c9CheckLegend(
 			return;
 		}
 		t.near(`"${it.text}" 글자 왼쪽`, a.x, L.textX[i], 1);
-		t.near(`"${it.text}" 글자 위쪽`, a.y, 1, 1);
+		t.near(`"${it.text}" 글자 위쪽`, a.y, L.textY[i], 1);
 		t.eq(
 			`"${it.text}" 글자 크기, 줄 높이, 굵기`,
 			[a.fs, a.lh, a.fw],
@@ -65,7 +65,8 @@ export function c9CheckLegend(
 			theme,
 		);
 		const prev = lg.items[i - 1];
-		if (i > 0 && prev) {
+		const wrappedToSecondRow = layout === "mobile" && i === 5;
+		if (i > 0 && prev && !wrappedToSecondRow) {
 			t.near(
 				`"${prev.text}" 글자 끝과 "${it.text}" 마커 사이 가로 간격(열 간격 14)`,
 				a.marker.x - prev.r,

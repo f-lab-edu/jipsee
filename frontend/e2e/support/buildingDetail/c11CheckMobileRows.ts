@@ -108,7 +108,8 @@ export function c11CheckMobileRows(t: T, m: C11Measure, label: string) {
 			r.rect.y + 36,
 			1.5,
 		);
-		t.ok(`${l} 금액이 한 줄`, amount.h <= 20, amount.h, "≤ 20");
+		// 본문 카드 안쪽이 34 좁아져 월세 금액은 두 줄이 될 수 있음(2026-11-09 피드백)
+		t.ok(`${l} 금액이 두 줄 이하`, amount.h <= 44, amount.h, "≤ 44");
 		t.ok(
 			`${l} 금액 폭이 행 폭의 55% 이하`,
 			amount.w <= (b.r - b.l) * 0.55 + 0.5,

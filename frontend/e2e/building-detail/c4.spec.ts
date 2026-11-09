@@ -17,7 +17,7 @@ import { c4MobileGeometry } from "../support/buildingDetail/c4MobileGeometry";
 import type { Theme } from "../support/buildingDetail/tokens";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
-import { DESKTOP, MOBILE } from "../support/viewports";
+import { DESKTOP, MOBILE, MOBILE_CARD } from "../support/viewports";
 
 const THEMES: Theme[] = ["light", "dark"];
 
@@ -45,20 +45,20 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			m.h2?.id ?? "",
 		);
 		t.eq("aria-labelledby가 가리키는 글자", m.labelledByText, "건물 정보");
-		t.near("섹션 x", m.section?.rect.x, 0);
+		t.near("섹션 x", m.section?.rect.x, MOBILE_CARD.x);
 		t.near(
-			"섹션 y (헤더 바로 아래)",
+			"섹션 y (헤더 아래 카드 border 1)",
 			m.section?.rect.y,
-			m.headerBottom ?? Number.NaN,
+			(m.headerBottom ?? Number.NaN) + 1,
 		);
-		t.near("섹션 w", m.section?.rect.w, 390);
+		t.near("섹션 w", m.section?.rect.w, MOBILE_CARD.width);
 		t.eq(
 			"섹션 padding 위20 좌우16 아래24",
 			m.section?.pad,
 			"20px 16px 24px 16px",
 		);
 		t.eq("섹션 border 없음", m.section?.bw, "0px");
-		t.near("제목 x", m.h2?.rect.x, 16);
+		t.near("제목 x", m.h2?.rect.x, MOBILE_CARD.x + 16);
 		t.near("제목 y", m.h2?.rect.y, (m.headerBottom ?? Number.NaN) + 20);
 		t.near("제목 h", m.h2?.rect.h, 24);
 		t.eq(
@@ -78,7 +78,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			m.address?.text,
 			"마포구 망원동 12-3",
 		);
-		t.near("주소 x", m.address?.rect.x, 16);
+		t.near("주소 x", m.address?.rect.x, MOBILE_CARD.x + 16);
 		t.near(
 			"주소 y (제목 아래 간격 2)",
 			m.address?.rect.y,
@@ -104,7 +104,7 @@ for (const [index, id] of OK_IDS.entries()) {
 			await t.goto(`/buildings/${id}`);
 			const m = await t.measureInfo();
 			t.ok("건물 정보 섹션이 보임", m.found, m.found, "있음");
-			const g = c4MobileGeometry(m, id, 0, 390);
+			const g = c4MobileGeometry(m, id, MOBILE_CARD.x, MOBILE_CARD.width);
 			t.eq(`id ${id} 주소 부제 유무`, !!m.address, g.hasAddress);
 			t.near(
 				`id ${id} 섹션 h`,
@@ -317,11 +317,11 @@ test.describe(`320x700 light`, () => {
 				m.doc.scrollW,
 				`≤ ${m.doc.vw}`,
 			);
-			const g = c4MobileGeometry(m, id, 0, 320);
+			const g = c4MobileGeometry(m, id, MOBILE_CARD.x, 320 - 2 * MOBILE_CARD.x);
 			t.eq(`id ${id} 동 카드 개수`, m.cards?.length, INFO[id].length);
 			for (const [i, c] of (m.cards ?? []).entries()) {
-				t.near(`id ${id} 카드 ${i} x`, c.rect.x, 16);
-				t.near(`id ${id} 카드 ${i} w`, c.rect.w, 288);
+				t.near(`id ${id} 카드 ${i} x`, c.rect.x, g.cardX);
+				t.near(`id ${id} 카드 ${i} w`, c.rect.w, g.cardW);
 				for (const it of c.items) {
 					t.ok(
 						`id ${id} 카드 ${i} ${it.dt?.text} 값이 카드 안에 들어옴`,
@@ -333,7 +333,9 @@ test.describe(`320x700 light`, () => {
 					t.near(
 						`id ${id} 카드 ${i} ${it.dt?.text} 칸 폭`,
 						it.dt?.rect.w,
-						WIDE_LABELS.includes(it.dt?.text ?? "") ? 254 : 119,
+						WIDE_LABELS.includes(it.dt?.text ?? "")
+							? g.cardW - 34
+							: (g.cardW - 34 - 16) / 2,
 					);
 				}
 			}

@@ -6,8 +6,10 @@ export const C9_LAYOUT = {
 	mobile: {
 		d: 12,
 		legendD: 10,
-		textX: [16, 68.17, 120.34, 172.52, 224.69, 302.45],
-		noteX: 0,
+		// 본문 카드 안쪽이 34 좁아져 "이전 건물"이 둘째 줄로 내려가고 보조 문구가 그 옆에 붙음(2026-11-09 피드백)
+		textX: [16, 68.17, 120.34, 172.52, 224.69, 16],
+		textY: [1, 1, 1, 1, 1, 27],
+		noteX: 77.77,
 		noteY: 27,
 		legendH: 44,
 		legendTop: 40,
@@ -23,6 +25,7 @@ export const C9_LAYOUT = {
 		d: 14,
 		legendD: 12,
 		textX: [18, 72.17, 126.34, 180.52, 234.69, 314.45],
+		textY: [1, 1, 1, 1, 1, 1],
 		noteX: 376.22,
 		noteY: 1,
 		legendH: 18,

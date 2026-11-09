@@ -13,7 +13,7 @@ import { measureDeals } from "../support/buildingDetail/measureDeals";
 import type { Theme } from "../support/buildingDetail/tokens";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
-import { DESKTOP, MOBILE } from "../support/viewports";
+import { DESKTOP, MOBILE, MOBILE_CARD } from "../support/viewports";
 
 const THEMES: Theme[] = ["light", "dark"];
 
@@ -27,10 +27,10 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		await t.goto("/buildings/1");
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		const tk = C6_TOKENS.light;
-		c6CheckMobileSection(t, m, tk, 0, 390);
+		c6CheckMobileSection(t, m, tk, MOBILE_CARD.x, MOBILE_CARD.width);
 		t.eq("ul 하나", m.ulCount, 1);
 		t.eq("li 7개", m.liCount, 7);
-		checkMobileDeals(t, m, DEALS[1], tk, 0, 390);
+		checkMobileDeals(t, m, DEALS[1], tk, MOBILE_CARD.x, MOBILE_CARD.width);
 		checkDealsBottom(t, m, 24);
 	});
 	for (const [index, id] of [2, 4, 5].entries()) {
@@ -39,7 +39,14 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		}) => {
 			await t.goto(`/buildings/${id}`);
 			const m = await t.page.evaluate(measureDeals, "current" as const);
-			checkMobileDeals(t, m, DEALS[id], C6_TOKENS.light, 0, 390);
+			checkMobileDeals(
+				t,
+				m,
+				DEALS[id],
+				C6_TOKENS.light,
+				MOBILE_CARD.x,
+				MOBILE_CARD.width,
+			);
 			checkDealsBottom(t, m, 24);
 		});
 	}
@@ -49,14 +56,27 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		await t.goto("/buildings/1?type=wolse");
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		t.eq("li 7개", m.liCount, 7);
-		checkMobileDeals(t, m, DEALS[1], C6_TOKENS.light, 0, 390);
+		checkMobileDeals(
+			t,
+			m,
+			DEALS[1],
+			C6_TOKENS.light,
+			MOBILE_CARD.x,
+			MOBILE_CARD.width,
+		);
 	});
 	test(`${caseId("C6", 8)} 모바일 id 3은 거래 이력 제목만 있고 현재 건물 거래 목록이 없음 (거래 0건)`, async ({
 		t,
 	}) => {
 		await t.goto("/buildings/3");
 		const m = await t.page.evaluate(measureDeals, "current" as const);
-		c6CheckMobileSection(t, m, C6_TOKENS.light, 0, 390);
+		c6CheckMobileSection(
+			t,
+			m,
+			C6_TOKENS.light,
+			MOBILE_CARD.x,
+			MOBILE_CARD.width,
+		);
 		t.eq("현재 건물 거래 ul 없음", m.ulCount, 0);
 		t.eq("li 없음", m.liCount, 0);
 		t.eq("table 없음", m.table, null);
@@ -71,22 +91,35 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 		await t.goto("/buildings/1");
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		const tk = C6_TOKENS.dark;
-		c6CheckMobileSection(t, m, tk, 0, 390);
-		checkMobileDeals(t, m, DEALS[1], tk, 0, 390);
+		c6CheckMobileSection(t, m, tk, MOBILE_CARD.x, MOBILE_CARD.width);
+		checkMobileDeals(t, m, DEALS[1], tk, MOBILE_CARD.x, MOBILE_CARD.width);
 	});
 	test(`${caseId("C6", 7)} 모바일 다크에서 id 4의 거래 목록이 다크 토큰과 같음 (3건)`, async ({
 		t,
 	}) => {
 		await t.goto("/buildings/4");
 		const m = await t.page.evaluate(measureDeals, "current" as const);
-		checkMobileDeals(t, m, DEALS[4], C6_TOKENS.dark, 0, 390);
+		checkMobileDeals(
+			t,
+			m,
+			DEALS[4],
+			C6_TOKENS.dark,
+			MOBILE_CARD.x,
+			MOBILE_CARD.width,
+		);
 	});
 	test(`${caseId("C6", 9)} 모바일 다크에서 id 3도 거래 이력 제목만 있고 목록이 없음`, async ({
 		t,
 	}) => {
 		await t.goto("/buildings/3");
 		const m = await t.page.evaluate(measureDeals, "current" as const);
-		c6CheckMobileSection(t, m, C6_TOKENS.dark, 0, 390);
+		c6CheckMobileSection(
+			t,
+			m,
+			C6_TOKENS.dark,
+			MOBILE_CARD.x,
+			MOBILE_CARD.width,
+		);
 		t.eq("현재 건물 거래 ul 없음", m.ulCount, 0);
 	});
 });
@@ -105,7 +138,14 @@ test.describe("320x700 light", () => {
 				m.scrollW,
 				`문서 폭 ≤ ${m.vw}`,
 			);
-			checkMobileDeals(t, m, DEALS[id], C6_TOKENS.light, 0, 320);
+			checkMobileDeals(
+				t,
+				m,
+				DEALS[id],
+				C6_TOKENS.light,
+				MOBILE_CARD.x,
+				320 - 2 * MOBILE_CARD.x,
+			);
 		}
 	});
 });

@@ -347,28 +347,69 @@ async function bgNarrow(t: T) {
 	await t.goto("/buildings/1");
 	const m = await t.measure();
 	t.color("헤더 bg.layerDefault", m.bgHeader, t.tokens.layerDefault);
-	t.color("main bg.layerDefault", m.bgMain, t.tokens.layerDefault);
-	t.color("푸터 bg.layerDefault", m.bgFooter, t.tokens.layerDefault);
-	t.ok(
-		"body가 하늘빛이 아님",
-		!sameColor(m.bodyBg, m.tint),
-		m.bodyBg,
-		`하늘빛(${m.tint})이 아님`,
-	);
+	t.color("main 카드 바깥 하늘빛(2026-11-09 피드백)", m.bgMain, m.tint);
+	const cardBg = await t.page.evaluate(() => {
+		const card = document.querySelector(
+			'[data-area="building-body-mobile"] > *',
+		);
+		return card ? getComputedStyle(card).backgroundColor : "";
+	});
+	t.color("본문 카드 bg.layerDefault", cardBg, t.tokens.layerDefault);
+	t.color("푸터 하늘빛(2026-11-09 피드백)", m.bgFooter, m.tint);
 }
 test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
-	test("C3-38 390px에서 헤더, 본문, 푸터 배경이 모두 흰색 토큰임 (light)", async ({
+	test("C3-38 390px에서 헤더와 본문 카드는 흰색 토큰이고 푸터는 하늘빛임 (light)", async ({
 		t,
 	}) => {
 		await bgNarrow(t);
 	});
 });
+// 480px 이하 본문 카드 (2026-11-09 피드백 6번)
+for (const [themeIndex, theme] of THEMES.entries()) {
+	test.describe(`${MOBILE.width}x${MOBILE.height} ${theme} 본문 카드`, () => {
+		test.use({ viewport: MOBILE, colorScheme: theme });
+
+		test(`${caseId("C3", 70 + themeIndex)} 390px에서 본문이 좌우 16 여백, 1px stroke.neutralMuted border, 모서리 20, overflow hidden인 카드이고 열 배경은 하늘빛임 (${theme})`, async ({
+			t,
+		}) => {
+			await t.goto("/buildings/1");
+			const card = await t.page.evaluate(() => {
+				const el = document.querySelector(
+					'[data-area="building-body-mobile"] > *',
+				);
+				if (!el) return null;
+				const c = getComputedStyle(el);
+				const r = el.getBoundingClientRect();
+				return {
+					x: r.x,
+					w: r.width,
+					bw: c.borderTopWidth,
+					bc: c.borderTopColor,
+					radius: c.borderTopLeftRadius,
+					overflow: c.overflow,
+				};
+			});
+			t.ok("본문 카드가 있음", !!card, card, "있음");
+			t.near("카드 x(좌우 gutter 16)", card?.x, 16, 0.5);
+			t.near("카드 w", card?.w, MOBILE.width - 32, 0.5);
+			t.eq("카드 border 두께", card?.bw, "1px");
+			t.color(
+				"카드 border 색 stroke.neutralMuted",
+				card?.bc,
+				t.tokens.strokeMuted,
+			);
+			t.eq("카드 모서리 r5", card?.radius, "20px");
+			t.eq("카드 overflow", card?.overflow, "hidden");
+		});
+	});
+}
+
 test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "dark" });
 
-	test("C3-39 390px에서 헤더, 본문, 푸터 배경이 모두 흰색 토큰임 (dark)", async ({
+	test("C3-39 390px에서 헤더와 본문 카드는 흰색 토큰이고 푸터는 하늘빛임 (dark)", async ({
 		t,
 	}) => {
 		await bgNarrow(t);
