@@ -4,7 +4,13 @@ import Header from "@/widgets/header/ui/Header";
 
 describe("Header", () => {
 	it("모바일 헤더에 서비스 이름을 홈으로 가는 링크로 표시함", () => {
-		render(<Header session={null} mobileBackground="bg.layerDefault" />);
+		render(
+			<Header
+				session={null}
+				currentPath="/"
+				mobileBackground="bg.layerDefault"
+			/>,
+		);
 
 		expect(
 			within(screen.getByTestId("header-mobile")).getByRole("link", {
@@ -14,7 +20,13 @@ describe("Header", () => {
 	});
 
 	it("데스크톱 헤더에도 같은 홈 링크를 표시함", () => {
-		render(<Header session={null} mobileBackground="bg.layerDefault" />);
+		render(
+			<Header
+				session={null}
+				currentPath="/"
+				mobileBackground="bg.layerDefault"
+			/>,
+		);
 
 		expect(
 			within(screen.getByTestId("header-desktop")).getByRole("link", {
@@ -24,7 +36,9 @@ describe("Header", () => {
 	});
 
 	it("사용처가 넘긴 배경 색을 모바일 헤더에 적용함", () => {
-		render(<Header session={null} mobileBackground="bg.brandWeak" />);
+		render(
+			<Header session={null} currentPath="/" mobileBackground="bg.brandWeak" />,
+		);
 
 		const row = screen.getByTestId("header-mobile").firstElementChild;
 
@@ -37,6 +51,7 @@ describe("Header", () => {
 		render(
 			<Header
 				session={null}
+				currentPath="/"
 				mobileBackground="transparent"
 				mobileBack={<button type="button">뒤로</button>}
 				mobileBottom={<p>둘째 줄</p>}
@@ -61,7 +76,11 @@ describe("Header", () => {
 
 	it("헤더 요소를 위 0에 고정함", () => {
 		const { container } = render(
-			<Header session={null} mobileBackground="bg.layerDefault" />,
+			<Header
+				session={null}
+				currentPath="/"
+				mobileBackground="bg.layerDefault"
+			/>,
 		);
 		const style = container.querySelector("header")?.getAttribute("style");
 

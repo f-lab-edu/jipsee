@@ -4,6 +4,7 @@ import type { NearbyDealsCondition } from "@/entities/building/model/nearbyDeals
 import type { NearbyDealsResult } from "@/entities/building/model/nearbyDealsResult";
 import type { Session } from "@/entities/session/model/session";
 import AskBuildingBar from "@/features/askChatbot/ui/AskBuildingBar";
+import { toNearbyFilterHref } from "@/features/filterNearbyDeals/lib/toNearbyFilterHref";
 import { buildingScreenStyles } from "@/pages/building/config/buildingScreenStyles";
 import DesktopBuildingBody from "@/pages/building/ui/DesktopBuildingBody";
 import MobileBuildingBody from "@/pages/building/ui/MobileBuildingBody";
@@ -42,7 +43,10 @@ export default function BuildingScreen({
 	return (
 		<VStack {...style.page}>
 			<VStack {...style.column}>
-				<BuildingHeader session={session} />
+				<BuildingHeader
+					session={session}
+					currentPath={toNearbyFilterHref(detail.id, condition, {})}
+				/>
 				<VStack as="main" data-area="main" {...style.main}>
 					<ResponsiveLayout
 						testId="building-body"

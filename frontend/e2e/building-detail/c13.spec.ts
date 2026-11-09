@@ -386,31 +386,41 @@ test.describe(`1279x900 light`, () => {
 test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
-	test(`C13-18 로그아웃에서는 모바일 바와 데스크톱 카드의 링크가 /login이고 누르면 /login으로 이동함 (id 1부터 5)`, async ({
+	test(`C13-18 로그아웃에서는 모바일 바와 데스크톱 카드의 링크가 /login?next={질문 경로}이고 누르면 그 주소로 이동함 (id 1부터 5)`, async ({
 		t,
 	}) => {
 		skipUnlessMode("out");
+		const loginHref = (id: number) =>
+			`/login?next=${encodeURIComponent(`/chat?buildingId=${id}`)}`;
 		for (const id of ASK_IDS) {
 			await t.goto(`/buildings/${id}`, 300);
-			t.eq(`모바일 id ${id} href`, (await askMeasure(t)).btn?.href, "/login");
+			t.eq(
+				`모바일 id ${id} href`,
+				(await askMeasure(t)).btn?.href,
+				loginHref(id),
+			);
 		}
 		await t.page.setViewportSize({ width: 1440, height: 900 });
 		for (const id of ASK_IDS) {
 			await t.goto(`/buildings/${id}`, 300);
-			t.eq(`데스크톱 id ${id} href`, (await askMeasure(t)).btn?.href, "/login");
+			t.eq(
+				`데스크톱 id ${id} href`,
+				(await askMeasure(t)).btn?.href,
+				loginHref(id),
+			);
 		}
-		// 이동 확인 (라우트가 아직 없어 404 화면이 나오는 것이 정상임)
+		// 이동 확인 (S4 로그인 라우트가 생기기 전이라 404 화면이 나오는 것이 정상임)
 		await t.goto("/buildings/1", 300);
 		await t.page
 			.locator("a", { hasText: ASK_TEXT })
 			.locator("visible=true")
 			.first()
 			.click();
-		await t.page.waitForURL(/\/login$/, { timeout: 15000 });
+		await t.page.waitForURL(/\/login\?next=/, { timeout: 15000 });
 		t.eq(
 			"누른 뒤 경로",
 			new URL(t.page.url()).pathname + new URL(t.page.url()).search,
-			"/login",
+			loginHref(1),
 		);
 	});
 });

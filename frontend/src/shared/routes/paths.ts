@@ -2,6 +2,7 @@ export const paths = {
 	home: "/",
 	search: "/search",
 	login: "/login",
+	loginWithNext: (next: string) => `/login?next=${encodeURIComponent(next)}`,
 	chat: "/chat",
 	chatWithBuilding: (id: number) => `/chat?buildingId=${id}`,
 	me: "/me",

@@ -11,6 +11,7 @@ import LogoSymbol from "@/widgets/header/ui/LogoSymbol";
 
 interface MobileHeaderProps {
 	session: Nullable<Session>;
+	currentPath: string;
 	background: BoxProps["bg"];
 	back?: ReactNode;
 	bottom?: ReactNode;
@@ -22,12 +23,14 @@ interface MobileHeaderProps {
  * - 로고 줄은 왼쪽에 뒤로 가기 요소와 로고, 오른쪽에 계정 링크 출력
  * - bottom이 있으면 로고 줄 아래에 둘째 줄로 출력
  *
+ * @param currentPath 로그인 링크가 돌아올 현재 경로
  * @param background 사용처가 주입한 배경
  * @param back 로고 왼쪽 요소
  * @param bottom 로고 줄 아래 요소
  */
 export default function MobileHeader({
 	session,
+	currentPath,
 	background,
 	back,
 	bottom,
@@ -46,7 +49,11 @@ export default function MobileHeader({
 						</HStack>
 					</Link>
 				</HStack>
-				<AccountLink session={session} variant="mobile" />
+				<AccountLink
+					session={session}
+					variant="mobile"
+					currentPath={currentPath}
+				/>
 			</HStack>
 			{bottom}
 		</VStack>

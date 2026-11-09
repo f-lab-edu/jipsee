@@ -11,10 +11,14 @@ import LogoSymbol from "@/widgets/header/ui/LogoSymbol";
 
 interface DesktopHeaderProps {
 	session: Nullable<Session>;
+	currentPath: string;
 }
 
 /** 헤더 > 데스크톱 레이아웃 */
-export default function DesktopHeader({ session }: DesktopHeaderProps) {
+export default function DesktopHeader({
+	session,
+	currentPath,
+}: DesktopHeaderProps) {
 	const style = headerStyles.desktop;
 
 	return (
@@ -27,7 +31,11 @@ export default function DesktopHeader({ session }: DesktopHeaderProps) {
 							<Text {...style.serviceName}>{siteMetadata.name}</Text>
 						</HStack>
 					</Link>
-					<AccountLink session={session} variant="desktop" />
+					<AccountLink
+						session={session}
+						variant="desktop"
+						currentPath={currentPath}
+					/>
 				</HStack>
 			</ContentContainer>
 		</Box>

@@ -6,6 +6,7 @@ import ChatPanelMobile from "@/features/askChatbot/ui/ChatPanelMobile";
 import { homeScreenStyles } from "@/pages/home/config/homeScreenStyles";
 import { colors } from "@/shared/config/colors";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
+import { paths } from "@/shared/routes/paths";
 import ContentContainer from "@/shared/ui/ContentContainer";
 import Header from "@/widgets/header/ui/Header";
 
@@ -26,7 +27,11 @@ export default function HomeScreen({ session, children }: HomeScreenProps) {
 
 	return (
 		<>
-			<Header session={session} mobileBackground={colors.brandTintBackground} />
+			<Header
+				session={session}
+				currentPath={paths.home}
+				mobileBackground={colors.brandTintBackground}
+			/>
 			<VStack as="main" data-area="main" {...style.main}>
 				<ContentContainer>
 					<Grid {...style.grid}>

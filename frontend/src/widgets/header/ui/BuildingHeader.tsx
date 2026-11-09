@@ -6,6 +6,7 @@ import HeaderBackButton from "@/widgets/header/ui/HeaderBackButton";
 
 interface BuildingHeaderProps {
 	session: Nullable<Session>;
+	currentPath: string;
 }
 
 /**
@@ -13,10 +14,14 @@ interface BuildingHeaderProps {
  *
  * - 모바일은 로고 왼쪽에 뒤로 가기 버튼을 두고 배경은 건물 상세 열 배경과 같음
  */
-export default function BuildingHeader({ session }: BuildingHeaderProps) {
+export default function BuildingHeader({
+	session,
+	currentPath,
+}: BuildingHeaderProps) {
 	return (
 		<Header
 			session={session}
+			currentPath={currentPath}
 			mobileBackground={colors.buildingColumnBackground}
 			mobileBack={<HeaderBackButton />}
 		/>
