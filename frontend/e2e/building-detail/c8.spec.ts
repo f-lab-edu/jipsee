@@ -75,7 +75,13 @@ function c8Expect(deals: ChartDeal[]) {
 	for (let y = startYear; y <= endYear; y += step) {
 		ticks.push({ text: String(y), xPct: pct(y, 1) });
 	}
-	const won = (n: number) => `${n.toLocaleString("ko-KR")}만원`;
+	const won = (n: number) => {
+		const eok = Math.floor(n / 10000);
+		const man = n % 10000;
+		if (eok === 0) return `${man.toLocaleString("ko-KR")}만원`;
+		if (man === 0) return `${eok}억`;
+		return `${eok}억 ${man.toLocaleString("ko-KR")}만원`;
+	};
 	const jeonse = deals.filter((d) => d.kind === "jeonse").length;
 	return {
 		points: deals.map((d) => ({

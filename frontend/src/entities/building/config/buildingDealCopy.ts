@@ -5,6 +5,7 @@ export const buildingDealCopy = {
 	similarBuilding: "유사 건물",
 	areaUnit: "㎡",
 	amountUnit: "만원",
+	eokUnit: "억",
 	deposit: "보증금",
 	monthlyRent: "월",
 	amountSeparator: " / ",

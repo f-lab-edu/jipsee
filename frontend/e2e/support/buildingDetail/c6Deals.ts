@@ -7,7 +7,7 @@ export const DEALS_DEFAULT: DealExpectation[] = [
 		type: "신규 전세",
 		kind: "jeonse",
 		area: "42㎡",
-		amount: "25,000만원",
+		amount: "2억 5,000만원",
 	},
 	{
 		date: "2026.05",
@@ -22,14 +22,14 @@ export const DEALS_DEFAULT: DealExpectation[] = [
 		kind: "sale",
 		cancelled: true,
 		area: "42㎡",
-		amount: "31,000만원",
+		amount: "3억 1,000만원",
 	},
 	{
 		date: "2025.06",
 		type: "갱신 전세",
 		kind: "jeonse",
 		area: "42㎡",
-		amount: "24,000만원",
+		amount: "2억 4,000만원",
 	},
 	{
 		date: "2024.09",
@@ -37,21 +37,21 @@ export const DEALS_DEFAULT: DealExpectation[] = [
 		kind: "jeonse",
 		similar: true,
 		area: "40㎡",
-		amount: "23,000만원",
+		amount: "2억 3,000만원",
 	},
 	{
 		date: "2024.02",
 		type: "매매",
 		kind: "sale",
 		area: "42㎡",
-		amount: "30,500만원",
+		amount: "3억 500만원",
 	},
 	{
 		date: "2023.07",
 		type: "신규 전세",
 		kind: "jeonse",
 		area: "42㎡",
-		amount: "22,000만원",
+		amount: "2억 2,000만원",
 	},
 ];
 
@@ -62,21 +62,21 @@ export const DEALS_NOLOC: DealExpectation[] = [
 		type: "신규 전세",
 		kind: "jeonse",
 		area: "33㎡",
-		amount: "18,000만원",
+		amount: "1억 8,000만원",
 	},
 	{
 		date: "2024.10",
 		type: "갱신 전세",
 		kind: "jeonse",
 		area: "33㎡",
-		amount: "17,000만원",
+		amount: "1억 7,000만원",
 	},
 	{
 		date: "2023.05",
 		type: "신규 전세",
 		kind: "jeonse",
 		area: "33㎡",
-		amount: "16,000만원",
+		amount: "1억 6,000만원",
 	},
 ];
 
