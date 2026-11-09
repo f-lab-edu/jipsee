@@ -684,7 +684,7 @@ for (const [index, w] of [1280, 1440].entries()) {
 		}) => {
 			await t.goto("/buildings/1");
 			const before = await t.measure();
-			const h1 = t.page.locator("main h1");
+			const h1 = t.page.locator("main h1:visible");
 			await h1.evaluate((e) => {
 				e.textContent = "가".repeat(49);
 			});
