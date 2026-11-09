@@ -88,9 +88,9 @@ export function c10CheckDesktopFilterLayout(
 		);
 	});
 	if (hasArea) {
-		const boxH = 16 + 36 + 12 + 20 + 16;
+		const boxH = 16 + 40 + 12 + 20 + 16;
 		t.near(
-			`${label} 필터 상자 높이(16 + 36 + 12 + 20 + 16)`,
+			`${label} 필터 상자 높이(16 + 40 + 12 + 20 + 16)`,
 			m.box?.rect.h,
 			boxH,
 			1,
@@ -98,7 +98,7 @@ export function c10CheckDesktopFilterLayout(
 		t.near(
 			`${label} 면적 줄이 첫 줄 아래 12(다음 줄로 줄바꿈)`,
 			(m.area?.label?.rect.y ?? Number.NaN) - 2,
-			(g0?.rect.y ?? Number.NaN) + 36 + 12,
+			(g0?.rect.y ?? Number.NaN) + 40 + 12,
 			1.5,
 		);
 		t.near(
@@ -118,9 +118,9 @@ export function c10CheckDesktopFilterLayout(
 		);
 	} else {
 		t.near(
-			`${label} 필터 상자 높이(16 + 36 + 16)`,
+			`${label} 필터 상자 높이(16 + 40 + 16)`,
 			m.box?.rect.h,
-			16 + 36 + 16,
+			16 + 40 + 16,
 			1,
 		);
 	}

@@ -19,7 +19,8 @@ interface NearbyDealsFilterProps {
  *
  * - 반경, 기간, 유형 그룹 순서로 출력
  * - 그룹 뒤에 자식을 마지막 줄로 출력
- * - 모바일은 그룹을 세로로 쌓고, 데스크톱은 배경 상자 안에서 줄바꿈하며 가로로 출력
+ * - 그룹을 가로로 출력하고 넘치면 줄바꿈
+ * - 데스크톱은 배경 상자 안에 출력
  *
  * @param children 필터 상자 안 마지막 줄에 출력할 내용
  */
@@ -30,7 +31,7 @@ export default function NearbyDealsFilter({
 	children,
 }: NearbyDealsFilterProps) {
 	const style = nearbyDealsFilterStyles[layout];
-	const { groups, chips } = nearbyFilterLabels;
+	const { groups, options: optionLabels } = nearbyFilterLabels;
 
 	return (
 		<Box data-area={`nearby-filter-${layout}`} {...style.container}>
@@ -41,7 +42,7 @@ export default function NearbyDealsFilter({
 				name="radius"
 				label={groups.radius}
 				options={nearbyDealsOptions.radii}
-				chipLabels={chips.radius}
+				optionLabels={optionLabels.radius}
 			/>
 			<NearbyDealsFilterGroup
 				layout={layout}
@@ -50,7 +51,7 @@ export default function NearbyDealsFilter({
 				name="period"
 				label={groups.period}
 				options={nearbyDealsOptions.periods}
-				chipLabels={chips.period}
+				optionLabels={optionLabels.period}
 			/>
 			<NearbyDealsFilterGroup
 				layout={layout}
@@ -59,7 +60,7 @@ export default function NearbyDealsFilter({
 				name="type"
 				label={groups.type}
 				options={nearbyDealsOptions.types}
-				chipLabels={chips.type}
+				optionLabels={optionLabels.type}
 			/>
 			{children}
 		</Box>

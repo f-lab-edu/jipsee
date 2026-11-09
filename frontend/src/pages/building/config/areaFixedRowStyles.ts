@@ -3,7 +3,7 @@ import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
 
 const shared: Omit<AreaFixedRowStyle, "labelCell"> = {
-	row: { display: "flex", alignItems: "center", gap: "x2" },
+	row: { display: "flex", alignItems: "center", gap: "x2", width: "100%" },
 	label: { ...typography.size13, color: "fg.neutralMuted" },
 	content: { display: "flex", alignItems: "center", gap: "x1_5" },
 	icon: { size: "14px", color: "fg.neutral" },

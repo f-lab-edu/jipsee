@@ -16,18 +16,15 @@ export type C10Label = {
 	color: string;
 };
 
-export type C10Chip = {
+export type C10Trigger = {
 	text: string;
-	href: string | null;
-	cur: string | null;
+	expanded: string | null;
+	labelledBy: string | null;
 	rect: C10Rect;
-	bg: string;
-	radius: number;
-	pad: string;
-	color: string;
-	fw: string;
 	fs: string;
 	lh: string;
+	fw: string;
+	hasChevron: boolean;
 };
 
 export type C10Group = {
@@ -35,7 +32,7 @@ export type C10Group = {
 	labelText: string | null;
 	rect: C10Rect;
 	label: C10Label | null;
-	chips: C10Chip[];
+	trigger: C10Trigger | null;
 };
 
 export type C10Svg = {
@@ -217,30 +214,27 @@ export function c10MeasureNearby(): C10Measure {
 	out.groups = groups.map((g) => {
 		const lid = g.getAttribute("aria-labelledby");
 		const label = lid ? document.getElementById(lid) : null;
-		const chips = [...g.querySelectorAll("a")].filter(vis).map((a) => {
-			const c = getComputedStyle(a);
-			const tx = a.firstElementChild || a;
-			const tc = getComputedStyle(tx);
-			return {
-				text: text(a),
-				href: a.getAttribute("href"),
-				cur: a.getAttribute("aria-current"),
-				rect: R(a),
-				bg: c.backgroundColor,
-				radius: Number.parseFloat(c.borderTopLeftRadius),
-				pad: `${c.paddingTop} ${c.paddingRight} ${c.paddingBottom} ${c.paddingLeft}`,
-				color: tc.color,
-				fw: tc.fontWeight,
-				fs: tc.fontSize,
-				lh: tc.lineHeight,
-			};
-		});
+		const tr = g.querySelector('[role="combobox"]');
+		const value = tr?.querySelector('[class*="seed-select-trigger__value"]');
+		const vc = value ? getComputedStyle(value) : null;
+		const trigger = tr
+			? {
+					text: text(tr),
+					expanded: tr.getAttribute("aria-expanded"),
+					labelledBy: tr.getAttribute("aria-labelledby"),
+					rect: R(tr),
+					fs: vc?.fontSize ?? "",
+					lh: vc?.lineHeight ?? "",
+					fw: vc?.fontWeight ?? "",
+					hasChevron: !!tr.querySelector("svg"),
+				}
+			: null;
 		return {
 			labelledBy: lid,
 			labelText: label ? text(label) : null,
 			rect: R(g),
 			label: label ? labelOf(label) : null,
-			chips,
+			trigger,
 		};
 	});
 	const g0 = groups[0];

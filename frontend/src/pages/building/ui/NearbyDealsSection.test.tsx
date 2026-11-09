@@ -1,8 +1,19 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { NearbyDeal } from "@/entities/building/model/nearbyDeal";
 import type { NearbyDealsResult } from "@/entities/building/model/nearbyDealsResult";
 import NearbyDealsSection from "@/pages/building/ui/NearbyDealsSection";
+
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+
+vi.stubGlobal(
+	"ResizeObserver",
+	class {
+		observe() {}
+		unobserve() {}
+		disconnect() {}
+	},
+);
 
 const jeonse: NearbyDeal = {
 	id: 1,

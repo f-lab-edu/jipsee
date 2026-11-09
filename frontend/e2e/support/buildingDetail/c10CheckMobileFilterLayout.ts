@@ -2,6 +2,7 @@ import { MOBILE_CARD } from "../viewports";
 import type { C10Measure } from "./c10MeasureNearby";
 import type { T } from "./makeT";
 
+// 2026-11-09 피드백 9번: 그룹을 가로로 놓고 넘치면 줄바꿈함(행 간격 10, 열 간격 16)
 export function c10CheckMobileFilterLayout(
 	t: T,
 	m: C10Measure,
@@ -10,9 +11,15 @@ export function c10CheckMobileFilterLayout(
 ) {
 	const g = m.groups ?? [];
 	const x0 = MOBILE_CARD.x + 16;
-	t.eq(`${label} 필터 묶음 세로 쌓기`, m.box?.dir, "column");
+	const lastGroupBottom = Math.max(...g.map((gr) => gr.rect.b));
+	t.eq(`${label} 필터 묶음 가로 배치`, m.box?.dir, "row");
+	t.eq(`${label} 필터 묶음 wrap`, m.box?.wrap, "wrap");
 	t.eq(`${label} 필터 묶음 배경 없음`, m.box?.bg, "rgba(0, 0, 0, 0)");
-	t.eq(`${label} 필터 묶음 간격 10`, m.box?.rowGap, "10px");
+	t.eq(
+		`${label} 필터 묶음 간격 행 10, 열 16`,
+		[m.box?.rowGap, m.box?.colGap],
+		["10px", "16px"],
+	);
 	t.near(`${label} 필터 묶음 x`, m.box?.rect.x, x0, 0.5);
 	t.near(
 		`${label} 필터 묶음 w`,
@@ -27,28 +34,43 @@ export function c10CheckMobileFilterLayout(
 		1,
 	);
 	g.forEach((gr, i) => {
-		t.near(`${label} ${gr.labelText} 그룹 x`, gr.rect.x, x0, 0.5);
-		t.near(`${label} ${gr.labelText} 라벨 칸 폭 36`, gr.label?.cellW, 36, 0.5);
 		t.near(
-			`${label} ${gr.labelText} 첫 칩 x(카드 안쪽 16 + 36 + 8)`,
-			gr.chips[0]?.rect.x,
-			x0 + 36 + 8,
+			`${label} ${gr.labelText} 라벨 칸 폭이 글자 폭 그대로(36 아님)`,
+			gr.label?.cellW,
+			gr.label?.rect.w,
 			1,
+		);
+		t.ok(
+			`${label} ${gr.labelText} 그룹이 필터 묶음 안`,
+			gr.rect.x >= x0 - 0.5 && gr.rect.r <= x0 + (m.box?.rect.w ?? 0) + 0.5,
+			gr.rect,
+			"묶음 안",
 		);
 		const before = g[i - 1];
 		if (before) {
-			t.near(
-				`${label} ${gr.labelText} 그룹이 앞 그룹 아래 10`,
-				gr.rect.y - before.rect.b,
-				10,
-				1,
-			);
+			const sameRow = Math.abs(gr.rect.y - before.rect.y) <= 0.5;
+			if (sameRow) {
+				t.near(
+					`${label} ${gr.labelText} 그룹과 앞 그룹 가로 간격 16`,
+					gr.rect.x - before.rect.r,
+					16,
+					1,
+				);
+			} else {
+				t.near(`${label} ${gr.labelText} 줄바꿈 그룹 x`, gr.rect.x, x0, 0.5);
+				t.near(
+					`${label} ${gr.labelText} 줄바꿈 그룹이 앞 그룹 아래 10`,
+					gr.rect.y - before.rect.b,
+					10,
+					1,
+				);
+			}
 		}
 	});
 	if (hasArea) {
 		t.near(
-			`${label} 면적 줄이 유형 그룹 아래 10`,
-			(m.area?.label?.rect.y ?? Number.NaN) - 2 - (g[2]?.rect.b ?? Number.NaN),
+			`${label} 면적 줄이 그룹 아래 10`,
+			(m.area?.label?.rect.y ?? Number.NaN) - 2 - lastGroupBottom,
 			10,
 			1.5,
 		);
@@ -61,16 +83,16 @@ export function c10CheckMobileFilterLayout(
 			1,
 		);
 		t.near(
-			`${label} 필터 묶음 높이(3그룹 36 + 면적 20 + 간격 10 x 3)`,
-			m.box?.rect.h,
-			36 * 3 + 20 + 30,
-			1,
+			`${label} 필터 묶음 아래 끝이 면적 줄 아래 끝(그룹 아래 + 10 + 20)`,
+			m.box?.rect.b,
+			lastGroupBottom + 10 + 20,
+			1.5,
 		);
 	} else {
 		t.near(
-			`${label} 필터 묶음 높이(3그룹 36 + 간격 10 x 2)`,
-			m.box?.rect.h,
-			36 * 3 + 20,
+			`${label} 필터 묶음 아래 끝이 마지막 그룹 아래 끝`,
+			m.box?.rect.b,
+			lastGroupBottom,
 			1,
 		);
 	}

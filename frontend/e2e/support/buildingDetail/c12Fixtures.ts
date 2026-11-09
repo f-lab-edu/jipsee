@@ -19,14 +19,15 @@ export type C12State = {
 };
 
 // 설계 2절 상태표. 건수가 3 미만일 때만 안내가 있고, id 5는 id 1과 같은 값
+// 2026-11-09 피드백 7번(모바일 본문 카드 첫 줄 건물명 제목 44)과 9번(선택 상자 높이 모바일 52, 데스크톱 40)을 반영해 캔버스 값에서 모바일 y +44, 모바일 높이 -14, 데스크톱 높이 +4로 고침
 // secM과 secD는 캔버스 섹션 높이(모바일), 캔버스 높이에 카드 위아래 테두리 2를 더한 값(데스크톱). y는 캔버스 섹션 위쪽 좌표
 export const C12_ID2_WOLSE: C12State = {
 	id: 2,
 	q: "?type=wolse",
 	title: C12_NONE,
-	secM: 454,
-	secD: 409,
-	yM: 1866,
+	secM: 440,
+	secD: 413,
+	yM: 1910,
 	yD: 995,
 	label: "id 2 월세",
 };
@@ -35,9 +36,9 @@ export const C12_ID3_WOLSE: C12State = {
 	q: "?type=wolse",
 	title: "조건에 맞는 거래 1건",
 	count: 1,
-	secM: 513,
-	secD: 489,
-	yM: 1088,
+	secM: 499,
+	secD: 493,
+	yM: 1132,
 	yD: 690,
 	label: "id 3 월세",
 };
@@ -48,9 +49,9 @@ export const C12_STATES: C12State[] = [
 		id: 2,
 		q: "",
 		title: C12_NONE,
-		secM: 454,
-		secD: 409,
-		yM: 1866,
+		secM: 440,
+		secD: 413,
+		yM: 1910,
 		yD: 995,
 		label: "id 2 전세",
 	},
@@ -60,9 +61,9 @@ export const C12_STATES: C12State[] = [
 		q: "",
 		title: "조건에 맞는 거래 2건",
 		count: 2,
-		secM: 586,
-		secD: 542,
-		yM: 1088,
+		secM: 572,
+		secD: 546,
+		yM: 1132,
 		yD: 690,
 		label: "id 3 전세",
 	},

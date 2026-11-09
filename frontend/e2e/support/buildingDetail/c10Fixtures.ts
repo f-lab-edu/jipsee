@@ -21,7 +21,7 @@ export const C10_LABELS: Record<C10Name, string> = {
 	type: "유형",
 };
 
-export const C10_CHIPS: Record<C10Name, [string, number | string][]> = {
+export const C10_OPTIONS: Record<C10Name, [string, number | string][]> = {
 	radius: [
 		["300m", 300],
 		["500m", 500],

@@ -1,10 +1,9 @@
 // S2 건물 상세 C10: 주변 전월세 거래 골격과 필터
+// 2026-11-09 피드백 9번: 필터 칩을 Seed Select 선택 상자로 바꿈. 선택 상자 문구, 선택지 목록, 선택 후 주소로 확인함
 // 기대값 출처: 설계 2절(상태표, 주요 간격 주변 필터와 면적 고정 줄과 안내 상자), 3절(문구), 7절(색), 9절(role), 4.3절과 계획 커밋 10(쿼리 처리), 캔버스 S2(Mobile|Desktop)(Default|Few|NoLoc)와 Dark* 보드
 // 건수 줄, 목록, 조건 확장 안내, 확정일자 안내, 질문하기는 이후 커밋이라 여기서 보지 않음
 
 import { c10CheckAreaRow } from "../support/buildingDetail/c10CheckAreaRow";
-import { c10CheckChipLayout } from "../support/buildingDetail/c10CheckChipLayout";
-import { c10CheckChipStyle } from "../support/buildingDetail/c10CheckChipStyle";
 import { c10CheckDesktopFilterLayout } from "../support/buildingDetail/c10CheckDesktopFilterLayout";
 import { c10CheckDesktopShell } from "../support/buildingDetail/c10CheckDesktopShell";
 import { c10CheckFilterContent } from "../support/buildingDetail/c10CheckFilterContent";
@@ -12,6 +11,8 @@ import { c10CheckLabelStyle } from "../support/buildingDetail/c10CheckLabelStyle
 import { c10CheckMobileFilterLayout } from "../support/buildingDetail/c10CheckMobileFilterLayout";
 import { c10CheckMobileShell } from "../support/buildingDetail/c10CheckMobileShell";
 import { c10CheckNotice } from "../support/buildingDetail/c10CheckNotice";
+import { c10CheckOptions } from "../support/buildingDetail/c10CheckOptions";
+import { c10CheckTriggerLayout } from "../support/buildingDetail/c10CheckTriggerLayout";
 import {
 	C10_AREA_IDS,
 	C10_DEFAULT,
@@ -40,47 +41,47 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 	test.describe(`${MOBILE.width}x${MOBILE.height} ${theme}`, () => {
 		test.use({ viewport: MOBILE, colorScheme: theme });
 
-		test(`${caseId("C10", 1 + themeIndex)} 모바일 ${theme} id 1은 주변 전월세 거래 섹션 껍데기, 칩 문구와 선택, href, 칩 모양, 면적 고정 줄이 설계와 같음`, async ({
+		test(`${caseId("C10", 1 + themeIndex)} 모바일 ${theme} id 1은 주변 전월세 거래 섹션 껍데기, 선택 상자 문구와 모양, 선택지 목록, 면적 고정 줄이 설계와 같음`, async ({
 			t,
 		}) => {
 			await t.goto("/buildings/1");
 			const m = await nearbyMeasure(t);
 			c10CheckMobileShell(t, m, "모바일");
-			c10CheckFilterContent(t, m, 1, C10_DEFAULT, "모바일");
-			c10CheckChipStyle(t, m, C10_DEFAULT, "모바일");
-			c10CheckChipLayout(t, m, "모바일");
+			c10CheckFilterContent(t, m, C10_DEFAULT, "모바일");
+			c10CheckTriggerLayout(t, m, "mobile", "모바일");
 			c10CheckLabelStyle(t, m, "모바일");
 			c10CheckMobileFilterLayout(t, m, true, "모바일");
 			c10CheckAreaRow(t, m, "모바일");
 			t.eq("모바일 note 없음", m.noteCount, 0);
 			t.eq("모바일 위치 정보 없음 문구 없음", m.bodyHasNotice, false);
+			await c10CheckOptions(t, C10_DEFAULT, "모바일");
 		});
 	});
 }
 test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
-	test("C10-03 모바일 id 1에 ?type=wolse가 붙으면 월세가 선택되고 다른 칩의 href는 월세를 유지함", async ({
+	test("C10-03 모바일 id 1에 ?type=wolse가 붙으면 유형 선택 상자가 월세를 보여 주고 선택지 목록에서 월세만 선택됨", async ({
 		t,
 	}) => {
 		await t.goto("/buildings/1?type=wolse");
 		const m = await nearbyMeasure(t);
 		const cond = { ...C10_DEFAULT, type: "wolse" };
-		c10CheckFilterContent(t, m, 1, cond, "월세");
-		c10CheckChipStyle(t, m, cond, "월세");
+		c10CheckFilterContent(t, m, cond, "월세");
 		t.ok("면적 고정 줄 있음(월세 선택에서도)", !!m.area, m.area, "있음");
+		await c10CheckOptions(t, cond, "월세");
 	});
 });
 test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "dark" });
 
-	test("C10-04 모바일 다크 id 1에 ?type=wolse가 붙어도 선택 칩 색이 다크 토큰과 같음", async ({
+	test("C10-04 모바일 다크 id 1에 ?type=wolse가 붙어도 선택 상자가 월세를 보여 주고 선택지 목록이 열림", async ({
 		t,
 	}) => {
 		await t.goto("/buildings/1?type=wolse");
 		const m = await nearbyMeasure(t);
-		c10CheckFilterContent(t, m, 1, { ...C10_DEFAULT, type: "wolse" }, "월세");
-		c10CheckChipStyle(t, m, { ...C10_DEFAULT, type: "wolse" }, "월세");
+		c10CheckFilterContent(t, m, { ...C10_DEFAULT, type: "wolse" }, "월세");
+		await c10CheckOptions(t, { ...C10_DEFAULT, type: "wolse" }, "월세");
 	});
 });
 
@@ -89,44 +90,45 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 	test.describe(`${DESKTOP.width}x${DESKTOP.height} ${theme}`, () => {
 		test.use({ viewport: DESKTOP, colorScheme: theme });
 
-		test(`${caseId("C10", 5 + themeIndex)} 데스크톱 ${theme} id 1은 주변 전월세 거래 카드, 필터 상자(간격 12/28), 칩, 면적 고정 줄이 설계와 같음`, async ({
+		test(`${caseId("C10", 5 + themeIndex)} 데스크톱 ${theme} id 1은 주변 전월세 거래 카드, 필터 상자(간격 12/28), 선택 상자, 선택지 목록, 면적 고정 줄이 설계와 같음`, async ({
 			t,
 		}) => {
 			await t.goto("/buildings/1");
 			const m = await nearbyMeasure(t);
 			c10CheckDesktopShell(t, m, "데스크톱");
-			c10CheckFilterContent(t, m, 1, C10_DEFAULT, "데스크톱");
-			c10CheckChipStyle(t, m, C10_DEFAULT, "데스크톱");
-			c10CheckChipLayout(t, m, "데스크톱");
+			c10CheckFilterContent(t, m, C10_DEFAULT, "데스크톱");
+			c10CheckTriggerLayout(t, m, "desktop", "데스크톱");
 			c10CheckLabelStyle(t, m, "데스크톱");
 			c10CheckDesktopFilterLayout(t, m, true, "데스크톱");
 			c10CheckAreaRow(t, m, "데스크톱");
 			t.eq("데스크톱 note 없음", m.noteCount, 0);
+			await c10CheckOptions(t, C10_DEFAULT, "데스크톱");
 		});
 	});
 }
 test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test.use({ viewport: DESKTOP, colorScheme: "light" });
 
-	test("C10-07 데스크톱 id 1에 ?type=wolse가 붙으면 월세가 선택됨", async ({
+	test("C10-07 데스크톱 id 1에 ?type=wolse가 붙으면 유형 선택 상자가 월세를 보여 주고 선택지 목록에서 월세만 선택됨", async ({
 		t,
 	}) => {
 		await t.goto("/buildings/1?type=wolse");
 		const m = await nearbyMeasure(t);
 		const cond = { ...C10_DEFAULT, type: "wolse" };
-		c10CheckFilterContent(t, m, 1, cond, "월세");
-		c10CheckChipStyle(t, m, cond, "월세");
+		c10CheckFilterContent(t, m, cond, "월세");
+		await c10CheckOptions(t, cond, "월세");
 	});
 });
 test.describe(`${DESKTOP.width}x${DESKTOP.height} dark`, () => {
 	test.use({ viewport: DESKTOP, colorScheme: "dark" });
 
-	test("C10-08 데스크톱 다크 id 1에 ?type=wolse가 붙어도 선택 칩 색이 다크 토큰과 같음", async ({
+	test("C10-08 데스크톱 다크 id 1에 ?type=wolse가 붙어도 선택 상자가 월세를 보여 주고 선택지 목록이 열림", async ({
 		t,
 	}) => {
 		await t.goto("/buildings/1?type=wolse");
 		const m = await nearbyMeasure(t);
-		c10CheckChipStyle(t, m, { ...C10_DEFAULT, type: "wolse" }, "월세");
+		c10CheckFilterContent(t, m, { ...C10_DEFAULT, type: "wolse" }, "월세");
+		await c10CheckOptions(t, { ...C10_DEFAULT, type: "wolse" }, "월세");
 	});
 });
 
@@ -143,7 +145,7 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 				const m = await nearbyMeasure(t);
 				const has = C10_AREA_IDS.includes(id);
 				t.eq(`id ${id} 면적 고정 줄`, !!m.area, has);
-				c10CheckFilterContent(t, m, id, C10_DEFAULT, `id ${id}`);
+				c10CheckFilterContent(t, m, C10_DEFAULT, `id ${id}`);
 				if (layout === "mobile") {
 					c10CheckMobileFilterLayout(t, m, has, `id ${id}`);
 				} else {
@@ -172,8 +174,8 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 				}
 				c10CheckNotice(t, m, layout, name);
 				t.eq(
-					`${name} 칩 링크 개수`,
-					(m.groups ?? []).reduce((s, g) => s + g.chips.length, 0),
+					`${name} 선택 상자 개수`,
+					(m.groups ?? []).filter((g) => g.trigger).length,
 					0,
 				);
 			});
@@ -250,7 +252,7 @@ for (const [index, [w, mobile]] of (
 	test.describe(`${w}x900 light`, () => {
 		test.use({ viewport: { width: w, height: 900 }, colorScheme: "light" });
 
-		test(`${caseId("C10", 18 + index)} ${w}px에서 주변 거래가 ${mobile ? "모바일(필터가 세로로 쌓임)" : "데스크톱(필터 상자가 가로 배치)"} 하나만 보임`, async ({
+		test(`${caseId("C10", 18 + index)} ${w}px에서 주변 거래가 ${mobile ? "모바일(필터 상자 배경 없음)" : "데스크톱(필터 상자 배경 있음)"} 하나만 보임`, async ({
 			t,
 		}) => {
 			await t.goto("/buildings/1");
@@ -262,11 +264,16 @@ for (const [index, [w, mobile]] of (
 				mobile ? "nearby-deals-title-mobile" : "nearby-deals-title-desktop",
 			);
 			t.eq(
-				"보이는 칩 개수",
-				(m.groups ?? []).reduce((s, g) => s + g.chips.length, 0),
-				8,
+				"보이는 선택 상자 개수",
+				(m.groups ?? []).filter((g) => g.trigger).length,
+				3,
 			);
-			t.eq("필터 묶음 방향", m.box?.dir, mobile ? "column" : "row");
+			t.eq("필터 묶음 가로 배치", m.box?.dir, "row");
+			t.eq(
+				"필터 상자 배경 없음 여부",
+				m.box?.bg === "rgba(0, 0, 0, 0)",
+				mobile,
+			);
 			t.ok(
 				"가로 스크롤 없음",
 				m.scrollW <= m.vw,
@@ -298,7 +305,7 @@ test.describe("1280x900 light", () => {
 test.describe("320x700 light", () => {
 	test.use({ viewport: { width: 320, height: 700 }, colorScheme: "light" });
 
-	test("C10-21 320px에서 id 1, 3, 4의 주변 거래가 가로 스크롤 없이 들어오고 칩이 모두 화면 안에 있음", async ({
+	test("C10-21 320px에서 id 1, 3, 4의 주변 거래가 가로 스크롤 없이 들어오고 선택 상자가 모두 화면 안에 있음", async ({
 		t,
 	}) => {
 		for (const id of [1, 3, 4]) {
@@ -311,14 +318,12 @@ test.describe("320x700 light", () => {
 				`문서 폭 ≤ ${m.vw}`,
 			);
 			for (const g of m.groups ?? []) {
-				for (const c of g.chips) {
-					t.ok(
-						`id ${id} ${g.labelText} ${c.text} 오른쪽 끝이 화면 안`,
-						c.rect.r <= m.vw - 16 + 0.5,
-						c.rect.r,
-						`≤ ${m.vw - 16}`,
-					);
-				}
+				t.ok(
+					`id ${id} ${g.labelText} 선택 상자 오른쪽 끝이 화면 안`,
+					(g.trigger?.rect.r ?? Number.POSITIVE_INFINITY) <= m.vw - 16 + 0.5,
+					g.trigger?.rect.r,
+					`≤ ${m.vw - 16}`,
+				);
 			}
 			if (m.notice?.rect) {
 				t.ok(
@@ -354,19 +359,19 @@ for (const [layoutIndex, [name, viewport]] of LAYOUTS.entries()) {
 				const status = await t.goto(`/buildings/1${q}`, 500);
 				t.eq(`${label} 상태 코드`, status, 200);
 				const m = await nearbyMeasure(t);
-				c10CheckFilterContent(t, m, 1, cond, label);
+				c10CheckFilterContent(t, m, cond, label);
 				for (const i of t.issues) t.fail(`${label}: ${i}`);
 			}
 		});
 	});
 }
 
-// 칩 클릭: 쿼리 변경, 선택 칩 변경, 스크롤 위치 유지
+// 선택지 고르기: 쿼리 변경, 선택 상자 문구 변경, 스크롤 위치 유지
 for (const [layoutIndex, [name, viewport]] of LAYOUTS.entries()) {
 	test.describe(`${viewport.width}x${viewport.height} light`, () => {
 		test.use({ viewport, colorScheme: "light" });
 
-		test(`${caseId("C10", 24 + layoutIndex)} ${name}에서 칩을 누르면 쿼리와 선택 칩이 바뀌고 다른 조건은 유지되며 스크롤 위치가 유지됨`, async ({
+		test(`${caseId("C10", 24 + layoutIndex)} ${name}에서 선택지를 고르면 쿼리와 선택 상자 문구가 바뀌고 다른 조건은 유지되며 스크롤 위치가 유지됨`, async ({
 			t,
 		}) => {
 			await t.goto("/buildings/1");
@@ -380,21 +385,22 @@ for (const [layoutIndex, [name, viewport]] of LAYOUTS.entries()) {
 			];
 			t.issues.length = 0;
 			for (const [name2, group, text, value] of steps) {
-				const link = t.page
-					.getByRole("group", { name: group })
-					.getByRole("link", { name: text, exact: true });
-				await link.scrollIntoViewIfNeeded();
+				const trigger = t.page.getByRole("combobox", { name: group });
+				await trigger.scrollIntoViewIfNeeded();
 				await t.page.waitForTimeout(150);
 				const before = await t.page.evaluate(() => window.scrollY);
 				t.ok(
-					`${text} 누르기 전 스크롤이 0보다 큼(스크롤 유지를 볼 수 있음)`,
+					`${text} 고르기 전 스크롤이 0보다 큼(스크롤 유지를 볼 수 있음)`,
 					before > 0,
 					before,
 					"> 0",
 				);
 				cond = { ...cond, [name2]: value };
-				const url = c10NearbyHref(1, cond, {});
-				await link.click();
+				const url = c10NearbyHref(1, cond);
+				await trigger.click();
+				// 선택지 목록이 자리를 잡기 전에 누르면 Playwright가 화면을 스크롤하므로 기다림
+				await t.page.waitForTimeout(300);
+				await t.page.getByRole("option", { name: text, exact: true }).click();
 				await t.page
 					.waitForURL((u) => u.pathname + u.search === url, { timeout: 15000 })
 					.catch(() => undefined);
@@ -402,11 +408,11 @@ for (const [layoutIndex, [name, viewport]] of LAYOUTS.entries()) {
 				const now = await t.page.evaluate(
 					() => location.pathname + location.search,
 				);
-				t.eq(`${text} 누른 뒤 주소`, now, url);
+				t.eq(`${text} 고른 뒤 주소`, now, url);
 				const after = await t.page.evaluate(() => window.scrollY);
-				t.near(`${text} 누른 뒤 스크롤 위치 유지`, after, before, 2);
+				t.near(`${text} 고른 뒤 스크롤 위치 유지`, after, before, 2);
 				const m = await nearbyMeasure(t);
-				c10CheckFilterContent(t, m, 1, cond, `${text} 선택 후`);
+				c10CheckFilterContent(t, m, cond, `${text} 선택 후`);
 			}
 			for (const i of t.issues) t.fail(i);
 		});
@@ -415,7 +421,7 @@ for (const [layoutIndex, [name, viewport]] of LAYOUTS.entries()) {
 test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
-	test("C10-26 칩 링크는 누르지 않고 직접 주소로 들어가도 같은 선택이 됨(새로고침 시 유지)", async ({
+	test("C10-26 선택지를 고르지 않고 직접 주소로 들어가도 선택 상자가 같은 값을 보여 줌(새로고침 시 유지)", async ({
 		t,
 	}) => {
 		await t.goto("/buildings/1?radius=1000&period=24&type=wolse");
@@ -423,7 +429,6 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		c10CheckFilterContent(
 			t,
 			m,
-			1,
 			{ radius: 1000, period: 24, type: "wolse" },
 			"직접 진입",
 		);
@@ -433,7 +438,6 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		c10CheckFilterContent(
 			t,
 			m,
-			1,
 			{ radius: 1000, period: 24, type: "wolse" },
 			"새로고침",
 		);
