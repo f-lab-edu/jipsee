@@ -63,7 +63,7 @@ body {
 	word-break: keep-all;
 	font-family: var(--seed-font-family);
 	color: var(--seed-color-fg-neutral);
-	background: var(--seed-color-bg-layer-default);
+	background: var(--jipsee-color-bg-page);
 }
 
 /* 모든 버튼에 손가락 커서 */
@@ -80,10 +80,15 @@ button {
 	);
 }
 
+/* 페이지 배경. body와 고정 헤더가 같은 값을 씀 */
+:root {
+	--jipsee-color-bg-page: var(--seed-color-bg-layer-default);
+}
+
 /* 480 열보다 넓은 화면의 페이지 배경. 열 바깥도 하늘빛으로 맞춤 */
 @media (min-width: 481px) {
-	body {
-		background: var(--jipsee-color-bg-brand-tint);
+	:root {
+		--jipsee-color-bg-page: var(--jipsee-color-bg-brand-tint);
 	}
 
 	.tinted-page-card {
@@ -94,15 +99,19 @@ button {
 	}
 }
 
-/* 건물 상세 열 배경. Seed bg는 반응형 값을 받지 않으므로 lg 미만은 흰색, lg 이상은 투명으로 정함 */
+/* 건물 상세 열 배경. Seed bg는 반응형 값을 받지 않으므로 lg 미만은 흰색, lg 이상은 투명으로 정함. 고정 헤더도 같은 값을 씀 */
+:root {
+	--jipsee-color-bg-building-column: var(--seed-color-bg-layer-default);
+}
+
 :root .building-column {
-	--seed-box-background: var(--seed-color-bg-layer-default);
+	--seed-box-background: var(--jipsee-color-bg-building-column);
 }
 
 /* 480 이하 건물 상세. 열을 하늘빛으로 두고 본문을 흰 카드로 감쌈 */
 @media (max-width: 480px) {
-	:root .building-column {
-		--seed-box-background: var(--jipsee-color-bg-brand-tint);
+	:root {
+		--jipsee-color-bg-building-column: var(--jipsee-color-bg-brand-tint);
 	}
 
 	.mobile-tinted-card {
@@ -114,8 +123,8 @@ button {
 }
 
 @media (min-width: 1280px) {
-	:root .building-column {
-		--seed-box-background: transparent;
+	:root {
+		--jipsee-color-bg-building-column: transparent;
 	}
 }
 

@@ -1,4 +1,5 @@
 import type { DesktopBuildingBodyStyle } from "@/pages/building/model/desktopBuildingBodyStyle";
+import { desktopHeaderHeight } from "@/shared/config/headerHeight";
 
 export const desktopBuildingBodyStyles: DesktopBuildingBodyStyle = {
 	container: { pt: "x7", pb: "x10", gap: "x6" },
@@ -10,8 +11,8 @@ export const desktopBuildingBodyStyles: DesktopBuildingBodyStyle = {
 	mainCell: { display: "flex", flexDirection: "column", gap: "x6" },
 	asideCell: {
 		position: "sticky",
-		top: "var(--seed-dimension-x6)",
-		maxHeight: "calc(100dvh - var(--seed-dimension-x6) * 2)",
+		top: `calc(${desktopHeaderHeight} + var(--seed-dimension-x6))`,
+		maxHeight: `calc(100dvh - ${desktopHeaderHeight} - var(--seed-dimension-x6) * 2)`,
 		overflowY: "auto",
 	},
 	aside: { gap: "x4" },

@@ -58,4 +58,14 @@ describe("Header", () => {
 			within(screen.getByTestId("header-desktop")).queryByText("뒤로"),
 		).toBeNull();
 	});
+
+	it("헤더 요소를 위 0에 고정함", () => {
+		const { container } = render(
+			<Header session={null} mobileBackground="bg.layerDefault" />,
+		);
+		const style = container.querySelector("header")?.getAttribute("style");
+
+		expect(style).toContain("--seed-box-position: sticky");
+		expect(style).toContain("--seed-box-top: 0");
+	});
 });

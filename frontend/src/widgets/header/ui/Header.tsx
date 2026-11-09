@@ -1,8 +1,9 @@
-import type { BoxProps } from "@seed-design/react";
+import { Box, type BoxProps } from "@seed-design/react";
 import type { ReactNode } from "react";
 import type { Session } from "@/entities/session/model/session";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import ResponsiveLayout from "@/shared/ui/ResponsiveLayout";
+import { headerRootStyles } from "@/widgets/header/config/headerRootStyles";
 import DesktopHeader from "@/widgets/header/ui/DesktopHeader";
 import MobileHeader from "@/widgets/header/ui/MobileHeader";
 
@@ -17,7 +18,8 @@ interface HeaderProps {
  * 헤더
  *
  * - 모바일과 데스크톱 레이아웃을 함께 렌더링
- * - 모바일 배경은 사용처에서 주입
+ * - 스크롤해도 화면 위에 고정(sticky)
+ * - 모바일 배경은 사용처에서 주입. 고정 헤더라 본문이 비치지 않게 불투명한 값을 넘김
  *
  * @param mobileBackground 모바일 헤더 배경. 데스크톱 행은 항상 흰색
  * @param mobileBack 모바일 로고 왼쪽에 둘 뒤로 가기 요소
@@ -30,7 +32,7 @@ export default function Header({
 	mobileBottom,
 }: HeaderProps) {
 	return (
-		<header>
+		<Box as="header" {...headerRootStyles.root}>
 			<ResponsiveLayout
 				testId="header"
 				mobile={
@@ -43,6 +45,6 @@ export default function Header({
 				}
 				desktop={<DesktopHeader session={session} />}
 			/>
-		</header>
+		</Box>
 	);
 }

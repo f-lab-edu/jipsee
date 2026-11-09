@@ -536,7 +536,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test.use({ viewport: DESKTOP, colorScheme: "light" });
 
-	test("C4-25 스크롤하면 aside가 위 24에 붙어 따라오고 aside 요소는 sticky와 내부 스크롤 값을 가짐", async ({
+	test("C4-25 스크롤하면 aside가 고정 헤더 65 아래 24(위 89)에 붙어 따라오고 aside 요소는 sticky와 내부 스크롤 값을 가짐", async ({
 		t,
 	}) => {
 		await t.goto("/buildings/1");
@@ -559,8 +559,12 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 			return;
 		}
 		t.eq("position", info.position, "sticky");
-		t.eq("top (x6 = 24)", info.top, "24px");
-		t.eq("max-height (100dvh - 48)", info.maxHeight, `${info.vh - 48}px`);
+		t.eq("top (헤더 65 + x6 24 = 89)", info.top, "89px");
+		t.eq(
+			"max-height (100dvh - 65 - 48)",
+			info.maxHeight,
+			`${info.vh - 65 - 48}px`,
+		);
 		t.eq("overflow-y", info.overflowY, "auto");
 		t.near("aside x", info.x, ASIDE_X);
 		t.near("aside w", info.w, ASIDE_W);
@@ -574,7 +578,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 		const top = await t.page.evaluate(
 			() => document.querySelector("aside")?.getBoundingClientRect().top,
 		);
-		t.near("700 스크롤 뒤 aside 위쪽이 24에 붙음", top, 24);
+		t.near("700 스크롤 뒤 aside 위쪽이 89에 붙음", top, 89);
 		await t.page.evaluate(() => window.scrollTo(0, 0));
 		await t.page.waitForTimeout(250);
 		const top0 = await t.page.evaluate(

@@ -178,7 +178,11 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		}) => {
 			await t.goto("/buildings/1");
 			const m = await t.measure();
-			t.color("헤더 배경 투명이라 하늘빛 열 배경이 보임", m.bgHeader, m.tint);
+			t.color(
+				"헤더 배경이 하늘빛 열 배경과 같은 불투명 색(2026-11-09 피드백 8번)",
+				m.bgHeader,
+				m.tint,
+			);
 			t.color("h1 색 fg.neutral", m.h1s[0]?.color, t.tokens.fgNeutral);
 		});
 	});
@@ -360,7 +364,7 @@ async function bgNarrow(t: T) {
 	await t.goto("/buildings/1");
 	const m = await t.measure();
 	t.color(
-		"헤더 배경 투명이라 하늘빛 열 배경(2026-11-09 피드백 7번)",
+		"헤더 배경이 하늘빛 열 배경과 같은 불투명 색(2026-11-09 피드백 8번)",
 		m.bgHeader,
 		m.tint,
 	);
@@ -714,6 +718,52 @@ for (const [index, w] of [1280, 1440].entries()) {
 				(m.addr?.rect.r ?? Number.POSITIVE_INFINITY) <= m.vw,
 				m.addr?.rect.r,
 				`≤ ${m.vw}`,
+			);
+		});
+	});
+}
+
+// 헤더 고정 (2026-11-09 피드백 8번): 스크롤해도 위 0에 붙고 불투명하며 다이얼로그보다 낮음
+for (const [index, viewport] of [MOBILE, DESKTOP].entries()) {
+	test.describe(`${viewport.width}x${viewport.height} light`, () => {
+		test.use({ viewport, colorScheme: "light" });
+
+		test(`${caseId("C3", 66 + index)} ${viewport.width}px에서 스크롤해도 헤더가 위 0에 붙어 있고 sticky, z-index 1, 불투명 배경을 가짐 (2026-11-09 피드백 8번)`, async ({
+			t,
+		}) => {
+			await t.goto("/buildings/1");
+			await t.page.evaluate(() => window.scrollTo(0, 600));
+			await t.page.waitForTimeout(250);
+			const m = await t.page.evaluate(() => {
+				const header = document.querySelector("header");
+				if (!header) return null;
+				const visible = [...header.children].find(
+					(e) => getComputedStyle(e).display !== "none",
+				);
+				return {
+					position: getComputedStyle(header).position,
+					top: getComputedStyle(header).top,
+					zIndex: getComputedStyle(header).zIndex,
+					y: header.getBoundingClientRect().top,
+					bg: visible
+						? getComputedStyle(visible.firstElementChild ?? visible)
+								.backgroundColor
+						: null,
+				};
+			});
+			if (!m) {
+				t.fail("header 요소가 없음");
+				return;
+			}
+			t.eq("position", m.position, "sticky");
+			t.eq("top", m.top, "0px");
+			t.eq("z-index", m.zIndex, "1");
+			t.near("600 스크롤 뒤 헤더 위쪽", m.y, 0);
+			t.ok(
+				"헤더 배경이 투명이 아님",
+				!!m.bg && !sameColor(m.bg, "rgba(0, 0, 0, 0)"),
+				m.bg,
+				"불투명",
 			);
 		});
 	});
