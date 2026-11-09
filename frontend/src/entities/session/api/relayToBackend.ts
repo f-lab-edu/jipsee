@@ -16,7 +16,7 @@ export async function relayToBackend(
 	target: BackendPath,
 ): Promise<Response> {
 	if (request.headers.get("origin") !== new URL(request.url).origin) {
-		return new Response("출처 확인 실패", { status: 403 });
+		return new Response("요청 출처가 이 사이트와 달라 거부함", { status: 403 });
 	}
 
 	let apiUrl: string;
@@ -24,7 +24,7 @@ export async function relayToBackend(
 		apiUrl = getApiUrl();
 	} catch (error) {
 		const message =
-			error instanceof Error ? error.message : "API_URL 확인 실패";
+			error instanceof Error ? error.message : "API_URL을 읽지 못함";
 		return new Response(message, { status: 500 });
 	}
 
@@ -39,11 +39,11 @@ export async function relayToBackend(
 			signal: AbortSignal.timeout(3000),
 		});
 	} catch {
-		return new Response("API 호출 실패", { status: 502 });
+		return new Response("API 호출에 실패함", { status: 502 });
 	}
 
 	if (upstream.status < 200 || upstream.status >= 400) {
-		return new Response("API 호출 실패", { status: 502 });
+		return new Response("API 호출에 실패함", { status: 502 });
 	}
 
 	const headers = new Headers({ location: paths.home });
