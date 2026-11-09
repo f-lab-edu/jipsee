@@ -80,17 +80,6 @@ const sectionShared: Omit<
 	policyArrowCell: { display: "flex", flexShrink: 0 },
 	policyArrow: { size: "18px", color: "fg.neutralSubtle" },
 	withdrawBody: { alignItems: "flex-start", gap: "x0_5" },
-	// 캔버스의 min-height 44, 패딩 0, 글자 밑줄 오프셋 2는 Seed에 속성이 없어 브라우저 기본값을 씀
-	withdrawButton: {
-		display: "flex",
-		alignItems: "center",
-		minHeight: "44px",
-	},
-	withdrawButtonText: {
-		...typography.size13,
-		color: "fg.neutralMuted",
-		textDecorationLine: "underline",
-	},
 	withdrawDescription: {
 		...typography.size12LineHeight16,
 		color: "fg.neutralMuted",

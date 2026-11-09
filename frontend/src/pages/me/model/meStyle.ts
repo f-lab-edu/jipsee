@@ -19,8 +19,6 @@ export interface MeSectionStyle {
 	policyArrow: Omit<IconProps, "svg">;
 	withdraw: BoxProps;
 	withdrawBody: VStackProps;
-	withdrawButton: BoxProps;
-	withdrawButtonText: TextProps;
 	withdrawDescription: TextProps;
 }
 

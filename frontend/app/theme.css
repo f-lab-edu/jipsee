@@ -145,6 +145,20 @@ button {
 	--jipsee-color-google-text: #e3e3e3;
 }
 
+/* 탈퇴하기 버튼 배경. 흰 글자와 대비를 맞춘 팔레트 값이라 Seed 의미 토큰이 없음 */
+:root {
+	--jipsee-color-withdraw-button-background: var(--seed-color-palette-red-800);
+}
+
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"] {
+	--jipsee-color-withdraw-button-background: var(--seed-color-palette-red-500);
+}
+
+/* 탈퇴 확인 창 콘텐츠의 줄바꿈. Seed 대화상자와 바텀시트 콘텐츠가 break-all을 지정함 */
+:root .withdraw-dialog-content {
+	word-break: keep-all;
+}
+
 /* 제목 자간. Seed에 letterSpacing이 없음 */
 .tight-letter-spacing {
 	letter-spacing: -0.03em;

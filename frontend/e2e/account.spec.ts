@@ -2,7 +2,7 @@
 // 기대값: 설계 문서(2026-11-08-s4-s5-account-design.md) 5절의 로그인 링크 표와 캔버스 S4, S5 보드. 2026-11-09 피드백이 설계 문서와 다르면 피드백을 따름
 // 로그인한 상태의 TC는 앱의 sessionMock이 { provider: "GOOGLE" } 같은 값일 때만 의미가 있어 TC_SESSION=in일 때만 돌림. 기본 실행은 로그아웃 TC만 돎
 // S5 TC는 sessionMock의 제공자를 TC_PROVIDER(google, kakao, naver. 기본 kakao)로 알려 줘야 함. 제공자별 TC는 그 값과 맞을 때만 돎
-import { expect } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
 import { caseId } from "./support/caseId";
@@ -1602,3 +1602,281 @@ for (const { label, viewport } of SCREENS) {
 		});
 	});
 }
+
+// 커밋 8: 탈퇴 확인 창과 탈퇴 (A8)
+// 기대값: 설계 문서 3절 "탈퇴 확인 창" 표와 5절 S5(Seed ResponsiveDialog, lg 미만 바텀시트, lg 이상 대화상자. 창 폭과 모서리는 Seed 기본값)
+// 탈퇴하기 버튼 배경은 라이트 palette.red800(#CA1D13), 다크 palette.red500(#CA2319), 글자는 흰색임
+// 설명과 버튼 사이는 컬럼 간격 8에 바텀시트 16, 대화상자 20이 더해짐
+const WITHDRAW_ACTION = "/api/account/withdraw";
+const WITHDRAW_DIALOG_TEXT = {
+	title: "탈퇴할까요?",
+	description: "탈퇴하면 계정과 대화 기록이 삭제돼요",
+	cancel: "취소",
+	confirm: "탈퇴하기",
+};
+const WITHDRAW_CONFIRM_BACKGROUND = {
+	light: "rgb(202, 29, 19)",
+	dark: "rgb(202, 35, 25)",
+};
+const WITHDRAW_BUTTON_ROW_HEIGHT = 52;
+
+let a8Number = 1;
+
+for (const { label, viewport } of SCREENS) {
+	const isMobile = viewport === MOBILE;
+	const layout = isMobile ? "mobile" : "desktop";
+
+	for (const theme of THEMES) {
+		test.describe(`${label} ${viewport.width}x${viewport.height} ${theme} 탈퇴 확인 창`, () => {
+			test.use({ viewport, colorScheme: theme });
+			test.skip(
+				process.env.TC_SESSION !== "in",
+				"로그인 TC는 TC_SESSION=in일 때만 돌림",
+			);
+			const token = TOKENS[theme];
+			const trigger = `[data-area="withdraw-section-${layout}"]`;
+
+			async function openDialog(page: Page) {
+				await gotoAndSettle(page, "/me");
+				await page
+					.locator(trigger)
+					.getByRole("button", { name: POLICY_TEXT.withdraw })
+					.click();
+				const dialog = page.getByRole("dialog");
+				await expect(dialog).toHaveCount(1);
+				await page.waitForTimeout(700);
+				return dialog;
+			}
+
+			test(`${caseId("A8", a8Number++)} ${label} ${theme} 회원 탈퇴를 누르면 ${isMobile ? "화면 아래에 붙은 바텀시트" : "화면 가운데 대화상자"}가 role=dialog, aria-modal로 열림`, async ({
+				page,
+			}) => {
+				const dialog = await openDialog(page);
+				await expect(dialog).toBeVisible();
+				await expect(dialog).toHaveAttribute("aria-modal", "true");
+				const box = await dialog.boundingBox();
+				if (isMobile) {
+					expect((box?.y ?? 0) + (box?.height ?? 0)).toBeCloseTo(
+						viewport.height,
+						0,
+					);
+					expect(box?.width).toBe(viewport.width);
+				} else {
+					expect(box?.width).toBe(480);
+					expect((box?.x ?? 0) + (box?.width ?? 0) / 2).toBeCloseTo(
+						viewport.width / 2,
+						0,
+					);
+					expect((box?.y ?? 0) + (box?.height ?? 0) / 2).toBeCloseTo(
+						viewport.height / 2,
+						0,
+					);
+				}
+			});
+
+			test(`${caseId("A8", a8Number++)} ${label} ${theme} 제목이 20/27 700 fg.neutral이고 설명이 15/22 fg.neutralMuted로 제목 아래 8에 있으며 줄바꿈이 keep-all임`, async ({
+				page,
+			}) => {
+				const dialog = await openDialog(page);
+				const title = dialog.getByRole("heading", {
+					name: WITHDRAW_DIALOG_TEXT.title,
+					exact: true,
+				});
+				await expect(title).toHaveCount(1);
+				const description = dialog.getByText(WITHDRAW_DIALOG_TEXT.description, {
+					exact: true,
+				});
+				await expect(description).toHaveCount(1);
+				const titleStyle = await title.evaluate((element) => {
+					const computed = getComputedStyle(element);
+					return {
+						fontSize: computed.fontSize,
+						lineHeight: computed.lineHeight,
+						fontWeight: computed.fontWeight,
+						color: computed.color,
+					};
+				});
+				expect(titleStyle.fontSize).toBe("20px");
+				expect(titleStyle.lineHeight).toBe("27px");
+				expect(titleStyle.fontWeight).toBe("700");
+				expect(sameColor(titleStyle.color, token.fgNeutral)).toBe(true);
+				const descriptionStyle = await description.evaluate((element) => {
+					const computed = getComputedStyle(element);
+					return {
+						fontSize: computed.fontSize,
+						lineHeight: computed.lineHeight,
+						color: computed.color,
+					};
+				});
+				expect(descriptionStyle.fontSize).toBe("15px");
+				expect(descriptionStyle.lineHeight).toBe("22px");
+				expect(sameColor(descriptionStyle.color, token.fgMuted)).toBe(true);
+				const titleBox = await title.boundingBox();
+				const descriptionBox = await description.boundingBox();
+				expect(descriptionBox?.y).toBeCloseTo(
+					(titleBox?.y ?? 0) + (titleBox?.height ?? 0) + 8,
+					0,
+				);
+				const wordBreak = await dialog.evaluate(
+					(element) => getComputedStyle(element).wordBreak,
+				);
+				expect(wordBreak).toBe("keep-all");
+			});
+
+			test(`${caseId("A8", a8Number++)} ${label} ${theme} 버튼이 2열 간격 8, 높이 ${WITHDRAW_BUTTON_ROW_HEIGHT}, 모서리 12이고 설명 아래 ${isMobile ? 24 : 28}에 있음`, async ({
+				page,
+			}) => {
+				const dialog = await openDialog(page);
+				const cancel = dialog.getByRole("button", {
+					name: WITHDRAW_DIALOG_TEXT.cancel,
+					exact: true,
+				});
+				const confirm = dialog.getByRole("button", {
+					name: WITHDRAW_DIALOG_TEXT.confirm,
+					exact: true,
+				});
+				await expect(cancel).toHaveCount(1);
+				await expect(confirm).toHaveCount(1);
+				const cancelBox = await cancel.boundingBox();
+				const confirmBox = await confirm.boundingBox();
+				expect(cancelBox?.height).toBe(WITHDRAW_BUTTON_ROW_HEIGHT);
+				expect(confirmBox?.height).toBe(WITHDRAW_BUTTON_ROW_HEIGHT);
+				expect(cancelBox?.width).toBeCloseTo(confirmBox?.width ?? 0, 0);
+				expect(confirmBox?.x).toBeCloseTo(
+					(cancelBox?.x ?? 0) + (cancelBox?.width ?? 0) + 8,
+					0,
+				);
+				expect(confirmBox?.y).toBeCloseTo(cancelBox?.y ?? 0, 0);
+				for (const button of [cancel, confirm]) {
+					const radius = await button.evaluate(
+						(element) => getComputedStyle(element).borderTopLeftRadius,
+					);
+					expect(radius).toBe("12px");
+				}
+				const description = await dialog
+					.getByText(WITHDRAW_DIALOG_TEXT.description, { exact: true })
+					.boundingBox();
+				expect(cancelBox?.y).toBeCloseTo(
+					(description?.y ?? 0) +
+						(description?.height ?? 0) +
+						(isMobile ? 24 : 28),
+					0,
+				);
+			});
+
+			test(`${caseId("A8", a8Number++)} ${label} ${theme} 취소는 bg.neutralWeak에 fg.neutral, 탈퇴하기는 ${theme === "light" ? "palette.red800" : "palette.red500"}에 흰 글자이고 둘 다 16 700임`, async ({
+				page,
+			}) => {
+				const dialog = await openDialog(page);
+				const cancel = dialog.getByRole("button", {
+					name: WITHDRAW_DIALOG_TEXT.cancel,
+					exact: true,
+				});
+				const confirm = dialog.getByRole("button", {
+					name: WITHDRAW_DIALOG_TEXT.confirm,
+					exact: true,
+				});
+				const read = (element: Element) => {
+					const text = getComputedStyle(element.firstElementChild as Element);
+					return {
+						background: getComputedStyle(element).backgroundColor,
+						color: text.color,
+						fontSize: text.fontSize,
+						fontWeight: text.fontWeight,
+					};
+				};
+				const cancelStyle = await cancel.evaluate(read);
+				const confirmStyle = await confirm.evaluate(read);
+				expect(sameColor(cancelStyle.background, NEUTRAL_WEAK[theme])).toBe(
+					true,
+				);
+				expect(sameColor(cancelStyle.color, token.fgNeutral)).toBe(true);
+				expect(
+					sameColor(
+						confirmStyle.background,
+						WITHDRAW_CONFIRM_BACKGROUND[theme],
+					),
+				).toBe(true);
+				expect(sameColor(confirmStyle.color, "rgb(255, 255, 255)")).toBe(true);
+				for (const style of [cancelStyle, confirmStyle]) {
+					expect(style.fontSize).toBe("16px");
+					expect(style.fontWeight).toBe("700");
+				}
+			});
+
+			test(`${caseId("A8", a8Number++)} ${label} ${theme} 취소를 누르면 창이 닫힘`, async ({
+				page,
+			}) => {
+				const dialog = await openDialog(page);
+				await dialog
+					.getByRole("button", {
+						name: WITHDRAW_DIALOG_TEXT.cancel,
+						exact: true,
+					})
+					.click();
+				await expect(page.getByRole("dialog")).toHaveCount(0);
+			});
+
+			test(`${caseId("A8", a8Number++)} ${label} ${theme} Esc를 누르면 창이 닫힘(Seed 기본 동작)`, async ({
+				page,
+			}) => {
+				await openDialog(page);
+				await page.keyboard.press("Escape");
+				await expect(page.getByRole("dialog")).toHaveCount(0);
+			});
+
+			test(`${caseId("A8", a8Number++)} ${label} ${theme} 탈퇴하기가 ${WITHDRAW_ACTION}에 POST하는 폼 안의 제출 버튼임`, async ({
+				page,
+			}) => {
+				const dialog = await openDialog(page);
+				const form = dialog.locator("form");
+				await expect(form).toHaveCount(1);
+				await expect(form).toHaveAttribute("method", "post");
+				await expect(form).toHaveAttribute("action", WITHDRAW_ACTION);
+				const confirm = form.getByRole("button", {
+					name: WITHDRAW_DIALOG_TEXT.confirm,
+					exact: true,
+				});
+				await expect(confirm).toHaveCount(1);
+				await expect(confirm).toHaveAttribute("type", "submit");
+			});
+		});
+	}
+}
+
+test.describe("탈퇴 확인 창 요청", () => {
+	test.use({ viewport: MOBILE, colorScheme: "light" });
+	test.skip(
+		process.env.TC_SESSION !== "in",
+		"로그인 TC는 TC_SESSION=in일 때만 돌림",
+	);
+
+	test(`${caseId("A8", a8Number++)} 백엔드가 없을 때 탈퇴하기를 누르면 ${WITHDRAW_ACTION}가 502를 반환함`, async ({
+		page,
+	}) => {
+		await gotoAndSettle(page, "/me");
+		await page
+			.locator('[data-area="withdraw-section-mobile"]')
+			.getByRole("button", { name: POLICY_TEXT.withdraw })
+			.click();
+		const responsePromise = page.waitForResponse(
+			(response) =>
+				new URL(response.url()).pathname === WITHDRAW_ACTION &&
+				response.request().method() === "POST",
+		);
+		await page
+			.getByRole("dialog")
+			.getByRole("button", { name: WITHDRAW_DIALOG_TEXT.confirm, exact: true })
+			.click();
+		expect((await responsePromise).status()).toBe(502);
+	});
+
+	test(`${caseId("A8", a8Number++)} Origin이 없는 직접 POST는 ${WITHDRAW_ACTION}가 403을 반환함`, async ({
+		page,
+	}) => {
+		const response = await page.request.post(WITHDRAW_ACTION, {
+			maxRedirects: 0,
+		});
+		expect(response.status()).toBe(403);
+	});
+});
