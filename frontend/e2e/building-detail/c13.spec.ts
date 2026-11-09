@@ -308,13 +308,13 @@ for (const [modeIndex, mode] of MODES.entries()) {
 test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test.use({ viewport: DESKTOP, colorScheme: "light" });
 
-	test(`C13-16 데스크톱 카드는 스크롤하면 aside와 함께 위 24에 붙어 따라오고 건물 정보가 aside 안에서 끝까지 보임 (id 1)`, async ({
+	test(`C13-16 데스크톱 카드는 스크롤하면 aside와 함께 고정 헤더 아래 89에 붙어 따라오고 건물 정보가 aside 안에서 끝까지 보임 (id 1)`, async ({
 		t,
 	}) => {
 		skipUnlessMode("out");
 		await t.goto("/buildings/1", 500);
 		const m0 = await askMeasure(t);
-		// 카드 106 + 간격 16 + 건물 정보가 뷰포트 900 - 48보다 길어 aside 안에서 스크롤됨
+		// 카드 106 + 간격 16 + 건물 정보가 뷰포트 900 - 헤더 65 - 48보다 길어 aside 안에서 스크롤됨
 		t.eq("aside overflow-y", m0.asideScroll?.oy, "auto");
 		t.ok(
 			"aside 내용이 aside보다 김",
@@ -323,9 +323,9 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 			"scrollHeight > clientHeight",
 		);
 		t.near(
-			"aside clientHeight (100dvh - 48 - border 0)",
+			"aside clientHeight (100dvh - 헤더 65 - 48 - border 0)",
 			m0.asideScroll?.ch,
-			m0.vh - 48,
+			m0.vh - 65 - 48,
 			1,
 		);
 		await t.page.evaluate(() => {
@@ -335,8 +335,8 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 		await t.page.evaluate(() => window.scrollTo(0, 700));
 		await t.page.waitForTimeout(250);
 		const m1 = await askMeasure(t);
-		t.near("700 스크롤 뒤 aside 위쪽이 24에 붙음", m1.aside?.y, 24);
-		t.near("700 스크롤 뒤 카드 위쪽도 24", m1.sec?.y, 24);
+		t.near("700 스크롤 뒤 aside 위쪽이 헤더 65 + 24에 붙음", m1.aside?.y, 89);
+		t.near("700 스크롤 뒤 카드 위쪽도 89", m1.sec?.y, 89);
 		await t.page.evaluate(() => {
 			const a = document.querySelector("aside");
 			if (a) a.scrollTop = a.scrollHeight;
