@@ -128,6 +128,23 @@ button {
 	}
 }
 
+/* 로그인 제공자 브랜드 색. 제공자 가이드 값이라 Seed 토큰이 없고, 라이트와 다크가 다른 구글만 다크 값을 정의함 */
+:root {
+	--jipsee-color-google-background: #ffffff;
+	--jipsee-color-google-border: #747775;
+	--jipsee-color-google-text: #1f1f1f;
+	--jipsee-color-kakao-background: #fee500;
+	--jipsee-color-kakao-text: rgba(0, 0, 0, 0.85);
+	--jipsee-color-naver-background: #03c75a;
+	--jipsee-color-naver-text: #ffffff;
+}
+
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"] {
+	--jipsee-color-google-background: #131314;
+	--jipsee-color-google-border: #8e918f;
+	--jipsee-color-google-text: #e3e3e3;
+}
+
 /* 제목 자간. Seed에 letterSpacing이 없음 */
 .tight-letter-spacing {
 	letter-spacing: -0.03em;

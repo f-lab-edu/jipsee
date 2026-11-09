@@ -3,6 +3,7 @@ export const paths = {
 	search: "/search",
 	login: "/login",
 	loginWithNext: (next: string) => `/login?next=${encodeURIComponent(next)}`,
+	oauthAuthorization: (segment: string) => `/oauth2/authorization/${segment}`,
 	chat: "/chat",
 	chatWithBuilding: (id: number) => `/chat?buildingId=${id}`,
 	me: "/me",

@@ -29,6 +29,7 @@ export const loginStyles: LoginStyle = {
 		borderWidth: 1,
 		borderColor: "stroke.neutralMuted",
 	},
+	providers: { gap: "x2_5" },
 	intro: { alignItems: "center", gap: "x3" },
 	logoSize: 64,
 	title: {

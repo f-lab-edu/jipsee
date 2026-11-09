@@ -5,6 +5,7 @@ export interface LoginStyle {
 	mobileBody: VStackProps;
 	desktopBody: VStackProps;
 	card: VStackProps;
+	providers: VStackProps;
 	intro: VStackProps;
 	logoSize: number;
 	title: TextProps;
