@@ -26,3 +26,11 @@ management:
   endpoint:
     health:
       show-details: never
+
+jipsee:
+  collect:
+    api:
+      base-url: https://apis.data.go.kr/1613000
+      service-key: ${DATA_GO_KR_KEY}
+    # 값을 바꾸면 초기 적재를 처음부터 다시 실행함
+    initial-load-end-month: 2026-10

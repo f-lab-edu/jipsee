@@ -8,7 +8,7 @@ Spring Boot 4, Java 25, MySQL 8.4
 
 1. DB 실행: `docker compose -f backend/compose.yaml up -d mysql`
 2. 스키마 적용: `SCHEMA_DIR=<스키마 폴더> docker compose -f backend/compose.yaml -f backend/compose.schema.yaml run --rm flyway`
-3. 앱 실행: `cd backend && ./gradlew bootRun`
+3. 앱 실행: `cd backend && DATA_GO_KR_KEY=<공공데이터포털 인코딩 키> ./gradlew bootRun`
 
 프론트엔드 BFF는 `${API_URL}/actuator/health`를 호출함
 
