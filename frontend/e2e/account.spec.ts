@@ -88,9 +88,11 @@ for (const [screenIndex, { label, viewport }] of SCREENS.entries()) {
 // 피드백 7번에 따라 모바일 헤더는 뒤로 가기, 로고 헤더이고 제목이 없음. 그래서 모바일 h1은 본문의 "집씨"임(캔버스는 헤더의 "로그인")
 // 로고 묶음은 심볼 64, 간격 12, "집씨" 28/36 800 자간 -0.03em, 안내 15/22이므로 높이가 64+12+36+12+22임
 const INTRO_HEIGHT = 146;
-// 커밋 3부터 로고 묶음 아래 32 간격으로 제공자 버튼 묶음(52 3개와 간격 10 2개)이 붙음. 커밋 4가 고지 묶음을 더하면 이 값을 고침
+// 로고 묶음 아래 32 간격으로 제공자 버튼 묶음(52 3개와 간격 10 2개)과 고지 묶음(동의 20, 고지 18 둘, 간격 6 둘)이 붙음
 const PROVIDER_LIST_HEIGHT = 176;
-const CONTENT_HEIGHT = INTRO_HEIGHT + 32 + PROVIDER_LIST_HEIGHT;
+const NOTICE_HEIGHT = 20 + 6 + 18 + 6 + 18;
+const CONTENT_HEIGHT =
+	INTRO_HEIGHT + 32 + PROVIDER_LIST_HEIGHT + 32 + NOTICE_HEIGHT;
 const LOGO_SIZE = 64;
 const THEMES = ["light", "dark"] as const;
 const LOGIN_TEXT = {
@@ -213,7 +215,7 @@ for (const { label, viewport } of SCREENS) {
 					expect(
 						Math.abs((logo?.x ?? 0) + LOGO_SIZE / 2 - viewport.width / 2),
 					).toBeLessThanOrEqual(1);
-					// 세로는 패딩 32 16 24를 뺀 영역 가운데에 로고 묶음부터 버튼 묶음까지가 놓임
+					// 세로는 패딩 32 16 24를 뺀 영역 가운데에 로고 묶음부터 고지 묶음까지가 놓임
 					const areaTop = (main?.y ?? 0) + 32;
 					const areaHeight = (main?.height ?? 0) - 32 - 24;
 					expect(
@@ -552,6 +554,240 @@ test.describe("모바일 320x640 light 제공자 버튼", () => {
 		expect(overflow).toBeLessThanOrEqual(0);
 	});
 });
+
+// 커밋 4: 동의와 고지 문구, 실패 안내 (A4)
+// 기대값: 설계 문서 3절 S4 표(실패 안내, 고지 묶음, 동의 문구, 고지 두 줄), 4절 문구, 5절 S4 동작, 캔버스 S4LoginMobile과 S4LoginErrorMobile
+// 캔버스의 text-align: center는 Seed Text에 속성이 없고 새 CSS를 두지 않아 가운데 정렬은 한 줄일 때만 확인함
+const A4_COLORS = {
+	light: {
+		criticalWeak: "#fdf0f0",
+		criticalContrast: "#921708",
+	},
+	dark: {
+		criticalWeak: "#322323",
+		criticalContrast: "#f8c5c3",
+	},
+};
+const CONSENT_TEXT = "계속하면 이용약관과 개인정보처리방침에 동의하게 돼요";
+const NOTICE_TEXTS = [
+	"챗봇 질문은 외부 LLM으로 전송돼요",
+	"개인정보는 일본으로 국외 이전돼요",
+];
+const ERROR_TEXT = "로그인하지 못했어요. 다시 시도해 주세요";
+const ERROR_PATHS = [
+	{ what: "/login?error", path: "/login?error" },
+	{ what: "/login?error=", path: "/login?error=" },
+	{ what: "/login?error=a&error=b", path: "/login?error=a&error=b" },
+];
+
+let a4Number = 1;
+for (const { label, viewport } of SCREENS) {
+	const isMobile = viewport === MOBILE;
+	const bodyId = isMobile ? "login-body-mobile" : "login-body-desktop";
+
+	for (const theme of THEMES) {
+		test.describe(`${label} ${viewport.width}x${viewport.height} ${theme} 동의와 고지, 실패 안내`, () => {
+			test.use({ viewport, colorScheme: theme });
+			test.skip(
+				process.env.TC_SESSION === "in",
+				"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
+			);
+			const token = TOKENS[theme];
+			const colors = A4_COLORS[theme];
+
+			test(`${caseId("A4", a4Number++)} ${label} ${theme} 동의 문구가 13/20 fg.neutralMuted이고 링크 두 개가 fg.neutral 굵은 밑줄이며 목적지가 정책 화면임`, async ({
+				page,
+			}) => {
+				await gotoAndSettle(page, "/login");
+				const body = page.getByTestId(bodyId);
+				const consent = body.getByText(CONSENT_TEXT);
+				await expect(consent).toHaveCount(1);
+				const consentStyle = await consent.evaluate((element) => {
+					const computed = getComputedStyle(element);
+					return {
+						fontSize: computed.fontSize,
+						lineHeight: computed.lineHeight,
+						color: computed.color,
+					};
+				});
+				expect(consentStyle.fontSize).toBe("13px");
+				expect(consentStyle.lineHeight).toBe("20px");
+				expect(sameColor(consentStyle.color, token.fgMuted)).toBe(true);
+				for (const { name, href } of [
+					{ name: "이용약관", href: "/policies/terms" },
+					{ name: "개인정보처리방침", href: "/policies/privacy" },
+				]) {
+					const link = consent.getByRole("link", { name });
+					await expect(link).toHaveAttribute("href", href);
+					const style = await link.getByText(name).evaluate((element) => {
+						const computed = getComputedStyle(element);
+						return {
+							color: computed.color,
+							fontWeight: computed.fontWeight,
+							decoration: computed.textDecorationLine,
+						};
+					});
+					expect(sameColor(style.color, token.fgNeutral)).toBe(true);
+					expect(style.fontWeight).toBe("700");
+					expect(style.decoration).toBe("underline");
+				}
+			});
+
+			test(`${caseId("A4", a4Number++)} ${label} ${theme} 고지 두 줄이 12/18 fg.neutralMuted이고 정보 아이콘 14가 글자 왼쪽 6에 있으며 줄 사이가 6임`, async ({
+				page,
+			}) => {
+				await gotoAndSettle(page, "/login");
+				const body = page.getByTestId(bodyId);
+				const consent = await body.getByText(CONSENT_TEXT).boundingBox();
+				let previousBottom = (consent?.y ?? 0) + (consent?.height ?? 0);
+				for (const text of NOTICE_TEXTS) {
+					const line = body.getByText(text);
+					await expect(line).toHaveCount(1);
+					const box = await line.boundingBox();
+					const style = await line.evaluate((element) => {
+						const computed = getComputedStyle(element);
+						return {
+							fontSize: computed.fontSize,
+							lineHeight: computed.lineHeight,
+							color: computed.color,
+						};
+					});
+					expect(style.fontSize).toBe("12px");
+					expect(style.lineHeight).toBe("18px");
+					expect(sameColor(style.color, token.fgMuted)).toBe(true);
+					expect(box?.height).toBe(18);
+					expect((box?.y ?? 0) - previousBottom).toBeCloseTo(6, 0);
+					previousBottom = (box?.y ?? 0) + (box?.height ?? 0);
+					const icon = await line
+						.locator("xpath=preceding-sibling::*[1]")
+						.boundingBox();
+					expect(icon?.width).toBe(14);
+					expect(icon?.height).toBe(14);
+					expect(
+						(box?.x ?? 0) - ((icon?.x ?? 0) + (icon?.width ?? 0)),
+					).toBeCloseTo(6, 0);
+				}
+			});
+
+			test(`${caseId("A4", a4Number++)} ${label} ${theme} 고지 묶음이 가운데 정렬이고 버튼 묶음과 사이가 32임`, async ({
+				page,
+			}) => {
+				await gotoAndSettle(page, "/login");
+				const body = page.getByTestId(bodyId);
+				const lastButton = await body
+					.getByRole("link", { name: "네이버로 계속하기" })
+					.boundingBox();
+				const consent = await body.getByText(CONSENT_TEXT).boundingBox();
+				expect(
+					(consent?.y ?? 0) -
+						((lastButton?.y ?? 0) + (lastButton?.height ?? 0)),
+				).toBeCloseTo(32, 0);
+				const center = (lastButton?.x ?? 0) + (lastButton?.width ?? 0) / 2;
+				for (const text of [CONSENT_TEXT, ...NOTICE_TEXTS]) {
+					const box = await body.getByText(text).boundingBox();
+					expect(
+						Math.abs((box?.x ?? 0) + (box?.width ?? 0) / 2 - center),
+					).toBeLessThanOrEqual(10);
+				}
+			});
+
+			test(`${caseId("A4", a4Number++)} ${label} ${theme} /login에는 실패 안내가 없음`, async ({
+				page,
+			}) => {
+				await gotoAndSettle(page, "/login");
+				await expect(page.getByRole("alert")).toHaveCount(0);
+				await expect(page.getByText(ERROR_TEXT)).toHaveCount(0);
+			});
+
+			for (const { what, path } of ERROR_PATHS) {
+				test(`${caseId("A4", a4Number++)} ${label} ${theme} ${what}에서 실패 안내가 보이는 것으로 하나임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, path);
+					const alerts = page.getByRole("alert").locator("visible=true");
+					await expect(alerts).toHaveCount(1);
+					await expect(alerts).toHaveText(ERROR_TEXT);
+				});
+			}
+
+			test(`${caseId("A4", a4Number++)} ${label} ${theme} 실패 안내가 높이 50, 패딩 14 16, 모서리 12, 배경 bg.criticalWeak, 글자 14/20 500 fg.criticalContrast이고 아이콘 18, 간격 10임`, async ({
+				page,
+			}) => {
+				await gotoAndSettle(page, "/login?error");
+				const alert = page
+					.getByTestId(bodyId)
+					.getByRole("alert")
+					.locator("visible=true");
+				const box = await alert.boundingBox();
+				expect(box?.height).toBe(50);
+				const style = await alert.evaluate((element) => {
+					const computed = getComputedStyle(element);
+					return {
+						paddingTop: computed.paddingTop,
+						paddingLeft: computed.paddingLeft,
+						radius: computed.borderTopLeftRadius,
+						background: computed.backgroundColor,
+						color: computed.color,
+					};
+				});
+				expect(style.paddingTop).toBe("14px");
+				expect(style.paddingLeft).toBe("16px");
+				expect(style.radius).toBe("12px");
+				expect(sameColor(style.background, colors.criticalWeak)).toBe(true);
+				expect(sameColor(style.color, colors.criticalContrast)).toBe(true);
+				const text = alert.getByText(ERROR_TEXT);
+				const textStyle = await text.evaluate((element) => {
+					const computed = getComputedStyle(element);
+					return {
+						fontSize: computed.fontSize,
+						lineHeight: computed.lineHeight,
+						fontWeight: computed.fontWeight,
+					};
+				});
+				expect(textStyle.fontSize).toBe("14px");
+				expect(textStyle.lineHeight).toBe("20px");
+				expect(textStyle.fontWeight).toBe("500");
+				const icon = await alert.locator("svg").boundingBox();
+				const textBox = await text.boundingBox();
+				expect(icon?.width).toBe(18);
+				expect(icon?.height).toBe(18);
+				expect((textBox?.x ?? 0) - ((icon?.x ?? 0) + 18)).toBeCloseTo(10, 0);
+			});
+
+			test(`${caseId("A4", a4Number++)} ${label} ${theme} 실패 안내와 첫 버튼 사이가 16임`, async ({
+				page,
+			}) => {
+				await gotoAndSettle(page, "/login?error");
+				const body = page.getByTestId(bodyId);
+				const alert = await body
+					.getByRole("alert")
+					.locator("visible=true")
+					.boundingBox();
+				const first = await body
+					.getByRole("link", { name: "구글로 계속하기" })
+					.boundingBox();
+				expect(
+					(first?.y ?? 0) - ((alert?.y ?? 0) + (alert?.height ?? 0)),
+				).toBeCloseTo(16, 0);
+			});
+
+			if (theme !== "light") return;
+
+			test(`${caseId("A4", a4Number++)} ${label} /login?error&next=/me에서 안내가 있고 버튼 href에 ?next=%2Fme가 붙음`, async ({
+				page,
+			}) => {
+				await gotoAndSettle(page, "/login?error&next=/me");
+				const body = page.getByTestId(bodyId);
+				await expect(
+					body.getByRole("alert").locator("visible=true"),
+				).toHaveCount(1);
+				await expect(
+					body.getByRole("link", { name: "구글로 계속하기" }),
+				).toHaveAttribute("href", "/oauth2/authorization/google?next=%2Fme");
+			});
+		});
+	}
+}
 
 // 접근 제어: 로그인한 상태로 /login에 들어오면 홈으로 감
 for (const { label, viewport } of SCREENS) {

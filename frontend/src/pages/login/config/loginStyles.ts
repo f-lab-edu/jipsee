@@ -29,7 +29,43 @@ export const loginStyles: LoginStyle = {
 		borderWidth: 1,
 		borderColor: "stroke.neutralMuted",
 	},
+	actions: { gap: "x4" },
 	providers: { gap: "x2_5" },
+	errorNotice: {
+		box: {
+			alignItems: "center",
+			gap: "x2_5",
+			// Box가 content-box이므로 최소 높이 50에서 위아래 패딩 28을 뺌
+			minHeight: "22px",
+			px: "x4",
+			py: "x3_5",
+			borderRadius: "r3",
+			bg: "bg.criticalWeak",
+		},
+		iconCell: { display: "flex", flexShrink: 0 },
+		icon: { size: "18px", color: "fg.criticalContrast" },
+		text: {
+			...typography.size14,
+			fontWeight: "medium",
+			color: "fg.criticalContrast",
+		},
+	},
+	notice: {
+		group: { gap: "x1_5", alignItems: "center" },
+		consent: {
+			...typography.size13LineHeight20,
+			color: "fg.neutralMuted",
+		},
+		link: {
+			...typography.size13LineHeight20,
+			fontWeight: "bold",
+			color: "fg.neutral",
+			textDecorationLine: "underline",
+		},
+		line: { gap: "x1_5", alignItems: "center", justifyContent: "center" },
+		icon: { size: "14px", color: "fg.neutralMuted" },
+		text: { ...typography.size12, color: "fg.neutralMuted" },
+	},
 	intro: { alignItems: "center", gap: "x3" },
 	logoSize: 64,
 	title: {
