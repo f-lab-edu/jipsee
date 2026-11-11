@@ -1,4 +1,4 @@
-import { Text, VStack } from "@seed-design/react";
+import { Box, Text, VStack } from "@seed-design/react";
 import { policyContentStyles } from "@/pages/policy/config/policyStyles";
 import type { PolicyDocument } from "@/pages/policy/model/policyDocument";
 import PolicyClause from "@/pages/policy/ui/PolicyClause";
@@ -19,7 +19,7 @@ export default function PolicyClauses({
 	layout,
 	policyDocument,
 }: PolicyClausesProps) {
-	const style = policyContentStyles;
+	const style = policyContentStyles[layout];
 
 	return (
 		<VStack data-area={`policy-clauses-${layout}`} {...style.clauses}>
@@ -32,9 +32,11 @@ export default function PolicyClauses({
 				/>
 			))}
 			{policyDocument.addendum !== undefined && (
-				<Text as="p" {...style.addendum}>
-					{policyDocument.addendum}
-				</Text>
+				<Box {...style.addendumBox}>
+					<Text as="p" {...style.addendum}>
+						{policyDocument.addendum}
+					</Text>
+				</Box>
 			)}
 		</VStack>
 	);

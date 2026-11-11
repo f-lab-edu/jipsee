@@ -25,7 +25,7 @@ export default function PolicyClause({
 	order,
 	clause,
 }: PolicyClauseProps) {
-	const style = policyContentStyles;
+	const style = policyContentStyles[layout];
 	const id = toClauseId(layout, order);
 	const titleId = `${id}-title`;
 
@@ -40,9 +40,15 @@ export default function PolicyClause({
 			<Text as="h2" id={titleId} {...style.clauseTitle}>
 				{`${order}. ${clause.title}`}
 			</Text>
-			{clause.blocks.map((block) => (
-				<PolicyClauseBlock key={toBlockKey(block)} block={block} />
-			))}
+			<VStack {...style.clauseBlocks}>
+				{clause.blocks.map((block) => (
+					<PolicyClauseBlock
+						key={toBlockKey(block)}
+						layout={layout}
+						block={block}
+					/>
+				))}
+			</VStack>
 		</VStack>
 	);
 }

@@ -3,10 +3,16 @@ export interface PolicyRow {
 	value: string;
 }
 
+export interface PolicyRowGroup {
+	heading: string;
+	rows: readonly PolicyRow[];
+}
+
 export type PolicyBlock =
 	| { kind: "paragraph"; text: string }
 	| { kind: "list"; items: readonly string[] }
-	| { kind: "rows"; heading?: string; rows: readonly PolicyRow[] };
+	| { kind: "rows"; heading?: string; rows: readonly PolicyRow[] }
+	| { kind: "table"; headingLabel: string; groups: readonly PolicyRowGroup[] };
 
 export interface PolicyClause {
 	title: string;
