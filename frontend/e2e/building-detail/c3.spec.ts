@@ -143,6 +143,10 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		test(`${caseId("C3", 18 + 2 * themeIndex)} 모바일 로고 헤더의 크기, 뒤로 가기 버튼 위치, 본문 첫 줄 제목 글자가 설계와 같음 (${theme}, 2026-11-09 피드백 7번)`, async ({
 			t,
 		}) => {
+			test.skip(
+				process.env.TC_SESSION === "in",
+				"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
+			);
 			await t.goto("/buildings/1");
 			const m = await t.measure();
 			t.eq("보이는 레이아웃의 헤더 개수", m.headerCount, 1);
@@ -196,6 +200,10 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		test(`${caseId("C3", 22 + 4 * themeIndex)} 데스크톱 로고 헤더가 높이 64에 로그인 링크를 보여줌 (${theme})`, async ({
 			t,
 		}) => {
+			test.skip(
+				process.env.TC_SESSION === "in",
+				"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
+			);
 			await t.goto("/buildings/1");
 			const m = await t.measure();
 			t.near("헤더 높이", m.header?.h, 64);
@@ -643,6 +651,10 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test("C3-59 로그인하지 않으면 데스크톱 헤더에 로그인이 보이고 내 정보는 없음", async ({
 		t,
 	}) => {
+		test.skip(
+			process.env.TC_SESSION === "in",
+			"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
+		);
 		await t.goto("/buildings/1");
 		const m = await t.measure();
 		t.eq("로그인", m.loginVisible, 1);
