@@ -6,6 +6,7 @@ import { policyScreenStyles } from "@/pages/policy/config/policyStyles";
 import DataSourcesCards from "@/pages/policy/ui/DataSourcesCards";
 import DataSourcesNotice from "@/pages/policy/ui/DataSourcesNotice";
 import PolicyDraftNotice from "@/pages/policy/ui/PolicyDraftNotice";
+import { colors } from "@/shared/config/colors";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import { paths } from "@/shared/routes/paths";
 import ResponsiveLayout from "@/shared/ui/ResponsiveLayout";
@@ -22,7 +23,7 @@ interface DataSourcesPageProps {
  *
  * - 뒤로 가기가 있는 로고 헤더 출력
  * - 제목, 임시 초안 안내, 출처 카드 목록, 한계 안내 순서로 출력
- * - 모바일은 흰 배경 본문, 데스크톱은 하늘빛 배경 위 폭 720 열
+ * - 모바일은 하늘빛 배경 위 카드(main) 본문, 데스크톱은 하늘빛 배경 위 폭 720 열
  */
 export default function DataSourcesPage({
 	session,
@@ -35,7 +36,7 @@ export default function DataSourcesPage({
 			<Header
 				session={session}
 				currentPath={paths.dataSources}
-				mobileBackground="bg.layerDefault"
+				mobileBackground={colors.pageBackground}
 				mobileBack={<HeaderBackButton />}
 			/>
 			<VStack as="main" data-area="main" {...style.main}>

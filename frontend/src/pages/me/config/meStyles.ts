@@ -14,7 +14,7 @@ const iconShared = {
 } as const;
 
 export const meStyles: MeStyle = {
-	main: { flexGrow: 1 },
+	main: { flexGrow: 1, className: "page-card" },
 	mobileBody: { flexGrow: 1, bg: "bg.layerDefault" },
 	mobileTitleBox: { pt: "x5", px: "spacingX.globalGutter" },
 	mobileTitle: {

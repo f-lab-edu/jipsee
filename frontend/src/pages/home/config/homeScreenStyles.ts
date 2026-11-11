@@ -1,8 +1,7 @@
 import type { HomeScreenStyle } from "@/pages/home/model/homeScreenStyle";
-import { colors } from "@/shared/config/colors";
 
 export const homeScreenStyles: HomeScreenStyle = {
-	main: { flexGrow: 1, bg: colors.brandTintBackground },
+	main: { flexGrow: 1, className: "page-card" },
 	grid: {
 		flexGrow: 1,
 		columns: { base: 1, lg: "minmax(0, 1fr) 380px" },

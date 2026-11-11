@@ -6,7 +6,7 @@ import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
 
 export const policyScreenStyles: PolicyScreenStyle = {
-	main: { flexGrow: 1 },
+	main: { flexGrow: 1, className: "page-card" },
 	mobileBody: {
 		flexGrow: 1,
 		pt: "x5",
