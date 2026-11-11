@@ -1888,3 +1888,75 @@ test.describe("탈퇴 확인 창 요청", () => {
 		expect(response.status()).toBe(403);
 	});
 });
+
+// 커밋 9: 화면 폭이 lg(1280) 경계를 넘으면 열려 있던 확인 창이 닫히고, 다시 열면 넘은 쪽 모양으로 열림 (A8)
+const LG_BELOW = { width: 1279, height: 900 };
+const LG_ABOVE = { width: 1280, height: 900 };
+
+for (const theme of THEMES) {
+	test.describe(`${theme} 탈퇴 확인 창 lg 경계`, () => {
+		test.use({ viewport: LG_BELOW, colorScheme: theme });
+		test.skip(
+			process.env.TC_SESSION !== "in",
+			"로그인 TC는 TC_SESSION=in일 때만 돌림",
+		);
+
+		async function clickWithdraw(page: Page) {
+			await page
+				.getByRole("button", { name: POLICY_TEXT.withdraw, exact: true })
+				.click();
+			const dialog = page.getByRole("dialog");
+			await expect(dialog).toHaveCount(1);
+			await page.waitForTimeout(700);
+			return dialog;
+		}
+
+		test(`${caseId("A8", a8Number++)} ${theme} 1279에서 연 바텀시트가 1280으로 넘으면 닫히고, 다시 열면 가운데 대화상자임`, async ({
+			page,
+		}) => {
+			await gotoAndSettle(page, "/me");
+			const sheet = await clickWithdraw(page);
+			const sheetBox = await sheet.boundingBox();
+			expect((sheetBox?.y ?? 0) + (sheetBox?.height ?? 0)).toBeCloseTo(
+				LG_BELOW.height,
+				0,
+			);
+			await page.setViewportSize(LG_ABOVE);
+			await expect(page.getByRole("dialog")).toHaveCount(0);
+			const dialog = await clickWithdraw(page);
+			await expect(dialog).toBeVisible();
+			const box = await dialog.boundingBox();
+			expect(box?.width).toBe(480);
+			expect((box?.x ?? 0) + (box?.width ?? 0) / 2).toBeCloseTo(
+				LG_ABOVE.width / 2,
+				0,
+			);
+			expect((box?.y ?? 0) + (box?.height ?? 0) / 2).toBeCloseTo(
+				LG_ABOVE.height / 2,
+				0,
+			);
+		});
+
+		test(`${caseId("A8", a8Number++)} ${theme} 1280에서 연 대화상자가 1279로 넘으면 닫히고, 다시 열면 화면 아래 바텀시트임`, async ({
+			page,
+		}) => {
+			await page.setViewportSize(LG_ABOVE);
+			await gotoAndSettle(page, "/me");
+			const dialog = await clickWithdraw(page);
+			const dialogBox = await dialog.boundingBox();
+			expect((dialogBox?.y ?? 0) + (dialogBox?.height ?? 0) / 2).toBeCloseTo(
+				LG_ABOVE.height / 2,
+				0,
+			);
+			await page.setViewportSize(LG_BELOW);
+			await expect(page.getByRole("dialog")).toHaveCount(0);
+			const sheet = await clickWithdraw(page);
+			await expect(sheet).toBeVisible();
+			const box = await sheet.boundingBox();
+			expect((box?.y ?? 0) + (box?.height ?? 0)).toBeCloseTo(
+				LG_BELOW.height,
+				0,
+			);
+		});
+	});
+}
