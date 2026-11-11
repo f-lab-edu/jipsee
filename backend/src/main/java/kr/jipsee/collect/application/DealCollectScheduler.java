@@ -56,7 +56,7 @@ public class DealCollectScheduler {
             log.info("이미 완료된 Job이라 시작하지 않음: {}, 파라미터 {}", job.getName(), params);
         } catch (JobExecutionAlreadyRunningException e) {
             log.warn("이미 실행 중인 Job이라 시작하지 않음: {}, 파라미터 {}", job.getName(), params);
-        } catch (JobExecutionException e) {
+        } catch (JobExecutionException | RuntimeException e) {
             log.error("Job 시작에 실패함: {}, 파라미터 {}", job.getName(), params, e);
         }
     }

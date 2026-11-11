@@ -30,7 +30,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.batch.core.job.Job;
-import org.springframework.batch.core.job.JobExecutionException;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.launch.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.launch.JobInstanceAlreadyCompleteException;
@@ -106,17 +105,18 @@ class DealCollectSchedulerTest {
 
     static Stream<Arguments> failures() {
         return Stream.of(0, 1, 2, 3)
-                .flatMap(index -> Stream.<JobExecutionException>of(
+                .flatMap(index -> Stream.<Exception>of(
                                 new JobInstanceAlreadyCompleteException("이미 완료됨"),
                                 new JobExecutionAlreadyRunningException("이미 실행 중임"),
-                                new JobRestartException("재시작할 수 없음"))
+                                new JobRestartException("재시작할 수 없음"),
+                                new IllegalStateException("예상하지 못한 오류"))
                         .map(exception -> Arguments.of(index, exception)));
     }
 
     @ParameterizedTest(name = "{0}번째 Job, {1}")
     @MethodSource("failures")
     @DisplayName("어느 Job을 시작할 때 예외가 나도 나머지 Job을 시작하고 예외를 던지지 않음")
-    void 어느_Job을_시작할_때_예외가_나도_나머지_Job을_시작하고_예외를_던지지_않음(int index, JobExecutionException exception) throws Exception {
+    void 어느_Job을_시작할_때_예외가_나도_나머지_Job을_시작하고_예외를_던지지_않음(int index, Exception exception) throws Exception {
         Job[] jobs = {dailyRentJob, dailySaleJob, initialRentJob, initialSaleJob};
         willThrow(exception).given(jobOperator).start(eq(jobs[index]), any());
 
