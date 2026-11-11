@@ -19,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(MockitoExtension.class)
-class RentDealClientTest {
+class RtmsRhRentClientTest {
 
     private static final JsonMapper JSON = JsonMapper.builder().build();
     private static final YearMonth OCTOBER = YearMonth.of(2025, 10);
@@ -28,31 +28,31 @@ class RentDealClientTest {
     DealApiCaller caller;
 
     @InjectMocks
-    RentDealClient client;
+    RtmsRhRentClient client;
 
-    private static DealItem item(String json) {
-        return DealItem.of(JSON.readTree(json));
+    private static RtmsItem item(String json) {
+        return RtmsItem.of(JSON.readTree(json));
     }
 
     @Test
     @DisplayName("전월세 응답을 rent_deal 컬럼에 맞는 행으로 바꾸고 값이 없는 필드는 null로 둠")
     void 전월세_응답을_rent_deal_컬럼에_맞는_행으로_바꾸고_값이_없는_필드는_null로_둠() {
         // given
-        DealItem plain = item("""
+        RtmsItem plain = item("""
                 {"buildYear":2004,"contractTerm":" ","contractType":" ","dealDay":25,"dealMonth":10,"dealYear":2025,
                  "deposit":"31,000","excluUseAr":69.99,"floor":4,"houseType":"다세대","jibun":"130-69",
                  "mhouseNm":"광명빌라트","monthlyRent":0,"preDeposit":" ","preMonthlyRent":" ","sggCd":11110,
                  "umdNm":"동숭동","useRRRight":" "}""");
-        DealItem renewed = item("""
+        RtmsItem renewed = item("""
                 {"buildYear":2019,"contractTerm":"26.10~28.09","contractType":"갱신","dealDay":17,"dealMonth":10,
                  "dealYear":2025,"deposit":"4,406","excluUseAr":17.14,"floor":8,"houseType":"다세대","jibun":"193-1",
                  "mhouseNm":"주함해븐타워(2동)","monthlyRent":17,"preDeposit":66,"preMonthlyRent":38,"sggCd":11110,
                  "umdNm":"연지동","useRRRight":" "}""");
-        given(caller.call(RentDealClient.PATH, "11110", OCTOBER, 1))
-                .willReturn(new DealPage<>("000", 2, List.of(plain, renewed)));
+        given(caller.call(RtmsRhRentClient.PATH, "11110", OCTOBER, 1))
+                .willReturn(new RtmsPage<>("000", 2, List.of(plain, renewed)));
 
         // when
-        DealPage<RentDealRow> page = client.fetch("11110", OCTOBER, 1);
+        RtmsPage<RentDealRow> page = client.fetch("11110", OCTOBER, 1);
 
         // then
         assertThat(page.resultCode()).isEqualTo("000");
@@ -97,13 +97,13 @@ class RentDealClientTest {
     @DisplayName("숫자로 온 지번과 건물명, 콤마가 있는 월세도 행으로 바꿈")
     void 숫자로_온_지번과_건물명_콤마가_있는_월세도_행으로_바꿈() {
         // given
-        DealItem numeric = item("""
+        RtmsItem numeric = item("""
                 {"buildYear":1990,"contractTerm":" ","contractType":" ","dealDay":3,"dealMonth":10,"dealYear":2025,
                  "deposit":5000,"excluUseAr":64,"floor":-1,"jibun":130,"mhouseNm":12,"monthlyRent":"1,070",
                  "preDeposit":" ","preMonthlyRent":" ","sggCd":11110,"umdNm":"동숭동","useRRRight":" "}""");
 
         // when
-        RentDealRow row = RentDealClient.toRow(numeric);
+        RentDealRow row = RtmsRhRentClient.toRow(numeric);
 
         // then
         assertThat(row.lotNumber()).isEqualTo("130");
@@ -118,11 +118,11 @@ class RentDealClientTest {
     @DisplayName("응답 행의 계약 월이 요청과 다르면 DealApiException을 던짐")
     void 응답_행의_계약_월이_요청과_다르면_DealApiException을_던짐() {
         // given
-        DealItem otherMonth = item("""
+        RtmsItem otherMonth = item("""
                 {"dealDay":3,"dealMonth":9,"dealYear":2025,"deposit":5000,"excluUseAr":64,"jibun":130,"monthlyRent":0,
                  "sggCd":11110,"umdNm":"동숭동"}""");
-        given(caller.call(RentDealClient.PATH, "11110", OCTOBER, 1))
-                .willReturn(new DealPage<>("000", 1, List.of(otherMonth)));
+        given(caller.call(RtmsRhRentClient.PATH, "11110", OCTOBER, 1))
+                .willReturn(new RtmsPage<>("000", 1, List.of(otherMonth)));
 
         // when
         Throwable thrown = catchThrowable(() -> client.fetch("11110", OCTOBER, 1));
@@ -135,11 +135,11 @@ class RentDealClientTest {
     @DisplayName("응답 행의 시군구가 요청과 다르면 DealApiException을 던짐")
     void 응답_행의_시군구가_요청과_다르면_DealApiException을_던짐() {
         // given
-        DealItem otherSigungu = item("""
+        RtmsItem otherSigungu = item("""
                 {"dealDay":3,"dealMonth":10,"dealYear":2025,"deposit":5000,"excluUseAr":64,"jibun":130,"monthlyRent":0,
                  "sggCd":11140,"umdNm":"공덕동"}""");
-        given(caller.call(RentDealClient.PATH, "11110", OCTOBER, 1))
-                .willReturn(new DealPage<>("000", 1, List.of(otherSigungu)));
+        given(caller.call(RtmsRhRentClient.PATH, "11110", OCTOBER, 1))
+                .willReturn(new RtmsPage<>("000", 1, List.of(otherSigungu)));
 
         // when
         Throwable thrown = catchThrowable(() -> client.fetch("11110", OCTOBER, 1));

@@ -19,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(MockitoExtension.class)
-class SaleDealClientTest {
+class RtmsRhTradeClientTest {
 
     private static final JsonMapper JSON = JsonMapper.builder().build();
     private static final YearMonth OCTOBER = YearMonth.of(2026, 10);
@@ -28,26 +28,26 @@ class SaleDealClientTest {
     DealApiCaller caller;
 
     @InjectMocks
-    SaleDealClient client;
+    RtmsRhTradeClient client;
 
-    private static DealItem item(String json) {
-        return DealItem.of(JSON.readTree(json));
+    private static RtmsItem item(String json) {
+        return RtmsItem.of(JSON.readTree(json));
     }
 
     @Test
     @DisplayName("매매 응답을 sale_deal 컬럼에 맞는 행으로 바꾸고 저장하지 않는 필드는 버림")
     void 매매_응답을_sale_deal_컬럼에_맞는_행으로_바꾸고_저장하지_않는_필드는_버림() {
         // given
-        DealItem plain = item("""
+        RtmsItem plain = item("""
                 {"buildYear":2007,"buyerGbn":"개인","cdealDay":" ","cdealType":" ","dealAmount":"4,800","dealDay":14,
                  "dealMonth":10,"dealYear":2026,"dealingGbn":"중개거래","estateAgentSggNm":"전남광주 나주시",
                  "excluUseAr":74.89,"floor":2,"houseType":"다세대","jibun":"745-5","landAr":52.78,"mhouseNm":"골든빌B",
                  "rgstDate":" ","sggCd":12170,"slerGbn":"개인","umdNm":"이창동"}""");
-        given(caller.call(SaleDealClient.PATH, "12170", OCTOBER, 1))
-                .willReturn(new DealPage<>("000", 1, List.of(plain)));
+        given(caller.call(RtmsRhTradeClient.PATH, "12170", OCTOBER, 1))
+                .willReturn(new RtmsPage<>("000", 1, List.of(plain)));
 
         // when
-        DealPage<SaleDealRow> page = client.fetch("12170", OCTOBER, 1);
+        RtmsPage<SaleDealRow> page = client.fetch("12170", OCTOBER, 1);
 
         // then
         assertThat(page.items())
@@ -69,12 +69,12 @@ class SaleDealClientTest {
     @DisplayName("해제된 거래는 해제 구분과 20YY-MM-DD로 바꾼 해제일을 담음")
     void 해제된_거래는_해제_구분과_20YY_MM_DD로_바꾼_해제일을_담음() {
         // given
-        DealItem cancelled = item("""
+        RtmsItem cancelled = item("""
                 {"buildYear":2007,"cdealDay":"26.03.15","cdealType":"O","dealAmount":4800,"dealDay":14,"dealMonth":10,
                  "dealYear":2025,"excluUseAr":74,"floor":2,"jibun":745,"mhouseNm":" ","sggCd":12170,"umdNm":"이창동"}""");
 
         // when
-        SaleDealRow row = SaleDealClient.toRow(cancelled);
+        SaleDealRow row = RtmsRhTradeClient.toRow(cancelled);
 
         // then
         assertThat(row.cancellationType()).isEqualTo("O");
@@ -88,11 +88,11 @@ class SaleDealClientTest {
     @DisplayName("응답 행의 계약 월이 요청과 다르면 DealApiException을 던짐")
     void 응답_행의_계약_월이_요청과_다르면_DealApiException을_던짐() {
         // given
-        DealItem otherMonth = item("""
+        RtmsItem otherMonth = item("""
                 {"dealAmount":4800,"dealDay":14,"dealMonth":9,"dealYear":2026,"excluUseAr":74,"jibun":745,
                  "sggCd":12170,"umdNm":"이창동"}""");
-        given(caller.call(SaleDealClient.PATH, "12170", OCTOBER, 1))
-                .willReturn(new DealPage<>("000", 1, List.of(otherMonth)));
+        given(caller.call(RtmsRhTradeClient.PATH, "12170", OCTOBER, 1))
+                .willReturn(new RtmsPage<>("000", 1, List.of(otherMonth)));
 
         // when
         Throwable thrown = catchThrowable(() -> client.fetch("12170", OCTOBER, 1));
@@ -105,11 +105,11 @@ class SaleDealClientTest {
     @DisplayName("응답 행의 시군구가 요청과 다르면 DealApiException을 던짐")
     void 응답_행의_시군구가_요청과_다르면_DealApiException을_던짐() {
         // given
-        DealItem otherSigungu = item("""
+        RtmsItem otherSigungu = item("""
                 {"dealAmount":4800,"dealDay":14,"dealMonth":10,"dealYear":2026,"excluUseAr":74,"jibun":745,
                  "sggCd":11110,"umdNm":"동숭동"}""");
-        given(caller.call(SaleDealClient.PATH, "12170", OCTOBER, 1))
-                .willReturn(new DealPage<>("000", 1, List.of(otherSigungu)));
+        given(caller.call(RtmsRhTradeClient.PATH, "12170", OCTOBER, 1))
+                .willReturn(new RtmsPage<>("000", 1, List.of(otherSigungu)));
 
         // when
         Throwable thrown = catchThrowable(() -> client.fetch("12170", OCTOBER, 1));

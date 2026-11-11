@@ -11,12 +11,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
 
-class DealItemTest {
+class RtmsItemTest {
 
     private static final JsonMapper JSON = JsonMapper.builder().build();
 
-    private static DealItem item(String json) {
-        return DealItem.of(JSON.readTree(json));
+    private static RtmsItem item(String json) {
+        return RtmsItem.of(JSON.readTree(json));
     }
 
     @Nested
@@ -26,7 +26,7 @@ class DealItemTest {
         @Test
         @DisplayName("값이 정확히 공백 1자이면 null을 반환함")
         void 값이_정확히_공백_1자이면_null을_반환함() {
-            DealItem item = item("{\"preDeposit\":\" \"}");
+            RtmsItem item = item("{\"preDeposit\":\" \"}");
 
             assertThat(item.optionalText("preDeposit")).isNull();
             assertThat(item.optionalInt("preDeposit")).isNull();
@@ -49,7 +49,7 @@ class DealItemTest {
         @Test
         @DisplayName("공백 1자가 아닌 값은 다듬지 않고 그대로 반환함")
         void 공백_1자가_아닌_값은_다듬지_않고_그대로_반환함() {
-            DealItem item = item("{\"a\":\"효동빌라\u3000\",\"b\":\"  \",\"c\":\" 가 \"}");
+            RtmsItem item = item("{\"a\":\"효동빌라\u3000\",\"b\":\"  \",\"c\":\" 가 \"}");
 
             assertThat(item.optionalText("a")).isEqualTo("효동빌라\u3000");
             assertThat(item.optionalText("b")).isEqualTo("  ");
@@ -66,7 +66,7 @@ class DealItemTest {
         @Test
         @DisplayName("NOT NULL 컬럼에 해당하는 필드가 비어 있으면 DealApiException을 던짐")
         void NOT_NULL_컬럼에_해당하는_필드가_비어_있으면_DealApiException을_던짐() {
-            DealItem item = item("{\"umdNm\":\" \",\"excluUseAr\":\" \"}");
+            RtmsItem item = item("{\"umdNm\":\" \",\"excluUseAr\":\" \"}");
 
             assertThat(catchThrowable(() -> item.requiredText("umdNm")))
                     .isInstanceOf(DealApiException.class)

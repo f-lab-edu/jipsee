@@ -21,7 +21,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
-/** 공공데이터 API를 호출하고 응답을 {@code DealPage<DealItem>}으로 변환 */
+/** 공공데이터 API를 호출하고 응답을 {@code RtmsPage<RtmsItem>}으로 변환 */
 public class DealApiCaller {
     /** 한 페이지에 요청하는 거래 수 (numOfRows) */
     public static final int PAGE_SIZE = 1000;
@@ -60,12 +60,12 @@ public class DealApiCaller {
     }
 
     /** 시군구와 계약 월의 거래 한 페이지 조회. {@link DealApiTransientException}이면 재시도 */
-    public DealPage<DealItem> call(String path, String sigunguCode, YearMonth dealMonth, int pageNo) {
+    public RtmsPage<RtmsItem> call(String path, String sigunguCode, YearMonth dealMonth, int pageNo) {
         return retryTemplate.invoke(() -> callOnce(path, sigunguCode, dealMonth, pageNo));
     }
 
     /** API를 한 번 호출하고 오류 코드, 상태 코드, 본문 순으로 검증 */
-    private DealPage<DealItem> callOnce(String path, String sigunguCode, YearMonth dealMonth, int pageNo) {
+    private RtmsPage<RtmsItem> callOnce(String path, String sigunguCode, YearMonth dealMonth, int pageNo) {
         String dealYmd = dealMonth.format(DEAL_YMD);
         String requestInfo = "LAWD_CD=" + sigunguCode + ", DEAL_YMD=" + dealYmd + ", pageNo=" + pageNo;
         Response response = fetch(path, sigunguCode, dealYmd, pageNo, requestInfo);
@@ -161,8 +161,8 @@ public class DealApiCaller {
         return null;
     }
 
-    /** 정상 JSON 응답을 DealPage로 변환. item은 2건 이상이면 배열, 1건이면 객체, 0건이면 없음 */
-    private static DealPage<DealItem> toPage(JsonNode root, String requestInfo) {
+    /** 정상 JSON 응답을 RtmsPage로 변환. item은 2건 이상이면 배열, 1건이면 객체, 0건이면 없음 */
+    private static RtmsPage<RtmsItem> toPage(JsonNode root, String requestInfo) {
         JsonNode resultCode = root.path(RESPONSE).path("header").path("resultCode");
 
         if (resultCode.isMissingNode()) {
@@ -176,15 +176,15 @@ public class DealApiCaller {
             throw new DealApiException("totalCount 없음 (resultCode=" + resultCode.asString() + "): " + requestInfo);
         }
 
-        List<DealItem> items = new ArrayList<>();
+        List<RtmsItem> items = new ArrayList<>();
         JsonNode item = body.path("items").path("item"); // 0건이면 items가 빈 문자열
 
         if (item.isArray()) {
-            item.forEach(node -> items.add(DealItem.of(node)));
+            item.forEach(node -> items.add(RtmsItem.of(node)));
         } else if (item.isObject()) {
-            items.add(DealItem.of(item)); // 1건이면 배열이 아니라 객체
+            items.add(RtmsItem.of(item)); // 1건이면 배열이 아니라 객체
         }
 
-        return new DealPage<>(resultCode.asString(), totalCount.asInt(), items);
+        return new RtmsPage<>(resultCode.asString(), totalCount.asInt(), items);
     }
 }

@@ -70,7 +70,7 @@ class DealApiCallerTest {
                 JsonMapper.builder().build());
     }
 
-    private DealPage<DealItem> call() {
+    private RtmsPage<RtmsItem> call() {
         return caller.call(PATH, "11110", OCTOBER, 1);
     }
 
@@ -102,7 +102,7 @@ class DealApiCallerTest {
         void 거래가_여러_건이면_resultCode_totalCount_거래_목록을_반환함() {
             server.expect(request -> {}).andRespond(withSuccess(TWO_ITEMS_BODY, MediaType.APPLICATION_JSON));
 
-            DealPage<DealItem> page = call();
+            RtmsPage<RtmsItem> page = call();
 
             assertThat(page.resultCode()).isEqualTo("000");
             assertThat(page.totalCount()).isEqualTo(2);
@@ -116,7 +116,7 @@ class DealApiCallerTest {
         void 거래가_1건이라_item이_객체로_와도_목록_1개로_반환함() {
             server.expect(request -> {}).andRespond(withSuccess(ONE_ITEM_BODY, MediaType.APPLICATION_JSON));
 
-            DealPage<DealItem> page = call();
+            RtmsPage<RtmsItem> page = call();
 
             assertThat(page.totalCount()).isEqualTo(1);
             assertThat(page.items()).hasSize(1);
@@ -128,7 +128,7 @@ class DealApiCallerTest {
         void 거래가_0건이라_items가_빈_문자열로_와도_빈_목록을_반환함() {
             server.expect(request -> {}).andRespond(withSuccess(EMPTY_BODY, MediaType.APPLICATION_JSON));
 
-            DealPage<DealItem> page = call();
+            RtmsPage<RtmsItem> page = call();
 
             assertThat(page.resultCode()).isEqualTo("000");
             assertThat(page.totalCount()).isZero();
@@ -146,7 +146,7 @@ class DealApiCallerTest {
             server.expect(ExpectedCount.times(2), request -> {}).andRespond(withServerError());
             server.expect(request -> {}).andRespond(withSuccess(TWO_ITEMS_BODY, MediaType.APPLICATION_JSON));
 
-            DealPage<DealItem> page = call();
+            RtmsPage<RtmsItem> page = call();
 
             assertThat(page.items()).hasSize(2);
             server.verify();
@@ -161,7 +161,7 @@ class DealApiCallerTest {
                             .body("Bad Gateway"));
             server.expect(request -> {}).andRespond(withSuccess(TWO_ITEMS_BODY, MediaType.APPLICATION_JSON));
 
-            DealPage<DealItem> page = call();
+            RtmsPage<RtmsItem> page = call();
 
             assertThat(page.items()).hasSize(2);
             server.verify();
@@ -205,7 +205,7 @@ class DealApiCallerTest {
                             .body(JSON_LIMIT_23));
             server.expect(request -> {}).andRespond(withSuccess(TWO_ITEMS_BODY, MediaType.APPLICATION_JSON));
 
-            DealPage<DealItem> page = call();
+            RtmsPage<RtmsItem> page = call();
 
             assertThat(page.items()).hasSize(2);
             server.verify();
@@ -220,7 +220,7 @@ class DealApiCallerTest {
                             MediaType.APPLICATION_XML));
             server.expect(request -> {}).andRespond(withSuccess(TWO_ITEMS_BODY, MediaType.APPLICATION_JSON));
 
-            DealPage<DealItem> page = call();
+            RtmsPage<RtmsItem> page = call();
 
             assertThat(page.items()).hasSize(2);
             server.verify();

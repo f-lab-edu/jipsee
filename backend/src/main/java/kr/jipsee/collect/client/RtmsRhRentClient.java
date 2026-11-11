@@ -5,15 +5,15 @@ import org.springframework.stereotype.Component;
 
 /** 연립다세대 전월세 실거래 공공데이터 API 클라이언트 */
 @Component
-public class RentDealClient extends DealApiClient<RentDealRow> {
+public class RtmsRhRentClient extends RtmsApiClient<RentDealRow> {
     static final String PATH = "/RTMSDataSvcRHRent/getRTMSDataSvcRHRent";
 
-    public RentDealClient(DealApiCaller caller) {
-        super(caller, PATH, RentDealClient::toRow);
+    public RtmsRhRentClient(DealApiCaller caller) {
+        super(caller, PATH, RtmsRhRentClient::toRow);
     }
 
     /** 응답 거래 1건을 rent_deal 행으로 변환 */
-    static RentDealRow toRow(DealItem item) {
+    static RentDealRow toRow(RtmsItem item) {
         return new RentDealRow(
                 item.requiredText("sggCd"),
                 item.requiredText("umdNm"),

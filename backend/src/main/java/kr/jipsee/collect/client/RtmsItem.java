@@ -8,19 +8,19 @@ import kr.jipsee.collect.exception.DealApiException;
 import tools.jackson.databind.JsonNode;
 
 /** 실거래 API 응답의 item 하나 */
-public final class DealItem {
+public final class RtmsItem {
     private static final String BLANK = " ";
     private static final DateTimeFormatter SHORT_DATE = DateTimeFormatter.ofPattern("yy.MM.dd");
 
     private final JsonNode node;
 
-    private DealItem(JsonNode node) {
+    private RtmsItem(JsonNode node) {
         this.node = node;
     }
 
     /** 응답 item 노드로 생성 */
-    public static DealItem of(JsonNode node) {
-        return new DealItem(node);
+    public static RtmsItem of(JsonNode node) {
+        return new RtmsItem(node);
     }
 
     /** 필드의 텍스트 반환. 없거나 공백 1자이면 null */
