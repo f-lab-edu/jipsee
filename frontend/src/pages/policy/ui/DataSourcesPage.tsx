@@ -22,7 +22,7 @@ interface DataSourcesPageProps {
  *
  * - 뒤로 가기가 있는 로고 헤더 출력
  * - 제목, 임시 초안 안내, 출처 카드 목록, 한계 안내 순서로 출력
- * - 모바일은 흰 배경 본문, 데스크톱은 하늘빛 배경 위 폭 480 열
+ * - 모바일은 흰 배경 본문, 데스크톱은 하늘빛 배경 위 폭 720 열
  */
 export default function DataSourcesPage({
 	session,

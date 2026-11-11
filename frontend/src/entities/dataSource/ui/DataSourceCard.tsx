@@ -1,4 +1,5 @@
-import { HStack, Text, VStack } from "@seed-design/react";
+import IconChevronRightLine from "@karrotmarket/react-monochrome-icon/IconChevronRightLine";
+import { Box, HStack, Icon, Text, VStack } from "@seed-design/react";
 import { dataSourceCardCopy } from "@/entities/dataSource/config/dataSourceCardCopy";
 import { dataSourceCardStyles } from "@/entities/dataSource/config/dataSourceCardStyles";
 import { toUpdateLine } from "@/entities/dataSource/lib/toUpdateLine";
@@ -24,23 +25,34 @@ export default function DataSourceCard({
 	order,
 	item,
 }: DataSourceCardProps) {
-	const style = dataSourceCardStyles;
+	const style = dataSourceCardStyles[layout];
 
 	return (
-		<VStack data-area={`data-source-card-${layout}-${order}`} {...style.card}>
+		<VStack
+			as="section"
+			data-area={`data-source-card-${layout}-${order}`}
+			{...style.card}
+		>
 			<Text as="h2" {...style.name}>
 				{item.name}
 			</Text>
-			<Text as="p" {...style.provider}>
-				{item.provider}
-			</Text>
+			<Box {...style.providerBox}>
+				<Text as="p" {...style.provider}>
+					{item.provider}
+				</Text>
+			</Box>
 			<HStack {...style.footer}>
 				<Text as="p" {...style.updateLine}>
 					{toUpdateLine(item.updateCycle, item.baseMonth)}
 				</Text>
-				<a href={item.originalUrl} target="_blank" rel="noopener noreferrer">
-					<Text {...style.originalLink}>{dataSourceCardCopy.original}</Text>
-				</a>
+				<Box asChild {...style.originalLink}>
+					<a href={item.originalUrl} target="_blank" rel="noopener noreferrer">
+						<Text {...style.originalLinkText}>
+							{dataSourceCardCopy.original}
+						</Text>
+						<Icon svg={<IconChevronRightLine />} {...style.originalLinkIcon} />
+					</a>
+				</Box>
 			</HStack>
 		</VStack>
 	);

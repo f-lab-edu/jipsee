@@ -15,7 +15,7 @@ export default function DataSourcesCards({
 	items,
 }: DataSourcesCardsProps) {
 	return (
-		<VStack {...dataSourcesStyles.cardList}>
+		<VStack {...dataSourcesStyles[layout].cardList}>
 			{items.map((item, index) => (
 				<DataSourceCard
 					key={item.source}
