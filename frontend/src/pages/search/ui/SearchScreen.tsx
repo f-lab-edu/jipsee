@@ -5,6 +5,7 @@ import ChatPanelDesktop from "@/features/askChatbot/ui/ChatPanelDesktop";
 import ChatPanelMobile from "@/features/askChatbot/ui/ChatPanelMobile";
 import { searchScreenStyles } from "@/pages/search/config/searchScreenStyles";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
+import { paths } from "@/shared/routes/paths";
 import ContentContainer from "@/shared/ui/ContentContainer";
 import SearchHeader from "@/widgets/header/ui/SearchHeader";
 
@@ -34,12 +35,19 @@ export default function SearchScreen({
 
 	return (
 		<>
-			<SearchHeader keyword={keyword} invalid={invalid} session={session} />
-			<VStack as="main" {...style.main}>
+			<SearchHeader
+				keyword={keyword}
+				invalid={invalid}
+				session={session}
+				currentPath={`${paths.search}?${new URLSearchParams({ keyword })}`}
+			/>
+			<VStack as="main" data-area="main" {...style.main}>
 				<ContentContainer>
 					<Grid {...style.grid}>
 						<GridItem {...style.bodyCell}>
-							<VStack {...style.body}>{children}</VStack>
+							<VStack data-area="body" {...style.body}>
+								{children}
+							</VStack>
 						</GridItem>
 						<GridItem {...style.asideCell}>
 							<ChatPanelDesktop session={session} />

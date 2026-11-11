@@ -1,3 +1,4 @@
+import { desktopHeaderRowHeight } from "@/shared/config/headerHeight";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
 import type { HeaderStyle } from "@/widgets/header/model/headerStyle";
@@ -10,6 +11,7 @@ export const headerStyles = defineResponsiveStyles<HeaderStyle>({
 			justifyContent: "space-between",
 			alignItems: "center",
 		},
+		leftGroup: { alignItems: "center" },
 		brandLink: { gap: "x2", alignItems: "center" },
 		logoSize: 28,
 		serviceName: {
@@ -25,7 +27,7 @@ export const headerStyles = defineResponsiveStyles<HeaderStyle>({
 			borderColor: "stroke.neutralMuted",
 		},
 		row: {
-			height: "64px",
+			height: desktopHeaderRowHeight,
 			justifyContent: "space-between",
 			alignItems: "center",
 		},

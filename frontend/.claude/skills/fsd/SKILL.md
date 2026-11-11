@@ -28,9 +28,9 @@ The frontend only displays what the backend returns. Data and business rules (se
 
 ## Route groups
 
-Screens that share a header or layout go in one Next.js route group with its own `layout.tsx` (e.g. `app/(home)/layout.tsx` renders Footer for S1). Screens with a different header (back-button header in S2~S6) get their own route group later. Route groups do not change URLs.
+Screens that share a header or layout go in one Next.js route group with its own `layout.tsx` (e.g. `app/(home)/layout.tsx` renders Footer for S1). Screens with a different header (back-button header in S3~S6) get their own route group later. Route groups do not change URLs.
 
-Exception: the home screen (S1, `pages/home`) renders `Header` inside its own screen component (`HomePage`, then `HomeScreen`, which receives `session` from `HomePage`) because its mobile header background is injected by the screen and a layout cannot pass it. The search screen (`pages/search`) renders `SearchHeader` itself because its header holds the keyword from `searchParams`, which a layout cannot read. S3 and later screens keep the header in their route group layout.
+Exception: the home screen (S1, `pages/home`) renders `Header` inside its own screen component (`HomePage`, then `HomeScreen`, which receives `session` from `HomePage`) because its mobile header background is injected by the screen and a layout cannot pass it. The search screen (`pages/search`) renders `SearchHeader` itself because its header holds the keyword from `searchParams`, which a layout cannot read. The building detail screen (`pages/building`, S2) renders `BuildingHeader` itself (its mobile header carries a back button), and the building name now sits in the mobile body card, not the header. S3 and later screens keep the header in their route group layout.
 
 ## Segment
 

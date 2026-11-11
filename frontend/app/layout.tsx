@@ -3,10 +3,19 @@ import "./theme.css";
 import { generateThemingScript } from "@seed-design/css/theming";
 import type { Metadata } from "next";
 import { siteMetadata } from "@/shared/config/siteMetadata";
+import { getSiteUrl } from "@/shared/config/siteUrl";
+import { toOpenGraph } from "@/shared/lib/metadata/toOpenGraph";
 import ColorSchemeSync from "@/shared/ui/ColorSchemeSync";
 
 export const metadata: Metadata = {
-	title: siteMetadata.name,
+	metadataBase: new URL(getSiteUrl()),
+	title: {
+		default: siteMetadata.name,
+		template: siteMetadata.titleTemplate,
+	},
+	description: siteMetadata.description,
+	openGraph: toOpenGraph(siteMetadata.name),
+	twitter: { card: siteMetadata.twitterCard },
 };
 
 /**

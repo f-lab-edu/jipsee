@@ -63,7 +63,7 @@ body {
 	word-break: keep-all;
 	font-family: var(--seed-font-family);
 	color: var(--seed-color-fg-neutral);
-	background: var(--seed-color-bg-layer-default);
+	background: var(--jipsee-color-bg-page);
 }
 
 /* 모든 버튼에 손가락 커서 */
@@ -71,19 +71,24 @@ button {
 	cursor: pointer;
 }
 
-/* 하늘빛 배경. 브랜드 색을 3% 섞음. Seed에 이 단계의 색이 없음 */
+/* 하늘빛 배경. 브랜드 색을 8% 섞음. Seed에 이 단계의 색이 없음 */
 :root {
 	--jipsee-color-bg-brand-tint: color-mix(
 		in srgb,
-		var(--seed-color-bg-brand-solid) 3%,
+		var(--seed-color-bg-brand-solid) 8%,
 		var(--seed-color-bg-layer-default)
 	);
 }
 
+/* 페이지 배경. body와 고정 헤더가 같은 값을 씀 */
+:root {
+	--jipsee-color-bg-page: var(--seed-color-bg-layer-default);
+}
+
 /* 480 열보다 넓은 화면의 페이지 배경. 열 바깥도 하늘빛으로 맞춤 */
 @media (min-width: 481px) {
-	body {
-		background: var(--jipsee-color-bg-brand-tint);
+	:root {
+		--jipsee-color-bg-page: var(--jipsee-color-bg-brand-tint);
 	}
 
 	.tinted-page-card {
@@ -94,6 +99,73 @@ button {
 	}
 }
 
+/* 건물 상세 열 배경. Seed bg는 반응형 값을 받지 않으므로 lg 미만은 흰색, lg 이상은 투명으로 정함. 고정 헤더도 같은 값을 씀 */
+:root {
+	--jipsee-color-bg-building-column: var(--seed-color-bg-layer-default);
+}
+
+:root .building-column {
+	--seed-box-background: var(--jipsee-color-bg-building-column);
+}
+
+/* 480 이하 건물 상세. 열을 하늘빛으로 두고 본문을 흰 카드로 감쌈 */
+@media (max-width: 480px) {
+	:root {
+		--jipsee-color-bg-building-column: var(--jipsee-color-bg-brand-tint);
+	}
+
+	.mobile-tinted-card {
+		margin-inline: var(--seed-dimension-spacing-x-global-gutter);
+		border: 1px solid var(--seed-color-stroke-neutral-muted);
+		border-radius: var(--seed-radius-r5);
+		overflow: hidden;
+	}
+}
+
+@media (min-width: 1280px) {
+	:root {
+		--jipsee-color-bg-building-column: transparent;
+	}
+}
+
+/* 로그인 제공자 브랜드 색. 제공자 가이드 값이라 Seed 토큰이 없고, 라이트와 다크가 다른 구글만 다크 값을 정의함 */
+:root {
+	--jipsee-color-google-background: #ffffff;
+	--jipsee-color-google-border: #747775;
+	--jipsee-color-google-text: #1f1f1f;
+	--jipsee-color-kakao-background: #fee500;
+	--jipsee-color-kakao-text: rgba(0, 0, 0, 0.85);
+	--jipsee-color-naver-background: #03c75a;
+	--jipsee-color-naver-text: #ffffff;
+}
+
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"] {
+	--jipsee-color-google-background: #131314;
+	--jipsee-color-google-border: #8e918f;
+	--jipsee-color-google-text: #e3e3e3;
+}
+
+/* 탈퇴하기 버튼 배경. 흰 글자와 대비를 맞춘 팔레트 값이라 Seed 의미 토큰이 없음 */
+:root {
+	--jipsee-color-withdraw-button-background: var(--seed-color-palette-red-800);
+}
+
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"] {
+	--jipsee-color-withdraw-button-background: var(--seed-color-palette-red-500);
+}
+
+/* 탈퇴 확인 창 콘텐츠의 줄바꿈. Seed 대화상자와 바텀시트 콘텐츠가 break-all을 지정함 */
+:root .withdraw-dialog-content {
+	word-break: keep-all;
+}
+
+/* 탈퇴 확인 창의 제목과 설명. Seed 제목과 설명 클래스가 Text 글자 값을 덮어쓰는 순서가 로드 순서에 따라 달라짐 */
+:root .withdraw-dialog-content .seed-text {
+	font-size: var(--seed-font-size);
+	line-height: var(--seed-line-height);
+	font-weight: var(--seed-font-weight);
+}
+
 /* 제목 자간. Seed에 letterSpacing이 없음 */
 .tight-letter-spacing {
 	letter-spacing: -0.03em;
@@ -102,6 +174,11 @@ button {
 /* 서비스명 굵기. Seed fontWeight는 bold(700)까지 */
 :root .extra-bold {
 	font-weight: 800;
+}
+
+/* 기준선 정렬. Seed alignItems에 baseline이 없음. 같은 요소에 alignItems를 넘기지 않음 */
+.align-baseline {
+	--seed-box-align-items: baseline;
 }
 
 /* 검색창 intro 모양. Seed 입력 스타일시트가 theme.css 뒤에 로드되므로 :root로 우선순위를 높임 */

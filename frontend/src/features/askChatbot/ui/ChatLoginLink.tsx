@@ -12,7 +12,7 @@ interface ChatLoginLinkProps {
 export default function ChatLoginLink({ style }: ChatLoginLinkProps) {
 	return (
 		<Box asChild {...style.box}>
-			<Link href={paths.login}>
+			<Link href={paths.loginWithNext(paths.chat)}>
 				<Text {...style.text}>{chatPanelCopy.login}</Text>
 			</Link>
 		</Box>
