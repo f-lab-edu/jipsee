@@ -124,52 +124,54 @@ export const privacyDocument: PolicyDocument = {
 					text: "집씨는 서비스 운영을 위해 다음 업무를 위탁합니다.",
 				},
 				{
-					kind: "rows",
-					heading: "Oracle [임시 계약 법인명 확인 필요]",
-					rows: [
+					kind: "table",
+					headingLabel: "수탁자",
+					groups: [
 						{
-							label: "위탁 업무",
-							value: "서버, 데이터베이스, 백업 저장소 운영",
+							heading: "Oracle [임시 계약 법인명 확인 필요]",
+							rows: [
+								{
+									label: "위탁 업무",
+									value: "서버, 데이터베이스, 백업 저장소 운영",
+								},
+								{
+									label: "위탁 항목",
+									value: "계정, 대화 기록, 접속 기록, 백업",
+								},
+								{
+									label: "보유 기간",
+									value: "탈퇴 또는 삭제할 때까지(백업은 7일)",
+								},
+							],
 						},
 						{
-							label: "위탁 항목",
-							value: "계정, 대화 기록, 접속 기록, 백업",
+							heading: "Anthropic, PBC",
+							rows: [
+								{ label: "위탁 업무", value: "챗봇 답변 생성(LLM 처리)" },
+								{ label: "위탁 항목", value: "대화 내용" },
+								{
+									label: "보유 기간",
+									value:
+										"제공사가 입력과 출력을 30일 안에 삭제함(위반 의심 건은 최대 2년)",
+								},
+							],
 						},
 						{
-							label: "보유 기간",
-							value: "탈퇴 또는 삭제할 때까지(백업은 7일)",
+							heading: "Cloudflare, Inc. [2단계 확정 전]",
+							rows: [
+								{ label: "위탁 업무", value: "CDN, 봇 차단" },
+								{ label: "위탁 항목", value: "접속 IP, 요청 정보" },
+								{ label: "보유 기간", value: "[임시 확정 전]" },
+							],
 						},
-					],
-				},
-				{
-					kind: "rows",
-					heading: "Anthropic, PBC",
-					rows: [
-						{ label: "위탁 업무", value: "챗봇 답변 생성(LLM 처리)" },
-						{ label: "위탁 항목", value: "대화 내용" },
 						{
-							label: "보유 기간",
-							value:
-								"제공사가 입력과 출력을 30일 안에 삭제함(위반 의심 건은 최대 2년)",
+							heading: "Functional Software, Inc.(Sentry) [2단계 확정 전]",
+							rows: [
+								{ label: "위탁 업무", value: "오류 추적" },
+								{ label: "위탁 항목", value: "오류 발생 정보" },
+								{ label: "보유 기간", value: "[임시 확정 전]" },
+							],
 						},
-					],
-				},
-				{
-					kind: "rows",
-					heading: "Cloudflare, Inc. [2단계 확정 전]",
-					rows: [
-						{ label: "위탁 업무", value: "CDN, 봇 차단" },
-						{ label: "위탁 항목", value: "접속 IP, 요청 정보" },
-						{ label: "보유 기간", value: "[임시 확정 전]" },
-					],
-				},
-				{
-					kind: "rows",
-					heading: "Functional Software, Inc.(Sentry) [2단계 확정 전]",
-					rows: [
-						{ label: "위탁 업무", value: "오류 추적" },
-						{ label: "위탁 항목", value: "오류 발생 정보" },
-						{ label: "보유 기간", value: "[임시 확정 전]" },
 					],
 				},
 				{

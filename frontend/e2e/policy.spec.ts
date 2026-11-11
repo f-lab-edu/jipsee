@@ -1,6 +1,8 @@
 // S6 정책 화면(이용약관, 개인정보처리방침, 데이터 출처) UI TC
 // 기대값: 설계 문서(2026-11-12-s6-policy-design.md) 3, 5, 9절, 본문 문서(2026-11-12-s6-policy-content.md) 3절, 와이어프레임 s6-policy-wireframe.svg. 2026-11-09 피드백이 다르면 피드백을 따름
-// 캔버스에 S6 보드가 없어 S6 고유 치수 TC는 없음. 본문 글자는 config 데이터와 화면의 개수와 일치만 확인함(정식 본문으로 바뀌면 config만 바꿈)
+// S6 치수와 색(P6)은 캔버스 S6 보드 6장과 다크 짝(S6TermsMobile 등, 캔버스 https://claude.ai/artifact/CqbqcKedWvYUEwqB77ZKj6 "S6 정책")에서 가져옴. 보드가 설계 문서와 다르면 보드를 따름
+// 본문 글자는 config 데이터와 화면의 개수와 일치만 확인함(정식 본문으로 바뀌면 config만 바꿈)
+// Seed fontWeight에 600이 없어 보드의 글자 굵기 600은 700으로 확인함
 // 로그인 상태 TC는 sessionMock이 { provider: "KAKAO" }일 때만 의미가 있어 TC_SESSION=in일 때만 돌림. 로그아웃 전제 TC는 TC_SESSION=in이면 건너뜀
 import { expect, type Page } from "@playwright/test";
 import { privacyDocument } from "../src/pages/policy/config/privacyDocument";
@@ -10,6 +12,9 @@ import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
 import { caseId } from "./support/caseId";
 import { gotoAndSettle } from "./support/gotoAndSettle";
+import { POLICY_TOKENS } from "./support/policy/policyTokens";
+import { readBox } from "./support/policy/readBox";
+import { readStyle } from "./support/policy/readStyle";
 import { test } from "./support/test";
 import { DESKTOP, MOBILE } from "./support/viewports";
 
@@ -246,7 +251,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					const items = tocNav(page).locator("ol > li");
 					await expect(items).toHaveCount(toc.length);
 					await expect(items).toHaveText(
-						toc.map((name, index) => `${index + 1}. ${name}`),
+						toc.map((name, index) => `${index + 1}.${name}`),
 					);
 				});
 
@@ -257,7 +262,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					const headings = body(page).locator("h2");
 					await expect(headings).toHaveCount(toc.length);
 					await expect(headings).toHaveText(
-						await tocNav(page).locator("ol > li").allTextContents(),
+						toc.map((name, index) => `${index + 1}. ${name}`),
 					);
 				});
 
@@ -267,7 +272,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					await gotoAndSettle(page, path);
 					for (const order of [3, toc.length]) {
 						await tocNav(page)
-							.getByRole("link", { name: `${order}. ${toc[order - 1]}` })
+							.getByRole("link", { name: toc[order - 1], exact: true })
 							.click();
 						await expect(page).toHaveURL(
 							new RegExp(`#clause-${order}-${layout}$`),
@@ -304,7 +309,7 @@ for (const { label, viewport, layout } of SCREENS) {
 						).length;
 						await expect(
 							page.locator(
-								`[data-area="policy-clause-${layout}-${index + 1}"] > p`,
+								`[data-area="policy-clause-${layout}-${index + 1}"] p`,
 							),
 						).toHaveCount(paragraphCount);
 					}
@@ -422,7 +427,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				const notice = page.locator(
 					`[data-area="data-sources-notice-${layout}"]`,
 				);
-				await expect(notice.locator("p")).toHaveText(LIMIT_LINES);
+				await expect(notice.locator("li")).toHaveText(LIMIT_LINES);
 				const link = notice.getByRole("link", {
 					name: "부동산공시가격 알리미",
 				});
@@ -432,6 +437,502 @@ for (const { label, viewport, layout } of SCREENS) {
 				);
 				await expect(link).toHaveAttribute("target", "_blank");
 			});
+
+			// P6 S6 캔버스 보드 치수와 색. 치수는 라이트 한 벌만 확인함
+			const size = isMobile
+				? {
+						h1: ["22px", "30px"],
+						body: ["15px", "25px"],
+						notice: ["14px", "21px"],
+						clauseTitle: ["17px", "24px"],
+						clauseTop: ["28px", "28px"],
+						dt: ["13px", "18px"],
+						dd: ["14px", "22px"],
+						limit: ["14px", "22px"],
+					}
+				: {
+						h1: ["26px", "35px"],
+						body: ["16px", "27px"],
+						notice: ["15px", "23px"],
+						clauseTitle: ["18px", "26px"],
+						clauseTop: ["36px", "32px"],
+						dt: ["14px", "24px"],
+						dd: ["15px", "24px"],
+						limit: ["15px", "24px"],
+					};
+			const policyTokens = POLICY_TOKENS[theme];
+			const draftNotice = (page: Page, area: string) =>
+				page.locator(`[data-area="${area}-draft-notice-${layout}"]`);
+
+			test(`${caseId("P6", 1)} ${label} ${theme} 임시 초안 안내가 브랜드 테두리 상자이고 정보 아이콘이 있음`, async ({
+				page,
+			}) => {
+				for (const { path, area } of [
+					{ path: TERMS.path, area: "policy" },
+					{ path: DATA_SOURCES.path, area: "data-sources" },
+				]) {
+					await gotoAndSettle(page, path);
+					const notice = draftNotice(page, area);
+					const style = await readStyle(notice, [
+						"border-top-width",
+						"border-top-color",
+						"border-top-left-radius",
+						"padding-top",
+						"padding-left",
+						"background-color",
+					]);
+					expect(style["border-top-width"]).toBe("1px");
+					expect(
+						sameColor(style["border-top-color"], policyTokens.borderBrandSolid),
+					).toBe(true);
+					expect(style["border-top-left-radius"]).toBe("12px");
+					expect(style["padding-top"]).toBe("12px");
+					expect(style["padding-left"]).toBe("16px");
+					expect(
+						sameColor(
+							style["background-color"],
+							policyTokens.bgInformativeWeak,
+						),
+					).toBe(true);
+					const icon = await readBox(notice.locator("svg"));
+					expect([icon.width, icon.height]).toEqual([20, 20]);
+					const text = await readStyle(notice.locator("p"), [
+						"font-size",
+						"line-height",
+						"font-weight",
+						"color",
+					]);
+					expect([text["font-size"], text["line-height"]]).toEqual(size.notice);
+					expect(text["font-weight"]).toBe("500");
+					expect(sameColor(text.color, token.fgNeutral)).toBe(true);
+				}
+			});
+
+			if (theme === "light") {
+				test(`${caseId("P6", 2)} ${label} ${theme} 제목 글자와 제목 아래 안내 간격이 보드와 같음`, async ({
+					page,
+				}) => {
+					for (const { path } of ALL_PAGES) {
+						await gotoAndSettle(page, path);
+						const heading = page.locator("h1:visible");
+						const style = await readStyle(heading, [
+							"font-size",
+							"line-height",
+							"font-weight",
+						]);
+						expect([style["font-size"], style["line-height"]]).toEqual(size.h1);
+						expect(style["font-weight"]).toBe("700");
+						const headingBox = await readBox(heading);
+						const noticeBox = await readBox(
+							page.locator(`[data-area$="-draft-notice-${layout}"]`),
+						);
+						expect(
+							noticeBox.y - (headingBox.y + headingBox.height),
+						).toBeCloseTo(16, 0);
+					}
+				});
+
+				test(`${caseId("P6", 3)} ${label} ${theme} 문서 화면 바깥 치수가 보드와 같음`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, TERMS.path);
+					if (isMobile) {
+						const body = page.locator(
+							'[data-testid="policy-body-mobile"] > div',
+						);
+						const style = await readStyle(body, [
+							"padding-top",
+							"padding-left",
+							"padding-bottom",
+						]);
+						expect([
+							style["padding-top"],
+							style["padding-left"],
+							style["padding-bottom"],
+						]).toEqual(["20px", "16px", "48px"]);
+						return;
+					}
+					const column = await readBox(
+						page.locator('[data-area="policy-column"]'),
+					);
+					expect(column.width).toBe(720);
+					const card = page.locator('[data-area="policy-column"] > div').last();
+					const style = await readStyle(card, [
+						"padding-top",
+						"padding-left",
+						"border-top-left-radius",
+						"border-top-width",
+						"border-top-color",
+						"background-color",
+					]);
+					expect(style["padding-top"]).toBe("40px");
+					expect(style["padding-left"]).toBe("40px");
+					expect(style["border-top-left-radius"]).toBe("20px");
+					expect(style["border-top-width"]).toBe("1px");
+					expect(
+						sameColor(style["border-top-color"], policyTokens.strokeMuted),
+					).toBe(true);
+					expect(sameColor(style["background-color"], token.layerDefault)).toBe(
+						true,
+					);
+				});
+
+				for (const { path, title, toc } of DOCUMENTS) {
+					test(`${caseId("P6", 4)} ${label} ${theme} ${title} 목차가 보드의 ${isMobile ? "한 열" : "두 열"} 44px 행임`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, path);
+						const nav = page.locator(`[data-area="policy-toc-${layout}"]`);
+						const items = nav.locator("ol > li");
+						const navStyle = await readStyle(nav, [
+							"border-top-width",
+							"border-top-left-radius",
+							"padding-top",
+							"background-color",
+						]);
+						expect(navStyle["border-top-width"]).toBe("1px");
+						expect(navStyle["border-top-left-radius"]).toBe("16px");
+						expect(navStyle["padding-top"]).toBe(isMobile ? "4px" : "8px");
+						expect(
+							sameColor(
+								navStyle["background-color"],
+								policyTokens.bgNeutralWeak,
+							),
+						).toBe(true);
+						const first = await readBox(items.nth(0));
+						const second = await readBox(items.nth(1));
+						expect(first.height).toBe(44);
+						expect(second.height).toBe(44);
+						if (isMobile) {
+							expect(second.x).toBe(first.x);
+							expect(second.y).toBeCloseTo(first.y + 44, 0);
+							return;
+						}
+						const rows = Math.ceil(toc.length / 2);
+						const next = await readBox(items.nth(rows));
+						expect(second.x).toBe(first.x);
+						expect(next.y).toBeCloseTo(first.y, 0);
+						expect(next.x - first.x).toBeCloseTo(318, 0);
+						const number = await readStyle(
+							items.nth(0).locator("span[aria-hidden] > span"),
+							["font-size", "font-weight", "color"],
+						);
+						expect(number["font-size"]).toBe("15px");
+						expect(number["font-weight"]).toBe("700");
+						expect(sameColor(number.color, policyTokens.fgBrand)).toBe(true);
+					});
+				}
+
+				test(`${caseId("P6", 5)} ${label} ${theme} 조항 구분선, 제목, 본문 글자가 보드와 같음`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, TERMS.path);
+					const clause = page.locator(
+						`[data-area="policy-clause-${layout}-2"]`,
+					);
+					const style = await readStyle(clause, [
+						"margin-top",
+						"padding-top",
+						"border-top-width",
+						"border-top-color",
+					]);
+					expect([style["margin-top"], style["padding-top"]]).toEqual(
+						size.clauseTop,
+					);
+					expect(style["border-top-width"]).toBe("1px");
+					expect(
+						sameColor(style["border-top-color"], policyTokens.strokeMuted),
+					).toBe(true);
+					const title = await readStyle(clause.locator("h2"), [
+						"font-size",
+						"line-height",
+						"font-weight",
+					]);
+					expect([title["font-size"], title["line-height"]]).toEqual(
+						size.clauseTitle,
+					);
+					expect(title["font-weight"]).toBe("700");
+					const paragraph = await readStyle(clause.locator("p"), [
+						"font-size",
+						"line-height",
+						"color",
+					]);
+					expect([paragraph["font-size"], paragraph["line-height"]]).toEqual(
+						size.body,
+					);
+					expect(sameColor(paragraph.color, token.fgNeutral)).toBe(true);
+				});
+
+				test(`${caseId("P6", 6)} ${label} ${theme} 본문 목록이 글머리 기호 목록이고 부칙이 14px임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, TERMS.path);
+					const list = page
+						.locator(`[data-area="policy-clause-${layout}-1"] ul`)
+						.first();
+					const listStyle = await readStyle(list, [
+						"list-style-type",
+						"padding-left",
+					]);
+					expect(listStyle["list-style-type"]).toBe("disc");
+					expect(listStyle["padding-left"]).toBe("20px");
+					const item = await readStyle(list.locator("li").first(), ["display"]);
+					expect(item.display).toBe("list-item");
+					const addendum = await readStyle(
+						page.getByTestId(`policy-body-${layout}`).getByText(/^부칙:/),
+						["font-size", "line-height"],
+					);
+					expect([addendum["font-size"], addendum["line-height"]]).toEqual([
+						"14px",
+						"22px",
+					]);
+				});
+
+				test(`${caseId("P6", 7)} ${label} ${theme} 처리 항목이 라벨 값 카드이고 ${isMobile ? "라벨 아래에 값이" : "160px 라벨 열 옆에 값이"} 나옴`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, PRIVACY.path);
+					const clause = page.locator(
+						`[data-area="policy-clause-${layout}-2"]`,
+					);
+					const card = clause.locator("dl").first();
+					const cardStyle = await readStyle(card, [
+						"border-top-width",
+						"border-top-left-radius",
+						"border-top-color",
+					]);
+					expect(cardStyle["border-top-width"]).toBe("1px");
+					expect(cardStyle["border-top-left-radius"]).toBe("12px");
+					expect(
+						sameColor(cardStyle["border-top-color"], policyTokens.strokeWeak),
+					).toBe(true);
+					await expect(card.locator("dt")).toHaveCount(4);
+					const label = card.locator("dt").first();
+					const value = card.locator("dd").first();
+					const labelStyle = await readStyle(label, [
+						"font-size",
+						"line-height",
+						"font-weight",
+					]);
+					const valueStyle = await readStyle(value, [
+						"font-size",
+						"line-height",
+					]);
+					expect([labelStyle["font-size"], labelStyle["line-height"]]).toEqual(
+						size.dt,
+					);
+					expect(labelStyle["font-weight"]).toBe("700");
+					expect([valueStyle["font-size"], valueStyle["line-height"]]).toEqual(
+						size.dd,
+					);
+					const labelBox = await readBox(label);
+					const valueBox = await readBox(value);
+					const row = await readStyle(
+						card.locator("dt").first().locator(".."),
+						["padding-top", "padding-left"],
+					);
+					expect([row["padding-top"], row["padding-left"]]).toEqual([
+						"12px",
+						"16px",
+					]);
+					if (isMobile) {
+						expect(valueBox.y).toBeGreaterThanOrEqual(
+							labelBox.y + labelBox.height,
+						);
+						expect(valueBox.x).toBe(labelBox.x);
+						return;
+					}
+					expect(labelBox.width).toBe(160);
+					expect(valueBox.x - labelBox.x).toBe(176);
+				});
+
+				test(`${caseId("P6", 8)} ${label} ${theme} 처리 위탁이 ${isMobile ? "수탁자별 카드" : "수탁자 표"}이고 국외 이전은 이전받는 자별 카드임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, PRIVACY.path);
+					const outsourcing = page.locator(
+						`[data-area="policy-clause-${layout}-4"]`,
+					);
+					if (isMobile) {
+						await expect(outsourcing.locator("table")).toHaveCount(0);
+						await expect(outsourcing.locator("h3")).toHaveCount(4);
+						await expect(outsourcing.locator("dl")).toHaveCount(4);
+					} else {
+						await expect(outsourcing.locator("h3")).toHaveCount(0);
+						await expect(outsourcing.locator("th[scope=col]")).toHaveText([
+							"수탁자",
+							"위탁 업무",
+							"위탁 항목",
+							"보유 기간",
+						]);
+						await expect(outsourcing.locator("tbody tr")).toHaveCount(4);
+						await expect(outsourcing.locator("tbody th[scope=row]")).toHaveText(
+							[
+								"Oracle [임시 계약 법인명 확인 필요]",
+								"Anthropic, PBC",
+								"Cloudflare, Inc. [2단계 확정 전]",
+								"Functional Software, Inc.(Sentry) [2단계 확정 전]",
+							],
+						);
+						const head = await readStyle(outsourcing.locator("thead tr"), [
+							"background-color",
+						]);
+						expect(
+							sameColor(head["background-color"], policyTokens.bgNeutralWeak),
+						).toBe(true);
+						const cell = await readStyle(
+							outsourcing.locator("tbody td").first(),
+							["padding-top", "padding-left", "vertical-align"],
+						);
+						expect([
+							cell["padding-top"],
+							cell["padding-left"],
+							cell["vertical-align"],
+						]).toEqual(["12px", "12px", "top"]);
+						const cellText = await readStyle(
+							outsourcing.locator("tbody td span").first(),
+							["font-size", "line-height"],
+						);
+						expect([cellText["font-size"], cellText["line-height"]]).toEqual([
+							"14px",
+							"22px",
+						]);
+					}
+					const transfer = page.locator(
+						`[data-area="policy-clause-${layout}-5"]`,
+					);
+					await expect(transfer.locator("h3")).toHaveText([
+						"Oracle",
+						"Anthropic, PBC",
+						"Cloudflare, Inc. [2단계 확정 전]",
+						"Functional Software, Inc.(Sentry) [2단계 확정 전]",
+					]);
+					await expect(transfer.locator("dl")).toHaveCount(4);
+					const heading = await readStyle(transfer.locator("h3").first(), [
+						"font-size",
+						"line-height",
+						"font-weight",
+					]);
+					expect([
+						heading["font-size"],
+						heading["line-height"],
+						heading["font-weight"],
+					]).toEqual(["15px", "22px", "700"]);
+				});
+
+				test(`${caseId("P6", 9)} ${label} ${theme} 출처 카드 치수와 원본 링크가 보드와 같음`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, DATA_SOURCES.path);
+					const card = page.locator(
+						`[data-area="data-source-card-${layout}-1"]`,
+					);
+					const style = await readStyle(card, [
+						"padding-top",
+						"padding-left",
+						"border-top-left-radius",
+						"border-top-color",
+					]);
+					expect([
+						style["padding-top"],
+						style["padding-left"],
+						style["border-top-left-radius"],
+					]).toEqual(
+						isMobile ? ["16px", "20px", "16px"] : ["20px", "24px", "20px"],
+					);
+					expect(
+						sameColor(
+							style["border-top-color"],
+							isMobile ? policyTokens.strokeWeak : policyTokens.strokeMuted,
+						),
+					).toBe(true);
+					const name = await readStyle(card.locator("h2"), [
+						"font-size",
+						"line-height",
+						"font-weight",
+					]);
+					expect([
+						name["font-size"],
+						name["line-height"],
+						name["font-weight"],
+					]).toEqual(["17px", "24px", "700"]);
+					const provider = await readStyle(card.locator("p").first(), [
+						"font-size",
+						"line-height",
+					]);
+					expect([provider["font-size"], provider["line-height"]]).toEqual([
+						"14px",
+						"20px",
+					]);
+					const link = card.getByRole("link", { name: "원본" });
+					const linkBox = await readBox(link);
+					expect(linkBox.height).toBe(44);
+					const linkText = await readStyle(link.locator("span").first(), [
+						"color",
+						"font-weight",
+					]);
+					expect(sameColor(linkText.color, policyTokens.fgBrand)).toBe(true);
+					expect(linkText["font-weight"]).toBe("700");
+					const linkStyle = await readStyle(link, ["padding-left"]);
+					expect(linkStyle["padding-left"]).toBe("12px");
+					const chevron = await readBox(link.locator("svg"));
+					expect([chevron.width, chevron.height]).toEqual([16, 16]);
+					const first = await readBox(card);
+					const second = await readBox(
+						page.locator(`[data-area="data-source-card-${layout}-2"]`),
+					);
+					expect(second.y - (first.y + first.height)).toBeCloseTo(
+						isMobile ? 12 : 16,
+						0,
+					);
+				});
+
+				test(`${caseId("P6", 10)} ${label} ${theme} 한계 안내가 테두리 상자 안 글머리 기호 목록이고 링크가 브랜드 색임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, DATA_SOURCES.path);
+					const section = page.locator(
+						`[data-area="data-sources-notice-${layout}"]`,
+					);
+					await expect(section).toHaveAttribute(
+						"aria-label",
+						"데이터 한계 안내",
+					);
+					const style = await readStyle(section, [
+						"padding-top",
+						"padding-left",
+						"border-top-left-radius",
+						"border-top-color",
+					]);
+					expect([
+						style["padding-top"],
+						style["padding-left"],
+						style["border-top-left-radius"],
+					]).toEqual(
+						isMobile ? ["16px", "20px", "16px"] : ["20px", "24px", "16px"],
+					);
+					expect(
+						sameColor(style["border-top-color"], policyTokens.strokeWeak),
+					).toBe(true);
+					const list = await readStyle(section.locator("ul"), [
+						"list-style-type",
+						"padding-left",
+					]);
+					expect(list["list-style-type"]).toBe("disc");
+					expect(list["padding-left"]).toBe("20px");
+					const text = await readStyle(
+						section.locator("li").first().locator("span").first(),
+						["font-size", "line-height"],
+					);
+					expect([text["font-size"], text["line-height"]]).toEqual(size.limit);
+					const link = await readStyle(
+						section.getByRole("link").locator("span").first(),
+						["color", "text-decoration-line"],
+					);
+					expect(sameColor(link.color, policyTokens.fgBrand)).toBe(true);
+					expect(link["text-decoration-line"]).toBe("underline");
+				});
+			}
 
 			// P5 테마
 			if (isMobile) {
@@ -451,7 +952,7 @@ for (const { label, viewport, layout } of SCREENS) {
 								};
 							});
 					const paragraph = await read(
-						'[data-area="policy-clause-mobile-1"] > p',
+						'[data-area="policy-clause-mobile-1"] p',
 					);
 					const muted = await read(
 						'[data-area="policy-effective-date-mobile"]',

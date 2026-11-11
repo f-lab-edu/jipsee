@@ -1,4 +1,4 @@
-import { Text } from "@seed-design/react";
+import { Box, Text } from "@seed-design/react";
 import { policyCopy } from "@/pages/policy/config/policyCopy";
 import { policyContentStyles } from "@/pages/policy/config/policyStyles";
 import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
@@ -17,15 +17,17 @@ export default function PolicyEffectiveDate({
 	layout,
 	effectiveDate,
 }: PolicyEffectiveDateProps) {
-	const style = policyContentStyles;
+	const style = policyContentStyles[layout];
 
 	return (
-		<Text
-			as="p"
-			data-area={`policy-effective-date-${layout}`}
-			{...style.effectiveDate}
-		>
-			{`${policyCopy.effectiveDateLabel} ${effectiveDate}`}
-		</Text>
+		<Box {...style.effectiveDateBox}>
+			<Text
+				as="p"
+				data-area={`policy-effective-date-${layout}`}
+				{...style.effectiveDate}
+			>
+				{`${policyCopy.effectiveDateLabel} ${effectiveDate}`}
+			</Text>
+		</Box>
 	);
 }

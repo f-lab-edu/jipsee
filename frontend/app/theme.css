@@ -403,3 +403,43 @@ a {
 		scroll-margin-top: calc(65px + var(--seed-dimension-x4));
 	}
 }
+
+/* 정책 문서의 목록 마커. Seed에 list-style 속성이 없음 */
+:root .policy-list {
+	list-style: disc;
+}
+
+:root .policy-toc-list {
+	list-style: none;
+}
+
+/* 데스크톱 목차의 열 사이 간격. Seed gap은 행 간격까지 함께 정함 */
+:root .policy-toc-list--columns {
+	column-gap: var(--seed-dimension-x4);
+}
+
+/* 정책 표. Seed Box가 display를 block으로 정해 표 요소의 display를 되돌림. Seed에 table 속성도 없음 */
+:root .policy-table {
+	display: table;
+	border-collapse: collapse;
+	table-layout: fixed;
+}
+
+:root .policy-table thead,
+:root .policy-table tbody {
+	display: table-row-group;
+}
+
+:root .policy-table tr {
+	display: table-row;
+}
+
+:root .policy-table th,
+:root .policy-table td {
+	display: table-cell;
+	vertical-align: top;
+}
+
+:root .policy-table th {
+	text-align: left;
+}

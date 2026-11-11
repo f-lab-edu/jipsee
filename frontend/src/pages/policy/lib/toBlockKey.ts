@@ -14,5 +14,9 @@ export function toBlockKey(block: PolicyBlock): string {
 		return block.items.join("|");
 	}
 
+	if (block.kind === "table") {
+		return block.groups.map((group) => group.heading).join("|");
+	}
+
 	return `${block.heading ?? ""}|${block.rows.map((row) => row.label).join("|")}`;
 }
