@@ -2,15 +2,9 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import AccountLink from "@/widgets/header/ui/AccountLink";
 
-describe.each(["mobile", "desktop"] as const)("AccountLink %s", (variant) => {
+describe("AccountLink", () => {
 	it("세션이 있으면 /me로 가는 내 정보 링크를 표시하고 로그인 링크는 표시하지 않음", () => {
-		render(
-			<AccountLink
-				session={{ provider: "GOOGLE" }}
-				variant={variant}
-				currentPath="/"
-			/>,
-		);
+		render(<AccountLink session={{ provider: "GOOGLE" }} currentPath="/" />);
 
 		expect(screen.getByRole("link", { name: "내 정보" })).toHaveProperty(
 			"pathname",
@@ -21,11 +15,7 @@ describe.each(["mobile", "desktop"] as const)("AccountLink %s", (variant) => {
 
 	it("현재 경로가 /me이면 내 정보 링크에 aria-current가 page로 붙고 다른 경로이면 붙지 않음", () => {
 		const { rerender } = render(
-			<AccountLink
-				session={{ provider: "GOOGLE" }}
-				variant={variant}
-				currentPath="/me"
-			/>,
+			<AccountLink session={{ provider: "GOOGLE" }} currentPath="/me" />,
 		);
 
 		expect(
@@ -34,13 +24,7 @@ describe.each(["mobile", "desktop"] as const)("AccountLink %s", (variant) => {
 				.getAttribute("aria-current"),
 		).toBe("page");
 
-		rerender(
-			<AccountLink
-				session={{ provider: "GOOGLE" }}
-				variant={variant}
-				currentPath="/"
-			/>,
-		);
+		rerender(<AccountLink session={{ provider: "GOOGLE" }} currentPath="/" />);
 
 		expect(
 			screen
@@ -53,7 +37,6 @@ describe.each(["mobile", "desktop"] as const)("AccountLink %s", (variant) => {
 		render(
 			<AccountLink
 				session={null}
-				variant={variant}
 				currentPath="/search?keyword=%EB%85%B8%EC%9B%90%26x"
 			/>,
 		);
