@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import kr.jipsee.collect.exception.DealApiException;
+import kr.jipsee.collect.exception.RtmsApiException;
 import tools.jackson.databind.JsonNode;
 
 /** 실거래 API 응답의 item 하나 */
@@ -35,12 +35,12 @@ public final class RtmsItem {
         return BLANK.equals(text) ? null : text;
     }
 
-    /** 필드의 텍스트 반환. 값이 없으면 DealApiException */
+    /** 필드의 텍스트 반환. 값이 없으면 RtmsApiException */
     public String requiredText(String field) {
         String text = optionalText(field);
 
         if (text == null) {
-            throw new DealApiException("필수 값이 없음: " + field);
+            throw new RtmsApiException("필수 값이 없음: " + field);
         }
 
         return text;
@@ -55,26 +55,26 @@ public final class RtmsItem {
         try {
             return Integer.parseInt(text.replace(",", ""));
         } catch (NumberFormatException e) {
-            throw new DealApiException("정수로 읽을 수 없음: " + field + "=" + text);
+            throw new RtmsApiException("정수로 읽을 수 없음: " + field + "=" + text);
         }
     }
 
-    /** 콤마를 없앤 정수 반환. 값이 없으면 DealApiException */
+    /** 콤마를 없앤 정수 반환. 값이 없으면 RtmsApiException */
     public int requiredInt(String field) {
         Integer value = optionalInt(field);
         if (value == null) {
-            throw new DealApiException("필수 값이 없음: " + field);
+            throw new RtmsApiException("필수 값이 없음: " + field);
         }
         return value;
     }
 
-    /** BigDecimal 반환. 값이 없으면 DealApiException */
+    /** BigDecimal 반환. 값이 없으면 RtmsApiException */
     public BigDecimal requiredDecimal(String field) {
         String text = requiredText(field);
         try {
             return new BigDecimal(text);
         } catch (NumberFormatException e) {
-            throw new DealApiException("숫자로 읽을 수 없음: " + field + "=" + text);
+            throw new RtmsApiException("숫자로 읽을 수 없음: " + field + "=" + text);
         }
     }
 
@@ -87,7 +87,7 @@ public final class RtmsItem {
         try {
             return LocalDate.parse(text, SHORT_DATE);
         } catch (DateTimeParseException e) {
-            throw new DealApiException("날짜로 읽을 수 없음: " + field + "=" + text);
+            throw new RtmsApiException("날짜로 읽을 수 없음: " + field + "=" + text);
         }
     }
 }

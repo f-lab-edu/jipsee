@@ -10,14 +10,16 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.time.YearMonth;
-import kr.jipsee.collect.exception.DealApiException;
-import kr.jipsee.collect.exception.DealApiTransientException;
+import java.util.function.Function;
+import kr.jipsee.collect.exception.RtmsApiException;
+import kr.jipsee.collect.exception.RtmsApiTransientException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.core.retry.RetryTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
@@ -25,7 +27,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.json.JsonMapper;
 
-class DealApiCallerTest {
+class RtmsApiClientTest {
 
     private static final String KEY = "abc%2Bdef%3D";
     private static final String PATH = "/RTMSDataSvcRHRent/getRTMSDataSvcRHRent";
@@ -34,11 +36,11 @@ class DealApiCallerTest {
     private static final String EMPTY_BODY = "{\"response\":{\"header\":{\"resultCode\":\"000\",\"resultMsg\":\"OK\"},"
             + "\"body\":{\"items\":\"\",\"numOfRows\":1000,\"pageNo\":1,\"totalCount\":0}}}";
     private static final String ONE_ITEM_BODY =
-            "{\"response\":{\"header\":{\"resultCode\":\"000\",\"resultMsg\":\"OK\"},\"body\":{\"items\":{\"item\":{\"jibun\":250,\"umdNm\":\"금천면"
+            "{\"response\":{\"header\":{\"resultCode\":\"000\",\"resultMsg\":\"OK\"},\"body\":{\"items\":{\"item\":{\"sggCd\":11110,\"dealYear\":2026,\"dealMonth\":10,\"dealDay\":1,\"jibun\":250,\"umdNm\":\"금천면"
                     + " 오강리\"}},\"numOfRows\":1000,\"pageNo\":1,\"totalCount\":1}}}";
     private static final String TWO_ITEMS_BODY =
             "{\"response\":{\"header\":{\"resultCode\":\"000\",\"resultMsg\":\"OK\"},"
-                    + "\"body\":{\"items\":{\"item\":[{\"jibun\":\"130-69\",\"umdNm\":\"동숭동\"},{\"jibun\":\"4-2\",\"umdNm\":\"신영동\"}]},"
+                    + "\"body\":{\"items\":{\"item\":[{\"sggCd\":11110,\"dealYear\":2026,\"dealMonth\":10,\"dealDay\":1,\"jibun\":\"130-69\",\"umdNm\":\"동숭동\"},{\"sggCd\":11110,\"dealYear\":2026,\"dealMonth\":10,\"dealDay\":1,\"jibun\":\"4-2\",\"umdNm\":\"신영동\"}]},"
                     + "\"numOfRows\":1000,\"pageNo\":1,\"totalCount\":2}}}";
 
     private static final String JSON_LIMIT_23 = "{\"OpenAPI_ServiceResponse\":{\"cmmMsgHeader\":{"
@@ -55,23 +57,27 @@ class DealApiCallerTest {
                 + "</returnReasonCode></cmmMsgHeader></OpenAPI_ServiceResponse>";
     }
 
+    /** 응답 거래를 그대로 반환하는 테스트용 클라이언트 */
+    private static class TestClient extends RtmsApiClient<RtmsItem> {
+        TestClient(RestClient restClient, RetryTemplate retryTemplate) {
+            super(restClient, retryTemplate, JsonMapper.builder().build(), KEY, PATH, Function.identity());
+        }
+    }
+
     private MockRestServiceServer server;
-    private DealApiCaller caller;
+    private TestClient client;
 
     @BeforeEach
     void setUp() {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();
-        caller = new DealApiCaller(
-                builder,
-                "http://localhost/1613000",
-                KEY,
-                Duration.ofMillis(1),
-                JsonMapper.builder().build());
+        client = new TestClient(
+                RtmsApiClient.restClient(builder, "http://localhost/1613000"),
+                RtmsApiClient.retryTemplate(Duration.ofMillis(1)));
     }
 
     private RtmsPage<RtmsItem> call() {
-        return caller.call(PATH, "11110", OCTOBER, 1);
+        return client.fetch("11110", OCTOBER, 1);
     }
 
     @Test
@@ -172,10 +178,10 @@ class DealApiCallerTest {
         void 서버_오류가_계속되면_처음_한_번과_재시도_세_번_뒤에_실패함() {
             server.expect(ExpectedCount.times(4), request -> {}).andRespond(withServerError());
 
-            Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
             assertThat(thrown)
-                    .isInstanceOf(DealApiException.class)
+                    .isInstanceOf(RtmsApiException.class)
                     .hasMessageContaining("11110")
                     .hasNoCause();
             assertThat(thrown.getMessage()).doesNotContain("abc");
@@ -183,14 +189,14 @@ class DealApiCallerTest {
         }
 
         @Test
-        @DisplayName("타임아웃이 계속되면 서비스 키가 없는 DealApiException으로 실패함")
-        void 타임아웃이_계속되면_서비스_키가_없는_DealApiException으로_실패함() {
+        @DisplayName("타임아웃이 계속되면 서비스 키가 없는 RtmsApiException으로 실패함")
+        void 타임아웃이_계속되면_서비스_키가_없는_RtmsApiException으로_실패함() {
             server.expect(ExpectedCount.times(4), request -> {})
                     .andRespond(withException(new SocketTimeoutException("Read timed out")));
 
-            Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
-            assertThat(thrown).isInstanceOf(DealApiException.class).hasNoCause();
+            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasNoCause();
             assertThat(thrown.getMessage()).doesNotContain("abc").doesNotContain("serviceKey");
             server.verify();
         }
@@ -233,80 +239,80 @@ class DealApiCallerTest {
 
         @ParameterizedTest(name = "HTTP {0}")
         @ValueSource(ints = {400, 401, 403, 404})
-        @DisplayName("404를 포함한 4xx는 재시도하지 않고 바로 DealApiException으로 실패함")
-        void 사백사를_포함한_4xx는_재시도하지_않고_바로_DealApiException으로_실패함(int status) {
+        @DisplayName("404를 포함한 4xx는 재시도하지 않고 바로 RtmsApiException으로 실패함")
+        void 사백사를_포함한_4xx는_재시도하지_않고_바로_RtmsApiException으로_실패함(int status) {
             server.expect(request -> {}).andRespond(withStatus(HttpStatus.valueOf(status)));
 
-            Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
-            assertThat(thrown).isInstanceOf(DealApiException.class).isNotInstanceOf(DealApiTransientException.class);
+            assertThat(thrown).isInstanceOf(RtmsApiException.class).isNotInstanceOf(RtmsApiTransientException.class);
             server.verify();
         }
 
         @ParameterizedTest(name = "HTTP {0}")
         @ValueSource(ints = {200, 429, 500})
-        @DisplayName("JSON 본문의 오류 코드가 22이면 상태 코드와 관계없이 코드를 담은 DealApiException으로 실패하고 재시도하지 않음 (추정한 형식)")
-        void JSON_본문의_오류_코드가_22이면_상태_코드와_관계없이_코드를_담은_DealApiException으로_실패하고_재시도하지_않음(int status) {
+        @DisplayName("JSON 본문의 오류 코드가 22이면 상태 코드와 관계없이 코드를 담은 RtmsApiException으로 실패하고 재시도하지 않음 (추정한 형식)")
+        void JSON_본문의_오류_코드가_22이면_상태_코드와_관계없이_코드를_담은_RtmsApiException으로_실패하고_재시도하지_않음(int status) {
             server.expect(request -> {})
                     .andRespond(withStatus(HttpStatus.valueOf(status))
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(JSON_LIMIT_22));
 
-            Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
             assertThat(thrown)
-                    .isInstanceOf(DealApiException.class)
-                    .isNotInstanceOf(DealApiTransientException.class)
+                    .isInstanceOf(RtmsApiException.class)
+                    .isNotInstanceOf(RtmsApiTransientException.class)
                     .hasMessageContaining("22");
             server.verify();
         }
 
         @ParameterizedTest(name = "HTTP {0}")
         @ValueSource(ints = {200, 429, 500})
-        @DisplayName("XML 본문의 오류 코드가 22이면 상태 코드와 관계없이 코드를 담은 DealApiException으로 실패하고 재시도하지 않음 (관측하지 못한 형식)")
-        void XML_본문의_오류_코드가_22이면_상태_코드와_관계없이_코드를_담은_DealApiException으로_실패하고_재시도하지_않음(int status) {
+        @DisplayName("XML 본문의 오류 코드가 22이면 상태 코드와 관계없이 코드를 담은 RtmsApiException으로 실패하고 재시도하지 않음 (관측하지 못한 형식)")
+        void XML_본문의_오류_코드가_22이면_상태_코드와_관계없이_코드를_담은_RtmsApiException으로_실패하고_재시도하지_않음(int status) {
             server.expect(request -> {})
                     .andRespond(withStatus(HttpStatus.valueOf(status))
                             .contentType(MediaType.APPLICATION_XML)
                             .body(xmlError(22, "LIMITED_NUMBER_OF_SERVICE_REQUESTS_EXCEEDS_ERROR")));
 
-            Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
             assertThat(thrown)
-                    .isInstanceOf(DealApiException.class)
-                    .isNotInstanceOf(DealApiTransientException.class)
+                    .isInstanceOf(RtmsApiException.class)
+                    .isNotInstanceOf(RtmsApiTransientException.class)
                     .hasMessageContaining("22");
             server.verify();
         }
 
         @Test
-        @DisplayName("JSON 본문의 resultCode가 22여도 코드를 담은 DealApiException으로 실패함")
-        void JSON_본문의_resultCode가_22여도_코드를_담은_DealApiException으로_실패함() {
+        @DisplayName("JSON 본문의 resultCode가 22여도 코드를 담은 RtmsApiException으로 실패함")
+        void JSON_본문의_resultCode가_22여도_코드를_담은_RtmsApiException으로_실패함() {
             server.expect(request -> {})
                     .andRespond(withSuccess(
                             "{\"response\":{\"header\":{\"resultCode\":\"22\",\"resultMsg\":\"LIMITED\"}}}",
                             MediaType.APPLICATION_JSON));
 
-            Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
             assertThat(thrown)
-                    .isInstanceOf(DealApiException.class)
-                    .isNotInstanceOf(DealApiTransientException.class)
+                    .isInstanceOf(RtmsApiException.class)
+                    .isNotInstanceOf(RtmsApiTransientException.class)
                     .hasMessageContaining("22");
             server.verify();
         }
 
         @Test
-        @DisplayName("오류 23이 계속되면 재시도 횟수를 다 쓴 뒤 DealApiException으로 실패함")
-        void 오류_23이_계속되면_재시도_횟수를_다_쓴_뒤_DealApiException으로_실패함() {
+        @DisplayName("오류 23이 계속되면 재시도 횟수를 다 쓴 뒤 RtmsApiException으로 실패함")
+        void 오류_23이_계속되면_재시도_횟수를_다_쓴_뒤_RtmsApiException으로_실패함() {
             server.expect(ExpectedCount.times(4), request -> {})
                     .andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS)
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(JSON_LIMIT_23));
 
-            Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
-            assertThat(thrown).isInstanceOf(DealApiException.class);
+            assertThat(thrown).isInstanceOf(RtmsApiException.class);
             server.verify();
         }
 
@@ -316,62 +322,62 @@ class DealApiCallerTest {
             server.expect(request -> {})
                     .andRespond(withSuccess(xmlError(20, "SERVICE_KEY_IS_NULL"), MediaType.APPLICATION_XML));
 
-            Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
-            assertThat(thrown).isInstanceOf(DealApiException.class).hasMessageContaining("20");
+            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("20");
             server.verify();
         }
 
         @Test
-        @DisplayName("응답 상태가 200이어도 resultCode가 000이 아니면 DealApiException으로 실패함")
-        void 응답_상태가_200이어도_resultCode가_000이_아니면_DealApiException으로_실패함() {
+        @DisplayName("응답 상태가 200이어도 resultCode가 000이 아니면 RtmsApiException으로 실패함")
+        void 응답_상태가_200이어도_resultCode가_000이_아니면_RtmsApiException으로_실패함() {
             server.expect(request -> {})
                     .andRespond(withSuccess(
                             "{\"response\":{\"header\":{\"resultCode\":\"99\",\"resultMsg\":\"ERROR\"},\"body\":{\"totalCount\":0}}}",
                             MediaType.APPLICATION_JSON));
 
-            Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
             assertThat(thrown)
-                    .isInstanceOf(DealApiException.class)
-                    .isNotInstanceOf(DealApiTransientException.class)
+                    .isInstanceOf(RtmsApiException.class)
+                    .isNotInstanceOf(RtmsApiTransientException.class)
                     .hasMessageContaining("99");
             server.verify();
         }
 
         @Test
-        @DisplayName("JSON이 아닌 본문이면 DealApiException으로 실패함")
-        void JSON이_아닌_본문이면_DealApiException으로_실패함() {
+        @DisplayName("JSON이 아닌 본문이면 RtmsApiException으로 실패함")
+        void JSON이_아닌_본문이면_RtmsApiException으로_실패함() {
             server.expect(request -> {}).andRespond(withSuccess("not json", MediaType.TEXT_PLAIN));
 
-            Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
-            assertThat(thrown).isInstanceOf(DealApiException.class);
+            assertThat(thrown).isInstanceOf(RtmsApiException.class);
         }
 
         @Test
-        @DisplayName("응답에 resultCode가 없으면 DealApiException으로 실패함")
-        void 응답에_resultCode가_없으면_DealApiException으로_실패함() {
+        @DisplayName("응답에 resultCode가 없으면 RtmsApiException으로 실패함")
+        void 응답에_resultCode가_없으면_RtmsApiException으로_실패함() {
             server.expect(request -> {})
                     .andRespond(withSuccess(
                             "{\"response\":{\"body\":{\"items\":\"\",\"totalCount\":0}}}", MediaType.APPLICATION_JSON));
 
-            Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
-            assertThat(thrown).isInstanceOf(DealApiException.class).hasMessageContaining("resultCode");
+            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("resultCode");
         }
 
         @Test
-        @DisplayName("응답에 totalCount가 없으면 DealApiException으로 실패함")
-        void 응답에_totalCount가_없으면_DealApiException으로_실패함() {
+        @DisplayName("응답에 totalCount가 없으면 RtmsApiException으로 실패함")
+        void 응답에_totalCount가_없으면_RtmsApiException으로_실패함() {
             server.expect(request -> {})
                     .andRespond(withSuccess(
                             "{\"response\":{\"header\":{\"resultCode\":\"000\"},\"body\":{\"items\":\"\"}}}",
                             MediaType.APPLICATION_JSON));
 
-            Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
-            assertThat(thrown).isInstanceOf(DealApiException.class).hasMessageContaining("totalCount");
+            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("totalCount");
         }
 
         @Test
@@ -381,11 +387,11 @@ class DealApiCallerTest {
                 throw new IllegalStateException("요청 주소 http://localhost/1613000?serviceKey=abc%2Bdef%3D");
             });
 
-            Throwable thrown = catchThrowable(DealApiCallerTest.this::call);
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
             assertThat(thrown)
-                    .isInstanceOf(DealApiException.class)
-                    .isNotInstanceOf(DealApiTransientException.class)
+                    .isInstanceOf(RtmsApiException.class)
+                    .isNotInstanceOf(RtmsApiTransientException.class)
                     .hasNoCause()
                     .hasMessageContaining("LAWD_CD=11110")
                     .hasMessageContaining("DEAL_YMD=202610")

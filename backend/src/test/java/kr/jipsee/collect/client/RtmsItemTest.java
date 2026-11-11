@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import kr.jipsee.collect.exception.DealApiException;
+import kr.jipsee.collect.exception.RtmsApiException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -64,18 +64,18 @@ class RtmsItemTest {
         }
 
         @Test
-        @DisplayName("NOT NULL 컬럼에 해당하는 필드가 비어 있으면 DealApiException을 던짐")
-        void NOT_NULL_컬럼에_해당하는_필드가_비어_있으면_DealApiException을_던짐() {
+        @DisplayName("NOT NULL 컬럼에 해당하는 필드가 비어 있으면 RtmsApiException을 던짐")
+        void NOT_NULL_컬럼에_해당하는_필드가_비어_있으면_RtmsApiException을_던짐() {
             RtmsItem item = item("{\"umdNm\":\" \",\"excluUseAr\":\" \"}");
 
             assertThat(catchThrowable(() -> item.requiredText("umdNm")))
-                    .isInstanceOf(DealApiException.class)
+                    .isInstanceOf(RtmsApiException.class)
                     .hasMessageContaining("umdNm");
             assertThat(catchThrowable(() -> item.requiredInt("deposit")))
-                    .isInstanceOf(DealApiException.class)
+                    .isInstanceOf(RtmsApiException.class)
                     .hasMessageContaining("deposit");
             assertThat(catchThrowable(() -> item.requiredDecimal("excluUseAr")))
-                    .isInstanceOf(DealApiException.class)
+                    .isInstanceOf(RtmsApiException.class)
                     .hasMessageContaining("excluUseAr");
         }
     }
@@ -110,12 +110,12 @@ class RtmsItemTest {
         }
 
         @Test
-        @DisplayName("정수로 읽을 수 없는 값이면 DealApiException을 던짐")
-        void 정수로_읽을_수_없는_값이면_DealApiException을_던짐() {
+        @DisplayName("정수로 읽을 수 없는 값이면 RtmsApiException을 던짐")
+        void 정수로_읽을_수_없는_값이면_RtmsApiException을_던짐() {
             Throwable thrown =
                     catchThrowable(() -> item("{\"deposit\":\"abc\"}").requiredInt("deposit"));
 
-            assertThat(thrown).isInstanceOf(DealApiException.class).hasMessageContaining("deposit");
+            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("deposit");
         }
 
         @Test

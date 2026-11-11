@@ -2,33 +2,51 @@ package kr.jipsee.collect.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.List;
-import kr.jipsee.collect.exception.DealApiException;
+import kr.jipsee.collect.config.CollectProperties;
+import kr.jipsee.collect.exception.RtmsApiException;
 import kr.jipsee.deal.dto.SaleDealRow;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.RestClient;
 import tools.jackson.databind.json.JsonMapper;
 
-@ExtendWith(MockitoExtension.class)
 class RtmsRhTradeClientTest {
 
     private static final JsonMapper JSON = JsonMapper.builder().build();
     private static final YearMonth OCTOBER = YearMonth.of(2026, 10);
 
-    @Mock
-    DealApiCaller caller;
+    private MockRestServiceServer server;
+    private RtmsRhTradeClient client;
 
-    @InjectMocks
-    RtmsRhTradeClient client;
+    @BeforeEach
+    void setUp() {
+        RestClient.Builder builder = RestClient.builder();
+        server = MockRestServiceServer.bindTo(builder).build();
+        client = new RtmsRhTradeClient(
+                RtmsApiClient.restClient(builder, "http://localhost/1613000"),
+                RtmsApiClient.retryTemplate(Duration.ofMillis(1)),
+                JSON,
+                new CollectProperties(new CollectProperties.Api("http://localhost/1613000", "test-key"), null));
+    }
+
+    /** 거래 JSON들을 담은 정상 응답 본문 */
+    private static String pageBody(String... items) {
+        return "{\"response\":{\"header\":{\"resultCode\":\"000\"},\"body\":{\"items\":{\"item\":["
+                + String.join(",", items) + "]},\"totalCount\":" + items.length + "}}}";
+    }
+
+    private void respondWith(String... items) {
+        server.expect(request -> {}).andRespond(withSuccess(pageBody(items), MediaType.APPLICATION_JSON));
+    }
 
     private static RtmsItem item(String json) {
         return RtmsItem.of(JSON.readTree(json));
@@ -38,13 +56,12 @@ class RtmsRhTradeClientTest {
     @DisplayName("매매 응답을 sale_deal 컬럼에 맞는 행으로 바꾸고 저장하지 않는 필드는 버림")
     void 매매_응답을_sale_deal_컬럼에_맞는_행으로_바꾸고_저장하지_않는_필드는_버림() {
         // given
-        RtmsItem plain = item("""
+        String plain = """
                 {"buildYear":2007,"buyerGbn":"개인","cdealDay":" ","cdealType":" ","dealAmount":"4,800","dealDay":14,
                  "dealMonth":10,"dealYear":2026,"dealingGbn":"중개거래","estateAgentSggNm":"전남광주 나주시",
                  "excluUseAr":74.89,"floor":2,"houseType":"다세대","jibun":"745-5","landAr":52.78,"mhouseNm":"골든빌B",
-                 "rgstDate":" ","sggCd":12170,"slerGbn":"개인","umdNm":"이창동"}""");
-        given(caller.call(RtmsRhTradeClient.PATH, "12170", OCTOBER, 1))
-                .willReturn(new RtmsPage<>("000", 1, List.of(plain)));
+                 "rgstDate":" ","sggCd":12170,"slerGbn":"개인","umdNm":"이창동"}""";
+        respondWith(plain);
 
         // when
         RtmsPage<SaleDealRow> page = client.fetch("12170", OCTOBER, 1);
@@ -85,36 +102,34 @@ class RtmsRhTradeClientTest {
     }
 
     @Test
-    @DisplayName("응답 행의 계약 월이 요청과 다르면 DealApiException을 던짐")
-    void 응답_행의_계약_월이_요청과_다르면_DealApiException을_던짐() {
+    @DisplayName("응답 행의 계약 월이 요청과 다르면 RtmsApiException을 던짐")
+    void 응답_행의_계약_월이_요청과_다르면_RtmsApiException을_던짐() {
         // given
-        RtmsItem otherMonth = item("""
+        String otherMonth = """
                 {"dealAmount":4800,"dealDay":14,"dealMonth":9,"dealYear":2026,"excluUseAr":74,"jibun":745,
-                 "sggCd":12170,"umdNm":"이창동"}""");
-        given(caller.call(RtmsRhTradeClient.PATH, "12170", OCTOBER, 1))
-                .willReturn(new RtmsPage<>("000", 1, List.of(otherMonth)));
+                 "sggCd":12170,"umdNm":"이창동"}""";
+        respondWith(otherMonth);
 
         // when
         Throwable thrown = catchThrowable(() -> client.fetch("12170", OCTOBER, 1));
 
         // then
-        assertThat(thrown).isInstanceOf(DealApiException.class).hasMessageContaining("2026-09");
+        assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("2026-09");
     }
 
     @Test
-    @DisplayName("응답 행의 시군구가 요청과 다르면 DealApiException을 던짐")
-    void 응답_행의_시군구가_요청과_다르면_DealApiException을_던짐() {
+    @DisplayName("응답 행의 시군구가 요청과 다르면 RtmsApiException을 던짐")
+    void 응답_행의_시군구가_요청과_다르면_RtmsApiException을_던짐() {
         // given
-        RtmsItem otherSigungu = item("""
+        String otherSigungu = """
                 {"dealAmount":4800,"dealDay":14,"dealMonth":10,"dealYear":2026,"excluUseAr":74,"jibun":745,
-                 "sggCd":11110,"umdNm":"동숭동"}""");
-        given(caller.call(RtmsRhTradeClient.PATH, "12170", OCTOBER, 1))
-                .willReturn(new RtmsPage<>("000", 1, List.of(otherSigungu)));
+                 "sggCd":11110,"umdNm":"동숭동"}""";
+        respondWith(otherSigungu);
 
         // when
         Throwable thrown = catchThrowable(() -> client.fetch("12170", OCTOBER, 1));
 
         // then
-        assertThat(thrown).isInstanceOf(DealApiException.class).hasMessageContaining("11110");
+        assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("11110");
     }
 }
