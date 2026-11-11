@@ -46,6 +46,7 @@ export type BuildingMeasure = {
 	columnShadow?: string;
 	bgHeader?: string;
 	bgMain?: string;
+	bgCard?: string;
 	bgFooter?: string;
 	bgOutside?: string | null;
 	wrapAlign?: string;
@@ -130,10 +131,12 @@ export function measure(): BuildingMeasure {
 		headerCount: visAll("header").length,
 		footerCount: visAll("footer").length,
 		logoVisible: visAll('a[aria-label="집씨 홈"]').length,
-		loginVisible: visAll("a, button").filter((e) => text(e) === "로그인")
-			.length,
-		myInfoVisible: visAll("a, button").filter((e) => text(e) === "내 정보")
-			.length,
+		loginVisible: visAll("a, button").filter(
+			(e) => !!header?.contains(e) && text(e) === "로그인",
+		).length,
+		myInfoVisible: visAll("a, button").filter(
+			(e) => !!header?.contains(e) && text(e) === "내 정보",
+		).length,
 		h1s: visAll("h1").map((h) => {
 			const c = getComputedStyle(h);
 			return {
@@ -203,6 +206,8 @@ export function measure(): BuildingMeasure {
 		const xr = out.column.x + out.column.w - 8;
 		out.bgHeader = bgAt(xr, out.header.y + out.header.h / 2);
 		out.bgMain = bgAt(xr, out.main.y + 10);
+		// 1279 이하에서 main은 카드라 오른쪽 여백의 bgMain과 다름
+		out.bgCard = effBg(main);
 		// 본문이 뷰포트보다 길면 푸터가 화면 밖이라 elementFromPoint가 null이므로 요소에서 직접 읽음
 		out.bgFooter = effBg(footer);
 		out.bgOutside = out.column.x > 12 ? bgAt(5, out.main.y + 10) : null;

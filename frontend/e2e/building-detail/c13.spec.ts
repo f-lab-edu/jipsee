@@ -1,6 +1,7 @@
 // S2 건물 상세 C13: 질문하기 버튼, 카드, 하단 바
 // 기대값: 설계 2절(로그인 표), 3절(문구), 6절(반응형), 7절(색), 12절 20번(이동 경로)과 캔버스 보드 S2Mobile/Desktop(Dark) Default
 // 로그인 상태는 앱의 sessionMock이 정함. 기본 실행은 로그아웃 케이스만, TC_SESSION=in 이면 로그인 케이스만 실행함(sessionMock을 { provider: "GOOGLE" }로 바꾼 상태에서만 의미가 있음)
+// 2026-11-12: 질문하기 바는 하단 내비게이션(위 테두리 1과 탭 56) 바로 위에 붙음
 // 케이스 번호는 모드와 상관없이 올려서 id가 실행 방식에 따라 바뀌지 않게 하고, 실행하지 않는 모드는 skip함
 
 import { ASIDE_X } from "../support/buildingDetail/asideX";
@@ -23,7 +24,7 @@ import type { T } from "../support/buildingDetail/makeT";
 import type { Theme } from "../support/buildingDetail/tokens";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
-import { DESKTOP, MOBILE } from "../support/viewports";
+import { BOTTOM_NAV_HEIGHT, DESKTOP, MOBILE } from "../support/viewports";
 
 const SESSION_IN = process.env.TC_SESSION === "in";
 
@@ -96,9 +97,17 @@ for (const [modeIndex, mode] of MODES.entries()) {
 				t.near("x", s.x, 0);
 				t.near("w", s.w, 390);
 				t.near(`h (${lbl})`, s.h, BAR_H);
-				t.near("맨 위에서 바 아래 끝이 뷰포트 아래에 붙음", s.b, m.vh);
+				t.near(
+					"맨 위에서 바 아래 끝이 하단 내비게이션 위에 붙음",
+					s.b,
+					m.vh - BOTTOM_NAV_HEIGHT,
+				);
 				t.eq("position", s.pos, "sticky");
-				t.eq("bottom", s.bottomCss, "0px");
+				t.eq(
+					"bottom (하단 내비게이션 위 테두리 1과 탭 56)",
+					s.bottomCss,
+					"57px",
+				);
 				t.eq("padding 위12 좌우16 아래16", s.pad, "12px 16px 16px 16px");
 				t.eq("border 위쪽만 1px", s.bw, "1px 0px 0px 0px");
 				t.color(
@@ -144,7 +153,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			["맨 끝", 1],
 		] as const) {
 			const m = await scrollAsk(t, r);
-			t.near(`${name}에서 바 아래 끝`, m.sec?.b, m.vh);
+			t.near(`${name}에서 바 아래 끝`, m.sec?.b, m.vh - BOTTOM_NAV_HEIGHT);
 			t.near(`${name}에서 바 높이`, m.sec?.h, BAR_H);
 		}
 		const m = await scrollAsk(t, 1);
@@ -193,7 +202,11 @@ test.describe(`390x1800 light`, () => {
 			m.scrollH,
 			`문서 높이 ≤ ${m.vh}`,
 		);
-		t.near("바 아래 끝이 뷰포트 아래", m.sec?.b, m.vh);
+		t.near(
+			"바 아래 끝이 하단 내비게이션 위",
+			m.sec?.b,
+			m.vh - BOTTOM_NAV_HEIGHT,
+		);
 		t.near("푸터 아래 끝이 바 위쪽에 닿음", m.footer?.b, m.sec?.y, 1);
 	});
 });
@@ -216,7 +229,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			await t.goto(u, 400);
 			const m = await scrollAsk(t, 1);
 			t.near(`${u} 바 높이`, m.sec?.h, BAR_H);
-			t.near(`${u} 바 아래 끝`, m.sec?.b, m.vh);
+			t.near(`${u} 바 아래 끝`, m.sec?.b, m.vh - BOTTOM_NAV_HEIGHT);
 			t.near(`${u} 푸터 아래 끝 = 바 위쪽`, m.footer?.b, m.sec?.y, 1);
 		}
 	});

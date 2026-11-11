@@ -401,12 +401,13 @@ test.describe("320x700 light", () => {
 test.describe("768x900 light", () => {
 	test.use({ viewport: { width: 768, height: 900 }, colorScheme: "light" });
 
-	test("C11-23 768px 태블릿에서 모바일 구조의 목록이 720 컬럼 안에서 같은 행 모양으로 나옴", async ({
+	test("C11-23 768px 태블릿에서 모바일 구조의 목록이 폭 688 카드 안에서 같은 행 모양으로 나옴", async ({
 		t,
 	}) => {
 		await t.goto("/buildings/1");
 		const m = await c11Measure(t);
-		t.near("섹션 w(컬럼 720)", m.section.w, 720, 1);
+		// 열 720에서 카드 좌우 여백 32와 border 2를 뺀 값(2026-11-12)
+		t.near("섹션 w(카드 안쪽 686)", m.section.w, 686, 1);
 		c11CheckSummary(t, m, "mobile", 14, "태블릿");
 		c11CheckRowsContent(t, m, "mobile", C11_J, "태블릿");
 		c11CheckMobileRows(t, m, "태블릿");

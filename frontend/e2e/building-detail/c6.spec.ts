@@ -152,12 +152,13 @@ test.describe("320x700 light", () => {
 test.describe("768x900 light", () => {
 	test.use({ viewport: { width: 768, height: 900 }, colorScheme: "light" });
 
-	test("C6-11 768px 태블릿에서 모바일 레이아웃의 거래 목록이 720 컬럼 안에서 같은 구조로 나옴", async ({
+	test("C6-11 768px 태블릿에서 모바일 레이아웃의 거래 목록이 폭 688 카드 안에서 같은 구조로 나옴", async ({
 		t,
 	}) => {
 		await t.goto("/buildings/1");
 		const m = await t.page.evaluate(measureDeals, "current" as const);
-		t.near("섹션 w (컬럼 720)", m.section?.rect.w, 720, 1);
+		// 열 720에서 카드 좌우 여백 32와 border 2를 뺀 값(2026-11-12)
+		t.near("섹션 w (카드 안쪽 686)", m.section?.rect.w, 686, 1);
 		t.eq("table 없음", m.table, null);
 		t.eq("li 7개", m.liCount, 7);
 		checkMobileDeals(
@@ -165,8 +166,8 @@ test.describe("768x900 light", () => {
 			m,
 			DEALS[1],
 			C6_TOKENS.light,
-			m.section?.rect.x ?? 24,
-			720,
+			m.section?.rect.x ?? 41,
+			686,
 		);
 	});
 });

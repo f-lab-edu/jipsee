@@ -44,6 +44,7 @@ const CHAT_LOGIN_HREF = "/login?next=%2Fchat";
 const ASK_LOGIN_HREF = "/login?next=%2Fchat%3FbuildingId%3D3";
 
 for (const [screenIndex, { label, viewport }] of SCREENS.entries()) {
+	const isMobile = viewport === MOBILE;
 	test.describe(`${label} ${viewport.width}x${viewport.height} light`, () => {
 		test.use({ viewport, colorScheme: "light" });
 		test.skip(
@@ -54,13 +55,16 @@ for (const [screenIndex, { label, viewport }] of SCREENS.entries()) {
 		const base = screenIndex * (HEADER_LOGIN_CASES.length + 2);
 
 		for (const [index, { what, path, href }] of HEADER_LOGIN_CASES.entries()) {
-			test(`${caseId("A1", base + index + 1)} ${label} ${what} 헤더 로그인 링크가 ${href}임`, async ({
+			test(`${caseId("A1", base + index + 1)} ${label} ${what} 헤더 로그인 링크가 ${isMobile ? "없음(하단 내비게이션 내 정보 탭이 대신함)" : href}임`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, path);
-				await expect(
-					page.getByRole("link", { name: "로그인", exact: true }),
-				).toHaveAttribute("href", href);
+				const link = page.getByRole("link", { name: "로그인", exact: true });
+				if (isMobile) {
+					await expect(link).toHaveCount(0);
+					return;
+				}
+				await expect(link).toHaveAttribute("href", href);
 			});
 		}
 
@@ -424,7 +428,8 @@ for (const { label, viewport } of SCREENS) {
 					await expect(link).toHaveText(name);
 					const box = await link.boundingBox();
 					expect(box?.height).toBe(52);
-					expect(box?.width).toBe(358);
+					// 모바일은 카드 폭 358에서 테두리 2와 좌우 여백 32를 뺀 값, 데스크톱은 카드 안쪽 폭
+					expect(box?.width).toBe(isMobile ? 324 : 358);
 					expect(
 						await link.evaluate(
 							(element) => getComputedStyle(element).borderTopLeftRadius,
