@@ -99,6 +99,10 @@ for (const { label, viewport, cardWidth } of SMALL_SCREENS) {
 				test(`${caseId("NAV", number++)} ${label} ${path}에서 ${tab ?? "활성 탭 없음"}의 aria-current가 ${value ?? "없음"}임`, async ({
 					page,
 				}) => {
+					test.skip(
+						LOGGED_IN && path === "/login",
+						"로그인한 상태에서는 /login이 홈으로 이동함",
+					);
 					await gotoAndSettle(page, path);
 					for (const area of [
 						"bottom-nav-home",
@@ -164,6 +168,10 @@ for (const { label, viewport, cardWidth } of SMALL_SCREENS) {
 				test(`${caseId("NAV", number++)} ${label} ${name}의 main이 폭 ${cardWidth}의 카드임`, async ({
 					page,
 				}) => {
+					test.skip(
+						LOGGED_IN && path === "/login",
+						"로그인한 상태에서는 /login이 홈으로 이동함",
+					);
 					await gotoAndSettle(page, path);
 					const card = await readCard(page);
 					const expectedBackground =

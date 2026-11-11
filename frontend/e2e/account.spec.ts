@@ -100,6 +100,11 @@ const CONTENT_HEIGHT =
 	INTRO_HEIGHT + 32 + PROVIDER_LIST_HEIGHT + 32 + NOTICE_HEIGHT;
 const LOGO_SIZE = 64;
 const THEMES = ["light", "dark"] as const;
+// 모바일 본문 카드(2026-11-12 하단 내비게이션과 본문 카드 설계 4.1절): 좌우 여백 16, border 1이라 안쪽은 x 17, 폭 356이고 화면 안 여백 16을 더한 콘텐츠 폭은 324임
+const CARD_INNER_X = 17;
+const CARD_INNER_WIDTH = 356;
+const MOBILE_CONTENT_WIDTH = 324;
+const CARD_BORDER = 1;
 const LOGIN_TEXT = {
 	title: "집씨",
 	description: "로그인하고 챗봇을 이용해 보세요",
@@ -901,19 +906,22 @@ for (const { label, viewport } of SCREENS) {
 				expect(sameColor(style.color, token.fgNeutral)).toBe(true);
 			});
 
-			test(`${caseId("A5", a5Number++)} ${label} ${theme} 헤더의 내 정보 링크에 aria-current=page가 있고 /me로 감`, async ({
+			test(`${caseId("A5", a5Number++)} ${label} ${theme} 내 정보 링크(데스크톱은 헤더, 모바일은 하단 내비게이션 탭)에 aria-current=page가 있고 /me로 감`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/me");
-				const link = page
-					.getByTestId(`header-${layout}`)
-					.getByRole("link", { name: ME_TEXT.title });
+				// 모바일 헤더에는 계정 링크가 없고 하단 내비게이션 내 정보 탭이 대신함(2026-11-12 결정 3)
+				const link = isMobile
+					? page.locator('[data-area="bottom-nav-me"]')
+					: page
+							.getByTestId(`header-${layout}`)
+							.getByRole("link", { name: ME_TEXT.title });
 				await expect(link).toHaveAttribute("aria-current", "page");
 				await expect(link).toHaveAttribute("href", "/me");
 			});
 
 			if (isMobile) {
-				test(`${caseId("A5", a5Number++)} 모바일 ${theme} 헤더에 제목이 없고 뒤로 가기 44x44가 로고 왼쪽, 내 정보 링크가 오른쪽에 있음`, async ({
+				test(`${caseId("A5", a5Number++)} 모바일 ${theme} 헤더에 제목과 내 정보 링크가 없고 뒤로 가기 44x44가 로고 왼쪽에 있음`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, "/me");
@@ -925,17 +933,14 @@ for (const { label, viewport } of SCREENS) {
 					const logo = await header
 						.getByRole("link", { name: "집씨 홈" })
 						.boundingBox();
-					const account = await header
-						.getByRole("link", { name: ME_TEXT.title })
-						.boundingBox();
 					expect(back?.width).toBe(44);
 					expect(back?.height).toBe(44);
 					expect((back?.x ?? 0) + (back?.width ?? 0)).toBeLessThanOrEqual(
 						logo?.x ?? 0,
 					);
-					expect((logo?.x ?? 0) + (logo?.width ?? 0)).toBeLessThanOrEqual(
-						account?.x ?? 0,
-					);
+					await expect(
+						header.getByRole("link", { name: ME_TEXT.title }),
+					).toHaveCount(0);
 				});
 
 				test(`${caseId("A5", a5Number++)} 모바일 ${theme} 제목 줄이 본문 맨 위 패딩 20 아래에 있고 로그인 수단 섹션이 그 아래에 붙으며 섹션 높이가 ${SECTION_HEIGHT}임`, async ({
@@ -945,12 +950,12 @@ for (const { label, viewport } of SCREENS) {
 					const main = await page.locator('[data-area="main"]').boundingBox();
 					const title = await page.locator("h1:visible").boundingBox();
 					const box = await page.locator(section).boundingBox();
-					expect(title?.y).toBeCloseTo((main?.y ?? 0) + 20, 0);
-					expect(title?.x).toBe(16);
+					expect(title?.y).toBeCloseTo((main?.y ?? 0) + CARD_BORDER + 20, 0);
+					expect(title?.x).toBe(CARD_INNER_X + 16);
 					expect(title?.height).toBe(24);
-					expect(box?.x).toBe(0);
-					expect(box?.width).toBe(viewport.width);
-					expect(box?.y).toBeCloseTo((main?.y ?? 0) + 44, 0);
+					expect(box?.x).toBe(CARD_INNER_X);
+					expect(box?.width).toBe(CARD_INNER_WIDTH);
+					expect(box?.y).toBeCloseTo((main?.y ?? 0) + CARD_BORDER + 44, 0);
 					expect(box?.height).toBeCloseTo(SECTION_HEIGHT, 0);
 				});
 
@@ -1065,7 +1070,7 @@ for (const { label, viewport } of SCREENS) {
 				const row = name.locator("xpath=..");
 				const box = await row.boundingBox();
 				const sectionBox = await page.locator(section).boundingBox();
-				const contentWidth = isMobile ? viewport.width - 32 : 480 - 2 - 48;
+				const contentWidth = isMobile ? MOBILE_CONTENT_WIDTH : 480 - 2 - 48;
 				expect(box?.width).toBeCloseTo(contentWidth, 0);
 				expect(box?.height).toBeCloseTo(74, 0);
 				const rowStyle = await row.evaluate((element) => {
@@ -1171,7 +1176,7 @@ for (const { label, viewport } of SCREENS) {
 					.getByText(provider.name)
 					.locator("xpath=..")
 					.boundingBox();
-				const contentWidth = isMobile ? viewport.width - 32 : 480 - 2 - 48;
+				const contentWidth = isMobile ? MOBILE_CONTENT_WIDTH : 480 - 2 - 48;
 				expect(box?.height).toBe(48);
 				expect(box?.width).toBeCloseTo(contentWidth, 0);
 				expect(box?.y).toBeCloseTo((row?.y ?? 0) + (row?.height ?? 0) + 12, 0);
@@ -1281,7 +1286,7 @@ for (const { label, viewport } of SCREENS) {
 				await gotoAndSettle(page, "/me");
 				const items = page.locator(`${policy} ul > li`);
 				const sectionBox = await page.locator(policy).boundingBox();
-				const rowWidth = isMobile ? viewport.width - 32 : 480 - 2 - 48;
+				const rowWidth = isMobile ? MOBILE_CONTENT_WIDTH : 480 - 2 - 48;
 				for (const [index, row] of POLICY_ROWS.entries()) {
 					const link = items.nth(index).getByRole("link");
 					const box = await link.locator("> div").boundingBox();
@@ -1378,8 +1383,8 @@ for (const { label, viewport } of SCREENS) {
 				expect(sameColor(style.background, token.layerDefault)).toBe(true);
 				expect(style.bottom).toBe("8px");
 				if (isMobile) {
-					expect(box?.x).toBe(0);
-					expect(box?.width).toBe(viewport.width);
+					expect(box?.x).toBe(CARD_INNER_X);
+					expect(box?.width).toBe(CARD_INNER_WIDTH);
 					expect(box?.height).toBeCloseTo(POLICY_SECTION_HEIGHT, 0);
 					expect(style.top).toBe("20px");
 					expect(style.left).toBe("16px");
@@ -1472,23 +1477,23 @@ for (const { label, viewport } of SCREENS) {
 			});
 
 			if (isMobile) {
-				test(`${caseId("A6", a6Number++)} 모바일 ${theme} 탈퇴 영역이 푸터 바로 위에 있고 높이 ${WITHDRAW_AREA_HEIGHT}에 패딩 16 16 24임`, async ({
+				test(`${caseId("A6", a6Number++)} 모바일 ${theme} 탈퇴 영역이 카드 맨 아래이고 푸터 바로 위에 있고 높이 ${WITHDRAW_AREA_HEIGHT}에 패딩 16 16 24임`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, "/me");
 					const area = await page.locator(withdraw).boundingBox();
 					const footer = await page.locator("footer:visible").boundingBox();
-					expect((area?.y ?? 0) + (area?.height ?? 0)).toBeCloseTo(
-						footer?.y ?? 0,
-						0,
-					);
+					// 카드 아래 border 1을 건너 푸터가 바로 이어짐
+					expect(
+						(area?.y ?? 0) + (area?.height ?? 0) + CARD_BORDER,
+					).toBeCloseTo(footer?.y ?? 0, 0);
 					expect(area?.height).toBeCloseTo(WITHDRAW_AREA_HEIGHT, 0);
-					expect(area?.width).toBe(viewport.width);
+					expect(area?.width).toBe(CARD_INNER_WIDTH);
 					const button = await page
 						.locator(withdraw)
 						.getByRole("button", { name: POLICY_TEXT.withdraw })
 						.boundingBox();
-					expect(button?.x).toBe(16);
+					expect(button?.x).toBe(CARD_INNER_X + 16);
 					expect(button?.y).toBeCloseTo((area?.y ?? 0) + 16, 0);
 				});
 			} else {
@@ -1643,6 +1648,28 @@ for (const { label, viewport } of SCREENS) {
 					);
 				}
 			});
+
+			if (isMobile) {
+				test(`${caseId("A8", a8Number++)} ${label} ${theme} 바텀시트가 하단 내비게이션 위에 뜸`, async ({
+					page,
+				}) => {
+					await openDialog(page);
+					const nav = await page
+						.locator('[data-area="bottom-nav"]')
+						.boundingBox();
+					const hitsNav = await page.evaluate(
+						({ x, y }) =>
+							!!document
+								.elementFromPoint(x, y)
+								?.closest('[data-area="bottom-nav"]'),
+						{
+							x: viewport.width / 2,
+							y: (nav?.y ?? 0) + (nav?.height ?? 0) / 2,
+						},
+					);
+					expect(hitsNav).toBe(false);
+				});
+			}
 
 			test(`${caseId("A8", a8Number++)} ${label} ${theme} 제목이 20/27 700 fg.neutral이고 설명이 15/22 fg.neutralMuted로 제목 아래 8에 있으며 줄바꿈이 keep-all임`, async ({
 				page,

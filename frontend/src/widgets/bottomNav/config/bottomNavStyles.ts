@@ -36,7 +36,7 @@ export const bottomNavStyles: BottomNavStyle = {
 	inactive: {
 		icon: { size: "24px", color: "fg.neutralMuted" },
 		label: {
-			...typography.size12,
+			...typography.size12LineHeight16,
 			fontWeight: "medium",
 			color: "fg.neutralMuted",
 		},
