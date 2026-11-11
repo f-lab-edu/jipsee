@@ -12,5 +12,6 @@ export const paths = {
 	dataSources: "/policies/data-sources",
 	terms: "/policies/terms",
 	privacy: "/policies/privacy",
+	buildings: "/buildings",
 	building: (id: number) => `/buildings/${id}`,
 } as const;
