@@ -25,7 +25,7 @@ export const bottomNavStyles: BottomNavStyle = {
 		height: bottomNavTabHeight,
 	},
 	active: {
-		icon: { size: "x6", color: "fg.brand" },
+		icon: { size: "24px", color: "fg.brand" },
 		label: {
 			...typography.size12LineHeight16,
 			fontWeight: "bold",
@@ -34,7 +34,7 @@ export const bottomNavStyles: BottomNavStyle = {
 		strokeWidth: 2.2,
 	},
 	inactive: {
-		icon: { size: "x6", color: "fg.neutralMuted" },
+		icon: { size: "24px", color: "fg.neutralMuted" },
 		label: {
 			...typography.size12,
 			fontWeight: "medium",
