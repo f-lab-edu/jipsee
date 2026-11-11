@@ -392,3 +392,14 @@ a {
 :root .chat-input--aside input::placeholder {
 	font-size: 15px;
 }
+
+/* 정책 조항의 위쪽 스크롤 여백. 목차 앵커로 이동해도 고정 헤더(모바일 56, 데스크톱 65)가 조항 제목을 가리지 않게 함. Seed에 scroll-margin 속성이 없음 */
+.policy-clause {
+	scroll-margin-top: calc(56px + var(--seed-dimension-x4));
+}
+
+@media (min-width: 1280px) {
+	.policy-clause {
+		scroll-margin-top: calc(65px + var(--seed-dimension-x4));
+	}
+}
