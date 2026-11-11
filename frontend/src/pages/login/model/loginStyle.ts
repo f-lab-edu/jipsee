@@ -23,9 +23,6 @@ export interface LoginStyle {
 		group: VStackProps;
 		consent: TextProps;
 		link: TextProps;
-		line: HStackProps;
-		icon: Omit<IconProps, "svg">;
-		text: TextProps;
 	};
 	intro: VStackProps;
 	logoSize: number;

@@ -51,7 +51,7 @@ export const loginStyles: LoginStyle = {
 		},
 	},
 	notice: {
-		group: { gap: "x1_5", alignItems: "center" },
+		group: { alignItems: "center" },
 		consent: {
 			...typography.size13LineHeight20,
 			color: "fg.neutralMuted",
@@ -62,9 +62,6 @@ export const loginStyles: LoginStyle = {
 			color: "fg.neutral",
 			textDecorationLine: "underline",
 		},
-		line: { gap: "x1_5", alignItems: "center", justifyContent: "center" },
-		icon: { size: "14px", color: "fg.neutralMuted" },
-		text: { ...typography.size12, color: "fg.neutralMuted" },
 	},
 	intro: { alignItems: "center", gap: "x3" },
 	logoSize: 64,

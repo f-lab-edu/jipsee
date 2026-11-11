@@ -6,8 +6,4 @@ export const loginCopy = {
 	consentMiddle: "과 ",
 	privacy: "개인정보처리방침",
 	consentSuffix: "에 동의하게 돼요",
-	notices: [
-		"챗봇 질문은 외부 LLM으로 전송돼요",
-		"개인정보는 일본으로 국외 이전돼요",
-	],
 } as const;
