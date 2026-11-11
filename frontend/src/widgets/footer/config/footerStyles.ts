@@ -4,14 +4,9 @@ import type { FooterStyle } from "@/widgets/footer/model/footerStyle";
 
 export const footerStyles = defineResponsiveStyles<FooterStyle>({
 	mobile: {
-		container: {
-			borderTopWidth: 1,
-			borderColor: "stroke.neutralMuted",
-			px: "x4",
-			pb: "x1",
-		},
+		container: { pt: "x2", px: "x4", pb: "x3" },
 		linksRow: {
-			height: "39px",
+			height: "44px",
 			gap: "x5",
 			justifyContent: "center",
 			alignItems: "center",

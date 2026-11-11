@@ -1,11 +1,12 @@
 import type { ChatCompactBarStyle } from "@/features/askChatbot/model/chatCompactBarStyle";
+import { bottomNavOffset } from "@/shared/config/bottomNavHeight";
 import { typography } from "@/shared/config/typography";
 
 export const chatCompactBarStyles: ChatCompactBarStyle = {
 	root: {
 		hideFrom: "lg",
 		position: "sticky",
-		bottom: 0,
+		bottom: bottomNavOffset,
 		py: "x3",
 		px: "spacingX.globalGutter",
 		bg: "bg.layerFloating",

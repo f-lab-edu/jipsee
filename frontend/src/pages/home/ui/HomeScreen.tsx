@@ -8,6 +8,7 @@ import { colors } from "@/shared/config/colors";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import { paths } from "@/shared/routes/paths";
 import ContentContainer from "@/shared/ui/ContentContainer";
+import Footer from "@/widgets/footer/ui/Footer";
 import Header from "@/widgets/header/ui/Header";
 
 interface HomeScreenProps {
@@ -20,7 +21,8 @@ interface HomeScreenProps {
  *
  * - 하늘빛 모바일 헤더 배경으로 헤더 출력
  * - 본문 셀에 children 출력
- * - 데스크톱 aside 셀과 main 마지막 자식으로 모바일 펼침 패널 출력
+ * - 데스크톱 aside 셀에 데스크톱 챗봇 패널 출력
+ * - main 아래에 푸터, 푸터 아래에 모바일 펼침 패널 출력
  */
 export default function HomeScreen({ session, children }: HomeScreenProps) {
 	const style = homeScreenStyles;
@@ -45,8 +47,9 @@ export default function HomeScreen({ session, children }: HomeScreenProps) {
 						</GridItem>
 					</Grid>
 				</ContentContainer>
-				<ChatPanelMobile session={session} layout="expanded" />
 			</VStack>
+			<Footer />
+			<ChatPanelMobile session={session} layout="expanded" />
 		</>
 	);
 }
