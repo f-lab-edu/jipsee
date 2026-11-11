@@ -37,8 +37,8 @@ public class CollectJobConfig {
     static final String DAILY_SALE_JOB = "dailySaleCollectJob";
     static final String INITIAL_RENT_JOB = "initialRentLoadJob";
     static final String INITIAL_SALE_JOB = "initialSaleLoadJob";
-    static final String PARAM_COLLECT_DATE = "collectDate";
-    static final String PARAM_END_MONTH = "endMonth";
+    public static final String PARAM_COLLECT_DATE = "collectDate";
+    public static final String PARAM_END_MONTH = "endMonth";
 
     private static final YearMonth RENT_FIRST_MONTH = YearMonth.of(2011, 1);
     private static final YearMonth SALE_FIRST_MONTH = YearMonth.of(2006, 1);

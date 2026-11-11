@@ -8,11 +8,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.json.JsonMapper;
 
 /** 데이터 수집 설정 */
 @Configuration
+@EnableScheduling
 @EnableConfigurationProperties(CollectProperties.class)
 public class CollectConfig {
 
