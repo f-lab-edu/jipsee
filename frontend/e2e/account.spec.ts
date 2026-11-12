@@ -104,11 +104,11 @@ const PROVIDER_LIST_HEIGHT = 176;
 const CONTENT_HEIGHT = INTRO_HEIGHT + 32 + PROVIDER_LIST_HEIGHT;
 const LOGO_SIZE = 64;
 const THEMES = ["light", "dark"] as const;
-// 모바일 본문 카드(2026-11-12 하단 내비게이션과 본문 카드 설계 4.1절): 좌우 여백 16, border 1이라 안쪽은 x 17, 폭 356이고 화면 안 여백 16을 더한 콘텐츠 폭은 324임
-const CARD_INNER_X = 17;
-const CARD_INNER_WIDTH = 356;
-const MOBILE_CONTENT_WIDTH = 324;
-const CARD_BORDER = 1;
+// 모바일 흰 세로 열(2026-11-13 설계 10.1절): 본문 카드가 없어 main이 열 폭 390을 그대로 쓰고, 좌우 여백 16을 뺀 콘텐츠 폭은 358임
+const CARD_INNER_X = 0;
+const CARD_INNER_WIDTH = 390;
+const MOBILE_CONTENT_WIDTH = 358;
+const CARD_BORDER = 0;
 const LOGIN_TEXT = {
 	title: "집씨",
 	description: "로그인하고 챗봇을 이용해 보세요",
