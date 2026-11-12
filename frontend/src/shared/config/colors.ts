@@ -2,4 +2,5 @@
 export const colors = {
 	brandTintBackground: "var(--jipsee-color-bg-brand-tint)",
 	withdrawButtonBackground: "var(--jipsee-color-withdraw-button-background)",
+	chatUserBubbleBackground: "var(--jipsee-color-chat-user-bubble-background)",
 } as const;
