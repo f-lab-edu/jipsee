@@ -14,12 +14,12 @@ describe("ChatPanelDesktop", () => {
 		expect(link.getAttribute("href")).toBe("/login?next=%2Fchat");
 	});
 
-	it("세션이 있으면 /chat으로 가는 지난 대화 링크와 질문 입력을 표시하고 로그인하고 이용하기 링크는 표시하지 않음", () => {
+	it("세션이 있으면 /chat/history로 가는 지난 대화 링크와 질문 입력을 표시하고 로그인하고 이용하기 링크는 표시하지 않음", () => {
 		render(<ChatPanelDesktop session={{ provider: "GOOGLE" }} />);
 
 		expect(screen.getByRole("link", { name: "지난 대화" })).toHaveProperty(
 			"pathname",
-			"/chat",
+			"/chat/history",
 		);
 		expect(screen.getByRole("textbox", { name: "집사에게 질문" })).toBeTruthy();
 		expect(screen.queryByText("로그인하고 이용하기")).toBeNull();
