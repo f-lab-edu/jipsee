@@ -2,7 +2,7 @@ import type { LoginStyle } from "@/pages/login/model/loginStyle";
 import { typography } from "@/shared/config/typography";
 
 export const loginStyles: LoginStyle = {
-	main: { flexGrow: 1, className: "page-card" },
+	main: { flexGrow: 1 },
 	mobileBody: {
 		flexGrow: 1,
 		justifyContent: "center",
@@ -48,19 +48,6 @@ export const loginStyles: LoginStyle = {
 			...typography.size14,
 			fontWeight: "medium",
 			color: "fg.criticalContrast",
-		},
-	},
-	notice: {
-		group: { alignItems: "center" },
-		consent: {
-			...typography.size13LineHeight20,
-			color: "fg.neutralMuted",
-		},
-		link: {
-			...typography.size13LineHeight20,
-			fontWeight: "bold",
-			color: "fg.neutral",
-			textDecorationLine: "underline",
 		},
 	},
 	intro: { alignItems: "center", gap: "x3" },

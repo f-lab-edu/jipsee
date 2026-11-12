@@ -1,7 +1,6 @@
 import { Box } from "@seed-design/react";
 import type { Session } from "@/entities/session/model/session";
 import SearchForm from "@/features/searchBuildings/ui/SearchForm";
-import { colors } from "@/shared/config/colors";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import { searchFormRowStyles } from "@/widgets/header/config/searchFormRowStyles";
 import Header from "@/widgets/header/ui/Header";
@@ -17,7 +16,7 @@ interface SearchHeaderProps {
 /**
  * 헤더 > 검색 헤더
  *
- * - 모바일은 로고 왼쪽에 홈으로 가는 뒤로 가기 링크를 두고 배경은 페이지 배경과 같음
+ * - 모바일은 로고 왼쪽에 홈으로 가는 뒤로 가기 링크 출력
  * - 모바일 둘째 줄에 검색어가 채워진 검색창 출력
  *
  * @param currentPath 로그인 링크가 돌아올 현재 경로(쿼리 포함)
@@ -36,7 +35,6 @@ export default function SearchHeader({
 		<Header
 			session={session}
 			currentPath={currentPath}
-			mobileBackground={colors.pageBackground}
 			mobileBack={<HeaderBackLink />}
 			mobileBottom={
 				<Box data-area="mobile-search-form" {...style.cell}>

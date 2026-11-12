@@ -59,12 +59,18 @@ for (const [screenIndex, { label, viewport }] of SCREENS.entries()) {
 				page,
 			}) => {
 				await gotoAndSettle(page, path);
-				const link = page.getByRole("link", { name: "로그인", exact: true });
 				if (isMobile) {
-					await expect(link).toHaveCount(0);
+					// 하단 내비게이션 셋째 탭 이름이 로그인이라 헤더 안에서만 확인함
+					await expect(
+						page
+							.getByTestId("header-mobile")
+							.getByRole("link", { name: "로그인", exact: true }),
+					).toHaveCount(0);
 					return;
 				}
-				await expect(link).toHaveAttribute("href", href);
+				await expect(
+					page.getByRole("link", { name: "로그인", exact: true }),
+				).toHaveAttribute("href", href);
 			});
 		}
 
@@ -93,18 +99,16 @@ for (const [screenIndex, { label, viewport }] of SCREENS.entries()) {
 // 피드백 7번에 따라 모바일 헤더는 뒤로 가기, 로고 헤더이고 제목이 없음. 그래서 모바일 h1은 본문의 "집씨"임(캔버스는 헤더의 "로그인")
 // 로고 묶음은 심볼 64, 간격 12, "집씨" 28/36 800 자간 -0.03em, 안내 15/22이므로 높이가 64+12+36+12+22임
 const INTRO_HEIGHT = 146;
-// 로고 묶음 아래 32 간격으로 제공자 버튼 묶음(52 3개와 간격 10 2개)과 동의 문구(20)가 붙음
+// 로고 묶음 아래 32 간격으로 제공자 버튼 묶음(52 3개와 간격 10 2개)이 붙음. 동의 문구는 2026-11-13 사용자 요청으로 삭제함
 const PROVIDER_LIST_HEIGHT = 176;
-const NOTICE_HEIGHT = 20;
-const CONTENT_HEIGHT =
-	INTRO_HEIGHT + 32 + PROVIDER_LIST_HEIGHT + 32 + NOTICE_HEIGHT;
+const CONTENT_HEIGHT = INTRO_HEIGHT + 32 + PROVIDER_LIST_HEIGHT;
 const LOGO_SIZE = 64;
 const THEMES = ["light", "dark"] as const;
-// 모바일 본문 카드(2026-11-12 하단 내비게이션과 본문 카드 설계 4.1절): 좌우 여백 16, border 1이라 안쪽은 x 17, 폭 356이고 화면 안 여백 16을 더한 콘텐츠 폭은 324임
-const CARD_INNER_X = 17;
-const CARD_INNER_WIDTH = 356;
-const MOBILE_CONTENT_WIDTH = 324;
-const CARD_BORDER = 1;
+// 모바일 흰 세로 열(2026-11-13 설계 10.1절): 본문 카드가 없어 main이 열 폭 390을 그대로 쓰고, 좌우 여백 16을 뺀 콘텐츠 폭은 358임
+const CARD_INNER_X = 0;
+const CARD_INNER_WIDTH = 390;
+const MOBILE_CONTENT_WIDTH = 358;
+const CARD_BORDER = 0;
 const LOGIN_TEXT = {
 	title: "집씨",
 	description: "로그인하고 챗봇을 이용해 보세요",
@@ -179,12 +183,12 @@ for (const { label, viewport } of SCREENS) {
 				page,
 			}) => {
 				await gotoAndSettle(page, "/login");
-				await expect(
-					page.getByRole("link", { name: "로그인", exact: true }),
-				).toHaveCount(0);
 				const header = page.getByTestId(
 					isMobile ? "header-mobile" : "header-desktop",
 				);
+				await expect(
+					header.getByRole("link", { name: "로그인", exact: true }),
+				).toHaveCount(0);
 				await expect(
 					header.getByRole("link", { name: "집씨 홈" }),
 				).toBeVisible();
@@ -225,7 +229,7 @@ for (const { label, viewport } of SCREENS) {
 					expect(
 						Math.abs((logo?.x ?? 0) + LOGO_SIZE / 2 - viewport.width / 2),
 					).toBeLessThanOrEqual(1);
-					// 세로는 패딩 32 16 24를 뺀 영역 가운데에 로고 묶음부터 동의 문구까지가 놓임
+					// 세로는 패딩 32 16 24를 뺀 영역 가운데에 로고 묶음부터 제공자 버튼 묶음까지가 놓임
 					const areaTop = (main?.y ?? 0) + 32;
 					const areaHeight = (main?.height ?? 0) - 32 - 24;
 					expect(
@@ -433,8 +437,8 @@ for (const { label, viewport } of SCREENS) {
 					await expect(link).toHaveText(name);
 					const box = await link.boundingBox();
 					expect(box?.height).toBe(52);
-					// 모바일은 카드 폭 358에서 테두리 2와 좌우 여백 32를 뺀 값, 데스크톱은 카드 안쪽 폭
-					expect(box?.width).toBe(isMobile ? 324 : 358);
+					// 모바일은 열 폭 390에서 좌우 여백 32를 뺀 값, 데스크톱은 카드 안쪽 폭
+					expect(box?.width).toBe(358);
 					expect(
 						await link.evaluate(
 							(element) => getComputedStyle(element).borderTopLeftRadius,
@@ -600,64 +604,26 @@ for (const { label, viewport } of SCREENS) {
 				process.env.TC_SESSION === "in",
 				"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
 			);
-			const token = TOKENS[theme];
 			const colors = A4_COLORS[theme];
 
-			test(`${caseId("A4", a4Number++)} ${label} ${theme} 동의 문구가 13/20 fg.neutralMuted이고 링크 두 개가 fg.neutral 굵은 밑줄이며 목적지가 정책 화면임`, async ({
+			test(`${caseId("A4", a4Number++)} ${label} ${theme} 동의 문구와 정책 링크가 없고 버튼 묶음이 로그인 본문의 마지막 요소임`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/login");
 				const body = page.getByTestId(bodyId);
-				const consent = body.getByText(CONSENT_TEXT);
-				await expect(consent).toHaveCount(1);
-				const consentStyle = await consent.evaluate((element) => {
-					const computed = getComputedStyle(element);
-					return {
-						fontSize: computed.fontSize,
-						lineHeight: computed.lineHeight,
-						color: computed.color,
-					};
-				});
-				expect(consentStyle.fontSize).toBe("13px");
-				expect(consentStyle.lineHeight).toBe("20px");
-				expect(sameColor(consentStyle.color, token.fgMuted)).toBe(true);
-				for (const { name, href } of [
-					{ name: "이용약관", href: "/policies/terms" },
-					{ name: "개인정보처리방침", href: "/policies/privacy" },
-				]) {
-					const link = consent.getByRole("link", { name });
-					await expect(link).toHaveAttribute("href", href);
-					const style = await link.getByText(name).evaluate((element) => {
-						const computed = getComputedStyle(element);
-						return {
-							color: computed.color,
-							fontWeight: computed.fontWeight,
-							decoration: computed.textDecorationLine,
-						};
-					});
-					expect(sameColor(style.color, token.fgNeutral)).toBe(true);
-					expect(style.fontWeight).toBe("700");
-					expect(style.decoration).toBe("underline");
-				}
-			});
-
-			test(`${caseId("A4", a4Number++)} ${label} ${theme} 동의 문구가 가운데 정렬이고 버튼 묶음과 사이가 32임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/login");
-				const body = page.getByTestId(bodyId);
-				const lastButton = await body
-					.getByRole("link", { name: "네이버로 계속하기" })
-					.boundingBox();
-				const consent = await body.getByText(CONSENT_TEXT).boundingBox();
-				expect(
-					(consent?.y ?? 0) -
-						((lastButton?.y ?? 0) + (lastButton?.height ?? 0)),
-				).toBeCloseTo(32, 0);
-				const center = (lastButton?.x ?? 0) + (lastButton?.width ?? 0) / 2;
-				expect(
-					Math.abs((consent?.x ?? 0) + (consent?.width ?? 0) / 2 - center),
-				).toBeLessThanOrEqual(10);
+				await expect(body.getByText(CONSENT_TEXT)).toHaveCount(0);
+				await expect(body.getByText("동의하게 돼요")).toHaveCount(0);
+				await expect(body.getByRole("link", { name: "이용약관" })).toHaveCount(
+					0,
+				);
+				await expect(
+					body.getByRole("link", { name: "개인정보처리방침" }),
+				).toHaveCount(0);
+				await expect(body.getByRole("link")).toHaveText([
+					"구글로 계속하기",
+					"카카오로 계속하기",
+					"네이버로 계속하기",
+				]);
 			});
 
 			test(`${caseId("A4", a4Number++)} ${label} ${theme} /login에는 실패 안내가 없음`, async ({

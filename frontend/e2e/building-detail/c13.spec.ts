@@ -1,7 +1,7 @@
 // S2 건물 상세 C13: 질문하기 버튼, 카드, 하단 바
 // 기대값: 설계 2절(로그인 표), 3절(문구), 6절(반응형), 7절(색), 12절 20번(이동 경로)과 캔버스 보드 S2Mobile/Desktop(Dark) Default
 // 로그인 상태는 앱의 sessionMock이 정함. 기본 실행은 로그아웃 케이스만, TC_SESSION=in 이면 로그인 케이스만 실행함(sessionMock을 { provider: "GOOGLE" }로 바꾼 상태에서만 의미가 있음)
-// 2026-11-12: 질문하기 바는 하단 내비게이션(위 테두리 1과 탭 56) 바로 위에 붙음
+// 2026-11-13: 질문하기 바는 푸터(높이 44) 바로 위에 붙고, 푸터는 하단 내비게이션(위 테두리 1과 탭 56) 바로 위에 붙음
 // 케이스 번호는 모드와 상관없이 올려서 id가 실행 방식에 따라 바뀌지 않게 하고, 실행하지 않는 모드는 skip함
 
 import { ASIDE_X } from "../support/buildingDetail/asideX";
@@ -24,9 +24,16 @@ import type { T } from "../support/buildingDetail/makeT";
 import type { Theme } from "../support/buildingDetail/tokens";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
-import { BOTTOM_NAV_HEIGHT, DESKTOP, MOBILE } from "../support/viewports";
+import {
+	BOTTOM_NAV_HEIGHT,
+	DESKTOP,
+	FOOTER_MOBILE_HEIGHT,
+	MOBILE,
+} from "../support/viewports";
 
 const SESSION_IN = process.env.TC_SESSION === "in";
+// 바 아래 끝은 푸터와 하단 내비게이션 위에 있음
+const BAR_BOTTOM_GAP = BOTTOM_NAV_HEIGHT + FOOTER_MOBILE_HEIGHT;
 
 type Mode = "out" | "in";
 
@@ -98,16 +105,12 @@ for (const [modeIndex, mode] of MODES.entries()) {
 				t.near("w", s.w, 390);
 				t.near(`h (${lbl})`, s.h, BAR_H);
 				t.near(
-					"맨 위에서 바 아래 끝이 하단 내비게이션 위에 붙음",
+					"맨 위에서 바 아래 끝이 푸터 위에 붙음",
 					s.b,
-					m.vh - BOTTOM_NAV_HEIGHT,
+					m.vh - BAR_BOTTOM_GAP,
 				);
 				t.eq("position", s.pos, "sticky");
-				t.eq(
-					"bottom (하단 내비게이션 위 테두리 1과 탭 56)",
-					s.bottomCss,
-					"57px",
-				);
+				t.eq("bottom (하단 내비게이션 57과 푸터 44)", s.bottomCss, "101px");
 				t.eq("padding 위12 좌우16 아래16", s.pad, "12px 16px 16px 16px");
 				t.eq("border 위쪽만 1px", s.bw, "1px 0px 0px 0px");
 				t.color(
@@ -153,7 +156,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			["맨 끝", 1],
 		] as const) {
 			const m = await scrollAsk(t, r);
-			t.near(`${name}에서 바 아래 끝`, m.sec?.b, m.vh - BOTTOM_NAV_HEIGHT);
+			t.near(`${name}에서 바 아래 끝`, m.sec?.b, m.vh - BAR_BOTTOM_GAP);
 			t.near(`${name}에서 바 높이`, m.sec?.h, BAR_H);
 		}
 		const m = await scrollAsk(t, 1);
@@ -164,19 +167,19 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			"sy + vh = scrollH",
 		);
 		t.near(
-			"푸터 아래 끝이 바 위쪽에 닿음 (캔버스에서 바는 푸터 아래)",
-			m.footer?.b,
-			m.sec?.y,
+			"푸터 위쪽이 바 아래 끝에 닿음 (2026-11-13부터 바는 푸터 위)",
+			m.footer?.y,
+			m.sec?.b,
 			1,
 		);
 		const hits = await t.page.evaluate(c13MeasureFooterHit);
 		t.eq("푸터 링크 3개", hits.length, 3);
 		for (const h of hits) {
 			t.ok(
-				`푸터 링크 "${h.text}"가 바보다 위에 있음`,
-				h.b <= (m.sec?.y ?? Number.NaN) + 0.5,
-				h.b,
-				`≤ ${m.sec?.y}`,
+				`푸터 링크 "${h.text}"가 바 아래에 있음`,
+				h.y >= (m.sec?.b ?? Number.NaN) - 0.5,
+				h.y,
+				`≥ ${m.sec?.b}`,
 			);
 			t.ok(
 				`푸터 링크 "${h.text}" 가운데를 누를 수 있음`,
@@ -190,7 +193,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 test.describe(`390x1800 light`, () => {
 	test.use({ viewport: { width: 390, height: 1800 }, colorScheme: "light" });
 
-	test(`C13-08 모바일에서 본문이 짧으면 바가 푸터 아래에서 뷰포트 아래에 붙고 세로 스크롤이 없음 (id 4, 390x1800)`, async ({
+	test(`C13-08 모바일에서 본문이 짧으면 바가 푸터 위에서 뷰포트 아래에 붙고 세로 스크롤이 없음 (id 4, 390x1800)`, async ({
 		t,
 	}) => {
 		skipUnlessMode("out");
@@ -202,18 +205,14 @@ test.describe(`390x1800 light`, () => {
 			m.scrollH,
 			`문서 높이 ≤ ${m.vh}`,
 		);
-		t.near(
-			"바 아래 끝이 하단 내비게이션 위",
-			m.sec?.b,
-			m.vh - BOTTOM_NAV_HEIGHT,
-		);
-		t.near("푸터 아래 끝이 바 위쪽에 닿음", m.footer?.b, m.sec?.y, 1);
+		t.near("바 아래 끝이 푸터 위", m.sec?.b, m.vh - BAR_BOTTOM_GAP);
+		t.near("푸터 위쪽이 바 아래 끝에 닿음", m.footer?.y, m.sec?.b, 1);
 	});
 });
 test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
-	test(`C13-09 모든 상태(id 1에서 5와 월세)에서 모바일 바 높이가 같고 맨 끝에서 푸터 아래에 닿음`, async ({
+	test(`C13-09 모든 상태(id 1에서 5와 월세)에서 모바일 바 높이가 같고 맨 끝에서 푸터 위에 닿음`, async ({
 		t,
 	}) => {
 		skipUnlessMode("out");
@@ -229,8 +228,8 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			await t.goto(u, 400);
 			const m = await scrollAsk(t, 1);
 			t.near(`${u} 바 높이`, m.sec?.h, BAR_H);
-			t.near(`${u} 바 아래 끝`, m.sec?.b, m.vh - BOTTOM_NAV_HEIGHT);
-			t.near(`${u} 푸터 아래 끝 = 바 위쪽`, m.footer?.b, m.sec?.y, 1);
+			t.near(`${u} 바 아래 끝`, m.sec?.b, m.vh - BAR_BOTTOM_GAP);
+			t.near(`${u} 푸터 위쪽 = 바 아래 끝`, m.footer?.y, m.sec?.b, 1);
 		}
 	});
 });

@@ -1,4 +1,4 @@
-import { MOBILE_CARD } from "../viewports";
+import { MOBILE_COLUMN } from "../viewports";
 import type { C10Measure } from "./c10MeasureNearby";
 import type { T } from "./makeT";
 
@@ -10,7 +10,7 @@ export function c10CheckMobileFilterLayout(
 	label: string,
 ) {
 	const g = m.groups ?? [];
-	const x0 = MOBILE_CARD.x + 16;
+	const x0 = MOBILE_COLUMN.x + 16;
 	const lastGroupBottom = Math.max(...g.map((gr) => gr.rect.b));
 	t.eq(`${label} 필터 묶음 가로 배치`, m.box?.dir, "row");
 	t.eq(`${label} 필터 묶음 wrap`, m.box?.wrap, "wrap");
@@ -24,7 +24,7 @@ export function c10CheckMobileFilterLayout(
 	t.near(
 		`${label} 필터 묶음 w`,
 		m.box?.rect.w,
-		m.vw - 2 * MOBILE_CARD.x - 32,
+		m.vw - 2 * MOBILE_COLUMN.x - 32,
 		0.5,
 	);
 	t.near(

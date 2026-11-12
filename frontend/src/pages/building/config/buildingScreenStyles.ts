@@ -7,7 +7,7 @@ export const buildingScreenStyles: BuildingScreenStyle = {
 		maxWidth: { base: "480px", md: "720px", lg: "none" },
 		mx: "auto",
 		flexGrow: 1,
-		className: "building-column",
+		className: "page-column",
 	},
-	main: { flexGrow: 1, className: "page-card" },
+	main: { flexGrow: 1 },
 };

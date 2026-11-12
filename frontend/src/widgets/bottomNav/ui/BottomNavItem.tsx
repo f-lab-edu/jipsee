@@ -5,6 +5,7 @@ import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import { bottomNavStyles } from "@/widgets/bottomNav/config/bottomNavStyles";
 import { toTabCurrent } from "@/widgets/bottomNav/lib/toTabCurrent";
 import { toTabHref } from "@/widgets/bottomNav/lib/toTabHref";
+import { toTabLabel } from "@/widgets/bottomNav/lib/toTabLabel";
 import type { BottomNavTab } from "@/widgets/bottomNav/model/bottomNavTab";
 import BottomNavTabIcon from "@/widgets/bottomNav/ui/BottomNavTabIcon";
 
@@ -19,7 +20,7 @@ interface BottomNavItemProps {
  *
  * - 현재 경로에 이어지는 탭이면 활성 색과 굵은 글씨로 출력
  * - 현재 경로와 탭 경로가 같을 때만 aria-current를 page로, 이어지는 경로이면 true로 지정
- * - 로그인하지 않았으면 내 정보 탭은 로그인 경로로 연결
+ * - 로그인하지 않았으면 내 정보 탭은 이름을 로그인으로 바꾸고 로그인 경로로 연결(아이콘은 그대로)
  *
  * @param pathname 쿼리를 뺀 현재 경로
  */
@@ -49,7 +50,7 @@ export default function BottomNavItem({
 						}
 						{...stateStyle.icon}
 					/>
-					<Text {...stateStyle.label}>{tab.label}</Text>
+					<Text {...stateStyle.label}>{toTabLabel(tab, session)}</Text>
 				</Link>
 			</Box>
 		</Box>

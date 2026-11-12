@@ -20,7 +20,7 @@ import { test } from "../support/test";
 import {
 	DESKTOP,
 	MOBILE,
-	MOBILE_CARD,
+	MOBILE_COLUMN,
 	MOBILE_TITLE_HEIGHT,
 } from "../support/viewports";
 
@@ -50,24 +50,24 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			m.h2?.id ?? "",
 		);
 		t.eq("aria-labelledby가 가리키는 글자", m.labelledByText, "건물 정보");
-		t.near("섹션 x", m.section?.rect.x, MOBILE_CARD.x);
+		t.near("섹션 x", m.section?.rect.x, MOBILE_COLUMN.x);
 		t.near(
 			"섹션 y (헤더 아래 카드 border 1과 건물명 제목 블록 44)",
 			m.section?.rect.y,
-			(m.headerBottom ?? Number.NaN) + 1 + MOBILE_TITLE_HEIGHT,
+			(m.headerBottom ?? Number.NaN) + MOBILE_TITLE_HEIGHT,
 		);
-		t.near("섹션 w", m.section?.rect.w, MOBILE_CARD.width);
+		t.near("섹션 w", m.section?.rect.w, MOBILE_COLUMN.width);
 		t.eq(
 			"섹션 padding 위20 좌우16 아래24",
 			m.section?.pad,
 			"20px 16px 24px 16px",
 		);
 		t.eq("섹션 border 없음", m.section?.bw, "0px");
-		t.near("제목 x", m.h2?.rect.x, MOBILE_CARD.x + 16);
+		t.near("제목 x", m.h2?.rect.x, MOBILE_COLUMN.x + 16);
 		t.near(
 			"제목 y",
 			m.h2?.rect.y,
-			(m.headerBottom ?? Number.NaN) + 1 + MOBILE_TITLE_HEIGHT + 20,
+			(m.headerBottom ?? Number.NaN) + MOBILE_TITLE_HEIGHT + 20,
 		);
 		t.near("제목 h", m.h2?.rect.h, 24);
 		t.eq(
@@ -87,7 +87,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			m.address?.text,
 			"마포구 망원동 12-3",
 		);
-		t.near("주소 x", m.address?.rect.x, MOBILE_CARD.x + 16);
+		t.near("주소 x", m.address?.rect.x, MOBILE_COLUMN.x + 16);
 		t.near(
 			"주소 y (제목 아래 간격 2)",
 			m.address?.rect.y,
@@ -113,7 +113,7 @@ for (const [index, id] of OK_IDS.entries()) {
 			await t.goto(`/buildings/${id}`);
 			const m = await t.measureInfo();
 			t.ok("건물 정보 섹션이 보임", m.found, m.found, "있음");
-			const g = c4MobileGeometry(m, id, MOBILE_CARD.x, MOBILE_CARD.width);
+			const g = c4MobileGeometry(m, id, MOBILE_COLUMN.x, MOBILE_COLUMN.width);
 			t.eq(`id ${id} 주소 부제 유무`, !!m.address, g.hasAddress);
 			t.near(
 				`id ${id} 섹션 h`,
@@ -286,20 +286,20 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 test.describe(`768x900 light`, () => {
 	test.use({ viewport: { width: 768, height: 900 }, colorScheme: "light" });
 
-	test("C4-13 768px 태블릿에서 모바일 레이아웃의 건물 정보가 폭 688 카드 안에서 같은 구조로 나옴", async ({
+	test("C4-13 768px 태블릿에서 모바일 레이아웃의 건물 정보가 폭 720 열 안에서 같은 구조로 나옴", async ({
 		t,
 	}) => {
 		await t.goto("/buildings/1");
 		const m = await t.measureInfo();
 		t.ok("건물 정보 섹션이 보임", m.found, m.found, "있음");
-		// 열 720 가운데 x 24, 카드 좌우 여백 16과 border 1 안쪽(2026-11-12)
-		t.near("섹션 x (카드 안쪽)", m.section?.rect.x, 41);
-		t.near("섹션 w (카드 안쪽 686)", m.section?.rect.w, 686);
+		// 열 720 가운데 x 24, 카드가 없어 열 폭을 그대로 씀(2026-11-13 흰 세로 열)
+		t.near("섹션 x (열 안)", m.section?.rect.x, 24);
+		t.near("섹션 w (열 720)", m.section?.rect.w, 720);
 		t.eq("섹션 border 없음 (설계자 결정 17)", m.section?.bw, "0px");
 		t.color("섹션 배경 bg.layerDefault", m.section?.bg, t.tokens.layerDefault);
 		t.eq("태블릿에서 aside가 보이지 않음", m.asideVisible, 0);
-		t.near("제목 x", m.h2?.rect.x, 41 + 16);
-		const g = c4MobileGeometry(m, 1, 41, 686);
+		t.near("제목 x", m.h2?.rect.x, 24 + 16);
+		const g = c4MobileGeometry(m, 1, 24, 720);
 		c4CheckCards(t, m, 1, g);
 		c4CheckBaseMonth(t, m, 1, g);
 		t.ok(
@@ -327,7 +327,12 @@ test.describe(`320x700 light`, () => {
 				m.doc.scrollW,
 				`≤ ${m.doc.vw}`,
 			);
-			const g = c4MobileGeometry(m, id, MOBILE_CARD.x, 320 - 2 * MOBILE_CARD.x);
+			const g = c4MobileGeometry(
+				m,
+				id,
+				MOBILE_COLUMN.x,
+				320 - 2 * MOBILE_COLUMN.x,
+			);
 			t.eq(`id ${id} 동 카드 개수`, m.cards?.length, INFO[id].length);
 			for (const [i, c] of (m.cards ?? []).entries()) {
 				t.near(`id ${id} 카드 ${i} x`, c.rect.x, g.cardX);

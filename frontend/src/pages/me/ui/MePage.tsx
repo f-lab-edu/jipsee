@@ -5,7 +5,6 @@ import { meStyles } from "@/pages/me/config/meStyles";
 import PolicySection from "@/pages/me/ui/PolicySection";
 import ProviderSection from "@/pages/me/ui/ProviderSection";
 import WithdrawSection from "@/pages/me/ui/WithdrawSection";
-import { colors } from "@/shared/config/colors";
 import { paths } from "@/shared/routes/paths";
 import ResponsiveLayout from "@/shared/ui/ResponsiveLayout";
 import Header from "@/widgets/header/ui/Header";
@@ -30,7 +29,6 @@ export default function MePage({ session }: MePageProps) {
 			<Header
 				session={session}
 				currentPath={paths.me}
-				mobileBackground={colors.pageBackground}
 				mobileBack={<HeaderBackButton />}
 			/>
 			<VStack as="main" data-area="main" {...style.main}>

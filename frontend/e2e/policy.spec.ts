@@ -196,21 +196,6 @@ for (const { label, viewport, layout } of SCREENS) {
 				}
 			});
 
-			test(`${caseId("P2", 2)} ${label} ${theme} 로그인 화면의 동의 문구 링크가 이동하고 h1이 맞음`, async ({
-				page,
-			}) => {
-				test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
-				for (const { path, title } of [TERMS, PRIVACY]) {
-					await gotoAndSettle(page, "/login");
-					await page
-						.getByTestId(`login-body-${layout}`)
-						.getByRole("link", { name: title, exact: true })
-						.click();
-					await expect(page).toHaveURL(path);
-					await expectVisibleHeading(page, title);
-				}
-			});
-
 			test(`${caseId("P2", 3)} ${label} ${theme} 내 정보의 정책 목록 링크가 세 경로로 이동하고 h1이 맞음`, async ({
 				page,
 			}) => {
@@ -1005,7 +990,7 @@ test.describe("모바일 390x844 light 문서 화면 동작", () => {
 			);
 		});
 
-		test(`${caseId("P3", 11)} 모바일 ${title} 헤더에 계정 링크가 없고 하단 내비게이션 내 정보 탭이 로그인으로 보냄`, async ({
+		test(`${caseId("P3", 11)} 모바일 ${title} 헤더에 계정 링크가 없고 하단 내비게이션 셋째 탭이 이름 로그인으로 로그인에 보냄`, async ({
 			page,
 		}) => {
 			test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
@@ -1016,6 +1001,7 @@ test.describe("모바일 390x844 light 문서 화면 동작", () => {
 					.getByRole("link", { name: "로그인", exact: true }),
 			).toHaveCount(0);
 			const tab = page.locator('[data-area="bottom-nav-me"]');
+			await expect(tab).toHaveText("로그인");
 			await expect(tab).toHaveAttribute("href", "/login?next=%2Fme");
 			await tab.click();
 			await expect(page).toHaveURL("/login?next=%2Fme");

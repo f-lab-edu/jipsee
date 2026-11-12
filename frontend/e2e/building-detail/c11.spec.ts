@@ -26,7 +26,7 @@ import { c11MeasureLongName } from "../support/buildingDetail/c11MeasureLongName
 import type { Theme } from "../support/buildingDetail/tokens";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
-import { DESKTOP, MOBILE, MOBILE_CARD } from "../support/viewports";
+import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
 
 const THEMES: Theme[] = ["light", "dark"];
 const LAYOUTS = [
@@ -361,7 +361,7 @@ test.describe("320x700 light", () => {
 				m.scrollW,
 				`문서 폭 ≤ ${m.vw}`,
 			);
-			t.near(`${l} 섹션 w`, m.section.w, 320 - 2 * MOBILE_CARD.x, 0.5);
+			t.near(`${l} 섹션 w`, m.section.w, 320 - 2 * MOBILE_COLUMN.x, 0.5);
 			const b = c11Bounds(m, "mobile");
 			for (const [i, r] of m.lis.entries()) {
 				const name = r.texts[0];
@@ -401,13 +401,13 @@ test.describe("320x700 light", () => {
 test.describe("768x900 light", () => {
 	test.use({ viewport: { width: 768, height: 900 }, colorScheme: "light" });
 
-	test("C11-23 768px 태블릿에서 모바일 구조의 목록이 폭 688 카드 안에서 같은 행 모양으로 나옴", async ({
+	test("C11-23 768px 태블릿에서 모바일 구조의 목록이 폭 720 열 안에서 같은 행 모양으로 나옴", async ({
 		t,
 	}) => {
 		await t.goto("/buildings/1");
 		const m = await c11Measure(t);
-		// 열 720에서 카드 좌우 여백 32와 border 2를 뺀 값(2026-11-12)
-		t.near("섹션 w(카드 안쪽 686)", m.section.w, 686, 1);
+		// 카드가 없어 열 폭 720을 그대로 씀(2026-11-13 흰 세로 열)
+		t.near("섹션 w(열 720)", m.section.w, 720, 1);
 		c11CheckSummary(t, m, "mobile", 14, "태블릿");
 		c11CheckRowsContent(t, m, "mobile", C11_J, "태블릿");
 		c11CheckMobileRows(t, m, "태블릿");

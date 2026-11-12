@@ -6,7 +6,6 @@ import { policyScreenStyles } from "@/pages/policy/config/policyStyles";
 import DataSourcesCards from "@/pages/policy/ui/DataSourcesCards";
 import DataSourcesNotice from "@/pages/policy/ui/DataSourcesNotice";
 import PolicyDraftNotice from "@/pages/policy/ui/PolicyDraftNotice";
-import { colors } from "@/shared/config/colors";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import { paths } from "@/shared/routes/paths";
 import ResponsiveLayout from "@/shared/ui/ResponsiveLayout";
@@ -36,7 +35,6 @@ export default function DataSourcesPage({
 			<Header
 				session={session}
 				currentPath={paths.dataSources}
-				mobileBackground={colors.pageBackground}
 				mobileBack={<HeaderBackButton />}
 			/>
 			<VStack as="main" data-area="main" {...style.main}>

@@ -15,19 +15,31 @@ function renderAt(pathname: string, provider: "KAKAO" | null = null) {
 	return {
 		home: screen.getByRole("link", { name: "홈" }),
 		chat: screen.getByRole("link", { name: "집사" }),
-		me: screen.getByRole("link", { name: "내 정보" }),
+		me: screen.getByRole("link", {
+			name: provider === null ? "로그인" : "내 정보",
+		}),
 	};
 }
 
 describe("BottomNav", () => {
-	it("하단 내비게이션 안에 홈, 집사, 내 정보 탭을 순서대로 표시함", () => {
-		renderAt("/");
+	it("로그인하면 하단 내비게이션 안에 홈, 집사, 내 정보 탭을 순서대로 표시함", () => {
+		renderAt("/", "KAKAO");
 
 		const nav = screen.getByRole("navigation", { name: "하단 내비게이션" });
 
 		expect(
 			Array.from(nav.querySelectorAll("a")).map((link) => link.textContent),
 		).toEqual(["홈", "집사", "내 정보"]);
+	});
+
+	it("로그인하지 않으면 셋째 탭 이름이 로그인임", () => {
+		renderAt("/");
+
+		const nav = screen.getByRole("navigation", { name: "하단 내비게이션" });
+
+		expect(
+			Array.from(nav.querySelectorAll("a")).map((link) => link.textContent),
+		).toEqual(["홈", "집사", "로그인"]);
 	});
 
 	it("홈에서는 홈 탭만 aria-current를 page로 가짐", () => {
