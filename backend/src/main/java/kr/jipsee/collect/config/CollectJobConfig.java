@@ -3,7 +3,7 @@ package kr.jipsee.collect.config;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import kr.jipsee.collect.application.DataSourceLoadListener;
+import kr.jipsee.collect.application.DataSourceLoadTasklet;
 import kr.jipsee.collect.application.DealCollectProcessor;
 import kr.jipsee.collect.application.DealKeyReader;
 import kr.jipsee.collect.application.DealKeys;
@@ -21,7 +21,6 @@ import kr.jipsee.deal.application.SaleDealService;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.listener.StepExecutionListener;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -47,114 +46,96 @@ public class CollectJobConfig {
 
     /** 전월세 일일 수집 Job. 식별 파라미터는 collectDate */
     @Bean
-    Job dailyRentCollectJob(JobRepository jobRepository, Step dailyRentStep) {
+    Job dailyRentCollectJob(JobRepository jobRepository, Step dailyRentStep, Step rentLoadedAtStep) {
         return new JobBuilder(DAILY_RENT_JOB, jobRepository)
                 .start(dailyRentStep)
+                .next(rentLoadedAtStep)
                 .build();
     }
 
     /** 매매 일일 수집 Job. 식별 파라미터는 collectDate */
     @Bean
-    Job dailySaleCollectJob(JobRepository jobRepository, Step dailySaleStep) {
+    Job dailySaleCollectJob(JobRepository jobRepository, Step dailySaleStep, Step saleLoadedAtStep) {
         return new JobBuilder(DAILY_SALE_JOB, jobRepository)
                 .start(dailySaleStep)
+                .next(saleLoadedAtStep)
                 .build();
     }
 
     /** 전월세 초기 적재 Job. 식별 파라미터는 endMonth */
     @Bean
-    Job initialRentLoadJob(JobRepository jobRepository, Step initialRentStep) {
+    Job initialRentLoadJob(JobRepository jobRepository, Step initialRentStep, Step rentLoadedAtStep) {
         return new JobBuilder(INITIAL_RENT_JOB, jobRepository)
                 .start(initialRentStep)
+                .next(rentLoadedAtStep)
                 .build();
     }
 
     /** 매매 초기 적재 Job. 식별 파라미터는 endMonth */
     @Bean
-    Job initialSaleLoadJob(JobRepository jobRepository, Step initialSaleStep) {
+    Job initialSaleLoadJob(JobRepository jobRepository, Step initialSaleStep, Step saleLoadedAtStep) {
         return new JobBuilder(INITIAL_SALE_JOB, jobRepository)
                 .start(initialSaleStep)
+                .next(saleLoadedAtStep)
                 .build();
     }
 
-    /** 전월세 일일 수집 Step. 끝나면 RENT_DEAL 수집 시각 갱신 */
+    /** 전월세 일일 수집 Step */
     @Bean
     Step dailyRentStep(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
             DealKeyReader dailyKeyReader,
             RentDealClient rentDealClient,
-            RentDealService rentDealService,
-            DataSourceDao dataSourceDao,
-            Clock clock) {
+            RentDealService rentDealService) {
         return collectStep(
-                "dailyRentStep",
-                jobRepository,
-                transactionManager,
-                dailyKeyReader,
-                rentDealClient,
-                rentDealService,
-                new DataSourceLoadListener(dataSourceDao, clock, RENT_SOURCE));
+                "dailyRentStep", jobRepository, transactionManager, dailyKeyReader, rentDealClient, rentDealService);
     }
 
-    /** 매매 일일 수집 Step. 끝나면 SALE_DEAL 수집 시각 갱신 */
+    /** 매매 일일 수집 Step */
     @Bean
     Step dailySaleStep(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
             DealKeyReader dailyKeyReader,
             SaleDealClient saleDealClient,
-            SaleDealService saleDealService,
-            DataSourceDao dataSourceDao,
-            Clock clock) {
+            SaleDealService saleDealService) {
         return collectStep(
-                "dailySaleStep",
-                jobRepository,
-                transactionManager,
-                dailyKeyReader,
-                saleDealClient,
-                saleDealService,
-                new DataSourceLoadListener(dataSourceDao, clock, SALE_SOURCE));
+                "dailySaleStep", jobRepository, transactionManager, dailyKeyReader, saleDealClient, saleDealService);
     }
 
-    /** 전월세 초기 적재 Step. 끝나면 RENT_DEAL 수집 시각 갱신 */
+    /** 전월세 초기 적재 Step */
     @Bean
     Step initialRentStep(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
             DealKeyReader initialRentKeyReader,
             RentDealClient rentDealClient,
-            RentDealService rentDealService,
-            DataSourceDao dataSourceDao,
-            Clock clock) {
+            RentDealService rentDealService) {
         return collectStep(
                 "initialRentStep",
                 jobRepository,
                 transactionManager,
                 initialRentKeyReader,
                 rentDealClient,
-                rentDealService,
-                new DataSourceLoadListener(dataSourceDao, clock, RENT_SOURCE));
+                rentDealService);
     }
 
-    /** 매매 초기 적재 Step. 끝나면 SALE_DEAL 수집 시각 갱신 */
+    /** 매매 초기 적재 Step */
     @Bean
     Step initialSaleStep(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
             DealKeyReader initialSaleKeyReader,
             SaleDealClient saleDealClient,
-            SaleDealService saleDealService,
-            DataSourceDao dataSourceDao,
-            Clock clock) {
+            SaleDealService saleDealService) {
         return collectStep(
                 "initialSaleStep",
                 jobRepository,
                 transactionManager,
                 initialSaleKeyReader,
                 saleDealClient,
-                saleDealService,
-                new DataSourceLoadListener(dataSourceDao, clock, SALE_SOURCE));
+                saleDealService);
     }
 
     /** collectDate가 속한 달부터 최근 6개월의 키를 읽는 Reader. 두 일일 Step이 함께 사용 */
@@ -181,6 +162,26 @@ public class CollectJobConfig {
         return new DealKeyReader(DealKeys.of(SALE_FIRST_MONTH, YearMonth.parse(endMonth), sigunguCodes.codes()));
     }
 
+    /** RENT_DEAL의 마지막 수집 시각을 갱신하는 Step. 수집 Step 다음에 실행 */
+    @Bean
+    Step rentLoadedAtStep(
+            JobRepository jobRepository,
+            PlatformTransactionManager transactionManager,
+            DataSourceDao dataSourceDao,
+            Clock clock) {
+        return loadedAtStep("rentLoadedAtStep", jobRepository, transactionManager, dataSourceDao, clock, RENT_SOURCE);
+    }
+
+    /** SALE_DEAL의 마지막 수집 시각을 갱신하는 Step. 수집 Step 다음에 실행 */
+    @Bean
+    Step saleLoadedAtStep(
+            JobRepository jobRepository,
+            PlatformTransactionManager transactionManager,
+            DataSourceDao dataSourceDao,
+            Clock clock) {
+        return loadedAtStep("saleLoadedAtStep", jobRepository, transactionManager, dataSourceDao, clock, SALE_SOURCE);
+    }
+
     /** 키 하나를 chunk 하나, 트랜잭션 하나로 처리하는 수집 Step 생성 */
     private <T> Step collectStep(
             String name,
@@ -188,15 +189,26 @@ public class CollectJobConfig {
             PlatformTransactionManager transactionManager,
             DealKeyReader reader,
             DealApiClient<T> client,
-            DealReplacer<T> replacer,
-            StepExecutionListener listener) {
+            DealReplacer<T> replacer) {
         return new StepBuilder(name, jobRepository)
                 .<DealKey, DealReplaceItem<T>>chunk(1)
                 .transactionManager(transactionManager)
                 .reader(reader)
                 .processor(new DealCollectProcessor<>(client, replacer))
                 .writer(new DealReplaceWriter<>(replacer))
-                .listener(listener)
+                .build();
+    }
+
+    /** 출처의 마지막 수집 시각을 갱신하는 Tasklet Step 생성 */
+    private Step loadedAtStep(
+            String name,
+            JobRepository jobRepository,
+            PlatformTransactionManager transactionManager,
+            DataSourceDao dataSourceDao,
+            Clock clock,
+            String source) {
+        return new StepBuilder(name, jobRepository)
+                .tasklet(new DataSourceLoadTasklet(dataSourceDao, clock, source), transactionManager)
                 .build();
     }
 }

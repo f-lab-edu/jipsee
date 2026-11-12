@@ -8,11 +8,13 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import kr.jipsee.TestcontainersConfiguration;
@@ -20,6 +22,7 @@ import kr.jipsee.collect.application.SigunguCodes;
 import kr.jipsee.collect.client.DealPage;
 import kr.jipsee.collect.client.RentDealClient;
 import kr.jipsee.collect.client.SaleDealClient;
+import kr.jipsee.collect.dao.DataSourceDao;
 import kr.jipsee.collect.exception.DealApiException;
 import kr.jipsee.deal.dto.RentDealRow;
 import kr.jipsee.deal.dto.SaleDealRow;
@@ -40,6 +43,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -74,6 +78,9 @@ class CollectJobIntegrationTest {
 
     @MockitoBean
     SaleDealClient saleDealClient;
+
+    @MockitoSpyBean
+    DataSourceDao dataSourceDao;
 
     @BeforeEach
     void setUp() {
@@ -132,6 +139,18 @@ class CollectJobIntegrationTest {
         return jdbcTemplate.queryForList("select source from data_source", String.class);
     }
 
+    private String stepStatus(String stepName) {
+        return jdbcTemplate.queryForObject(
+                "select status from BATCH_STEP_EXECUTION where STEP_NAME = ? order by STEP_EXECUTION_ID desc limit 1",
+                String.class,
+                stepName);
+    }
+
+    private int stepExecutionCount(String stepName) {
+        return jdbcTemplate.queryForObject(
+                "select count(*) from BATCH_STEP_EXECUTION where STEP_NAME = ?", Integer.class, stepName);
+    }
+
     private static JobParameters endMonth(String value) {
         return new JobParametersBuilder().addString("endMonth", value).toJobParameters();
     }
@@ -163,6 +182,38 @@ class CollectJobIntegrationTest {
         then(saleDealClient).should(times(1)).fetch("11110", YearMonth.of(2011, 2), 1);
         then(saleDealClient).should(times(2)).fetch("11140", YearMonth.of(2011, 1), 1);
         then(saleDealClient).should(never()).fetch(anyString(), eq(YearMonth.of(2005, 12)), anyInt());
+    }
+
+    @Test
+    @DisplayName("loaded_at 갱신이 실패하면 Job은 FAILED가 되고 같은 파라미터로 다시 시작하면 수집은 건너뛰고 갱신만 다시 실행함")
+    void loaded_at_갱신이_실패하면_Job은_FAILED가_되고_같은_파라미터로_다시_시작하면_수집은_건너뛰고_갱신만_다시_실행함() throws Exception {
+        // given: 첫 saveLoadedAt 호출만 실패함
+        JobParameters params = endMonth("2011-02");
+        willThrow(new IllegalStateException("테스트용 실패"))
+                .willCallRealMethod()
+                .given(dataSourceDao)
+                .saveLoadedAt(anyString(), any(LocalDateTime.class));
+
+        // when
+        JobExecution failed = jobOperator.start(initialRentLoadJob, params);
+
+        // then
+        assertThat(failed.getStatus()).isEqualTo(BatchStatus.FAILED);
+        assertThat(stepStatus("initialRentStep")).isEqualTo("COMPLETED");
+        assertThat(stepStatus("rentLoadedAtStep")).isEqualTo("FAILED");
+        assertThat(count("rent_deal")).isEqualTo(6);
+        assertThat(sources()).isEmpty();
+
+        // when
+        JobExecution resumed = jobOperator.start(initialRentLoadJob, params);
+
+        // then
+        assertThat(resumed.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+        assertThat(stepExecutionCount("initialRentStep")).isEqualTo(1);
+        assertThat(stepExecutionCount("rentLoadedAtStep")).isEqualTo(2);
+        assertThat(count("rent_deal")).isEqualTo(6);
+        assertThat(sources()).containsExactly("RENT_DEAL");
+        then(rentDealClient).should(times(6)).fetch(anyString(), any(YearMonth.class), anyInt());
     }
 
     @Test
