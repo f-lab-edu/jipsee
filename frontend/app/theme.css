@@ -294,17 +294,31 @@ a {
 	inset: 0;
 }
 
-/* 모바일 챗봇 패널의 위로 퍼지는 그림자. Seed 그림자 토큰은 모두 아래로 퍼지고, 모드마다 색 기준이 달라 한 값으로 둘 수 없음 */
-:root[data-seed-color-mode="system"][data-seed-user-color-scheme="light"]
-.chat-panel-shadow {
-	box-shadow: 0 -6px 20px
-		color-mix(in srgb, var(--seed-color-palette-gray-1000) 6%, transparent);
+/* 모바일 패널 그림자 색. Seed 그림자 토큰은 모두 아래로 퍼지고, 모드마다 색 기준이 달라 한 값으로 둘 수 없음 */
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="light"] {
+	--jipsee-color-panel-shadow: color-mix(
+		in srgb,
+		var(--seed-color-palette-gray-1000) 6%,
+		transparent
+	);
 }
 
-:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"]
-	.chat-panel-shadow {
-	box-shadow: 0 -6px 20px
-		color-mix(in srgb, var(--seed-color-palette-static-black) 40%, transparent);
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"] {
+	--jipsee-color-panel-shadow: color-mix(
+		in srgb,
+		var(--seed-color-palette-static-black) 40%,
+		transparent
+	);
+}
+
+/* 모바일 챗봇 패널의 위로 퍼지는 그림자 */
+:root .chat-panel-shadow {
+	box-shadow: 0 -6px 20px var(--jipsee-color-panel-shadow);
+}
+
+/* 모바일 헤더의 아래로 퍼지는 그림자. 챗봇 패널 그림자를 뒤집은 값 */
+:root .header-shadow {
+	box-shadow: 0 6px 20px var(--jipsee-color-panel-shadow);
 }
 
 /* 챗봇 축소 바 입력 모양. root가 바 자체이고 Seed의 1px 안쪽 선과 비활성화 상태의 배경을 덮어씀 */

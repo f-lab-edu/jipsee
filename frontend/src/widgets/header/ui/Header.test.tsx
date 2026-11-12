@@ -33,6 +33,17 @@ describe("Header", () => {
 		);
 	});
 
+	it("모바일 헤더 아래에 1px 테두리와 그림자 클래스를 둠", () => {
+		render(<Header session={null} currentPath="/" />);
+
+		const row = screen.getByTestId("header-mobile").firstElementChild;
+
+		expect(row?.getAttribute("style")).toContain(
+			"--seed-box-border-bottom-width: 1px",
+		);
+		expect(row?.className).toContain("header-shadow");
+	});
+
 	it("모바일 헤더에 뒤로 가기 요소는 로고 줄에, 둘째 줄 요소는 그 아래에 표시함", () => {
 		render(
 			<Header

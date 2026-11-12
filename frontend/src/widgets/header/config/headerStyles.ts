@@ -5,6 +5,14 @@ import type { HeaderStyle } from "@/widgets/header/model/headerStyle";
 
 export const headerStyles = defineResponsiveStyles<HeaderStyle>({
 	mobile: {
+		container: {
+			display: "flex",
+			flexDirection: "column",
+			bg: "bg.layerDefault",
+			borderBottomWidth: 1,
+			borderColor: "stroke.neutralMuted",
+			className: "header-shadow",
+		},
 		row: {
 			height: "56px",
 			px: "spacingX.globalGutter",
