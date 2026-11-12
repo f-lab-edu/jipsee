@@ -7,7 +7,6 @@ import PolicyClauses from "@/pages/policy/ui/PolicyClauses";
 import PolicyDraftNotice from "@/pages/policy/ui/PolicyDraftNotice";
 import PolicyEffectiveDate from "@/pages/policy/ui/PolicyEffectiveDate";
 import PolicyToc from "@/pages/policy/ui/PolicyToc";
-import { colors } from "@/shared/config/colors";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import ResponsiveLayout from "@/shared/ui/ResponsiveLayout";
 import Header from "@/widgets/header/ui/Header";
@@ -41,7 +40,6 @@ export default function PolicyDocumentPage({
 			<Header
 				session={session}
 				currentPath={currentPath}
-				mobileBackground={colors.pageBackground}
 				mobileBack={<HeaderBackButton />}
 			/>
 			<VStack as="main" data-area="main" {...style.main}>

@@ -1,4 +1,4 @@
-import { type BoxProps, HStack, Text, VStack } from "@seed-design/react";
+import { HStack, Text, VStack } from "@seed-design/react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { siteMetadata } from "@/shared/config/siteMetadata";
@@ -7,7 +7,6 @@ import { headerStyles } from "@/widgets/header/config/headerStyles";
 import LogoSymbol from "@/widgets/header/ui/LogoSymbol";
 
 interface MobileHeaderProps {
-	background: BoxProps["bg"];
 	back?: ReactNode;
 	bottom?: ReactNode;
 }
@@ -17,21 +16,17 @@ interface MobileHeaderProps {
  *
  * - 로고 줄은 왼쪽에 뒤로 가기 요소와 로고 출력
  * - 계정 링크는 출력하지 않음. 하단 내비게이션의 내 정보 탭이 대신함
+ * - 배경은 흰색(`bg.layerDefault`)
  * - bottom이 있으면 로고 줄 아래에 둘째 줄로 출력
  *
- * @param background 사용처가 주입한 배경
  * @param back 로고 왼쪽 요소
  * @param bottom 로고 줄 아래 요소
  */
-export default function MobileHeader({
-	background,
-	back,
-	bottom,
-}: MobileHeaderProps) {
+export default function MobileHeader({ back, bottom }: MobileHeaderProps) {
 	const style = headerStyles.mobile;
 
 	return (
-		<VStack bg={background}>
+		<VStack bg="bg.layerDefault">
 			<HStack {...style.row}>
 				<HStack {...style.leftGroup}>
 					{back}

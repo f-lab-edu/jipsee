@@ -2,7 +2,7 @@ import type { LoginStyle } from "@/pages/login/model/loginStyle";
 import { typography } from "@/shared/config/typography";
 
 export const loginStyles: LoginStyle = {
-	main: { flexGrow: 1, className: "page-card" },
+	main: { flexGrow: 1 },
 	mobileBody: {
 		flexGrow: 1,
 		justifyContent: "center",

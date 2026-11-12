@@ -3,7 +3,6 @@ import { loginStyles } from "@/pages/login/config/loginStyles";
 import LoginIntro from "@/pages/login/ui/LoginIntro";
 import LoginNotice from "@/pages/login/ui/LoginNotice";
 import LoginProviders from "@/pages/login/ui/LoginProviders";
-import { colors } from "@/shared/config/colors";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import ResponsiveLayout from "@/shared/ui/ResponsiveLayout";
 import Header from "@/widgets/header/ui/Header";
@@ -31,11 +30,7 @@ export default function LoginPage({ next, hasError }: LoginPageProps) {
 
 	return (
 		<>
-			<Header
-				session={null}
-				mobileBackground={colors.pageBackground}
-				mobileBack={<HeaderBackButton />}
-			/>
+			<Header session={null} mobileBack={<HeaderBackButton />} />
 			<VStack as="main" data-area="main" {...style.main}>
 				<ResponsiveLayout
 					testId="login-body"

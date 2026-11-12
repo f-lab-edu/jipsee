@@ -4,13 +4,7 @@ import Header from "@/widgets/header/ui/Header";
 
 describe("Header", () => {
 	it("모바일 헤더에 서비스 이름을 홈으로 가는 링크로 표시함", () => {
-		render(
-			<Header
-				session={null}
-				currentPath="/"
-				mobileBackground="bg.layerDefault"
-			/>,
-		);
+		render(<Header session={null} currentPath="/" />);
 
 		expect(
 			within(screen.getByTestId("header-mobile")).getByRole("link", {
@@ -20,13 +14,7 @@ describe("Header", () => {
 	});
 
 	it("데스크톱 헤더에도 같은 홈 링크를 표시함", () => {
-		render(
-			<Header
-				session={null}
-				currentPath="/"
-				mobileBackground="bg.layerDefault"
-			/>,
-		);
+		render(<Header session={null} currentPath="/" />);
 
 		expect(
 			within(screen.getByTestId("header-desktop")).getByRole("link", {
@@ -35,15 +23,13 @@ describe("Header", () => {
 		).toHaveProperty("pathname", "/");
 	});
 
-	it("사용처가 넘긴 배경 색을 모바일 헤더에 적용함", () => {
-		render(
-			<Header session={null} currentPath="/" mobileBackground="bg.brandWeak" />,
-		);
+	it("모바일 헤더 배경을 흰색으로 표시함", () => {
+		render(<Header session={null} currentPath="/" />);
 
 		const row = screen.getByTestId("header-mobile").firstElementChild;
 
 		expect(row?.getAttribute("style")).toContain(
-			"--seed-box-background: var(--seed-color-bg-brand-weak)",
+			"--seed-box-background: var(--seed-color-bg-layer-default)",
 		);
 	});
 
@@ -52,7 +38,6 @@ describe("Header", () => {
 			<Header
 				session={null}
 				currentPath="/"
-				mobileBackground="transparent"
 				mobileBack={<button type="button">뒤로</button>}
 				mobileBottom={<p>둘째 줄</p>}
 			/>,
@@ -75,13 +60,7 @@ describe("Header", () => {
 	});
 
 	it("헤더 요소를 위 0에 고정함", () => {
-		const { container } = render(
-			<Header
-				session={null}
-				currentPath="/"
-				mobileBackground="bg.layerDefault"
-			/>,
-		);
+		const { container } = render(<Header session={null} currentPath="/" />);
 		const style = container.querySelector("header")?.getAttribute("style");
 
 		expect(style).toContain("--seed-box-position: sticky");
@@ -89,19 +68,13 @@ describe("Header", () => {
 	});
 
 	it("currentPath가 없으면 데스크톱 헤더에 로그인 링크를 표시하지 않음", () => {
-		render(<Header session={null} mobileBackground="bg.layerDefault" />);
+		render(<Header session={null} />);
 
 		expect(screen.queryByRole("link", { name: "로그인" })).toBeNull();
 	});
 
 	it("currentPath가 있으면 데스크톱 헤더에만 로그인 링크를 표시함", () => {
-		render(
-			<Header
-				session={null}
-				currentPath="/"
-				mobileBackground="bg.layerDefault"
-			/>,
-		);
+		render(<Header session={null} currentPath="/" />);
 
 		expect(
 			within(screen.getByTestId("header-desktop")).getAllByRole("link", {
