@@ -174,7 +174,11 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			t.eq("h1 줄 높이", h?.lh, "24px");
 			t.near("h1 높이(한 줄)", h?.rect.h, 24);
 			t.eq("모바일 헤더에 로고 링크 하나", m.logoVisible, 1);
-			t.eq("모바일 헤더에 로그인 링크 하나", m.loginVisible, 1);
+			t.eq(
+				"모바일 헤더에 로그인 링크 없음(2026-11-12 하단 내비게이션 결정 3)",
+				m.loginVisible,
+				0,
+			);
 			t.eq("모바일 헤더에 내 정보 링크 없음", m.myInfoVisible, 0);
 		});
 		test(`${caseId("C3", 19 + 2 * themeIndex)} 모바일 헤더의 배경과 제목 색이 토큰과 같음 (${theme}, 2026-11-09 피드백 7번)`, async ({
@@ -395,7 +399,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		await bgNarrow(t);
 	});
 });
-// 480px 이하 본문 카드 (2026-11-09 피드백 6번)
+// 1280px 미만 본문 카드. main이 카드임 (2026-11-12 하단 내비게이션과 본문 카드 설계 4.1절)
 for (const [themeIndex, theme] of THEMES.entries()) {
 	test.describe(`${MOBILE.width}x${MOBILE.height} ${theme} 본문 카드`, () => {
 		test.use({ viewport: MOBILE, colorScheme: theme });
@@ -405,9 +409,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		}) => {
 			await t.goto("/buildings/1");
 			const card = await t.page.evaluate(() => {
-				const el = document.querySelector(
-					'[data-area="building-body-mobile"] > *',
-				);
+				const el = document.querySelector("main");
 				if (!el) return null;
 				const c = getComputedStyle(el);
 				const r = el.getBoundingClientRect();
@@ -448,7 +450,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 	test.describe(`768x900 ${theme}`, () => {
 		test.use({ viewport: { width: 768, height: 900 }, colorScheme: theme });
 
-		test(`${caseId("C3", 40 + 2 * themeIndex)} 768px에서 페이지는 하늘빛이고 컬럼은 border 없는 흰 배경임 (${theme})`, async ({
+		test(`${caseId("C3", 40 + 2 * themeIndex)} 768px에서 페이지, 컬럼, 헤더, 푸터는 하늘빛이고 컬럼은 border가 없음 (${theme})`, async ({
 			t,
 		}) => {
 			await t.goto("/buildings/1");
@@ -462,17 +464,13 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			t.color("컬럼 바깥 페이지 배경 brand-tint", m.bgOutside, m.tint);
 			t.eq("컬럼 border 두께", m.columnBorders, ["0px", "0px", "0px", "0px"]);
 			t.eq("컬럼 box-shadow", m.columnShadow, "none");
+			t.color("컬럼 안 헤더 brand-tint", m.bgHeader, m.tint);
 			t.color(
-				"컬럼 안 헤더 bg.layerDefault",
-				m.bgHeader,
+				"헤더 아래 main(카드) bg.layerDefault",
+				m.bgCard,
 				t.tokens.layerDefault,
 			);
-			t.color(
-				"헤더 아래 main bg.layerDefault",
-				m.bgMain,
-				t.tokens.layerDefault,
-			);
-			t.color("푸터 bg.layerDefault", m.bgFooter, t.tokens.layerDefault);
+			t.color("푸터 brand-tint", m.bgFooter, m.tint);
 		});
 	});
 	test.describe(`${DESKTOP.width}x${DESKTOP.height} ${theme}`, () => {
@@ -503,9 +501,9 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 // 거래 이력 섹션(C6)이 생긴 뒤 모바일 id 1은 1200보다 길어져서 id 3으로 바꿨고, 주변 거래 섹션(C10)이 생긴 뒤 id 3도 1343이 되어
 // 모바일은 가장 짧은 id 4(위치 정보 없음, 캔버스 높이 1470)에 뷰포트 높이 1800으로 둠. 이후 커밋이 길이를 늘려도 id 4는 이 안에 들어옴
 // 주변 거래 목록(C11)이 생긴 뒤 데스크톱 id 1도 2200을 넘어서 데스크톱도 id 4(캔버스 높이 1030)로 바꿈
-// C13 이후: 모바일은 질문 하단 바(높이 81, 캔버스에서 바가 푸터 아래, 2026-11-09 피드백 10번)가 맨 아래를 차지하므로 푸터 아래 끝이 그 위쪽에 닿음
+// C13 이후: 모바일은 질문 하단 바(높이 81, 캔버스에서 바가 푸터 아래, 2026-11-09 피드백 10번)와 하단 내비게이션(위 테두리 1과 탭 56, 2026-11-12)이 맨 아래를 차지하므로 푸터 아래 끝이 그 위쪽에 닿음
 for (const [index, [w, h, id, bar]] of [
-	[390, 1800, 4, 81],
+	[390, 1800, 4, 81 + 57],
 	[1440, 1400, 4, 0],
 ].entries()) {
 	test.describe(`${w}x${h} light`, () => {

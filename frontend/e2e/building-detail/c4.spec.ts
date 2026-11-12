@@ -286,19 +286,20 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 test.describe(`768x900 light`, () => {
 	test.use({ viewport: { width: 768, height: 900 }, colorScheme: "light" });
 
-	test("C4-13 768px 태블릿에서 모바일 레이아웃의 건물 정보가 720 컬럼 안에서 같은 구조로 나옴", async ({
+	test("C4-13 768px 태블릿에서 모바일 레이아웃의 건물 정보가 폭 688 카드 안에서 같은 구조로 나옴", async ({
 		t,
 	}) => {
 		await t.goto("/buildings/1");
 		const m = await t.measureInfo();
 		t.ok("건물 정보 섹션이 보임", m.found, m.found, "있음");
-		t.near("섹션 x (컬럼 가운데 720)", m.section?.rect.x, 24);
-		t.near("섹션 w", m.section?.rect.w, 720);
+		// 열 720 가운데 x 24, 카드 좌우 여백 16과 border 1 안쪽(2026-11-12)
+		t.near("섹션 x (카드 안쪽)", m.section?.rect.x, 41);
+		t.near("섹션 w (카드 안쪽 686)", m.section?.rect.w, 686);
 		t.eq("섹션 border 없음 (설계자 결정 17)", m.section?.bw, "0px");
 		t.color("섹션 배경 bg.layerDefault", m.section?.bg, t.tokens.layerDefault);
 		t.eq("태블릿에서 aside가 보이지 않음", m.asideVisible, 0);
-		t.near("제목 x", m.h2?.rect.x, 24 + 16);
-		const g = c4MobileGeometry(m, 1, 24, 720);
+		t.near("제목 x", m.h2?.rect.x, 41 + 16);
+		const g = c4MobileGeometry(m, 1, 41, 686);
 		c4CheckCards(t, m, 1, g);
 		c4CheckBaseMonth(t, m, 1, g);
 		t.ok(

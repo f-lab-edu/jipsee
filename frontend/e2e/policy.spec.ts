@@ -1005,20 +1005,20 @@ test.describe("모바일 390x844 light 문서 화면 동작", () => {
 			);
 		});
 
-		test(`${caseId("P3", 11)} 모바일 ${title} 헤더 계정 링크가 보이고 로그인 링크가 현재 경로를 담음`, async ({
+		test(`${caseId("P3", 11)} 모바일 ${title} 헤더에 계정 링크가 없고 하단 내비게이션 내 정보 탭이 로그인으로 보냄`, async ({
 			page,
 		}) => {
 			test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
 			await gotoAndSettle(page, path);
-			const link = page
-				.getByTestId("header-mobile")
-				.getByRole("link", { name: "로그인", exact: true });
-			await expect(link).toHaveAttribute(
-				"href",
-				`/login?next=${encodeURIComponent(path)}`,
-			);
-			await link.click();
-			await expect(page).toHaveURL(`/login?next=${encodeURIComponent(path)}`);
+			await expect(
+				page
+					.getByTestId("header-mobile")
+					.getByRole("link", { name: "로그인", exact: true }),
+			).toHaveCount(0);
+			const tab = page.locator('[data-area="bottom-nav-me"]');
+			await expect(tab).toHaveAttribute("href", "/login?next=%2Fme");
+			await tab.click();
+			await expect(page).toHaveURL("/login?next=%2Fme");
 		});
 	}
 

@@ -1,5 +1,6 @@
 import type { BoxProps } from "@seed-design/react";
 import type { AskBuildingStyle } from "@/features/askChatbot/model/askBuildingStyle";
+import { bottomNavOffset } from "@/shared/config/bottomNavHeight";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
 
@@ -18,7 +19,7 @@ export const askBuildingStyles: AskBuildingStyle = {
 		display: "flex",
 		flexDirection: "column",
 		position: "sticky",
-		bottom: 0,
+		bottom: bottomNavOffset,
 		pt: "x3",
 		px: "spacingX.globalGutter",
 		pb: "x4",

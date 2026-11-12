@@ -2,13 +2,11 @@ import { Box, Text } from "@seed-design/react";
 import Link from "next/link";
 import type { Session } from "@/entities/session/model/session";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
-import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
 import { paths } from "@/shared/routes/paths";
 import { accountLinkStyles } from "@/widgets/header/config/accountLinkStyles";
 
 interface AccountLinkProps {
 	session: Nullable<Session>;
-	variant: ResponsiveVariant;
 	currentPath: string;
 }
 
@@ -19,15 +17,15 @@ interface AccountLinkProps {
  * - 현재 화면이 내 정보이면 aria-current를 page로 지정
  * - 비로그인 시 현재 경로를 돌아갈 경로로 담은 로그인 경로 출력
  *
- * @param variant 모바일은 텍스트 링크, 데스크톱은 외곽선 버튼 모양
+ * - 데스크톱 헤더에서만 출력. 모바일과 태블릿은 하단 내비게이션의 내 정보 탭이 대신함
+ *
  * @param currentPath 로그인 뒤 돌아올 현재 경로(쿼리 포함)
  */
 export default function AccountLink({
 	session,
-	variant,
 	currentPath,
 }: AccountLinkProps) {
-	const style = accountLinkStyles[variant];
+	const style = accountLinkStyles;
 
 	if (session) {
 		return (

@@ -7,6 +7,7 @@ import { searchScreenStyles } from "@/pages/search/config/searchScreenStyles";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import { paths } from "@/shared/routes/paths";
 import ContentContainer from "@/shared/ui/ContentContainer";
+import Footer from "@/widgets/footer/ui/Footer";
 import SearchHeader from "@/widgets/header/ui/SearchHeader";
 
 interface SearchScreenProps {
@@ -21,7 +22,8 @@ interface SearchScreenProps {
  *
  * - 검색어를 담은 검색 헤더 출력
  * - 본문 셀에 children 출력
- * - 데스크톱 aside 셀과 main 마지막 자식으로 모바일 축소 바 출력
+ * - 데스크톱 aside 셀에 데스크톱 챗봇 패널 출력
+ * - main 아래에 푸터, 푸터 아래에 모바일 축소 바 출력
  *
  * @param invalid 검색어가 2자 미만인지 여부. 헤더 검색창의 오류 줄 출력 여부
  */
@@ -54,8 +56,9 @@ export default function SearchScreen({
 						</GridItem>
 					</Grid>
 				</ContentContainer>
-				<ChatPanelMobile session={session} layout="compact" />
 			</VStack>
+			<Footer />
+			<ChatPanelMobile session={session} layout="compact" />
 		</>
 	);
 }

@@ -1,8 +1,6 @@
-import { VStack } from "@seed-design/react";
 import type { BuildingDetail } from "@/entities/building/model/buildingDetail";
 import type { NearbyDealsCondition } from "@/entities/building/model/nearbyDealsCondition";
 import type { NearbyDealsResult } from "@/entities/building/model/nearbyDealsResult";
-import { mobileBuildingBodyStyles } from "@/pages/building/config/mobileBuildingBodyStyles";
 import BuildingInfoSection from "@/pages/building/ui/BuildingInfoSection";
 import DealHistorySection from "@/pages/building/ui/DealHistorySection";
 import MobileBuildingTitle from "@/pages/building/ui/MobileBuildingTitle";
@@ -22,7 +20,7 @@ interface MobileBuildingBodyProps {
  * 건물 상세 > 모바일 본문
  *
  * - 건물명 제목, 건물 정보 영역, 구분 띠, 거래 이력 영역, 구분 띠, 주변 거래 영역 순서로 출력
- * - 480 이하에서는 하늘빛 배경 위의 테두리 있는 흰 카드로 감쌈
+ * - 카드 모양은 main이 정하므로 감싸는 요소 없이 출력
  */
 export default function MobileBuildingBody({
 	detail,
@@ -31,10 +29,8 @@ export default function MobileBuildingBody({
 	registerBaseMonth,
 	rentDealBaseMonth,
 }: MobileBuildingBodyProps) {
-	const style = mobileBuildingBodyStyles;
-
 	return (
-		<VStack {...style.card}>
+		<>
 			<MobileBuildingTitle name={detail.name} address={detail.address} />
 			<BuildingInfoSection
 				layout="mobile"
@@ -55,6 +51,6 @@ export default function MobileBuildingBody({
 				result={nearby}
 				rentDealBaseMonth={rentDealBaseMonth}
 			/>
-		</VStack>
+		</>
 	);
 }

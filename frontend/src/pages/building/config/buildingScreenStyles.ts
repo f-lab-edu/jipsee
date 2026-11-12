@@ -9,5 +9,5 @@ export const buildingScreenStyles: BuildingScreenStyle = {
 		flexGrow: 1,
 		className: "building-column",
 	},
-	main: { flexGrow: 1 },
+	main: { flexGrow: 1, className: "page-card" },
 };

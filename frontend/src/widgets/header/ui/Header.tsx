@@ -19,10 +19,11 @@ interface HeaderProps {
  * 헤더
  *
  * - 모바일과 데스크톱 레이아웃을 함께 렌더링
+ * - 모바일 헤더에는 계정 링크가 없음
  * - 스크롤해도 화면 위에 고정(sticky)
  * - 모바일 배경은 사용처에서 주입. 고정 헤더라 본문이 비치지 않게 불투명한 값을 넘김
  *
- * @param currentPath 로그인 링크가 돌아올 현재 경로(쿼리 포함). 없으면 계정 링크를 숨김
+ * @param currentPath 데스크톱 로그인 링크가 돌아올 현재 경로(쿼리 포함). 없으면 데스크톱 계정 링크를 숨김
  * @param mobileBackground 모바일 헤더 배경. 데스크톱 행은 항상 흰색
  * @param mobileBack 모바일 로고 왼쪽에 둘 뒤로 가기 요소
  * @param mobileBottom 모바일 로고 줄 아래에 둘 둘째 줄
@@ -40,8 +41,6 @@ export default function Header({
 				testId="header"
 				mobile={
 					<MobileHeader
-						session={session}
-						currentPath={currentPath}
 						background={mobileBackground}
 						back={mobileBack}
 						bottom={mobileBottom}

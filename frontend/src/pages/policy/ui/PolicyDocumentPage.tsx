@@ -7,6 +7,7 @@ import PolicyClauses from "@/pages/policy/ui/PolicyClauses";
 import PolicyDraftNotice from "@/pages/policy/ui/PolicyDraftNotice";
 import PolicyEffectiveDate from "@/pages/policy/ui/PolicyEffectiveDate";
 import PolicyToc from "@/pages/policy/ui/PolicyToc";
+import { colors } from "@/shared/config/colors";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import ResponsiveLayout from "@/shared/ui/ResponsiveLayout";
 import Header from "@/widgets/header/ui/Header";
@@ -22,7 +23,7 @@ interface PolicyDocumentPageProps {
  * 정책 > 문서 화면
  *
  * - 뒤로 가기가 있는 로고 헤더 출력
- * - 모바일은 흰 배경 본문 첫 줄에 제목, 임시 초안 안내, 시행일 줄, 목차, 조항 목록 출력
+ * - 모바일은 하늘빛 배경 위 카드(main) 본문 첫 줄에 제목, 임시 초안 안내, 시행일 줄, 목차, 조항 목록 출력
  * - 데스크톱은 하늘빛 배경 위 폭 720 열에 제목, 임시 초안 안내, 시행일 줄과 목차와 조항을 담은 카드 출력
  *
  * @param currentPath 로그인 링크가 돌아올 현재 정책 경로
@@ -40,7 +41,7 @@ export default function PolicyDocumentPage({
 			<Header
 				session={session}
 				currentPath={currentPath}
-				mobileBackground="bg.layerDefault"
+				mobileBackground={colors.pageBackground}
 				mobileBack={<HeaderBackButton />}
 			/>
 			<VStack as="main" data-area="main" {...style.main}>

@@ -36,11 +36,7 @@ export default function DesktopHeader({
 						</HStack>
 					</Link>
 					{currentPath !== undefined && (
-						<AccountLink
-							session={session}
-							variant="desktop"
-							currentPath={currentPath}
-						/>
+						<AccountLink session={session} currentPath={currentPath} />
 					)}
 				</HStack>
 			</ContentContainer>
