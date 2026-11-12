@@ -28,7 +28,7 @@ interface BuildingScreenProps {
  * 건물 상세 > 화면 뼈대
  *
  * - 1280 미만은 한 열로 두고, md 이상에서 열 폭을 720까지 넓힘
- * - 헤더, 본문, 푸터, 모바일 질문 바 순서로 열 안에 출력
+ * - 헤더, 본문, 모바일 질문 바, 푸터 순서로 열 안에 출력
  * - 1280 미만에서 열은 흰색이고, 열의 마지막 자식으로 하단 내비게이션 출력
  * - 주변 거래 조건과 결과를 모바일, 데스크톱 본문에 전달
  */
@@ -73,8 +73,8 @@ export default function BuildingScreen({
 						}
 					/>
 				</VStack>
-				<Footer />
 				<AskBuildingBar buildingId={detail.id} session={session} />
+				<Footer />
 				<BottomNav session={session} />
 			</VStack>
 		</VStack>

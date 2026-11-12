@@ -92,6 +92,15 @@ button {
 	}
 }
 
+/* 1280 미만 푸터. 하단 내비게이션 바로 위에 고정함. bottom 값은 bottomNavOffset(shared/config/bottomNavHeight.ts)과 같게 둠. Seed position이 반응형 값을 받지 않음 */
+@media (max-width: 1279px) {
+	:root .footer-docked {
+		position: sticky;
+		bottom: calc(57px + env(safe-area-inset-bottom));
+		z-index: 1;
+	}
+}
+
 /* 로그인 제공자 브랜드 색. 제공자 가이드 값이라 Seed 토큰이 없고, 라이트와 다크가 다른 구글만 다크 값을 정의함 */
 :root {
 	--jipsee-color-google-background: #ffffff;
