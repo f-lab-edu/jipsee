@@ -20,6 +20,7 @@ export const bottomNavTabs: readonly BottomNavTab[] = [
 		id: "me",
 		label: "내 정보",
 		path: paths.me,
+		loggedOutLabel: "로그인",
 		loggedOutPath: paths.loginWithNext(paths.me),
 		relatedPaths: [],
 		relatedPrefixes: [],
