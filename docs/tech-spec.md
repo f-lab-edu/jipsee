@@ -18,7 +18,7 @@ Oct 18, 2026 / @윤상준
 | 데이터 접근      | JPA 사용, 대량 적재와 공간 검색은 JdbcTemplate을 사용                                                                                                                  |
 | 수집 작업        | Spring Batch 6 + spring-boot-starter-batch-jdbc                                                                                                                        |
 | 스케줄 실행      | 스케줄러                                                                                                                                                               |
-| 중복 실행 방지   | 일일 Job은 수집 날짜를, 초기 적재 Job은 끝 월을 Job 파라미터로 넘김. 같은 파라미터의 Job이 이미 기록돼 있으면 Spring Batch가 두 번째 실행을 거부함 (blue/green 전환 중 컨테이너 2개가 함께 실행되는 경우 대비) |
+| 중복 실행 방지   | 일일 Job은 수집 날짜를, 초기 적재 Job은 끝 월을 Job 파라미터로 넘김. 같은 파라미터의 Job이 완료됐거나 실행 중이면 Spring Batch가 실행을 거부하고, 실패한 Job은 같은 파라미터로 다시 시작함 (blue/green 전환 중 컨테이너 2개가 함께 실행되는 경우 대비) |
 | 동시 연결        | Spring MVC + 가상 스레드                                                                                                                                               |
 
 ### 데이터베이스
