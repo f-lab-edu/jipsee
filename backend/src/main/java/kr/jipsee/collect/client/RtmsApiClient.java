@@ -12,8 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import kr.jipsee.collect.exception.RtmsApiException;
 import kr.jipsee.collect.exception.RtmsApiTransientException;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import org.springframework.core.retry.RetryPolicy;
 import org.springframework.core.retry.RetryTemplate;
 import org.springframework.http.HttpStatusCode;
@@ -26,7 +24,6 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /** 공공데이터 거래 API를 페이지 단위로 조회하고, 응답 거래가 요청한 시군구와 계약 월인지 검사한 뒤 행으로 변환 */
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class RtmsApiClient<T> {
     /** 한 페이지에 요청하는 거래 수 (numOfRows) */
     public static final int PAGE_SIZE = 1000;
@@ -44,6 +41,22 @@ public abstract class RtmsApiClient<T> {
     private final String serviceKey;
     private final String path;
     private final Function<RtmsItem, T> toRow;
+
+    /** 하위 클라이언트가 요청 경로와 행 변환을 지정해 생성 */
+    protected RtmsApiClient(
+            RestClient restClient,
+            RetryTemplate retryTemplate,
+            JsonMapper jsonMapper,
+            String serviceKey,
+            String path,
+            Function<RtmsItem, T> toRow) {
+        this.restClient = restClient;
+        this.retryTemplate = retryTemplate;
+        this.jsonMapper = jsonMapper;
+        this.serviceKey = serviceKey;
+        this.path = path;
+        this.toRow = toRow;
+    }
 
     /** 서비스 키는 이미 인코딩된 값이라 다시 인코딩하지 않는 RestClient 생성 */
     public static RestClient restClient(RestClient.Builder restClientBuilder, String baseUrl) {
