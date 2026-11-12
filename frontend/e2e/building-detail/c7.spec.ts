@@ -13,7 +13,7 @@ import { measureDeals } from "../support/buildingDetail/measureDeals";
 import type { Theme } from "../support/buildingDetail/tokens";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
-import { DESKTOP, MOBILE, MOBILE_CARD } from "../support/viewports";
+import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
 
 const THEMES: Theme[] = ["light", "dark"];
 
@@ -35,7 +35,7 @@ for (const [layoutIndex, [name, viewport, layout]] of (
 				const tk = C6_TOKENS[theme];
 				t.ok("거래 이력 섹션이 보임", m.found, m.found, "있음");
 				if (layout === "mobile") {
-					const rowX = MOBILE_CARD.x + 16;
+					const rowX = MOBILE_COLUMN.x + 16;
 					c7CheckPrevBlock(t, m, layout, tk, rowX);
 					t.eq("모바일 ul 하나, li 하나", [m.ulCount, m.liCount], [1, 1]);
 					checkMobileDeals(
@@ -43,8 +43,8 @@ for (const [layoutIndex, [name, viewport, layout]] of (
 						m,
 						[PREV_DEAL],
 						tk,
-						MOBILE_CARD.x,
-						MOBILE_CARD.width,
+						MOBILE_COLUMN.x,
+						MOBILE_COLUMN.width,
 					);
 					checkDealsBottom(t, m, 24);
 				} else {
@@ -171,8 +171,8 @@ test.describe("320x700 light", () => {
 			m,
 			[PREV_DEAL],
 			C6_TOKENS.light,
-			MOBILE_CARD.x,
-			320 - 2 * MOBILE_CARD.x,
+			MOBILE_COLUMN.x,
+			320 - 2 * MOBILE_COLUMN.x,
 		);
 	});
 });

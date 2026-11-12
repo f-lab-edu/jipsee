@@ -1,4 +1,4 @@
-import { MOBILE_CARD } from "../viewports";
+import { MOBILE_COLUMN } from "../viewports";
 import { C6_TOKENS } from "./c6Tokens";
 import { C10_TOKENS } from "./c10Fixtures";
 import type { C10Measure } from "./c10MeasureNearby";
@@ -65,8 +65,8 @@ export function c10CheckNotice(
 			14 + 1,
 			1,
 		);
-		t.near(`${label} 안내 x`, n?.rect?.x, MOBILE_CARD.x + 16, 0.5);
-		t.near(`${label} 안내 w`, n?.rect?.w, m.vw - 2 * MOBILE_CARD.x - 32, 0.5);
+		t.near(`${label} 안내 x`, n?.rect?.x, MOBILE_COLUMN.x + 16, 0.5);
+		t.near(`${label} 안내 w`, n?.rect?.w, m.vw - 2 * MOBILE_COLUMN.x - 32, 0.5);
 	}
 	t.near(
 		`${label} 제목 아래 안내 간격`,

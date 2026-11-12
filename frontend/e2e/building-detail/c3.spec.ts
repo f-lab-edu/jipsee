@@ -150,10 +150,16 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			await t.goto("/buildings/1");
 			const m = await t.measure();
 			t.eq("보이는 레이아웃의 헤더 개수", m.headerCount, 1);
-			t.near("헤더 높이", m.header?.h, 56);
+			// 높이는 로고 줄 56에 아래 테두리 1을 더한 값임(2026-11-13 헤더 구분선)
+			t.near("헤더 높이", m.header?.h, 57);
 			t.near("헤더 y", m.header?.y, 0);
 			t.near("헤더 폭", m.header?.w, 390);
-			t.eq("헤더 아래 border 없음", m.headerBorder ?? null, null);
+			t.near("헤더 아래 border 두께 1", m.headerBorder?.w, 1);
+			t.color(
+				"헤더 아래 border stroke.neutralMuted",
+				m.headerBorder?.color,
+				t.tokens.strokeMuted,
+			);
 			t.eq("보이는 뒤로 가기 버튼 개수", m.backs.length, 1);
 			const b = m.backs[0];
 			t.near("뒤로 가기 w", b?.rect.w, 44);
@@ -163,11 +169,11 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			t.eq("보이는 h1 개수", m.h1s.length, 1);
 			const h = m.h1s[0];
 			t.eq("h1 글자", h?.text, "망원빌라");
-			t.near("h1 x (카드 안쪽 gutter 16 + border 1)", h?.rect.x, 33);
+			t.near("h1 x (gutter 16)", h?.rect.x, 16);
 			t.near(
-				"h1 y (헤더 아래 카드 border 1, 위 padding 20)",
+				"h1 y (헤더 아래, 위 padding 20)",
 				h?.rect.y,
-				(m.header?.b ?? Number.NaN) + 1 + 20,
+				(m.header?.b ?? Number.NaN) + 20,
 			);
 			t.eq("h1 글자 크기", h?.fs, "18px");
 			t.eq("h1 굵기", h?.fw, "700");
@@ -187,9 +193,9 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			await t.goto("/buildings/1");
 			const m = await t.measure();
 			t.color(
-				"헤더 배경이 하늘빛 열 배경과 같은 불투명 색(2026-11-09 피드백 8번)",
+				"헤더 배경이 흰 열 배경 bg.layerDefault(2026-11-13)",
 				m.bgHeader,
-				m.tint,
+				t.tokens.layerDefault,
 			);
 			t.color("h1 색 fg.neutral", m.h1s[0]?.color, t.tokens.fgNeutral);
 		});
@@ -376,11 +382,15 @@ async function bgNarrow(t: T) {
 	await t.goto("/buildings/1");
 	const m = await t.measure();
 	t.color(
-		"헤더 배경이 하늘빛 열 배경과 같은 불투명 색(2026-11-09 피드백 8번)",
+		"헤더 배경 bg.layerDefault(2026-11-13 흰 열)",
 		m.bgHeader,
-		m.tint,
+		t.tokens.layerDefault,
 	);
-	t.color("main 카드 바깥 하늘빛(2026-11-09 피드백)", m.bgMain, m.tint);
+	t.color(
+		"main 오른쪽 끝 배경 bg.layerDefault(흰 열)",
+		m.bgMain,
+		t.tokens.layerDefault,
+	);
 	const cardBg = await t.page.evaluate(() => {
 		const card = document.querySelector(
 			'[data-area="building-body-mobile"] > *',
@@ -388,23 +398,27 @@ async function bgNarrow(t: T) {
 		return card ? getComputedStyle(card).backgroundColor : "";
 	});
 	t.color("본문 카드 bg.layerDefault", cardBg, t.tokens.layerDefault);
-	t.color("푸터 하늘빛(2026-11-09 피드백)", m.bgFooter, m.tint);
+	t.color(
+		"푸터 배경 bg.layerDefault(2026-11-13 흰 열)",
+		m.bgFooter,
+		t.tokens.layerDefault,
+	);
 }
 test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
-	test("C3-38 390px에서 헤더와 푸터는 하늘빛이고 본문 카드는 흰색 토큰임 (light)", async ({
+	test("C3-38 390px에서 헤더, 본문, 푸터가 모두 흰 열 배경 토큰임 (light)", async ({
 		t,
 	}) => {
 		await bgNarrow(t);
 	});
 });
-// 1280px 미만 본문 카드. main이 카드임 (2026-11-12 하단 내비게이션과 본문 카드 설계 4.1절)
+// 1280px 미만 흰 열. main에 카드 모양이 없고 열 폭을 그대로 씀 (2026-11-13 설계 10.1절)
 for (const [themeIndex, theme] of THEMES.entries()) {
 	test.describe(`${MOBILE.width}x${MOBILE.height} ${theme} 본문 카드`, () => {
 		test.use({ viewport: MOBILE, colorScheme: theme });
 
-		test(`${caseId("C3", 70 + themeIndex)} 390px에서 본문이 좌우 16 여백, 1px stroke.neutralMuted border, 모서리 20, overflow hidden인 카드이고 열 배경은 하늘빛임 (${theme})`, async ({
+		test(`${caseId("C3", 70 + themeIndex)} 390px에서 main이 좌우 여백 0, border 0, 모서리 0으로 열 폭 390을 그대로 씀 (${theme})`, async ({
 			t,
 		}) => {
 			await t.goto("/buildings/1");
@@ -422,17 +436,11 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 					overflow: c.overflow,
 				};
 			});
-			t.ok("본문 카드가 있음", !!card, card, "있음");
-			t.near("카드 x(좌우 gutter 16)", card?.x, 16, 0.5);
-			t.near("카드 w", card?.w, MOBILE.width - 32, 0.5);
-			t.eq("카드 border 두께", card?.bw, "1px");
-			t.color(
-				"카드 border 색 stroke.neutralMuted",
-				card?.bc,
-				t.tokens.strokeMuted,
-			);
-			t.eq("카드 모서리 r5", card?.radius, "20px");
-			t.eq("카드 overflow", card?.overflow, "hidden");
+			t.ok("main이 있음", !!card, card, "있음");
+			t.near("main x", card?.x, 0, 0.5);
+			t.near("main w", card?.w, MOBILE.width, 0.5);
+			t.eq("main border 두께", card?.bw, "0px");
+			t.eq("main 모서리", card?.radius, "0px");
 		});
 	});
 }
@@ -440,7 +448,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "dark" });
 
-	test("C3-39 390px에서 헤더와 푸터는 하늘빛이고 본문 카드는 흰색 토큰임 (dark)", async ({
+	test("C3-39 390px에서 헤더, 본문, 푸터가 모두 흰 열 배경 토큰임 (dark)", async ({
 		t,
 	}) => {
 		await bgNarrow(t);
@@ -450,7 +458,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 	test.describe(`768x900 ${theme}`, () => {
 		test.use({ viewport: { width: 768, height: 900 }, colorScheme: theme });
 
-		test(`${caseId("C3", 40 + 2 * themeIndex)} 768px에서 페이지, 컬럼, 헤더, 푸터는 하늘빛이고 컬럼은 border가 없음 (${theme})`, async ({
+		test(`${caseId("C3", 40 + 2 * themeIndex)} 768px에서 페이지 바깥만 하늘빛이고 흰 열 안의 헤더, 본문, 푸터는 흰색이며 컬럼은 border가 없음 (${theme})`, async ({
 			t,
 		}) => {
 			await t.goto("/buildings/1");
@@ -464,13 +472,14 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			t.color("컬럼 바깥 페이지 배경 brand-tint", m.bgOutside, m.tint);
 			t.eq("컬럼 border 두께", m.columnBorders, ["0px", "0px", "0px", "0px"]);
 			t.eq("컬럼 box-shadow", m.columnShadow, "none");
-			t.color("컬럼 안 헤더 brand-tint", m.bgHeader, m.tint);
 			t.color(
-				"헤더 아래 main(카드) bg.layerDefault",
-				m.bgCard,
+				"컬럼 안 헤더 bg.layerDefault",
+				m.bgHeader,
 				t.tokens.layerDefault,
 			);
-			t.color("푸터 brand-tint", m.bgFooter, m.tint);
+			t.color("컬럼 안 main bg.layerDefault", m.bgMain, t.tokens.layerDefault);
+			t.color("main bg.layerDefault", m.bgCard, t.tokens.layerDefault);
+			t.color("푸터 bg.layerDefault", m.bgFooter, t.tokens.layerDefault);
 		});
 	});
 	test.describe(`${DESKTOP.width}x${DESKTOP.height} ${theme}`, () => {
@@ -501,15 +510,15 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 // 거래 이력 섹션(C6)이 생긴 뒤 모바일 id 1은 1200보다 길어져서 id 3으로 바꿨고, 주변 거래 섹션(C10)이 생긴 뒤 id 3도 1343이 되어
 // 모바일은 가장 짧은 id 4(위치 정보 없음, 캔버스 높이 1470)에 뷰포트 높이 1800으로 둠. 이후 커밋이 길이를 늘려도 id 4는 이 안에 들어옴
 // 주변 거래 목록(C11)이 생긴 뒤 데스크톱 id 1도 2200을 넘어서 데스크톱도 id 4(캔버스 높이 1030)로 바꿈
-// C13 이후: 모바일은 질문 하단 바(높이 81, 캔버스에서 바가 푸터 아래, 2026-11-09 피드백 10번)와 하단 내비게이션(위 테두리 1과 탭 56, 2026-11-12)이 맨 아래를 차지하므로 푸터 아래 끝이 그 위쪽에 닿음
+// 2026-11-13 이후: 모바일은 푸터가 하단 내비게이션(위 테두리 1과 탭 56) 바로 위에 있고 질문 하단 바는 푸터 위에 있으므로 푸터 아래 끝이 내비게이션 위에 닿음
 for (const [index, [w, h, id, bar]] of [
-	[390, 1800, 4, 81 + 57],
+	[390, 1800, 4, 57],
 	[1440, 1400, 4, 0],
 ].entries()) {
 	test.describe(`${w}x${h} light`, () => {
 		test.use({ viewport: { width: w, height: h }, colorScheme: "light" });
 
-		test(`${caseId("C3", 44 + index)} ${w}x${h}에서 본문이 짧으면 푸터가 화면 맨 아래에 붙음${bar ? " (질문 바 위)" : ""}`, async ({
+		test(`${caseId("C3", 44 + index)} ${w}x${h}에서 본문이 짧으면 푸터가 화면 맨 아래에 붙음${bar ? " (내비게이션 위)" : ""}`, async ({
 			t,
 		}) => {
 			await t.goto(`/buildings/${id}`);

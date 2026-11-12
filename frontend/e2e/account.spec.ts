@@ -59,12 +59,18 @@ for (const [screenIndex, { label, viewport }] of SCREENS.entries()) {
 				page,
 			}) => {
 				await gotoAndSettle(page, path);
-				const link = page.getByRole("link", { name: "로그인", exact: true });
 				if (isMobile) {
-					await expect(link).toHaveCount(0);
+					// 하단 내비게이션 셋째 탭 이름이 로그인이라 헤더 안에서만 확인함
+					await expect(
+						page
+							.getByTestId("header-mobile")
+							.getByRole("link", { name: "로그인", exact: true }),
+					).toHaveCount(0);
 					return;
 				}
-				await expect(link).toHaveAttribute("href", href);
+				await expect(
+					page.getByRole("link", { name: "로그인", exact: true }),
+				).toHaveAttribute("href", href);
 			});
 		}
 
@@ -177,12 +183,12 @@ for (const { label, viewport } of SCREENS) {
 				page,
 			}) => {
 				await gotoAndSettle(page, "/login");
-				await expect(
-					page.getByRole("link", { name: "로그인", exact: true }),
-				).toHaveCount(0);
 				const header = page.getByTestId(
 					isMobile ? "header-mobile" : "header-desktop",
 				);
+				await expect(
+					header.getByRole("link", { name: "로그인", exact: true }),
+				).toHaveCount(0);
 				await expect(
 					header.getByRole("link", { name: "집씨 홈" }),
 				).toBeVisible();
@@ -431,8 +437,8 @@ for (const { label, viewport } of SCREENS) {
 					await expect(link).toHaveText(name);
 					const box = await link.boundingBox();
 					expect(box?.height).toBe(52);
-					// 모바일은 카드 폭 358에서 테두리 2와 좌우 여백 32를 뺀 값, 데스크톱은 카드 안쪽 폭
-					expect(box?.width).toBe(isMobile ? 324 : 358);
+					// 모바일은 열 폭 390에서 좌우 여백 32를 뺀 값, 데스크톱은 카드 안쪽 폭
+					expect(box?.width).toBe(358);
 					expect(
 						await link.evaluate(
 							(element) => getComputedStyle(element).borderTopLeftRadius,

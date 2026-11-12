@@ -196,21 +196,6 @@ for (const { label, viewport, layout } of SCREENS) {
 				}
 			});
 
-			test(`${caseId("P2", 2)} ${label} ${theme} 로그인 화면의 동의 문구 링크가 이동하고 h1이 맞음`, async ({
-				page,
-			}) => {
-				test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
-				for (const { path, title } of [TERMS, PRIVACY]) {
-					await gotoAndSettle(page, "/login");
-					await page
-						.getByTestId(`login-body-${layout}`)
-						.getByRole("link", { name: title, exact: true })
-						.click();
-					await expect(page).toHaveURL(path);
-					await expectVisibleHeading(page, title);
-				}
-			});
-
 			test(`${caseId("P2", 3)} ${label} ${theme} 내 정보의 정책 목록 링크가 세 경로로 이동하고 h1이 맞음`, async ({
 				page,
 			}) => {

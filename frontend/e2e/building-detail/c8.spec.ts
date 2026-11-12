@@ -20,7 +20,7 @@ import {
 import { type Theme, TOKENS } from "../support/buildingDetail/tokens";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
-import { DESKTOP, MOBILE, MOBILE_CARD } from "../support/viewports";
+import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
 
 const THEMES: Theme[] = ["light", "dark"];
 
@@ -29,7 +29,7 @@ const C8_LAYOUT = {
 		h: 160,
 		col: 72,
 		d: 12,
-		boxW: 276 - 2 * MOBILE_CARD.x,
+		boxW: 276 - 2 * MOBILE_COLUMN.x,
 		fs: "11px",
 		lh: "14px",
 		yLabelY: [-7, 66, 139],
@@ -384,7 +384,7 @@ test.describe("320x700 light", () => {
 			t.near(
 				`id ${id} 그래프 상자 폭 (320 - 34 - 32 - 82)`,
 				m.box?.w,
-				206 - 2 * MOBILE_CARD.x,
+				206 - 2 * MOBILE_COLUMN.x,
 				1,
 			);
 		}

@@ -9,7 +9,7 @@ export function c4MobileGeometry(
 	colW: number,
 ) {
 	const hasAddress = id !== 4;
-	const h2Y = (m.headerBottom ?? Number.NaN) + 1 + MOBILE_TITLE_HEIGHT + 20;
+	const h2Y = (m.headerBottom ?? Number.NaN) + MOBILE_TITLE_HEIGHT + 20;
 	const headingH = 24 + (hasAddress ? 2 + 20 : 0);
 	return {
 		hasAddress,

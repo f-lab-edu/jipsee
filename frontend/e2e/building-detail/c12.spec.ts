@@ -18,7 +18,7 @@ import type { T } from "../support/buildingDetail/makeT";
 import { measureNearbyDeals } from "../support/buildingDetail/measureNearbyDeals";
 import type { Theme } from "../support/buildingDetail/tokens";
 import { test } from "../support/test";
-import { DESKTOP, MOBILE, MOBILE_CARD } from "../support/viewports";
+import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
 
 const THEMES: Theme[] = ["light", "dark"];
 
@@ -176,7 +176,7 @@ test.describe("320x700 light", () => {
 				m.scrollW,
 				`문서 폭 ≤ ${m.vw}`,
 			);
-			t.near(`${l} 섹션 w`, m.section?.w, 320 - 2 * MOBILE_CARD.x, 0.5);
+			t.near(`${l} 섹션 w`, m.section?.w, 320 - 2 * MOBILE_COLUMN.x, 0.5);
 			const n = c12Notices(m)[0];
 			t.ok(
 				`${l} 안내 상자가 섹션 안`,
@@ -186,7 +186,7 @@ test.describe("320x700 light", () => {
 				[n?.x, n?.r],
 				"섹션 안",
 			);
-			t.near(`${l} 상자 w(320 - 34 - 32)`, n?.w, 254, 0.5);
+			t.near(`${l} 상자 w(320 - 32)`, n?.w, 288, 0.5);
 			t.ok(
 				`${l} 문구가 상자 안쪽 오른쪽 padding 안에 들어옴`,
 				!!n && n.texts.every((x) => x.r <= n.r - 16 + 0.5),

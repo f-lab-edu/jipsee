@@ -13,7 +13,7 @@ import { measureDeals } from "../support/buildingDetail/measureDeals";
 import type { Theme } from "../support/buildingDetail/tokens";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
-import { DESKTOP, MOBILE, MOBILE_CARD } from "../support/viewports";
+import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
 
 const THEMES: Theme[] = ["light", "dark"];
 
@@ -27,10 +27,10 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		await t.goto("/buildings/1");
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		const tk = C6_TOKENS.light;
-		c6CheckMobileSection(t, m, tk, MOBILE_CARD.x, MOBILE_CARD.width);
+		c6CheckMobileSection(t, m, tk, MOBILE_COLUMN.x, MOBILE_COLUMN.width);
 		t.eq("ul 하나", m.ulCount, 1);
 		t.eq("li 7개", m.liCount, 7);
-		checkMobileDeals(t, m, DEALS[1], tk, MOBILE_CARD.x, MOBILE_CARD.width);
+		checkMobileDeals(t, m, DEALS[1], tk, MOBILE_COLUMN.x, MOBILE_COLUMN.width);
 		checkDealsBottom(t, m, 24);
 	});
 	for (const [index, id] of [2, 4, 5].entries()) {
@@ -44,8 +44,8 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 				m,
 				DEALS[id],
 				C6_TOKENS.light,
-				MOBILE_CARD.x,
-				MOBILE_CARD.width,
+				MOBILE_COLUMN.x,
+				MOBILE_COLUMN.width,
 			);
 			checkDealsBottom(t, m, 24);
 		});
@@ -61,8 +61,8 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			m,
 			DEALS[1],
 			C6_TOKENS.light,
-			MOBILE_CARD.x,
-			MOBILE_CARD.width,
+			MOBILE_COLUMN.x,
+			MOBILE_COLUMN.width,
 		);
 	});
 	test(`${caseId("C6", 8)} 모바일 id 3은 거래 이력 제목만 있고 현재 건물 거래 목록이 없음 (거래 0건)`, async ({
@@ -74,8 +74,8 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			t,
 			m,
 			C6_TOKENS.light,
-			MOBILE_CARD.x,
-			MOBILE_CARD.width,
+			MOBILE_COLUMN.x,
+			MOBILE_COLUMN.width,
 		);
 		t.eq("현재 건물 거래 ul 없음", m.ulCount, 0);
 		t.eq("li 없음", m.liCount, 0);
@@ -91,8 +91,8 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 		await t.goto("/buildings/1");
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		const tk = C6_TOKENS.dark;
-		c6CheckMobileSection(t, m, tk, MOBILE_CARD.x, MOBILE_CARD.width);
-		checkMobileDeals(t, m, DEALS[1], tk, MOBILE_CARD.x, MOBILE_CARD.width);
+		c6CheckMobileSection(t, m, tk, MOBILE_COLUMN.x, MOBILE_COLUMN.width);
+		checkMobileDeals(t, m, DEALS[1], tk, MOBILE_COLUMN.x, MOBILE_COLUMN.width);
 	});
 	test(`${caseId("C6", 7)} 모바일 다크에서 id 4의 거래 목록이 다크 토큰과 같음 (3건)`, async ({
 		t,
@@ -104,8 +104,8 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 			m,
 			DEALS[4],
 			C6_TOKENS.dark,
-			MOBILE_CARD.x,
-			MOBILE_CARD.width,
+			MOBILE_COLUMN.x,
+			MOBILE_COLUMN.width,
 		);
 	});
 	test(`${caseId("C6", 9)} 모바일 다크에서 id 3도 거래 이력 제목만 있고 목록이 없음`, async ({
@@ -117,8 +117,8 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 			t,
 			m,
 			C6_TOKENS.dark,
-			MOBILE_CARD.x,
-			MOBILE_CARD.width,
+			MOBILE_COLUMN.x,
+			MOBILE_COLUMN.width,
 		);
 		t.eq("현재 건물 거래 ul 없음", m.ulCount, 0);
 	});
@@ -143,8 +143,8 @@ test.describe("320x700 light", () => {
 				m,
 				DEALS[id],
 				C6_TOKENS.light,
-				MOBILE_CARD.x,
-				320 - 2 * MOBILE_CARD.x,
+				MOBILE_COLUMN.x,
+				320 - 2 * MOBILE_COLUMN.x,
 			);
 		}
 	});
@@ -152,13 +152,13 @@ test.describe("320x700 light", () => {
 test.describe("768x900 light", () => {
 	test.use({ viewport: { width: 768, height: 900 }, colorScheme: "light" });
 
-	test("C6-11 768px 태블릿에서 모바일 레이아웃의 거래 목록이 폭 688 카드 안에서 같은 구조로 나옴", async ({
+	test("C6-11 768px 태블릿에서 모바일 레이아웃의 거래 목록이 폭 720 열 안에서 같은 구조로 나옴", async ({
 		t,
 	}) => {
 		await t.goto("/buildings/1");
 		const m = await t.page.evaluate(measureDeals, "current" as const);
-		// 열 720에서 카드 좌우 여백 32와 border 2를 뺀 값(2026-11-12)
-		t.near("섹션 w (카드 안쪽 686)", m.section?.rect.w, 686, 1);
+		// 카드가 없어 열 폭 720을 그대로 씀(2026-11-13 흰 세로 열)
+		t.near("섹션 w (열 720)", m.section?.rect.w, 720, 1);
 		t.eq("table 없음", m.table, null);
 		t.eq("li 7개", m.liCount, 7);
 		checkMobileDeals(
@@ -166,8 +166,8 @@ test.describe("768x900 light", () => {
 			m,
 			DEALS[1],
 			C6_TOKENS.light,
-			m.section?.rect.x ?? 41,
-			686,
+			m.section?.rect.x ?? 24,
+			720,
 		);
 	});
 });

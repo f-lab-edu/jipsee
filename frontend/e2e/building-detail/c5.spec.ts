@@ -7,7 +7,7 @@ import { LINKS } from "../support/buildingDetail/c5Links";
 import { c5MeasureLinks } from "../support/buildingDetail/c5MeasureLinks";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
-import { DESKTOP, MOBILE, MOBILE_CARD } from "../support/viewports";
+import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
 
 const VIEWPORTS = [
 	["모바일", MOBILE],
@@ -25,15 +25,10 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		c5CheckLinkCommon(t, m, "모바일");
 		c5CheckLinkLayout(t, m, "모바일", true);
 		c5CheckLinkTheme(t, m, "모바일");
-		// 캔버스 S2MobileDefault는 링크 x 16과 199, 폭 175. 본문 카드 안쪽이 34 좁아져 앱은 폭 158(2026-11-09 피드백)
-		t.near("첫 링크 x", m.links[0]?.rect.x, MOBILE_CARD.x + 16, 1);
-		t.near(
-			"두 번째 링크 x",
-			m.links[1]?.rect.x,
-			MOBILE_CARD.x + 16 + 158 + 8,
-			1,
-		);
-		t.near("링크 폭", m.links[0]?.rect.w, 175 - MOBILE_CARD.x, 1);
+		// 캔버스 S2MobileDefault는 링크 x 16과 199, 폭 175. 본문 카드가 없어져(2026-11-13 흰 세로 열) 앱도 같은 값임
+		t.near("첫 링크 x", m.links[0]?.rect.x, MOBILE_COLUMN.x + 16, 1);
+		t.near("두 번째 링크 x", m.links[1]?.rect.x, MOBILE_COLUMN.x + 199, 1);
+		t.near("링크 폭", m.links[0]?.rect.w, 175, 1);
 	});
 });
 test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {

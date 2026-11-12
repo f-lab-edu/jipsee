@@ -65,8 +65,7 @@ export function c9CheckLegend(
 			theme,
 		);
 		const prev = lg.items[i - 1];
-		const wrappedToSecondRow = layout === "mobile" && i === 5;
-		if (i > 0 && prev && !wrappedToSecondRow) {
+		if (i > 0 && prev) {
 			t.near(
 				`"${prev.text}" 글자 끝과 "${it.text}" 마커 사이 가로 간격(열 간격 14)`,
 				a.marker.x - prev.r,
