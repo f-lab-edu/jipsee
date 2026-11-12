@@ -19,11 +19,6 @@ export interface LoginStyle {
 		icon: Omit<IconProps, "svg">;
 		text: TextProps;
 	};
-	notice: {
-		group: VStackProps;
-		consent: TextProps;
-		link: TextProps;
-	};
 	intro: VStackProps;
 	logoSize: number;
 	title: TextProps;

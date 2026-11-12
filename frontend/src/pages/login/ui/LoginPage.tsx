@@ -1,7 +1,6 @@
 import { VStack } from "@seed-design/react";
 import { loginStyles } from "@/pages/login/config/loginStyles";
 import LoginIntro from "@/pages/login/ui/LoginIntro";
-import LoginNotice from "@/pages/login/ui/LoginNotice";
 import LoginProviders from "@/pages/login/ui/LoginProviders";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import ResponsiveLayout from "@/shared/ui/ResponsiveLayout";
@@ -20,7 +19,7 @@ const desktopTitleId = "login-title-desktop";
  * 로그인 > 페이지
  *
  * - 계정 링크 없는 로고 헤더 출력
- * - 모바일은 하늘빛 배경 위 카드(main) 본문, 데스크톱은 하늘빛 배경 위 카드에 로고 묶음, 제공자 버튼, 동의와 고지 문구 출력
+ * - 모바일은 하늘빛 배경 위 카드(main) 본문, 데스크톱은 하늘빛 배경 위 카드에 로고 묶음, 제공자 버튼 출력
  *
  * @param next 로그인 뒤 돌아갈 경로. 제공자 버튼에 넘김
  * @param hasError 로그인 실패 안내 출력 여부
@@ -39,7 +38,6 @@ export default function LoginPage({ next, hasError }: LoginPageProps) {
 						<VStack {...style.mobileBody}>
 							<LoginIntro titleId={mobileTitleId} />
 							<LoginProviders next={next} hasError={hasError} />
-							<LoginNotice />
 						</VStack>
 					}
 					desktop={
@@ -52,7 +50,6 @@ export default function LoginPage({ next, hasError }: LoginPageProps) {
 							>
 								<LoginIntro titleId={desktopTitleId} />
 								<LoginProviders next={next} hasError={hasError} />
-								<LoginNotice />
 							</VStack>
 						</VStack>
 					}

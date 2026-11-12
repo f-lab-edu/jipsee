@@ -50,19 +50,6 @@ export const loginStyles: LoginStyle = {
 			color: "fg.criticalContrast",
 		},
 	},
-	notice: {
-		group: { alignItems: "center" },
-		consent: {
-			...typography.size13LineHeight20,
-			color: "fg.neutralMuted",
-		},
-		link: {
-			...typography.size13LineHeight20,
-			fontWeight: "bold",
-			color: "fg.neutral",
-			textDecorationLine: "underline",
-		},
-	},
 	intro: { alignItems: "center", gap: "x3" },
 	logoSize: 64,
 	title: {
