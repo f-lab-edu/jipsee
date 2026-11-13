@@ -29,6 +29,10 @@ jipsee/
   - 설치와 개발 서버 실행: `pnpm install`, `pnpm dev`
   - 검증 실행: `pnpm check`, `pnpm lint:boundaries`, `pnpm typecheck`, `pnpm build`
 
+## 운영
+
+- 운영 서버 실행: [infra/README.md](infra/README.md)를 참고
+
 ## 커밋 컨벤션
 
 Conventional Commits 형식(`type: 제목`)을 따름
