@@ -1394,6 +1394,45 @@ test.describe("데스크톱 레일 동작", () => {
 		expect(await gotoAndSettle(page, "/chat/1", 300)).toBe(404);
 	});
 
+	test(`${caseId("C10", 19)} 열려 있지 않은 대화를 레일에서 삭제하면 주소와 열린 대화가 그대로이고 항목만 하나 줄어듦`, async ({
+		page,
+	}) => {
+		await gotoAndSettle(page, "/chat/2");
+		await page
+			.getByRole("button", { name: `삭제: ${CHAT_TEXT.historyTitles[0]}` })
+			.click();
+		await expect(page.getByRole("dialog")).toHaveCount(1);
+		await page.waitForTimeout(700);
+		await page.getByRole("button", { name: "삭제하기" }).click();
+		await expect(page.locator(`${RAIL} ${ITEMS}`)).toHaveCount(4);
+		expect(new URL(page.url()).pathname).toBe("/chat/2");
+		await expect(
+			page.locator(`${RAIL} ${ITEMS} a[href="/chat/1"]`),
+		).toHaveCount(0);
+		await expect(
+			page.locator(`${RAIL} ${ITEMS} a[aria-current="page"]`),
+		).toHaveAttribute("href", "/chat/2");
+		expect(await gotoAndSettle(page, "/chat/1", 300)).toBe(404);
+	});
+
+	test(`${caseId("C10", 20)} 새 대화 화면에서 레일의 대화를 삭제하면 /chat에 머물고 항목이 하나 줄어듦`, async ({
+		page,
+	}) => {
+		await gotoAndSettle(page, "/chat");
+		await page
+			.getByRole("button", { name: `삭제: ${CHAT_TEXT.historyTitles[0]}` })
+			.click();
+		await expect(page.getByRole("dialog")).toHaveCount(1);
+		await page.waitForTimeout(700);
+		await page.getByRole("button", { name: "삭제하기" }).click();
+		await expect(page.locator(`${RAIL} ${ITEMS}`)).toHaveCount(4);
+		expect(new URL(page.url()).pathname).toBe("/chat");
+		await expect(page.locator(RAIL_NEW_CHAT)).toHaveAttribute(
+			"aria-current",
+			"page",
+		);
+	});
+
 	test(`${caseId("C10", 15)} 레일 확인 창에서 취소하면 창이 닫히고 항목 수와 주소가 그대로임`, async ({
 		page,
 	}) => {
