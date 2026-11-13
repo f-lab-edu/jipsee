@@ -6,4 +6,5 @@ RUN ./gradlew bootJar --no-daemon
 FROM eclipse-temurin:25-jre
 WORKDIR /app
 COPY --from=build /app/build/libs/*-0.0.1.jar app.jar
+USER ubuntu
 ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar", "app.jar"]
