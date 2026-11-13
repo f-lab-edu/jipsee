@@ -1024,3 +1024,53 @@ test.describe("모바일 390x844 light 문서 화면 동작", () => {
 		}
 	});
 });
+
+// 푸터 링크는 현재 문서일 때만 굵음. 현재 문서가 없는 화면에서는 모두 보통 굵기임
+const FOOTER_BOLD_CASES = [
+	{ path: "/", bold: null, loginOnly: false, logoutOnly: false },
+	{ path: "/login", bold: null, loginOnly: false, logoutOnly: true },
+	{ path: "/me", bold: null, loginOnly: true, logoutOnly: false },
+	{ path: TERMS.path, bold: TERMS.title, loginOnly: false, logoutOnly: false },
+	{
+		path: PRIVACY.path,
+		bold: PRIVACY.title,
+		loginOnly: false,
+		logoutOnly: false,
+	},
+	{
+		path: DATA_SOURCES.path,
+		bold: DATA_SOURCES.title,
+		loginOnly: false,
+		logoutOnly: false,
+	},
+] as const;
+
+for (const { label, viewport, layout } of SCREENS) {
+	test.describe(`${label} light 푸터 현재 문서 굵게`, () => {
+		test.use({ viewport, colorScheme: "light" });
+
+		for (const { path, bold, loginOnly, logoutOnly } of FOOTER_BOLD_CASES) {
+			test(`${caseId("P7", 1)} ${label} ${path}에서 푸터 링크는 ${bold ?? "없음"}만 굵음`, async ({
+				page,
+			}) => {
+				test.skip(
+					loginOnly && !LOGGED_IN,
+					"로그인 TC는 TC_SESSION=in일 때만 돌림",
+				);
+				test.skip(
+					logoutOnly && LOGGED_IN,
+					"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
+				);
+				await gotoAndSettle(page, path);
+				for (const { title } of ALL_PAGES) {
+					const weight = await page
+						.getByTestId(`footer-${layout}`)
+						.getByRole("link", { name: title, exact: true })
+						.locator("span")
+						.evaluate((element) => getComputedStyle(element).fontWeight);
+					expect(weight, `${title} 굵기`).toBe(title === bold ? "700" : "400");
+				}
+			});
+		}
+	});
+}
