@@ -32,7 +32,7 @@ export default function SearchPanel({
 	const style = searchPanelStyles;
 
 	return (
-		<Box {...style.root}>
+		<Box data-area="search-panel" {...style.root}>
 			<Box {...style.background} />
 			<VStack {...style.content}>
 				<Flex {...style.titleRow}>
@@ -44,11 +44,14 @@ export default function SearchPanel({
 							{introCopy.description}
 						</Text>
 					</VStack>
-					<Box {...style.desktopNoticeCell}>
-						<BaseMonthNotice baseMonth={baseMonth} />
+					<Box data-area="search-panel-notice" {...style.desktopNoticeCell}>
+						<BaseMonthNotice
+							testId="search-panel-base-month"
+							baseMonth={baseMonth}
+						/>
 					</Box>
 				</Flex>
-				<Box {...style.formCell}>
+				<Box data-area="search-panel-form" {...style.formCell}>
 					<SearchForm
 						key={keyword}
 						defaultValue={keyword}
@@ -57,8 +60,11 @@ export default function SearchPanel({
 					/>
 				</Box>
 				{showsNoticeOnMobile && (
-					<Box {...style.mobileNoticeCell}>
-						<BaseMonthNotice baseMonth={baseMonth} />
+					<Box data-area="search-mobile-notice" {...style.mobileNoticeCell}>
+						<BaseMonthNotice
+							testId="search-mobile-base-month"
+							baseMonth={baseMonth}
+						/>
 					</Box>
 				)}
 			</VStack>

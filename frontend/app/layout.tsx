@@ -1,13 +1,25 @@
 import "@seed-design/css/all.css";
 import "./theme.css";
 import { generateThemingScript } from "@seed-design/css/theming";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { siteMetadata } from "@/shared/config/siteMetadata";
+import { getSiteUrl } from "@/shared/config/siteUrl";
+import { toOpenGraph } from "@/shared/lib/metadata/toOpenGraph";
 import ColorSchemeSync from "@/shared/ui/ColorSchemeSync";
 
 export const metadata: Metadata = {
-	title: siteMetadata.name,
+	metadataBase: new URL(getSiteUrl()),
+	title: {
+		default: siteMetadata.name,
+		template: siteMetadata.titleTemplate,
+	},
+	description: siteMetadata.description,
+	openGraph: toOpenGraph(siteMetadata.name),
+	twitter: { card: siteMetadata.twitterCard },
 };
+
+// env(safe-area-inset-bottom)가 값을 가지려면 viewport-fit=cover가 필요함
+export const viewport: Viewport = { viewportFit: "cover" };
 
 /**
  * 루트 레이아웃

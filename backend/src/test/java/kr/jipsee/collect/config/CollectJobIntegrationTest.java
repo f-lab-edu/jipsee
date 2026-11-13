@@ -19,11 +19,11 @@ import java.time.YearMonth;
 import java.util.List;
 import kr.jipsee.TestcontainersConfiguration;
 import kr.jipsee.collect.application.SigunguCodes;
-import kr.jipsee.collect.client.DealPage;
-import kr.jipsee.collect.client.RentDealClient;
-import kr.jipsee.collect.client.SaleDealClient;
+import kr.jipsee.collect.client.RtmsPage;
+import kr.jipsee.collect.client.RtmsRhRentClient;
+import kr.jipsee.collect.client.RtmsRhTradeClient;
 import kr.jipsee.collect.dao.DataSourceDao;
-import kr.jipsee.collect.exception.DealApiException;
+import kr.jipsee.collect.exception.RtmsApiException;
 import kr.jipsee.deal.dto.RentDealRow;
 import kr.jipsee.deal.dto.SaleDealRow;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,10 +74,10 @@ class CollectJobIntegrationTest {
     SigunguCodes sigunguCodes;
 
     @MockitoBean
-    RentDealClient rentDealClient;
+    RtmsRhRentClient rtmsRhRentClient;
 
     @MockitoBean
-    SaleDealClient saleDealClient;
+    RtmsRhTradeClient rtmsRhTradeClient;
 
     @MockitoSpyBean
     DataSourceDao dataSourceDao;
@@ -97,14 +97,16 @@ class CollectJobIntegrationTest {
         jdbcTemplate.update("delete from sale_deal");
         jdbcTemplate.update("delete from data_source");
         given(sigunguCodes.codes()).willReturn(CODES);
-        given(rentDealClient.fetch(anyString(), any(YearMonth.class), anyInt())).willAnswer(invocation -> {
-            YearMonth month = invocation.getArgument(1);
-            return new DealPage<>("000", 1, List.of(rentRow(invocation.getArgument(0), month)));
-        });
-        given(saleDealClient.fetch(anyString(), any(YearMonth.class), anyInt())).willAnswer(invocation -> {
-            YearMonth month = invocation.getArgument(1);
-            return new DealPage<>("000", 1, List.of(saleRow(invocation.getArgument(0), month)));
-        });
+        given(rtmsRhRentClient.fetch(anyString(), any(YearMonth.class), anyInt()))
+                .willAnswer(invocation -> {
+                    YearMonth month = invocation.getArgument(1);
+                    return new RtmsPage<>("000", 1, List.of(rentRow(invocation.getArgument(0), month)));
+                });
+        given(rtmsRhTradeClient.fetch(anyString(), any(YearMonth.class), anyInt()))
+                .willAnswer(invocation -> {
+                    YearMonth month = invocation.getArgument(1);
+                    return new RtmsPage<>("000", 1, List.of(saleRow(invocation.getArgument(0), month)));
+                });
     }
 
     private static RentDealRow rentRow(String sigunguCode, YearMonth month) {
@@ -160,9 +162,9 @@ class CollectJobIntegrationTest {
     void 실패한_Job은_data_source를_갱신하지_않고_같은_파라미터로_다시_시작하면_마지막으로_커밋한_키부터_이어감() throws Exception {
         // given: 매매의 다섯 번째 키(11140, 2011-01)가 첫 호출에서만 실패함
         JobParameters params = endMonth("2011-02");
-        given(saleDealClient.fetch("11140", YearMonth.of(2011, 1), 1))
-                .willThrow(new DealApiException("테스트용 실패"))
-                .willReturn(new DealPage<>("000", 1, List.of(saleRow("11140", YearMonth.of(2011, 1)))));
+        given(rtmsRhTradeClient.fetch("11140", YearMonth.of(2011, 1), 1))
+                .willThrow(new RtmsApiException("테스트용 실패"))
+                .willReturn(new RtmsPage<>("000", 1, List.of(saleRow("11140", YearMonth.of(2011, 1)))));
 
         // when
         JobExecution failed = jobOperator.start(initialSaleLoadJob, params);
@@ -179,9 +181,9 @@ class CollectJobIntegrationTest {
         assertThat(resumed.getStatus()).isEqualTo(BatchStatus.COMPLETED);
         assertThat(count("sale_deal")).isEqualTo(186); // 2006-01부터 2011-02까지 62개월 x 3개 시군구
         assertThat(sources()).containsExactly("SALE_DEAL");
-        then(saleDealClient).should(times(1)).fetch("11110", YearMonth.of(2011, 2), 1);
-        then(saleDealClient).should(times(2)).fetch("11140", YearMonth.of(2011, 1), 1);
-        then(saleDealClient).should(never()).fetch(anyString(), eq(YearMonth.of(2005, 12)), anyInt());
+        then(rtmsRhTradeClient).should(times(1)).fetch("11110", YearMonth.of(2011, 2), 1);
+        then(rtmsRhTradeClient).should(times(2)).fetch("11140", YearMonth.of(2011, 1), 1);
+        then(rtmsRhTradeClient).should(never()).fetch(anyString(), eq(YearMonth.of(2005, 12)), anyInt());
     }
 
     @Test
@@ -213,7 +215,7 @@ class CollectJobIntegrationTest {
         assertThat(stepExecutionCount("rentLoadedAtStep")).isEqualTo(2);
         assertThat(count("rent_deal")).isEqualTo(6);
         assertThat(sources()).containsExactly("RENT_DEAL");
-        then(rentDealClient).should(times(6)).fetch(anyString(), any(YearMonth.class), anyInt());
+        then(rtmsRhRentClient).should(times(6)).fetch(anyString(), any(YearMonth.class), anyInt());
     }
 
     @Test
@@ -221,8 +223,8 @@ class CollectJobIntegrationTest {
     void 전월세_초기_적재_Job이_실패해도_매매_초기_적재_Job은_완료하고_data_source는_매매만_갱신함() throws Exception {
         // given
         JobParameters params = endMonth("2011-02");
-        given(rentDealClient.fetch(anyString(), any(YearMonth.class), anyInt()))
-                .willThrow(new DealApiException("테스트용 실패"));
+        given(rtmsRhRentClient.fetch(anyString(), any(YearMonth.class), anyInt()))
+                .willThrow(new RtmsApiException("테스트용 실패"));
 
         // when
         JobExecution rent = jobOperator.start(initialRentLoadJob, params);
@@ -241,9 +243,9 @@ class CollectJobIntegrationTest {
     void STOPPED로_남은_실행은_같은_파라미터로_다시_시작하면_이어가고_STARTED로_남은_실행은_거부함() throws Exception {
         // given
         JobParameters params = endMonth("2011-02");
-        given(saleDealClient.fetch("11140", YearMonth.of(2011, 1), 1))
-                .willThrow(new DealApiException("테스트용 실패"))
-                .willReturn(new DealPage<>("000", 1, List.of(saleRow("11140", YearMonth.of(2011, 1)))));
+        given(rtmsRhTradeClient.fetch("11140", YearMonth.of(2011, 1), 1))
+                .willThrow(new RtmsApiException("테스트용 실패"))
+                .willReturn(new RtmsPage<>("000", 1, List.of(saleRow("11140", YearMonth.of(2011, 1)))));
         JobExecution failed = jobOperator.start(initialSaleLoadJob, params);
 
         // when: STARTED로 남은 상태를 만듦
@@ -294,9 +296,9 @@ class CollectJobIntegrationTest {
 
         // then
         assertThat(count("rent_deal")).isEqualTo(6); // 2011-02, 2011-01 x 3개 시군구
-        then(rentDealClient).should(never()).fetch(anyString(), eq(YearMonth.of(2010, 12)), anyInt());
-        then(saleDealClient).should(never()).fetch(anyString(), eq(YearMonth.of(2005, 12)), anyInt());
-        then(saleDealClient).should(times(1)).fetch("11110", YearMonth.of(2006, 1), 1);
+        then(rtmsRhRentClient).should(never()).fetch(anyString(), eq(YearMonth.of(2010, 12)), anyInt());
+        then(rtmsRhTradeClient).should(never()).fetch(anyString(), eq(YearMonth.of(2005, 12)), anyInt());
+        then(rtmsRhTradeClient).should(times(1)).fetch("11110", YearMonth.of(2006, 1), 1);
     }
 
     @Test
@@ -322,9 +324,9 @@ class CollectJobIntegrationTest {
         // then
         assertThat(sale.getStatus()).isEqualTo(BatchStatus.COMPLETED);
         assertThat(count("sale_deal")).isEqualTo(18);
-        then(rentDealClient).should(times(1)).fetch("11170", YearMonth.of(2026, 6), 1);
-        then(saleDealClient).should(times(1)).fetch("11170", YearMonth.of(2026, 6), 1);
-        then(rentDealClient).should(never()).fetch(anyString(), eq(YearMonth.of(2026, 5)), anyInt());
+        then(rtmsRhRentClient).should(times(1)).fetch("11170", YearMonth.of(2026, 6), 1);
+        then(rtmsRhTradeClient).should(times(1)).fetch("11170", YearMonth.of(2026, 6), 1);
+        then(rtmsRhRentClient).should(never()).fetch(anyString(), eq(YearMonth.of(2026, 5)), anyInt());
         assertThat(sources()).containsExactlyInAnyOrder("RENT_DEAL", "SALE_DEAL");
     }
 }

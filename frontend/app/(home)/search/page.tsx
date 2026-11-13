@@ -1,8 +1,25 @@
+import type { Metadata, ResolvingMetadata } from "next";
 import { redirect } from "next/navigation";
 import { getSession } from "@/entities/session/api/getSession";
 import { toKeyword } from "@/pages/search/lib/toKeyword";
+import { toSearchTitle } from "@/pages/search/lib/toSearchTitle";
 import SearchPage from "@/pages/search/ui/SearchPage";
+import { toPageMetadata } from "@/shared/lib/metadata/toPageMetadata";
 import { paths } from "@/shared/routes/paths";
+
+/**
+ * 검색 > 메타데이터
+ *
+ * - keyword 쿼리를 검색어로 변환해 제목 생성
+ */
+export async function generateMetadata(
+	{ searchParams }: PageProps<"/search">,
+	parent: ResolvingMetadata,
+): Promise<Metadata> {
+	const { keyword } = await searchParams;
+
+	return toPageMetadata(toSearchTitle(toKeyword(keyword)), parent);
+}
 
 /**
  * 검색 > 페이지

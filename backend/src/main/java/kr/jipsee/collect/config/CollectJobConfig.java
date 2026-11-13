@@ -9,9 +9,9 @@ import kr.jipsee.collect.application.DealKeyReader;
 import kr.jipsee.collect.application.DealKeys;
 import kr.jipsee.collect.application.DealReplaceWriter;
 import kr.jipsee.collect.application.SigunguCodes;
-import kr.jipsee.collect.client.DealApiClient;
-import kr.jipsee.collect.client.RentDealClient;
-import kr.jipsee.collect.client.SaleDealClient;
+import kr.jipsee.collect.client.RtmsApiClient;
+import kr.jipsee.collect.client.RtmsRhRentClient;
+import kr.jipsee.collect.client.RtmsRhTradeClient;
 import kr.jipsee.collect.dao.DataSourceDao;
 import kr.jipsee.collect.dto.DealKey;
 import kr.jipsee.collect.dto.DealReplaceItem;
@@ -86,10 +86,10 @@ public class CollectJobConfig {
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
             DealKeyReader dailyKeyReader,
-            RentDealClient rentDealClient,
+            RtmsRhRentClient rtmsRhRentClient,
             RentDealService rentDealService) {
         return collectStep(
-                "dailyRentStep", jobRepository, transactionManager, dailyKeyReader, rentDealClient, rentDealService);
+                "dailyRentStep", jobRepository, transactionManager, dailyKeyReader, rtmsRhRentClient, rentDealService);
     }
 
     /** 매매 일일 수집 Step */
@@ -98,10 +98,10 @@ public class CollectJobConfig {
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
             DealKeyReader dailyKeyReader,
-            SaleDealClient saleDealClient,
+            RtmsRhTradeClient rtmsRhTradeClient,
             SaleDealService saleDealService) {
         return collectStep(
-                "dailySaleStep", jobRepository, transactionManager, dailyKeyReader, saleDealClient, saleDealService);
+                "dailySaleStep", jobRepository, transactionManager, dailyKeyReader, rtmsRhTradeClient, saleDealService);
     }
 
     /** 전월세 초기 적재 Step */
@@ -110,14 +110,14 @@ public class CollectJobConfig {
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
             DealKeyReader initialRentKeyReader,
-            RentDealClient rentDealClient,
+            RtmsRhRentClient rtmsRhRentClient,
             RentDealService rentDealService) {
         return collectStep(
                 "initialRentStep",
                 jobRepository,
                 transactionManager,
                 initialRentKeyReader,
-                rentDealClient,
+                rtmsRhRentClient,
                 rentDealService);
     }
 
@@ -127,14 +127,14 @@ public class CollectJobConfig {
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
             DealKeyReader initialSaleKeyReader,
-            SaleDealClient saleDealClient,
+            RtmsRhTradeClient rtmsRhTradeClient,
             SaleDealService saleDealService) {
         return collectStep(
                 "initialSaleStep",
                 jobRepository,
                 transactionManager,
                 initialSaleKeyReader,
-                saleDealClient,
+                rtmsRhTradeClient,
                 saleDealService);
     }
 
@@ -188,7 +188,7 @@ public class CollectJobConfig {
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
             DealKeyReader reader,
-            DealApiClient<T> client,
+            RtmsApiClient<T> client,
             DealReplacer<T> replacer) {
         return new StepBuilder(name, jobRepository)
                 .<DealKey, DealReplaceItem<T>>chunk(1)

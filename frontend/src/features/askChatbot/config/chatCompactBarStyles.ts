@@ -1,11 +1,12 @@
 import type { ChatCompactBarStyle } from "@/features/askChatbot/model/chatCompactBarStyle";
+import { bottomBarOffset } from "@/shared/config/bottomNavHeight";
 import { typography } from "@/shared/config/typography";
 
 export const chatCompactBarStyles: ChatCompactBarStyle = {
 	root: {
 		hideFrom: "lg",
 		position: "sticky",
-		bottom: 0,
+		bottom: bottomBarOffset,
 		py: "x3",
 		px: "spacingX.globalGutter",
 		bg: "bg.layerFloating",
@@ -13,6 +14,7 @@ export const chatCompactBarStyles: ChatCompactBarStyle = {
 		borderColor: "stroke.neutralMuted",
 		className: "chat-panel-shadow",
 	},
+	loggedOut: { gap: "x2" },
 	field: { className: "chat-input--compact" },
 	historyLink: {
 		box: {
@@ -32,12 +34,11 @@ export const chatCompactBarStyles: ChatCompactBarStyle = {
 		box: {
 			display: "flex",
 			alignItems: "center",
-			flexShrink: 0,
-			height: "36px",
-			px: "x3",
-			borderRadius: "r2",
+			justifyContent: "center",
+			height: "44px",
+			borderRadius: "r3",
 			bg: "bg.brandWeak",
 		},
-		text: { ...typography.size13, fontWeight: "bold", color: "fg.brand" },
+		text: { ...typography.size15, fontWeight: "bold", color: "fg.brand" },
 	},
 };

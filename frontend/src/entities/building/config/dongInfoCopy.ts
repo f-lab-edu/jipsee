@@ -1,0 +1,27 @@
+export const dongInfoCopy = {
+	labels: {
+		useApproval: "사용승인",
+		household: "세대수",
+		floor: "층수",
+		totalFloorArea: "연면적",
+		structure: "구조",
+		earthquakeDesign: "내진설계",
+		elevator: "승강기",
+		parking: "주차 대수",
+		etcPurpose: "기타용도",
+	},
+	units: {
+		year: "년",
+		household: "세대",
+		floor: "층",
+		area: "㎡",
+		count: "대",
+	},
+	earthquakeDesignApplied: "적용",
+	earthquakeDesignNotApplied: "미적용",
+	noElevator: "없음",
+	parkingType: "자주식",
+	parkingIndoor: "옥내",
+	parkingOutdoor: "옥외",
+	parkingSeparator: ", ",
+} as const;

@@ -63,7 +63,7 @@ body {
 	word-break: keep-all;
 	font-family: var(--seed-font-family);
 	color: var(--seed-color-fg-neutral);
-	background: var(--seed-color-bg-layer-default);
+	background: var(--jipsee-color-bg-page);
 }
 
 /* 모든 버튼에 손가락 커서 */
@@ -71,27 +71,87 @@ button {
 	cursor: pointer;
 }
 
-/* 하늘빛 배경. 브랜드 색을 3% 섞음. Seed에 이 단계의 색이 없음 */
+/* 하늘빛 배경. 브랜드 색을 8% 섞음. Seed에 이 단계의 색이 없음 */
 :root {
 	--jipsee-color-bg-brand-tint: color-mix(
 		in srgb,
-		var(--seed-color-bg-brand-solid) 3%,
+		var(--seed-color-bg-brand-solid) 8%,
 		var(--seed-color-bg-layer-default)
 	);
 }
 
-/* 480 열보다 넓은 화면의 페이지 배경. 열 바깥도 하늘빛으로 맞춤 */
-@media (min-width: 481px) {
-	body {
-		background: var(--jipsee-color-bg-brand-tint);
-	}
+/* 페이지 배경. body가 씀 */
+:root {
+	--jipsee-color-bg-page: var(--jipsee-color-bg-brand-tint);
+}
 
-	.tinted-page-card {
-		margin-inline: var(--seed-dimension-spacing-x-global-gutter);
-		border: 1px solid var(--seed-color-stroke-neutral-muted);
-		border-radius: var(--seed-radius-r5);
-		overflow: hidden;
+/* 1280 미만 흰 세로 열. 헤더부터 하단 내비게이션까지 감싸고 하늘빛은 열 바깥에만 보임. Seed bg가 반응형 값을 받지 않음 */
+@media (max-width: 1279px) {
+	:root .page-column {
+		--seed-box-background: var(--seed-color-bg-layer-default);
 	}
+}
+
+/* 1280 미만 푸터. 하단 내비게이션 바로 위에 고정함. bottom 값은 bottomNavOffset(shared/config/bottomNavHeight.ts)과 같게 둠. Seed position이 반응형 값을 받지 않음 */
+@media (max-width: 1279px) {
+	:root .footer-docked {
+		position: sticky;
+		bottom: calc(57px + env(safe-area-inset-bottom));
+		z-index: 1;
+	}
+}
+
+/* 로그인 제공자 브랜드 색. 제공자 가이드 값이라 Seed 토큰이 없고, 라이트와 다크가 다른 구글만 다크 값을 정의함 */
+:root {
+	--jipsee-color-google-background: #ffffff;
+	--jipsee-color-google-border: #747775;
+	--jipsee-color-google-text: #1f1f1f;
+	--jipsee-color-kakao-background: #fee500;
+	--jipsee-color-kakao-text: rgba(0, 0, 0, 0.85);
+	--jipsee-color-naver-background: #03c75a;
+	--jipsee-color-naver-text: #ffffff;
+}
+
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"] {
+	--jipsee-color-google-background: #131314;
+	--jipsee-color-google-border: #8e918f;
+	--jipsee-color-google-text: #e3e3e3;
+}
+
+/* 탈퇴하기 버튼 배경. 흰 글자와 대비를 맞춘 팔레트 값이라 Seed 의미 토큰이 없음 */
+:root {
+	--jipsee-color-withdraw-button-background: var(--seed-color-palette-red-800);
+}
+
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"] {
+	--jipsee-color-withdraw-button-background: var(--seed-color-palette-red-500);
+}
+
+/* 집사 사용자 말풍선 배경. 흰 글자와 대비를 맞춘 팔레트 값이라 Seed 의미 토큰이 없음 */
+:root {
+	--jipsee-color-chat-user-bubble-background: var(
+		--seed-color-palette-blue-800
+	);
+}
+
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"] {
+	--jipsee-color-chat-user-bubble-background: var(
+		--seed-color-palette-blue-500
+	);
+}
+
+/* 탈퇴 확인 창과 집사 대화 삭제 확인 창 콘텐츠의 줄바꿈. Seed 대화상자와 바텀시트 콘텐츠가 break-all을 지정함 */
+:root .withdraw-dialog-content,
+:root .delete-chat-dialog-content {
+	word-break: keep-all;
+}
+
+/* 탈퇴 확인 창과 집사 대화 삭제 확인 창의 제목과 설명. Seed 제목과 설명 클래스가 Text 글자 값을 덮어쓰는 순서가 로드 순서에 따라 달라짐 */
+:root .withdraw-dialog-content .seed-text,
+:root .delete-chat-dialog-content .seed-text {
+	font-size: var(--seed-font-size);
+	line-height: var(--seed-line-height);
+	font-weight: var(--seed-font-weight);
 }
 
 /* 제목 자간. Seed에 letterSpacing이 없음 */
@@ -102,6 +162,11 @@ button {
 /* 서비스명 굵기. Seed fontWeight는 bold(700)까지 */
 :root .extra-bold {
 	font-weight: 800;
+}
+
+/* 기준선 정렬. Seed alignItems에 baseline이 없음. 같은 요소에 alignItems를 넘기지 않음 */
+.align-baseline {
+	--seed-box-align-items: baseline;
 }
 
 /* 검색창 intro 모양. Seed 입력 스타일시트가 theme.css 뒤에 로드되므로 :root로 우선순위를 높임 */
@@ -244,17 +309,31 @@ a {
 	inset: 0;
 }
 
-/* 모바일 챗봇 패널의 위로 퍼지는 그림자. Seed 그림자 토큰은 모두 아래로 퍼지고, 모드마다 색 기준이 달라 한 값으로 둘 수 없음 */
-:root[data-seed-color-mode="system"][data-seed-user-color-scheme="light"]
-.chat-panel-shadow {
-	box-shadow: 0 -6px 20px
-		color-mix(in srgb, var(--seed-color-palette-gray-1000) 6%, transparent);
+/* 모바일 패널 그림자 색. Seed 그림자 토큰은 모두 아래로 퍼지고, 모드마다 색 기준이 달라 한 값으로 둘 수 없음 */
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="light"] {
+	--jipsee-color-panel-shadow: color-mix(
+		in srgb,
+		var(--seed-color-palette-gray-1000) 6%,
+		transparent
+	);
 }
 
-:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"]
-	.chat-panel-shadow {
-	box-shadow: 0 -6px 20px
-		color-mix(in srgb, var(--seed-color-palette-static-black) 40%, transparent);
+:root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"] {
+	--jipsee-color-panel-shadow: color-mix(
+		in srgb,
+		var(--seed-color-palette-static-black) 40%,
+		transparent
+	);
+}
+
+/* 모바일 챗봇 패널의 위로 퍼지는 그림자 */
+:root .chat-panel-shadow {
+	box-shadow: 0 -6px 20px var(--jipsee-color-panel-shadow);
+}
+
+/* 모바일 헤더의 아래로 퍼지는 그림자. 챗봇 패널 그림자를 뒤집은 값 */
+:root .header-shadow {
+	box-shadow: 0 6px 20px var(--jipsee-color-panel-shadow);
 }
 
 /* 챗봇 축소 바 입력 모양. root가 바 자체이고 Seed의 1px 안쪽 선과 비활성화 상태의 배경을 덮어씀 */
@@ -314,4 +393,218 @@ a {
 :root .chat-input--aside input,
 :root .chat-input--aside input::placeholder {
 	font-size: 15px;
+}
+
+/* 정책 조항의 위쪽 스크롤 여백. 목차 앵커로 이동해도 고정 헤더(모바일 56, 데스크톱 65)가 조항 제목을 가리지 않게 함. Seed에 scroll-margin 속성이 없음 */
+.policy-clause {
+	scroll-margin-top: calc(56px + var(--seed-dimension-x4));
+}
+
+@media (min-width: 1280px) {
+	.policy-clause {
+		scroll-margin-top: calc(65px + var(--seed-dimension-x4));
+	}
+}
+
+/* 정책 문서의 목록 마커. Seed에 list-style 속성이 없음 */
+:root .policy-list {
+	list-style: disc;
+}
+
+:root .policy-toc-list {
+	list-style: none;
+}
+
+/* 데스크톱 목차의 열 사이 간격. Seed gap은 행 간격까지 함께 정함 */
+:root .policy-toc-list--columns {
+	column-gap: var(--seed-dimension-x4);
+}
+
+/* 정책 표. Seed Box가 display를 block으로 정해 표 요소의 display를 되돌림. Seed에 table 속성도 없음 */
+:root .policy-table {
+	display: table;
+	border-collapse: collapse;
+	table-layout: fixed;
+}
+
+:root .policy-table thead,
+:root .policy-table tbody {
+	display: table-row-group;
+}
+
+:root .policy-table tr {
+	display: table-row;
+}
+
+:root .policy-table th,
+:root .policy-table td {
+	display: table-cell;
+	vertical-align: top;
+}
+
+:root .policy-table th {
+	text-align: left;
+}
+
+/* 집사 말풍선의 긴 글자 줄바꿈. Seed에 overflow-wrap 속성이 없음 */
+:root .chat-bubble {
+	overflow-wrap: anywhere;
+}
+
+/* 집사 답변 대기 점과 커서. Seed에 키프레임이 없음 */
+@keyframes chat-dot-blink {
+	0%,
+	80%,
+	100% {
+		opacity: 0.3;
+	}
+
+	40% {
+		opacity: 1;
+	}
+}
+
+@keyframes chat-caret-blink {
+	0%,
+	100% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0;
+	}
+}
+
+:root .chat-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 999px;
+	background: var(--seed-color-fg-neutral-muted);
+	animation: chat-dot-blink 1.2s infinite;
+}
+
+:root .chat-dot:nth-child(2) {
+	animation-delay: 0.2s;
+}
+
+:root .chat-dot:nth-child(3) {
+	animation-delay: 0.4s;
+}
+
+:root .chat-caret {
+	display: inline-block;
+	width: 2px;
+	height: 16px;
+	margin-left: 2px;
+	vertical-align: -3px;
+	background: var(--seed-color-bg-brand-solid);
+	animation: chat-caret-blink 1s steps(2) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:root .chat-dot,
+	:root .chat-caret {
+		animation: none;
+	}
+}
+
+/* 집사 카드. 1280 이상에서만 흰 카드로 보이고 그 아래에서는 열 그대로임. clip은 고정 입력 바가 카드 안에서 움직이게 두면서 모서리만 자름. Seed bg, border, borderRadius, overflow가 반응형 값을 받지 않음 */
+@media (min-width: 1280px) {
+	:root .chat-card {
+		--seed-box-background: var(--seed-color-bg-layer-default);
+		border: 1px solid var(--seed-color-stroke-neutral-muted);
+		border-radius: var(--seed-radius-r5);
+		overflow: clip;
+	}
+}
+
+/* 집사 하단 바(질문 입력, 한도 안내). 1280 미만은 푸터 바로 위(bottomBarOffset과 같은 값)에 고정하고, 이상은 카드 안 아래에 고정함. Seed bottom, bg, boxShadow가 반응형 값을 받지 않음 */
+:root .chat-bar {
+	position: sticky;
+	bottom: calc(57px + 44px + env(safe-area-inset-bottom));
+	--seed-box-background: var(--seed-color-bg-layer-floating);
+	box-shadow: 0 -6px 20px var(--jipsee-color-panel-shadow);
+}
+
+@media (min-width: 1280px) {
+	:root .chat-bar {
+		bottom: 0;
+		--seed-box-background: var(--seed-color-bg-layer-default);
+		box-shadow: none;
+	}
+
+	/* 시안은 데스크톱 한도 안내 바만 bg.layerFloating을 씀 */
+	:root .chat-limit-bar {
+		--seed-box-background: var(--seed-color-bg-layer-floating);
+	}
+}
+
+/* 집사 질문 입력 모양. 1280 미만은 회색 채움 48, 이상은 테두리 52. Seed 입력 크기로는 이 높이를 만들 수 없고 Seed의 1px 안쪽 선을 없애야 함 */
+:root .chat-bar-input {
+	box-sizing: border-box;
+	min-height: 0;
+	height: var(--seed-dimension-x12);
+	padding-left: var(--seed-dimension-x3_5);
+	padding-right: var(--seed-dimension-x1);
+	gap: var(--seed-dimension-x2);
+	border-radius: var(--seed-radius-r3);
+	box-shadow: none;
+	background-color: var(--seed-color-bg-neutral-weak);
+}
+
+@media (min-width: 1280px) {
+	:root .chat-bar-input {
+		height: var(--seed-dimension-x13);
+		padding-left: var(--seed-dimension-x4);
+		padding-right: var(--seed-dimension-x1_5);
+		border: 1px solid var(--seed-color-stroke-neutral-weak);
+		background-color: transparent;
+	}
+}
+
+/* Seed가 입력 안쪽 여백을 :first-child, :last-child로 정하므로 0으로 고정. placeholder는 대비를 맞추려고 fg.neutralMuted를 씀. 15px은 토큰이 없어 숫자로 씀 */
+:root .chat-bar-input input:first-child,
+:root .chat-bar-input input:last-child {
+	padding-inline: 0;
+}
+
+:root .chat-bar-input input,
+:root .chat-bar-input input::placeholder {
+	font-size: var(--seed-font-size-t5);
+}
+
+:root .chat-bar-input input::placeholder {
+	color: var(--seed-color-fg-neutral-muted);
+	opacity: 1;
+}
+
+@media (min-width: 1280px) {
+	:root .chat-bar-input input,
+	:root .chat-bar-input input::placeholder {
+		font-size: 15px;
+	}
+}
+
+/* 글자 정렬. Seed Text에 textAlign이 없고 버튼은 글자를 가운데 정렬함 */
+:root .text-align-start {
+	text-align: left;
+}
+
+:root .text-align-center {
+	text-align: center;
+}
+
+/* 목록 표시 제거. Seed에 list-style 속성이 없음 */
+:root .list-reset {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+/* 한 줄로 두고 넘치면 말줄임. Seed maxLines는 line-clamp라 text-overflow를 쓰지 않음 */
+:root .single-line-ellipsis {
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }

@@ -1,11 +1,12 @@
 import type { ChatExpandedPanelStyle } from "@/features/askChatbot/model/chatExpandedPanelStyle";
+import { bottomBarOffset } from "@/shared/config/bottomNavHeight";
 import { typography } from "@/shared/config/typography";
 
 export const chatExpandedPanelStyles: ChatExpandedPanelStyle = {
 	root: {
 		hideFrom: "lg",
 		position: "sticky",
-		bottom: 0,
+		bottom: bottomBarOffset,
 		gap: "x3",
 		pt: "x4_5",
 		px: "spacingX.globalGutter",

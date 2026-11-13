@@ -1,0 +1,59 @@
+// 기대 문구. 설계 문서(2026-11-13-s3-chat-design.md) 4절과 11절 사용자 결정
+export const CHAT_TEXT = {
+	title: "집사",
+	historyTitle: "대화 목록",
+	emptyTitle: "집사에게 궁금한 점을 물어보세요",
+	examples: [
+		"○○빌라 주변 전세 거래 알려줘",
+		"계약갱신요구권은 언제 쓰나요?",
+		"전입신고는 언제 해야 해?",
+	],
+	buildingExamples: [
+		"이 건물 최근 2년 전세 거래 알려줘",
+		"전입신고는 언제 해야 해?",
+	],
+	question: "○○빌라 주변 전세 거래 알려줘",
+	dealSource: "출처: 국토교통부 실거래가",
+	dealBase: "2026년 9월 기준",
+	lawSource: "주택임대차보호법 제6조의3",
+	lawBase: "법제처, 2026년 9월 기준",
+	judgment: "이 집 계약해도 괜찮을까요?",
+	judgmentLines: [
+		"계약 여부는 판단하지 않습니다.",
+		"건물 정보, 거래 기록은 안내합니다.",
+	],
+	lawsuit: "보증금 소송 이길 수 있나요?",
+	lawsuitLines: ["개별 사건은 판단하지 않습니다.", "전문가 상담이 필요합니다."],
+	lawsuitSource: "관련 조문: 주택임대차보호법 제3조의2",
+	limitTitle: "오늘 질문 한도를 모두 사용했어요",
+	limitDescription: "내일 다시 이용할 수 있어요",
+	serverError: "일시적인 오류가 발생했어요",
+	rateLimit: "요청이 많아요. 잠시 후 다시 시도해 주세요",
+	historyEmpty: "지난 대화가 없어요",
+	deleteTitle: "대화를 삭제할까요?",
+	deleteDescription: "삭제한 대화는 복구할 수 없어요",
+	historyTitles: [
+		"○○빌라 주변 전세 거래 알려줘",
+		"계약갱신요구권은 언제 쓰나요?",
+		"전입신고는 언제 해야 해?",
+		"이 건물 최근 2년 전세 거래 알려줘",
+		"보증금을 얼마까지 올릴 수 있어?",
+	],
+	historyTimes: ["오늘 14:20", "어제", "10.21", "10.18", "10.15"],
+} as const;
+
+// 사용자 말풍선은 팔레트 값(라이트 blue800, 다크 blue500), 답변 말풍선은 bg.neutralWeak, 흰색은 palette.staticWhite
+export const CHAT_COLORS = {
+	light: {
+		userBubble: "rgb(19, 95, 205)",
+		neutralWeak: "rgb(243, 244, 245)",
+		layerDefault: "rgb(255, 255, 255)",
+	},
+	dark: {
+		userBubble: "rgb(25, 100, 216)",
+		neutralWeak: "rgb(43, 46, 53)",
+		layerDefault: "rgb(22, 23, 27)",
+		layerFloating: "rgb(29, 32, 37)",
+	},
+	white: "rgb(255, 255, 255)",
+} as const;

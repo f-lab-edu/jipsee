@@ -14,7 +14,7 @@ export default function ChatHistoryTextLink({
 }: ChatHistoryTextLinkProps) {
 	return (
 		<Box asChild {...style.box}>
-			<Link href={paths.chat}>
+			<Link href={paths.chatHistory}>
 				<Text {...style.text}>{chatPanelCopy.history}</Text>
 			</Link>
 		</Box>

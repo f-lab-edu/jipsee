@@ -1,14 +1,14 @@
 import type { ChatPanelDesktopStyle } from "@/features/askChatbot/model/chatPanelDesktopStyle";
+import { desktopHeaderHeight } from "@/shared/config/headerHeight";
 import { typography } from "@/shared/config/typography";
 
 export const chatPanelDesktopStyles: ChatPanelDesktopStyle = {
 	root: {
 		position: "sticky",
-		top: "var(--seed-dimension-x8)",
+		top: `calc(${desktopHeaderHeight} + var(--seed-dimension-x8))`,
 		flexGrow: 1,
-		// 위 여백 32, 아래 여백 24, 위아래 padding 48, 테두리 2를 뺌. Seed Box는 content-box임
-		maxHeight:
-			"calc(100dvh - var(--seed-dimension-x8) - var(--seed-dimension-x6) * 3 - 2px)",
+		// 헤더 65, 위 여백 32, 아래 여백 24, 위아래 padding 48, 테두리 2를 뺌. Seed Box는 content-box임
+		maxHeight: `calc(100dvh - ${desktopHeaderHeight} - var(--seed-dimension-x8) - var(--seed-dimension-x6) * 3 - 2px)`,
 		gap: "x4",
 		p: "x6",
 		bg: "bg.layerFloating",

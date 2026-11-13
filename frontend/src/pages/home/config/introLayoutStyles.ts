@@ -1,5 +1,4 @@
 import type { IntroLayoutStyle } from "@/pages/home/model/introLayoutStyle";
-import { colors } from "@/shared/config/colors";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
 
@@ -11,7 +10,7 @@ export const introLayoutStyles = defineResponsiveStyles<IntroLayoutStyle>({
 			right: 0,
 			bottom: 0,
 			left: 0,
-			bg: colors.brandTintBackground,
+			bg: "bg.layerDefault",
 		},
 		titleRow: {
 			alignItems: "flex-end",
@@ -32,7 +31,7 @@ export const introLayoutStyles = defineResponsiveStyles<IntroLayoutStyle>({
 			px: "x2_5",
 			py: "x1",
 			borderRadius: "full",
-			bg: "bg.layerDefault",
+			bg: "bg.neutralWeak",
 		},
 		chipLabel: { ...typography.size12, color: "fg.neutralMuted" },
 	},

@@ -1,38 +1,44 @@
-import { type BoxProps, HStack, Text } from "@seed-design/react";
+import { Box, HStack, Text } from "@seed-design/react";
 import Link from "next/link";
-import type { Session } from "@/entities/session/model/session";
+import type { ReactNode } from "react";
 import { siteMetadata } from "@/shared/config/siteMetadata";
-import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import { paths } from "@/shared/routes/paths";
 import { headerStyles } from "@/widgets/header/config/headerStyles";
-import AccountLink from "@/widgets/header/ui/AccountLink";
 import LogoSymbol from "@/widgets/header/ui/LogoSymbol";
 
 interface MobileHeaderProps {
-	session: Nullable<Session>;
-	background: BoxProps["bg"];
+	back?: ReactNode;
+	bottom?: ReactNode;
 }
 
 /**
  * 헤더 > 모바일 레이아웃
  *
- * @param background 사용처가 주입한 행 배경
+ * - 로고 줄은 왼쪽에 뒤로 가기 요소와 로고 출력
+ * - 계정 링크는 출력하지 않음. 하단 내비게이션의 내 정보 탭이 대신함
+ * - 배경은 흰색이고 아래에 1px 테두리와 챗봇 패널과 같은 그림자를 둠
+ * - bottom이 있으면 로고 줄 아래에 둘째 줄로 출력
+ *
+ * @param back 로고 왼쪽 요소
+ * @param bottom 로고 줄 아래 요소
  */
-export default function MobileHeader({
-	session,
-	background,
-}: MobileHeaderProps) {
+export default function MobileHeader({ back, bottom }: MobileHeaderProps) {
 	const style = headerStyles.mobile;
 
 	return (
-		<HStack bg={background} {...style.row}>
-			<Link href={paths.home} aria-label={`${siteMetadata.name} 홈`}>
-				<HStack {...style.brandLink}>
-					<LogoSymbol size={style.logoSize} />
-					<Text {...style.serviceName}>{siteMetadata.name}</Text>
+		<Box {...style.container}>
+			<HStack {...style.row}>
+				<HStack {...style.leftGroup}>
+					{back}
+					<Link href={paths.home} aria-label={`${siteMetadata.name} 홈`}>
+						<HStack {...style.brandLink}>
+							<LogoSymbol size={style.logoSize} />
+							<Text {...style.serviceName}>{siteMetadata.name}</Text>
+						</HStack>
+					</Link>
 				</HStack>
-			</Link>
-			<AccountLink session={session} variant="mobile" />
-		</HStack>
+			</HStack>
+			{bottom}
+		</Box>
 	);
 }

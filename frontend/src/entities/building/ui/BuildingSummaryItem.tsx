@@ -1,7 +1,7 @@
 import { Box, Flex, Icon, Text, VStack } from "@seed-design/react";
 import Link from "next/link";
 import { buildingSummaryItemStyles } from "@/entities/building/config/buildingSummaryItemStyles";
-import { toBuildingDetail } from "@/entities/building/lib/toBuildingDetail";
+import { toBuildingSummaryDetail } from "@/entities/building/lib/toBuildingSummaryDetail";
 import type { BuildingSummary } from "@/entities/building/model/buildingSummary";
 import BuildingAddress from "@/entities/building/ui/BuildingAddress";
 import BuildingChevronIcon from "@/entities/building/ui/BuildingChevronIcon";
@@ -29,7 +29,7 @@ export default function BuildingSummaryItem({
 					<Text {...style.name}>{building.name ?? building.address}</Text>
 					<BuildingAddress building={building} />
 					<Box {...style.detailCell}>
-						<Text {...style.detail}>{toBuildingDetail(building)}</Text>
+						<Text {...style.detail}>{toBuildingSummaryDetail(building)}</Text>
 					</Box>
 				</VStack>
 				<Box {...style.chevronCell}>
