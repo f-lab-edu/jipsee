@@ -2,3 +2,8 @@ spring:
   flyway:
     locations: filesystem:${SCHEMA_DIR}
     fail-on-missing-locations: true
+
+jipsee:
+  collect:
+    api:
+      service-key: test-service-key
