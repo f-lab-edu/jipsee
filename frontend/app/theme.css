@@ -532,6 +532,11 @@ a {
 		--seed-box-background: var(--seed-color-bg-layer-default);
 		box-shadow: none;
 	}
+
+	/* 시안은 데스크톱 한도 안내 바만 bg.layerFloating을 씀 */
+	:root .chat-limit-bar {
+		--seed-box-background: var(--seed-color-bg-layer-floating);
+	}
 }
 
 /* 집사 질문 입력 모양. 1280 미만은 회색 채움 48, 이상은 테두리 52. Seed 입력 크기로는 이 높이를 만들 수 없고 Seed의 1px 안쪽 선을 없애야 함 */

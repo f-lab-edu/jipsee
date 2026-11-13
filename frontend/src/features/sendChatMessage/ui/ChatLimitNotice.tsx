@@ -18,7 +18,7 @@ export default function ChatLimitNotice() {
 			role="status"
 			aria-label={composerCopy.limitLabel}
 			data-area="chat-limit-notice"
-			{...style.bar}
+			{...style.limitBar}
 		>
 			<HStack {...style.limitBox}>
 				<Box {...style.limitIconCell}>

@@ -13,15 +13,18 @@ const sendButtonShared = {
 	borderRadius: "r2_5",
 } as const;
 
+const barShared = {
+	px: { base: "spacingX.globalGutter", lg: "x6" },
+	py: { base: "x3", lg: "x4" },
+	borderTopWidth: 1,
+	borderColor: "stroke.neutralMuted",
+	className: "chat-bar",
+} as const;
+
 // 모바일 바 패딩 12 16, 데스크톱 16 24. 위치와 그림자, 배경은 theme.css의 .chat-bar가 정함
 export const composerStyles: ComposerStyle = {
-	bar: {
-		px: { base: "spacingX.globalGutter", lg: "x6" },
-		py: { base: "x3", lg: "x4" },
-		borderTopWidth: 1,
-		borderColor: "stroke.neutralMuted",
-		className: "chat-bar",
-	},
+	bar: barShared,
+	limitBar: { ...barShared, className: "chat-bar chat-limit-bar" },
 	field: { className: "chat-bar-input" },
 	sendButton: {
 		...sendButtonShared,
