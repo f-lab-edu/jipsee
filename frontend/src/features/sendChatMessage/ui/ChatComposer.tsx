@@ -58,20 +58,22 @@ export default function ChatComposer({
 			data-area="chat-composer"
 			{...style.bar}
 		>
-			<form onSubmit={handleSubmit}>
-				<TextFieldRoot
-					value={question}
-					onValueChange={onQuestionChange}
-					{...style.field}
-				>
-					<TextFieldInput
-						aria-label={composerCopy.questionLabel}
-						placeholder={composerCopy.questionPlaceholder}
-						enterKeyHint="send"
-					/>
-					<SendButton isDisabled={isSending} />
-				</TextFieldRoot>
-			</form>
+			<Box asChild {...style.form}>
+				<form onSubmit={handleSubmit}>
+					<TextFieldRoot
+						value={question}
+						onValueChange={onQuestionChange}
+						{...style.field}
+					>
+						<TextFieldInput
+							aria-label={composerCopy.questionLabel}
+							placeholder={composerCopy.questionPlaceholder}
+							enterKeyHint="send"
+						/>
+						<SendButton isDisabled={isSending} />
+					</TextFieldRoot>
+				</form>
+			</Box>
 		</Box>
 	);
 }

@@ -6,7 +6,7 @@ import type {
 } from "@seed-design/react";
 
 export interface DeleteChatStyle {
-	trigger: BoxProps;
+	trigger: Record<"list" | "rail", BoxProps>;
 	triggerText: TextProps;
 	contentClassName: string;
 	body: VStackProps;

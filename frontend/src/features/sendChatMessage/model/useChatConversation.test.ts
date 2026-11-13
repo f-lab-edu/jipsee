@@ -7,7 +7,8 @@ import { useChatConversation } from "@/features/sendChatMessage/model/useChatCon
 
 const replace = vi.fn();
 const push = vi.fn();
-const router = { replace, push };
+const refresh = vi.fn();
+const router = { replace, push, refresh };
 
 vi.mock("next/navigation", () => ({
 	useRouter: () => router,
@@ -73,6 +74,7 @@ describe("useChatConversation", () => {
 	beforeEach(() => {
 		replace.mockReset();
 		push.mockReset();
+		refresh.mockReset();
 		vi.mocked(streamChatAnswer).mockReset();
 	});
 
@@ -123,7 +125,7 @@ describe("useChatConversation", () => {
 		);
 	});
 
-	it("있는 대화에 질문하면 주소를 바꾸지 않음", async () => {
+	it("있는 대화에 질문하면 주소를 바꾸지 않고 스트림이 끝난 뒤 화면을 새로 고침", async () => {
 		const controller = createController();
 		vi.mocked(streamChatAnswer).mockReturnValue(controller.stream());
 		const { result } = renderHook(() =>
@@ -138,6 +140,23 @@ describe("useChatConversation", () => {
 
 		await waitFor(() => expect(result.current.phase).toBe("idle"));
 		expect(replace).not.toHaveBeenCalled();
+		expect(refresh).toHaveBeenCalledTimes(1);
+	});
+
+	it("새 대화의 스트림이 끝나도 화면을 새로 고치지 않음", async () => {
+		const controller = createController();
+		vi.mocked(streamChatAnswer).mockReturnValue(controller.stream());
+		const { result } = renderHook(() => useChatConversation(baseOptions));
+
+		act(() => result.current.send("질문"));
+		await act(async () => {
+			controller.push({ type: "chat", chatId: 6, title: "질문" });
+			controller.push({ type: "done", message: answer });
+			controller.end();
+		});
+
+		await waitFor(() => expect(replace).toHaveBeenCalled());
+		expect(refresh).not.toHaveBeenCalled();
 	});
 
 	it("일일 한도 오류이면 방금 붙인 질문 말풍선을 지우고 limit으로 바꿈", async () => {

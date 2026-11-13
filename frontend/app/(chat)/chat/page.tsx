@@ -2,6 +2,7 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getChatBuilding } from "@/entities/chat/api/getChatBuilding";
 import { getChatLimit } from "@/entities/chat/api/getChatLimit";
+import { getChatList } from "@/entities/chat/api/getChatList";
 import { getSession } from "@/entities/session/api/getSession";
 import { chatCopy } from "@/pages/chat/config/chatCopy";
 import { toChatPath } from "@/pages/chat/lib/toChatPath";
@@ -28,7 +29,7 @@ export async function generateMetadata(
  *
  * - 로그인하지 않은 상태면 돌아올 경로(buildingId 쿼리 포함)를 담아 로그인으로 이동
  * - buildingId가 있으면 건물을 조회하고 양의 정수가 아니거나 없는 건물이면 404
- * - 한도 소진 여부를 조회해 페이지에 전달
+ * - 한도 소진 여부와 대화 목록을 조회해 페이지에 전달
  */
 export default async function Page({ searchParams }: PageProps<"/chat">) {
 	const { buildingId: rawBuildingId } = await searchParams;
@@ -58,6 +59,7 @@ export default async function Page({ searchParams }: PageProps<"/chat">) {
 	}
 
 	const { dailyLimitReached } = await getChatLimit();
+	const chats = await getChatList();
 
 	return (
 		<ChatPage
@@ -68,6 +70,8 @@ export default async function Page({ searchParams }: PageProps<"/chat">) {
 			buildingName={buildingName}
 			initialMessages={[]}
 			isLimitReached={dailyLimitReached}
+			chats={chats}
+			now={new Date()}
 		/>
 	);
 }

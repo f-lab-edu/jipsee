@@ -14,6 +14,7 @@ import DeleteChatDialog from "@/features/deleteChat/ui/DeleteChatDialog";
 interface DeleteChatButtonProps {
 	chatId: number;
 	title: string;
+	variant: "list" | "rail";
 }
 
 /**
@@ -26,10 +27,12 @@ interface DeleteChatButtonProps {
  *
  * @param chatId 삭제할 대화 번호
  * @param title 접근 가능한 이름에 붙일 대화 제목
+ * @param variant 목록 화면은 list, 데스크톱 레일은 rail. 버튼 크기를 정함
  */
 export default function DeleteChatButton({
 	chatId,
 	title,
+	variant,
 }: DeleteChatButtonProps) {
 	const style = deleteChatStyles;
 	const isBottomSheet = useBreakpointValue({ base: true, lg: false });
@@ -37,7 +40,7 @@ export default function DeleteChatButton({
 	return (
 		<ResponsiveDialogRoot key={String(isBottomSheet)} dialogBreakpoint="lg">
 			<ResponsiveDialogTrigger asChild>
-				<Box asChild {...style.trigger}>
+				<Box asChild {...style.trigger[variant]}>
 					<button
 						type="button"
 						aria-label={`${deleteChatCopy.label}: ${title}`}

@@ -26,6 +26,7 @@ interface ChatThreadProps {
  * - 메시지가 없으면 빈 대화 출력. 한도를 모두 사용했으면 예시 질문은 숨김
  * - 메시지를 차례로 출력하고 대기나 스트리밍 중이면 작성 중인 답변을 끝에 출력
  * - 오류이면 실패한 질문 아래에 오류 상자 출력
+ * - 내용은 폭 720 열로 가운데에 둠
  */
 export default function ChatThread({
 	messages,
@@ -48,20 +49,22 @@ export default function ChatThread({
 			data-area="chat-thread"
 			{...style.thread}
 		>
-			{messages.length === 0 && (
-				<ChatEmpty
-					exampleQuestions={exampleQuestions}
-					showsExamples={phase !== "limit"}
-					onSelect={onSelectExample}
-				/>
-			)}
-			{messages.map((message) => (
-				<ChatMessageItem key={message.id} message={message} />
-			))}
-			{isDrafting && <AssistantDraft text={draft} />}
-			{phase === "error" && errorCode !== null && (
-				<ChatErrorNotice code={errorCode} onRetry={onRetry} />
-			)}
+			<VStack {...style.column}>
+				{messages.length === 0 && (
+					<ChatEmpty
+						exampleQuestions={exampleQuestions}
+						showsExamples={phase !== "limit"}
+						onSelect={onSelectExample}
+					/>
+				)}
+				{messages.map((message) => (
+					<ChatMessageItem key={message.id} message={message} />
+				))}
+				{isDrafting && <AssistantDraft text={draft} />}
+				{phase === "error" && errorCode !== null && (
+					<ChatErrorNotice code={errorCode} onRetry={onRetry} />
+				)}
+			</VStack>
 		</VStack>
 	);
 }
