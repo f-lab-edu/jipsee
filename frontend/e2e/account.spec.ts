@@ -6,9 +6,10 @@ import { expect, type Page } from "@playwright/test";
 import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
 import { caseId } from "./support/caseId";
+import { isDimmedAt } from "./support/dialog/isDimmedAt";
 import { gotoAndSettle } from "./support/gotoAndSettle";
 import { test } from "./support/test";
-import { DESKTOP, MOBILE } from "./support/viewports";
+import { BOTTOM_NAV_HEIGHT, DESKTOP, MOBILE } from "./support/viewports";
 
 const SCREENS = [
 	{ label: "모바일", viewport: MOBILE },
@@ -1914,4 +1915,38 @@ for (const theme of THEMES) {
 			);
 		});
 	});
+}
+
+// 탈퇴 확인 창의 딤은 sticky 헤더, 푸터, 하단 내비게이션, 양옆 하늘빛 배경까지 덮어야 함
+for (const viewport of [MOBILE, { width: 768, height: 1024 }, DESKTOP]) {
+	for (const theme of THEMES) {
+		test.describe(`${viewport.width}x${viewport.height} ${theme} 탈퇴 확인 창 딤`, () => {
+			test.use({ viewport, colorScheme: theme });
+			test.skip(
+				process.env.TC_SESSION !== "in",
+				"로그인 TC는 TC_SESSION=in일 때만 돌림",
+			);
+
+			test(`${caseId("A8", a8Number++)} ${viewport.width} ${theme} 확인 창이 열리면 딤이 헤더와 ${viewport === DESKTOP ? "양옆 하늘빛 배경" : "푸터와 하단 내비게이션"}까지 덮음`, async ({
+				page,
+			}) => {
+				await gotoAndSettle(page, "/me");
+				await page
+					.getByRole("button", { name: POLICY_TEXT.withdraw, exact: true })
+					.click();
+				await expect(page.getByRole("dialog")).toHaveCount(1);
+				await page.waitForTimeout(700);
+				expect(await isDimmedAt(page, viewport.width / 2, 10)).toBe(true);
+				expect(await isDimmedAt(page, 5, 10)).toBe(true);
+				if (viewport === DESKTOP) {
+					expect(await isDimmedAt(page, 5, viewport.height / 2)).toBe(true);
+					return;
+				}
+				expect(await isDimmedAt(page, 5, viewport.height - 10)).toBe(true);
+				expect(
+					await isDimmedAt(page, 5, viewport.height - BOTTOM_NAV_HEIGHT - 10),
+				).toBe(true);
+			});
+		});
+	}
 }

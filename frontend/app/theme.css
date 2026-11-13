@@ -101,6 +101,12 @@ button {
 	}
 }
 
+/* Seed 바텀시트와 대화상자의 딤 z-index. Seed는 이 변수를 위치 지정자에만 정의해 형제인 딤은 z-index가 auto가 되고, z-index 1인 sticky 헤더와 푸터와 하단 내비게이션이 딤 위로 나옴. 루트에 같은 값을 정의해 딤이 위치 지정자와 같은 층에 놓이게 함 */
+:root {
+	--sheet-z-index: 2;
+	--dialog-z-index: 2;
+}
+
 /* 로그인 제공자 브랜드 색. 제공자 가이드 값이라 Seed 토큰이 없고, 라이트와 다크가 다른 구글만 다크 값을 정의함 */
 :root {
 	--jipsee-color-google-background: #ffffff;
