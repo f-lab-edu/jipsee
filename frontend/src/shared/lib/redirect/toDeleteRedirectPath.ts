@@ -1,4 +1,4 @@
-import { toPositiveId } from "@/pages/chat/lib/toPositiveId";
+import { toPositiveId } from "@/shared/lib/ids/toPositiveId";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import { paths } from "@/shared/routes/paths";
 

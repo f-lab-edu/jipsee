@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { toDeleteRedirectPath } from "@/pages/chat/lib/toDeleteRedirectPath";
+import { toDeleteRedirectPath } from "@/shared/lib/redirect/toDeleteRedirectPath";
 
 const origin = "http://localhost:3000";
 
