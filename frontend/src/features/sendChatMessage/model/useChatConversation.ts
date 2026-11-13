@@ -21,7 +21,7 @@ interface UseChatConversationOptions {
  *
  * - 질문을 보내면 사용자 말풍선을 붙이고 waiting, 첫 글자가 오면 streaming, 끝나면 idle로 바꿈
  * - 첫 질문이 있으면 처음 그릴 때 바로 보냄
- * - 새 대화의 스트림이 끝나면 /chat/{id}로 바꿈
+ * - 새 대화의 스트림이 끝나면 /chat/{id}로 바꾸고, 지난 대화의 스트림이 끝나면 화면을 새로 고쳐 대화 목록 레일을 갱신
  * - CHAT_DAILY_LIMIT이면 방금 붙인 질문 말풍선을 지우고 limit으로 바꿈
  * - TOO_MANY_REQUESTS, SERVER_ERROR, 스트림 중간 끊김, 연결 실패이면 받은 글자를 지우고 error로 바꿈
  * - UNAUTHORIZED이면 돌아올 경로를 담아 로그인으로 이동
@@ -118,6 +118,10 @@ export function useChatConversation({
 							router.replace(paths.chatDetail(createdChatId), {
 								scroll: false,
 							});
+						}
+
+						if (!isNewChat) {
+							router.refresh();
 						}
 					}
 

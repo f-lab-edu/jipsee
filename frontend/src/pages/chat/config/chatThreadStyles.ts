@@ -6,6 +6,12 @@ export const chatThreadStyles: ChatThreadStyle = {
 	thread: {
 		flexGrow: 1,
 		p: { base: "spacingX.globalGutter", lg: "x6" },
+	},
+	column: {
+		flexGrow: 1,
+		width: "full",
+		maxWidth: "720px",
+		mx: "auto",
 		gap: { base: "x3", lg: "x4" },
 	},
 	empty: {
@@ -33,7 +39,7 @@ export const chatThreadStyles: ChatThreadStyle = {
 	},
 	examples: {
 		width: "full",
-		maxWidth: "420px",
+		maxWidth: { base: "420px", lg: "480px" },
 		gap: "x2",
 		className: "list-reset",
 	},

@@ -8,6 +8,7 @@ import type {
 
 export interface ChatThreadStyle {
 	thread: VStackProps;
+	column: VStackProps;
 	empty: VStackProps;
 	emptyHeading: VStackProps;
 	emptyIcon: BoxProps;

@@ -10,6 +10,7 @@ import type {
 export interface ComposerStyle {
 	bar: BoxProps;
 	limitBar: BoxProps;
+	form: BoxProps;
 	field: Pick<TextFieldRootProps, "className">;
 	sendButton: BoxProps;
 	sendButtonDisabled: BoxProps;

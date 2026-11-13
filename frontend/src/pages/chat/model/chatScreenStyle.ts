@@ -13,16 +13,17 @@ export interface ChatToolbarStyle {
 	actions: HStackProps;
 	button: BoxProps;
 	buttonText: TextProps;
-	backButton: BoxProps;
-	backIcon: Omit<IconProps, "svg">;
 }
 
 export interface ChatScreenStyle {
 	main: VStackProps;
-	card: VStackProps;
-	toolbar: Record<"mobile" | "desktop", ChatToolbarStyle>;
+	card: HStackProps;
+	hiddenOnDesktopCard: HStackProps;
+	pane: VStackProps;
+	toolbar: ChatToolbarStyle;
 	chip: HStackProps;
 	chipWrapper: VStackProps;
+	chipColumn: VStackProps;
 	chipIcon: Omit<IconProps, "svg">;
 	chipText: TextProps;
 }

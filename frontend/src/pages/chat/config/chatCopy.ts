@@ -4,7 +4,6 @@ export const chatCopy = {
 	historyLabel: "대화 목록",
 	historyButton: "목록",
 	newChat: "새 대화",
-	backToChat: "집사로 돌아가기",
 	buildingChip: "기준",
 	emptyTitle: "집사에게 궁금한 점을 물어보세요",
 	exampleQuestions: [

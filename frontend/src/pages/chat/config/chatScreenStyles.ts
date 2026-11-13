@@ -1,88 +1,58 @@
-import type {
-	ChatScreenStyle,
-	ChatToolbarStyle,
-} from "@/pages/chat/model/chatScreenStyle";
+import type { ChatScreenStyle } from "@/pages/chat/model/chatScreenStyle";
 import { typography } from "@/shared/config/typography";
 
-// Box가 content-box이므로 테두리 1이 있는 버튼은 높이에서 테두리 2를 뺌. 모바일 44, 데스크톱 40
-const toolbarShared = {
-	button: {
-		display: "flex",
-		alignItems: "center",
-		px: "x4",
-		borderWidth: 1,
-		borderColor: "stroke.neutralWeak",
-		borderRadius: "full",
-	},
-	buttonText: {
-		...typography.size14,
-		fontWeight: "medium",
-		color: "fg.neutral",
-	},
-	backButton: {
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "center",
-		flexShrink: 0,
-		width: "44px",
-		height: "44px",
-		ml: "-10px",
-	},
-	backIcon: { size: "24px", color: "fg.neutral" },
-} as const satisfies Partial<ChatToolbarStyle>;
+// 카드 폭은 1152에서 테두리 2를 뺌. 카드 모양은 theme.css의 .chat-card가 정함
+const cardShared = {
+	width: { base: "full", lg: "1150px" },
+	mx: "auto",
+	flexGrow: 1,
+	className: "chat-card",
+} as const;
 
+// Box가 content-box이므로 테두리 1이 있는 버튼은 높이에서 테두리 2를 뺌. 도구줄은 1280 미만에서만 보임
 export const chatScreenStyles: ChatScreenStyle = {
 	main: {
 		flexGrow: 1,
 		px: { base: 0, lg: "x6" },
 		py: { base: 0, lg: "x6" },
 	},
-	// 데스크톱은 폭 720에서 테두리 2를 뺌. 카드 모양은 theme.css의 .chat-card가 정함
-	card: {
-		width: { base: "full", lg: "718px" },
-		mx: "auto",
-		flexGrow: 1,
-		className: "chat-card",
-	},
+	card: cardShared,
+	// 대화 목록 화면의 카드. 1280 이상은 /chat으로 이동하므로 이동 전에 보이지 않게 함
+	hiddenOnDesktopCard: { ...cardShared, display: { base: "flex", lg: "none" } },
+	pane: { flexGrow: 1, minWidth: "0px" },
 	toolbar: {
-		mobile: {
-			root: {
-				alignItems: "center",
-				justifyContent: "space-between",
-				gap: "x2",
-				minHeight: "44px",
-				py: "x2",
-				px: "spacingX.globalGutter",
-			},
-			titleGroup: { alignItems: "center", minWidth: "0px" },
-			title: { ...typography.size20, fontWeight: "bold", color: "fg.neutral" },
-			actions: { alignItems: "center", gap: "x2", flexShrink: 0 },
-			...toolbarShared,
-			button: { ...toolbarShared.button, height: "42px" },
+		root: {
+			alignItems: "center",
+			justifyContent: "space-between",
+			gap: "x2",
+			minHeight: "44px",
+			py: "x2",
+			px: "spacingX.globalGutter",
 		},
-		desktop: {
-			root: {
-				alignItems: "center",
-				justifyContent: "space-between",
-				gap: "x2",
-				minHeight: "36px",
-				py: "x3",
-				px: "x6",
-				borderBottomWidth: 1,
-				borderColor: "stroke.neutralMuted",
-			},
-			titleGroup: { alignItems: "center", minWidth: "0px" },
-			title: { ...typography.size22, fontWeight: "bold", color: "fg.neutral" },
-			actions: { alignItems: "center", gap: "x2", flexShrink: 0 },
-			...toolbarShared,
-			button: { ...toolbarShared.button, height: "38px" },
+		titleGroup: { alignItems: "center", minWidth: "0px" },
+		title: { ...typography.size20, fontWeight: "bold", color: "fg.neutral" },
+		actions: { alignItems: "center", gap: "x2", flexShrink: 0 },
+		button: {
+			display: "flex",
+			alignItems: "center",
+			px: "x4",
+			height: "42px",
+			borderWidth: 1,
+			borderColor: "stroke.neutralWeak",
+			borderRadius: "full",
+		},
+		buttonText: {
+			...typography.size14,
+			fontWeight: "medium",
+			color: "fg.neutral",
 		},
 	},
 	chipWrapper: {
 		px: { base: "spacingX.globalGutter", lg: "x6" },
-		pt: { base: 0, lg: "x3" },
+		pt: { base: 0, lg: "x4" },
 		pb: { base: "x3", lg: 0 },
 	},
+	chipColumn: { width: "full", maxWidth: "720px", mx: "auto" },
 	chip: {
 		alignSelf: "flex-start",
 		alignItems: "center",
