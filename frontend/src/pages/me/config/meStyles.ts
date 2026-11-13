@@ -49,10 +49,7 @@ export const meStyles: MeStyle = {
 	providerIconSize: { GOOGLE: 20, KAKAO: 20, NAVER: 16 },
 };
 
-const sectionShared: Omit<
-	MeSectionStyle,
-	"section" | "policySection" | "withdraw"
-> = {
+const sectionShared: Omit<MeSectionStyle, "section" | "withdraw"> = {
 	title: { ...typography.size16, fontWeight: "bold", color: "fg.neutral" },
 	provider: {
 		alignItems: "center",
@@ -67,18 +64,6 @@ const sectionShared: Omit<
 		fontWeight: "bold",
 		color: "fg.neutral",
 	},
-	// Box가 content-box이므로 행 높이 56에서 아래 구분선 1을 뺌
-	policyRow: {
-		alignItems: "center",
-		justifyContent: "space-between",
-		minHeight: "55px",
-		px: "x1",
-		borderBottomWidth: 1,
-		borderColor: "stroke.neutralMuted",
-	},
-	policyLabel: { ...typography.size16, color: "fg.neutral" },
-	policyArrowCell: { display: "flex", flexShrink: 0 },
-	policyArrow: { size: "18px", color: "fg.neutralSubtle" },
 	withdrawBody: { alignItems: "flex-start", gap: "x0_5" },
 	withdrawDescription: {
 		...typography.size12LineHeight16,
@@ -96,13 +81,6 @@ export const meSectionStyles = defineResponsiveStyles<MeSectionStyle>({
 			pb: "x6",
 			bg: "bg.layerDefault",
 		},
-		policySection: {
-			gap: "x1",
-			pt: "x5",
-			px: "spacingX.globalGutter",
-			pb: "x2",
-			bg: "bg.layerDefault",
-		},
 		withdraw: {
 			pt: "x4",
 			px: "spacingX.globalGutter",
@@ -115,16 +93,6 @@ export const meSectionStyles = defineResponsiveStyles<MeSectionStyle>({
 		section: {
 			gap: "x3",
 			p: "x6",
-			bg: "bg.layerDefault",
-			borderRadius: "r5",
-			borderWidth: 1,
-			borderColor: "stroke.neutralMuted",
-		},
-		policySection: {
-			gap: "x1",
-			pt: "x6",
-			px: "x6",
-			pb: "x2",
 			bg: "bg.layerDefault",
 			borderRadius: "r5",
 			borderWidth: 1,

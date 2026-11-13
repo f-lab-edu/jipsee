@@ -196,21 +196,6 @@ for (const { label, viewport, layout } of SCREENS) {
 				}
 			});
 
-			test(`${caseId("P2", 3)} ${label} ${theme} 내 정보의 정책 목록 링크가 세 경로로 이동하고 h1이 맞음`, async ({
-				page,
-			}) => {
-				test.skip(!LOGGED_IN, "로그인 상태 TC는 TC_SESSION=in일 때만 돌림");
-				for (const { path, title } of ALL_PAGES) {
-					await gotoAndSettle(page, "/me");
-					await page
-						.locator(`[data-area="policy-section-${layout}"]`)
-						.getByRole("link", { name: title, exact: true })
-						.click();
-					await expect(page).toHaveURL(path);
-					await expectVisibleHeading(page, title);
-				}
-			});
-
 			// P3 문서 화면
 			for (const { path, title, toc, data } of DOCUMENTS) {
 				const body = (page: Page) => page.getByTestId(`policy-body-${layout}`);

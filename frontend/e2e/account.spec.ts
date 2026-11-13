@@ -1168,26 +1168,15 @@ for (const { label, viewport } of SCREENS) {
 	}
 }
 
-// 커밋 6: 약관과 정책 목록, 회원 탈퇴 영역 (A6)
-// 기대값: 설계 문서 3절 S5 표(약관과 정책 섹션, 정책 행, 회원 탈퇴), 4절 문구, 5절 S5 동작, 캔버스 S5MeMobile과 S5MeDesktop(Dark 포함)
-// 정책 행은 최소 높이 56(구분선 포함), 패딩 0 4, 16/22, 오른쪽 화살표 18 fg.neutralSubtle임. 목적지는 설계 문서 5절의 paths 값(캔버스 링크는 #terms 같은 자리표시자)
-// 모바일 섹션 높이는 패딩 20, 제목 22, 간격 4, 행 56 셋, 패딩 8이고 데스크톱 카드는 패딩 24 위, 테두리 2가 더해짐
-// 탈퇴 영역: 버튼 min-height 44, 13/18 밑줄 fg.neutralMuted, 설명 12/16 fg.neutralMuted, 간격 2. 모바일은 패딩 16 16 24로 푸터 바로 위, 데스크톱은 정책 카드 아래 24에 버튼 상자(좌우 4)가 옴
-// 피드백 7번에 따라 모바일 헤더에 제목이 없어도 정책 영역에는 영향이 없음
-const POLICY_ROWS = [
-	{ label: "이용약관", href: "/policies/terms" },
-	{ label: "개인정보처리방침", href: "/policies/privacy" },
-	{ label: "데이터 출처", href: "/policies/data-sources" },
-];
-const POLICY_TEXT = {
-	title: "약관과 정책",
+// 커밋 6: 회원 탈퇴 영역 (A6)
+// 기대값: 설계 문서 3절 S5 표(회원 탈퇴), 4절 문구, 5절 S5 동작, 2026-11-14 사용자 요청(약관과 정책 줄 삭제)
+// 약관과 정책 줄은 푸터에 같은 링크가 있어 2026-11-14에 삭제함. 그래서 이 영역은 캔버스 S5MeMobile과 S5MeDesktop 보드와 다름(보드에는 아직 줄이 있음)
+// 탈퇴 영역: 버튼 min-height 44, 13/18 밑줄 fg.neutralMuted, 설명 12/16 fg.neutralMuted, 간격 2. 모바일은 패딩 16 16 24로 푸터 바로 위, 데스크톱은 로그인 수단 카드 아래 24에 버튼 상자(좌우 4)가 옴
+const WITHDRAW_TEXT = {
 	withdraw: "회원 탈퇴",
 	description: "탈퇴하면 계정과 대화 기록이 삭제돼요",
 };
-const POLICY_ROW_HEIGHT = 56;
-const POLICY_LIST_HEIGHT = POLICY_ROW_HEIGHT * POLICY_ROWS.length;
-const POLICY_SECTION_HEIGHT = 20 + 22 + 4 + POLICY_LIST_HEIGHT + 8;
-const POLICY_CARD_HEIGHT = 24 + 22 + 4 + POLICY_LIST_HEIGHT + 8 + 2;
+const REMOVED_POLICY_LABELS = ["이용약관", "개인정보처리방침", "데이터 출처"];
 const WITHDRAW_BUTTON_HEIGHT = 44;
 const WITHDRAW_AREA_HEIGHT = 16 + WITHDRAW_BUTTON_HEIGHT + 2 + 16 + 24;
 const LAYER_BASEMENT = { light: "rgb(243, 244, 245)", dark: "rgb(0, 0, 0)" };
@@ -1198,190 +1187,55 @@ for (const { label, viewport } of SCREENS) {
 	const isMobile = viewport === MOBILE;
 	const layout = isMobile ? "mobile" : "desktop";
 
+	test.describe(`${label} ${viewport.width}x${viewport.height} 약관과 정책 줄 없음`, () => {
+		test.use({ viewport, colorScheme: "light" });
+		test.skip(
+			process.env.TC_SESSION !== "in",
+			"로그인 TC는 TC_SESSION=in일 때만 돌림",
+		);
+
+		test(`${caseId("A6", a6Number++)} ${label} 내 정보에 약관과 정책 섹션과 제목이 없고 정책 링크는 푸터에만 하나씩 있음`, async ({
+			page,
+		}) => {
+			await gotoAndSettle(page, "/me");
+			await expect(page.locator('[data-area^="policy-section"]')).toHaveCount(
+				0,
+			);
+			await expect(
+				page.getByRole("heading", { name: "약관과 정책" }),
+			).toHaveCount(0);
+			for (const name of REMOVED_POLICY_LABELS) {
+				const links = page
+					.getByRole("link", { name, exact: true })
+					.locator("visible=true");
+				await expect(links, name).toHaveCount(1);
+				await expect(
+					page
+						.locator("footer:visible")
+						.getByRole("link", { name, exact: true }),
+					name,
+				).toHaveCount(1);
+			}
+		});
+	});
+
 	for (const theme of THEMES) {
-		test.describe(`${label} ${viewport.width}x${viewport.height} ${theme} 약관과 정책, 회원 탈퇴`, () => {
+		test.describe(`${label} ${viewport.width}x${viewport.height} ${theme} 회원 탈퇴`, () => {
 			test.use({ viewport, colorScheme: theme });
 			test.skip(
 				process.env.TC_SESSION !== "in",
 				"로그인 TC는 TC_SESSION=in일 때만 돌림",
 			);
 			const token = TOKENS[theme];
-			const policy = `[data-area="policy-section-${layout}"]`;
+			const provider = `[data-area="provider-section-${layout}"]`;
 			const withdraw = `[data-area="withdraw-section-${layout}"]`;
 
-			test(`${caseId("A6", a6Number++)} ${label} ${theme} 섹션이 약관과 정책 h2를 가리키고 h2가 16/22 700 fg.neutral임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/me");
-				const labelledBy = await page
-					.locator(policy)
-					.getAttribute("aria-labelledby");
-				const heading = page.locator(`h2[id="${labelledBy}"]`);
-				await expect(heading).toHaveText(POLICY_TEXT.title);
-				expect(await heading.locator("visible=true").count()).toBe(1);
-				const style = await heading.evaluate((element) => {
-					const computed = getComputedStyle(element);
-					return {
-						fontSize: computed.fontSize,
-						lineHeight: computed.lineHeight,
-						fontWeight: computed.fontWeight,
-						color: computed.color,
-					};
-				});
-				expect(style.fontSize).toBe("16px");
-				expect(style.lineHeight).toBe("22px");
-				expect(style.fontWeight).toBe("700");
-				expect(sameColor(style.color, token.fgNeutral)).toBe(true);
-			});
-
-			test(`${caseId("A6", a6Number++)} ${label} ${theme} 목록이 ul이고 행 문구와 순서가 ${POLICY_ROWS.map((row) => row.label).join(", ")}이며 목적지가 정책 경로임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/me");
-				const items = page.locator(`${policy} ul > li`);
-				await expect(items).toHaveCount(POLICY_ROWS.length);
-				for (const [index, row] of POLICY_ROWS.entries()) {
-					const link = items.nth(index).getByRole("link");
-					await expect(link).toHaveText(row.label);
-					await expect(link).toHaveAttribute("href", row.href);
-				}
-			});
-
-			test(`${caseId("A6", a6Number++)} ${label} ${theme} 정책 행이 높이 ${POLICY_ROW_HEIGHT}에 패딩 0 4이고 글자가 16/22 fg.neutral이며 아래 구분선 1 stroke.neutralMuted임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/me");
-				const items = page.locator(`${policy} ul > li`);
-				const sectionBox = await page.locator(policy).boundingBox();
-				const rowWidth = isMobile ? MOBILE_CONTENT_WIDTH : 480 - 2 - 48;
-				for (const [index, row] of POLICY_ROWS.entries()) {
-					const link = items.nth(index).getByRole("link");
-					const box = await link.locator("> div").boundingBox();
-					expect(box?.height).toBe(POLICY_ROW_HEIGHT);
-					expect(box?.width).toBeCloseTo(rowWidth, 0);
-					expect(box?.y).toBeCloseTo(
-						(sectionBox?.y ?? 0) +
-							(isMobile ? 20 : 1 + 24) +
-							22 +
-							4 +
-							index * POLICY_ROW_HEIGHT,
-						0,
-					);
-					const style = await link.locator("> div").evaluate((element) => {
-						const computed = getComputedStyle(element);
-						const text = getComputedStyle(element.firstElementChild as Element);
-						return {
-							left: computed.paddingLeft,
-							right: computed.paddingRight,
-							top: computed.paddingTop,
-							border: computed.borderBottomWidth,
-							borderColor: computed.borderBottomColor,
-							fontSize: text.fontSize,
-							lineHeight: text.lineHeight,
-							fontWeight: text.fontWeight,
-							color: text.color,
-						};
-					});
-					expect(style.left).toBe("4px");
-					expect(style.right).toBe("4px");
-					expect(style.top).toBe("0px");
-					expect(style.border).toBe("1px");
-					expect(sameColor(style.borderColor, token.strokeMuted)).toBe(true);
-					expect(style.fontSize, row.label).toBe("16px");
-					expect(style.lineHeight).toBe("22px");
-					expect(style.fontWeight).toBe("400");
-					expect(sameColor(style.color, token.fgNeutral)).toBe(true);
-				}
-			});
-
-			test(`${caseId("A6", a6Number++)} ${label} ${theme} 정책 행 화살표가 18x18 fg.neutralSubtle이고 행 오른쪽 끝에서 4 안쪽에 세로 가운데임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/me");
-				const items = page.locator(`${policy} ul > li`);
-				for (let index = 0; index < POLICY_ROWS.length; index++) {
-					const link = items.nth(index).getByRole("link");
-					const row = await link.locator("> div").boundingBox();
-					const arrow = link.locator("svg");
-					await expect(arrow).toHaveCount(1);
-					const box = await arrow.boundingBox();
-					expect(box?.width).toBe(18);
-					expect(box?.height).toBe(18);
-					expect((box?.x ?? 0) + (box?.width ?? 0)).toBeCloseTo(
-						(row?.x ?? 0) + (row?.width ?? 0) - 4,
-						0,
-					);
-					// 행 높이 56에 아래 테두리 1이 들어 있어 안쪽 가운데는 27.5임
-					expect(
-						Math.abs(
-							(box?.y ?? 0) + 9 - ((row?.y ?? 0) + (row?.height ?? 0) / 2),
-						),
-					).toBeLessThanOrEqual(0.5);
-					const colors = await arrow.evaluate((element) => {
-						const probe = document.createElement("span");
-						probe.style.color = "var(--seed-color-fg-neutral-subtle)";
-						document.body.append(probe);
-						const expected = getComputedStyle(probe).color;
-						probe.remove();
-						return { actual: getComputedStyle(element).color, expected };
-					});
-					expect(sameColor(colors.actual, colors.expected)).toBe(true);
-				}
-			});
-
-			test(`${caseId("A6", a6Number++)} ${label} ${theme} 약관과 정책 ${isMobile ? `섹션이 패딩 20 16 8이고 높이 ${POLICY_SECTION_HEIGHT}` : `카드가 모서리 20, 테두리 1, 패딩 24 24 8이고 높이 ${POLICY_CARD_HEIGHT}`}임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/me");
-				const box = await page.locator(policy).boundingBox();
-				const style = await page.locator(policy).evaluate((element) => {
-					const computed = getComputedStyle(element);
-					return {
-						top: computed.paddingTop,
-						right: computed.paddingRight,
-						bottom: computed.paddingBottom,
-						left: computed.paddingLeft,
-						border: computed.borderTopWidth,
-						radius: computed.borderTopLeftRadius,
-						borderColor: computed.borderTopColor,
-						background: computed.backgroundColor,
-					};
-				});
-				expect(sameColor(style.background, token.layerDefault)).toBe(true);
-				expect(style.bottom).toBe("8px");
-				if (isMobile) {
-					expect(box?.x).toBe(CARD_INNER_X);
-					expect(box?.width).toBe(CARD_INNER_WIDTH);
-					expect(box?.height).toBeCloseTo(POLICY_SECTION_HEIGHT, 0);
-					expect(style.top).toBe("20px");
-					expect(style.left).toBe("16px");
-					expect(style.right).toBe("16px");
-					expect(style.border).toBe("0px");
-					expect(style.radius).toBe("0px");
-					return;
-				}
-				expect(box?.width).toBe(480);
-				expect(box?.height).toBeCloseTo(POLICY_CARD_HEIGHT, 0);
-				expect(style.top).toBe("24px");
-				expect(style.left).toBe("24px");
-				expect(style.right).toBe("24px");
-				expect(style.border).toBe("1px");
-				expect(style.radius).toBe("20px");
-				expect(sameColor(style.borderColor, token.strokeMuted)).toBe(true);
-			});
-
 			if (isMobile) {
-				test(`${caseId("A6", a6Number++)} 모바일 ${theme} 로그인 수단 섹션과 약관과 정책 섹션 사이에 8px bg.layerBasement 띠가 있음`, async ({
+				test(`${caseId("A6", a6Number++)} 모바일 ${theme} 로그인 수단 섹션 바로 아래에 8px bg.layerBasement 띠가 있음`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, "/me");
-					const provider = await page
-						.locator('[data-area="provider-section-mobile"]')
-						.boundingBox();
-					const box = await page.locator(policy).boundingBox();
-					const gap =
-						(box?.y ?? 0) - ((provider?.y ?? 0) + (provider?.height ?? 0));
-					expect(gap).toBeCloseTo(8, 0);
+					const box = await page.locator(provider).boundingBox();
 					const band = await page.evaluate(
 						({ x, y }) => {
 							const element = document.elementFromPoint(x, y);
@@ -1389,7 +1243,7 @@ for (const { label, viewport } of SCREENS) {
 						},
 						{
 							x: viewport.width / 2,
-							y: (provider?.y ?? 0) + (provider?.height ?? 0) + 4,
+							y: (box?.y ?? 0) + (box?.height ?? 0) + 4,
 						},
 					);
 					expect(sameColor(band, LAYER_BASEMENT[theme])).toBe(true);
@@ -1402,7 +1256,7 @@ for (const { label, viewport } of SCREENS) {
 				await gotoAndSettle(page, "/me");
 				const button = page
 					.locator(withdraw)
-					.getByRole("button", { name: POLICY_TEXT.withdraw });
+					.getByRole("button", { name: WITHDRAW_TEXT.withdraw });
 				await expect(button).toHaveCount(1);
 				const box = await button.boundingBox();
 				expect(box?.height).toBe(WITHDRAW_BUTTON_HEIGHT);
@@ -1421,7 +1275,7 @@ for (const { label, viewport } of SCREENS) {
 				expect(sameColor(style.color, token.fgMuted)).toBe(true);
 				const description = page
 					.locator(withdraw)
-					.getByText(POLICY_TEXT.description, { exact: true });
+					.getByText(WITHDRAW_TEXT.description, { exact: true });
 				await expect(description).toHaveCount(1);
 				const descriptionBox = await description.boundingBox();
 				expect(descriptionBox?.x).toBeCloseTo(box?.x ?? 0, 0);
@@ -1458,23 +1312,23 @@ for (const { label, viewport } of SCREENS) {
 					expect(area?.width).toBe(CARD_INNER_WIDTH);
 					const button = await page
 						.locator(withdraw)
-						.getByRole("button", { name: POLICY_TEXT.withdraw })
+						.getByRole("button", { name: WITHDRAW_TEXT.withdraw })
 						.boundingBox();
 					expect(button?.x).toBe(CARD_INNER_X + 16);
 					expect(button?.y).toBeCloseTo((area?.y ?? 0) + 16, 0);
 				});
 			} else {
-				test(`${caseId("A6", a6Number++)} 데스크톱 ${theme} 정책 카드 아래 끝과 회원 탈퇴 버튼 상자 사이가 24이고 버튼이 열 왼쪽에서 4 안쪽에 있음`, async ({
+				test(`${caseId("A6", a6Number++)} 데스크톱 ${theme} 로그인 수단 카드 아래 끝과 회원 탈퇴 버튼 상자 사이가 24이고 버튼이 열 왼쪽에서 4 안쪽에 있음`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, "/me");
-					const card = await page.locator(policy).boundingBox();
+					const card = await page.locator(provider).boundingBox();
 					const column = await page
 						.locator('[data-area="me-column"]')
 						.boundingBox();
 					const button = await page
 						.locator(withdraw)
-						.getByRole("button", { name: POLICY_TEXT.withdraw })
+						.getByRole("button", { name: WITHDRAW_TEXT.withdraw })
 						.boundingBox();
 					expect(button?.y).toBeCloseTo(
 						(card?.y ?? 0) + (card?.height ?? 0) + 24,
@@ -1582,7 +1436,7 @@ for (const { label, viewport } of SCREENS) {
 				await gotoAndSettle(page, "/me");
 				await page
 					.locator(trigger)
-					.getByRole("button", { name: POLICY_TEXT.withdraw })
+					.getByRole("button", { name: WITHDRAW_TEXT.withdraw })
 					.click();
 				const dialog = page.getByRole("dialog");
 				await expect(dialog).toHaveCount(1);
@@ -1821,7 +1675,7 @@ test.describe("탈퇴 확인 창 요청", () => {
 		await gotoAndSettle(page, "/me");
 		await page
 			.locator('[data-area="withdraw-section-mobile"]')
-			.getByRole("button", { name: POLICY_TEXT.withdraw })
+			.getByRole("button", { name: WITHDRAW_TEXT.withdraw })
 			.click();
 		const responsePromise = page.waitForResponse(
 			(response) =>
@@ -1859,7 +1713,7 @@ for (const theme of THEMES) {
 
 		async function clickWithdraw(page: Page) {
 			await page
-				.getByRole("button", { name: POLICY_TEXT.withdraw, exact: true })
+				.getByRole("button", { name: WITHDRAW_TEXT.withdraw, exact: true })
 				.click();
 			const dialog = page.getByRole("dialog");
 			await expect(dialog).toHaveCount(1);
@@ -1932,7 +1786,7 @@ for (const viewport of [MOBILE, { width: 768, height: 1024 }, DESKTOP]) {
 			}) => {
 				await gotoAndSettle(page, "/me");
 				await page
-					.getByRole("button", { name: POLICY_TEXT.withdraw, exact: true })
+					.getByRole("button", { name: WITHDRAW_TEXT.withdraw, exact: true })
 					.click();
 				await expect(page.getByRole("dialog")).toHaveCount(1);
 				await page.waitForTimeout(700);
