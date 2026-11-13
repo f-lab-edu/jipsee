@@ -1,7 +1,6 @@
 import type {
 	BoxProps,
 	HStackProps,
-	IconProps,
 	TextProps,
 	VStackProps,
 } from "@seed-design/react";
@@ -12,11 +11,6 @@ export interface MeSectionStyle {
 	title: TextProps;
 	provider: HStackProps;
 	providerName: TextProps;
-	policySection: VStackProps;
-	policyRow: HStackProps;
-	policyLabel: TextProps;
-	policyArrowCell: BoxProps;
-	policyArrow: Omit<IconProps, "svg">;
 	withdraw: BoxProps;
 	withdrawBody: VStackProps;
 	withdrawDescription: TextProps;
