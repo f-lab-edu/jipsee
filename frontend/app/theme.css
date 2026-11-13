@@ -595,3 +595,11 @@ a {
 	margin: 0;
 	padding: 0;
 }
+
+/* 한 줄로 두고 넘치면 말줄임. Seed maxLines는 line-clamp라 text-overflow를 쓰지 않음 */
+:root .single-line-ellipsis {
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

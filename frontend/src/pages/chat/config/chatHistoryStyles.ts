@@ -24,7 +24,7 @@ export const chatHistoryStyles: ChatHistoryStyle = {
 		...typography.size15,
 		fontWeight: "medium",
 		color: "fg.neutral",
-		maxLines: 1,
+		className: "single-line-ellipsis",
 	},
 	time: { ...typography.size12, color: "fg.neutralMuted" },
 	empty: {
