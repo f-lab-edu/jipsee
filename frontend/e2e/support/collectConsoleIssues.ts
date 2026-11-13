@@ -1,5 +1,4 @@
 import type { Page } from "@playwright/test";
-import { isKnownMissingPage } from "./buildingDetail/isKnownMissingPage";
 
 /** 콘솔 오류, hydration 경고, pageerror를 모아 반환함. 반환한 배열은 비우고 읽을 수 있음 */
 export function collectConsoleIssues(page: Page): string[] {
@@ -17,12 +16,11 @@ export function collectConsoleIssues(page: Page): string[] {
 		) {
 			return;
 		}
-		// 아직 없는 /chat 페이지를 가져오다 나는 404임. 요청 주소로 판별해 다른 404는 그대로 실패시킴
+		// 오류 TC가 일부러 4xx와 5xx로 가로챈 질문 전송 요청임. 화면의 오류 상자가 이 실패를 보여 줌
 		if (
 			message.type() === "error" &&
 			/Failed to load resource/.test(text) &&
-			/404/.test(text) &&
-			isKnownMissingPage(message.location().url)
+			message.location().url.endsWith("/api/chats/messages")
 		) {
 			return;
 		}

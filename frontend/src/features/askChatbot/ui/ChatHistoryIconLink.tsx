@@ -16,7 +16,7 @@ export default function ChatHistoryIconLink({
 	return (
 		<Box asChild {...style.box}>
 			<Link
-				href={paths.chat}
+				href={paths.chatHistory}
 				aria-label={chatPanelCopy.history}
 				title={chatPanelCopy.history}
 			>

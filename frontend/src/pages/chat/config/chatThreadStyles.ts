@@ -1,0 +1,81 @@
+import type { ChatThreadStyle } from "@/pages/chat/model/chatThreadStyle";
+import { typography } from "@/shared/config/typography";
+
+// button은 border-box라 시안의 높이를 그대로 씀
+export const chatThreadStyles: ChatThreadStyle = {
+	thread: {
+		flexGrow: 1,
+		p: { base: "spacingX.globalGutter", lg: "x6" },
+		gap: { base: "x3", lg: "x4" },
+	},
+	empty: {
+		flexGrow: 1,
+		alignItems: "center",
+		justifyContent: "center",
+		gap: "x5",
+	},
+	emptyHeading: { alignItems: "center", gap: "x3" },
+	emptyIcon: {
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "center",
+		width: "56px",
+		height: "56px",
+		bg: "bg.brandWeak",
+		borderRadius: "18px",
+	},
+	emptyIconSvg: { size: "28px", color: "bg.brandSolid" },
+	emptyTitle: {
+		...typography.size18LineHeight24,
+		fontWeight: "bold",
+		color: "fg.neutral",
+		className: "text-align-center",
+	},
+	examples: {
+		width: "full",
+		maxWidth: "420px",
+		gap: "x2",
+		className: "list-reset",
+	},
+	example: {
+		display: "block",
+		width: "full",
+		minHeight: "48px",
+		px: "x4",
+		py: "x3",
+		bg: "bg.layerDefault",
+		borderWidth: 1,
+		borderColor: "stroke.neutralWeak",
+		borderRadius: "r3",
+		className: "text-align-start",
+	},
+	exampleText: { ...typography.size14, color: "fg.neutral" },
+	error: {
+		alignSelf: "flex-start",
+		maxWidth: "full",
+		gap: "x2_5",
+		px: "x3_5",
+		py: "x3",
+		bg: "bg.criticalWeak",
+		borderRadius: "14px",
+	},
+	errorRow: { alignItems: "flex-start", gap: "x2" },
+	errorIcon: { size: "18px", color: "fg.criticalContrast" },
+	errorText: {
+		...typography.size14,
+		fontWeight: "medium",
+		color: "fg.criticalContrast",
+	},
+	retryButton: {
+		display: "flex",
+		alignItems: "center",
+		alignSelf: "flex-start",
+		height: "44px",
+		px: "18px",
+		bg: "bg.layerDefault",
+		borderWidth: 1,
+		borderColor: "stroke.neutralWeak",
+		borderRadius: "r3",
+	},
+	retryText: { ...typography.size14, fontWeight: "bold", color: "fg.neutral" },
+};
