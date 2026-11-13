@@ -13,11 +13,12 @@ import { CHAT_SCENARIO, LOGGED_IN } from "./support/chat/chatScenario";
 import { CHAT_COLORS, CHAT_TEXT } from "./support/chat/chatTexts";
 import { readChatBubble } from "./support/chat/readChatBubble";
 import { sendQuestion } from "./support/chat/sendQuestion";
+import { isDimmedAt } from "./support/dialog/isDimmedAt";
 import { gotoAndSettle } from "./support/gotoAndSettle";
 import { readBox } from "./support/policy/readBox";
 import { SEARCH_PATH } from "./support/searchFixtures";
 import { test } from "./support/test";
-import { DESKTOP, MOBILE } from "./support/viewports";
+import { BOTTOM_NAV_HEIGHT, DESKTOP, MOBILE } from "./support/viewports";
 
 const TABLET = { width: 768, height: 1024 };
 const THEMES = ["light", "dark"] as const;
@@ -740,6 +741,30 @@ test.describe("대화 목록", () => {
 				return;
 			}
 			expect(box.y + box.height).toBeCloseTo(to.height, 0);
+		});
+	}
+
+	for (const [index, viewport] of [MOBILE, TABLET, DESKTOP].entries()) {
+		test(`${caseId("C7", 12 + index)} ${viewport.width}에서 확인 창이 열리면 딤이 헤더와 ${viewport === DESKTOP ? "양옆 하늘빛 배경" : "푸터와 하단 내비게이션"}까지 덮음`, async ({
+			page,
+		}) => {
+			await page.setViewportSize(viewport);
+			await gotoAndSettle(page, "/chat/history");
+			await page
+				.getByRole("button", { name: `삭제: ${CHAT_TEXT.historyTitles[0]}` })
+				.click();
+			await expect(page.getByRole("dialog")).toHaveCount(1);
+			await page.waitForTimeout(700);
+			expect(await isDimmedAt(page, viewport.width / 2, 10)).toBe(true);
+			expect(await isDimmedAt(page, 5, 10)).toBe(true);
+			if (viewport === DESKTOP) {
+				expect(await isDimmedAt(page, 5, viewport.height / 2)).toBe(true);
+				return;
+			}
+			expect(await isDimmedAt(page, 5, viewport.height - 10)).toBe(true);
+			expect(
+				await isDimmedAt(page, 5, viewport.height - BOTTOM_NAV_HEIGHT - 10),
+			).toBe(true);
 		});
 	}
 });
