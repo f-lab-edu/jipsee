@@ -9,10 +9,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.retry.RetryTemplate;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestClient;
 
 /** 데이터 수집 설정 */
 @Configuration
+@EnableScheduling
 @EnableConfigurationProperties(CollectProperties.class)
 public class CollectConfig {
 

@@ -189,10 +189,10 @@ erDiagram
 erDiagram
     building_parcel |o--o{ rent_deal : "필지 1개에 거래 N건"
     rent_deal {
-        bigint id PK "거래 ID, 서비스에서 직접 발급하며 재수집하면 다시 발급함"
+        bigint id PK "거래 ID, auto_increment이며 재수집하면 다시 발급함"
         char sigungu_code "시군구코드 5자리 (sggCd)"
         varchar legal_dong_name "법정동명 (umdNm)"
-        varchar lot_number "지번 원본 값, 형식은 N 또는 N-M (jibun)"
+        varchar lot_number "지번 원본 값, N, N-M이 아닌 값도 있음 (jibun)"
         varchar house_name "연립다세대명 (mhouseNm), 값이 없으면 NULL"
         smallint build_year "건축연도 (buildYear), 값이 없으면 NULL"
         decimal exclusive_area "전용면적, 단위 ㎡ (excluUseAr)"
@@ -225,10 +225,10 @@ erDiagram
 erDiagram
     building_parcel |o--o{ sale_deal : "필지 1개에 거래 N건"
     sale_deal {
-        bigint id PK "거래 ID, 서비스에서 직접 발급하며 재수집하면 다시 발급함"
+        bigint id PK "거래 ID, auto_increment이며 재수집하면 다시 발급함"
         char sigungu_code "시군구코드 5자리 (sggCd)"
         varchar legal_dong_name "법정동명 (umdNm)"
-        varchar lot_number "지번 원본 값, 형식은 N 또는 N-M (jibun)"
+        varchar lot_number "지번 원본 값, N, N-M이 아닌 값도 있음 (jibun)"
         varchar house_name "단지명 (mhouseNm), 값이 없으면 NULL"
         smallint build_year "건축연도 (buildYear), 값이 없으면 NULL"
         decimal exclusive_area "전용면적, 단위 ㎡ (excluUseAr)"
@@ -347,7 +347,7 @@ erDiagram
 erDiagram
     data_source {
         varchar source PK "데이터 출처, 값은 RENT_DEAL, SALE_DEAL, BUILDING_REGISTER, LAW 중 하나"
-        datetime loaded_at "마지막 수집 시각, 화면의 기준 월은 이 값을 KST로 바꾼 월로 표시함"
+        datetime loaded_at "마지막 수집 시각, 화면의 기준 월은 이 값의 월로 표시함"
         datetime created_at "행 생성 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
         datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
     }
