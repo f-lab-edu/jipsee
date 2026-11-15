@@ -1,6 +1,21 @@
-import type { DongInfoCardStyle } from "@/entities/building/model/dongInfoCardStyle";
+import type {
+	BoxProps,
+	GridProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface DongInfoCardStyle {
+	card: VStackProps;
+	title: TextProps;
+	list: GridProps;
+	item: VStackProps;
+	wideItem: Pick<BoxProps, "gridColumn">;
+	label: TextProps;
+	value: TextProps;
+}
 
 const shared: Omit<DongInfoCardStyle, "title"> = {
 	card: {

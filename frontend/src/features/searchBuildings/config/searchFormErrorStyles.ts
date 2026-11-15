@@ -1,5 +1,19 @@
-import type { SearchFormErrorStyle } from "@/features/searchBuildings/model/searchFormErrorStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	IconProps,
+	TextProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface SearchFormErrorStyle {
+	line: HStackProps;
+	icon: Omit<IconProps, "svg">;
+	mobileCell: BoxProps;
+	mobileText: TextProps;
+	desktopCell: BoxProps;
+	desktopText: TextProps;
+}
 
 export const searchFormErrorStyles: SearchFormErrorStyle = {
 	line: { gap: "x1_5", alignItems: "center" },

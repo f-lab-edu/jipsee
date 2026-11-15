@@ -1,6 +1,29 @@
-import type { ComposerStyle } from "@/features/sendChatMessage/model/composerStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	IconProps,
+	TextFieldRootProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { columnWidth } from "@/shared/config/columnWidth";
 import { typography } from "@/shared/config/typography";
+
+export interface ComposerStyle {
+	bar: BoxProps;
+	limitBar: BoxProps;
+	form: BoxProps;
+	field: Pick<TextFieldRootProps, "className">;
+	sendButton: BoxProps;
+	sendButtonDisabled: BoxProps;
+	sendIcon: Omit<IconProps, "svg">;
+	limitBox: HStackProps;
+	limitIconCell: BoxProps;
+	limitIcon: Omit<IconProps, "svg">;
+	limitText: VStackProps;
+	limitTitle: TextProps;
+	limitDescription: TextProps;
+}
 
 const sendButtonShared = {
 	display: "flex",

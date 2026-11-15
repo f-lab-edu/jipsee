@@ -1,6 +1,19 @@
+import type {
+	BoxProps,
+	FlexProps,
+	IconProps,
+	TextProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
-import type { BaseMonthNoticeStyle } from "@/widgets/searchGuide/model/baseMonthNoticeStyle";
+
+export interface BaseMonthNoticeStyle {
+	root: FlexProps;
+	iconCell?: BoxProps;
+	icon?: Omit<IconProps, "svg">;
+	text: TextProps;
+	highlight: TextProps;
+}
 
 export const baseMonthNoticeStyles =
 	defineResponsiveStyles<BaseMonthNoticeStyle>({

@@ -1,5 +1,10 @@
+import type { BoxProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
-import type { AccountLinkStyle } from "@/widgets/header/model/accountLinkStyle";
+
+export interface AccountLinkStyle {
+	box: BoxProps;
+	text: TextProps;
+}
 
 export const accountLinkStyles: AccountLinkStyle = {
 	box: {

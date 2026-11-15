@@ -1,5 +1,13 @@
-import type { DesktopBuildingBodyStyle } from "@/pages/building/model/desktopBuildingBodyStyle";
+import type { GridItemProps, GridProps, VStackProps } from "@seed-design/react";
 import { desktopHeaderHeight } from "@/shared/config/headerHeight";
+
+export interface DesktopBuildingBodyStyle {
+	container: VStackProps;
+	grid: GridProps;
+	mainCell: GridItemProps;
+	asideCell: GridItemProps;
+	aside: VStackProps;
+}
 
 export const desktopBuildingBodyStyles: DesktopBuildingBodyStyle = {
 	container: { pt: "x7", pb: "x10", gap: "x6" },

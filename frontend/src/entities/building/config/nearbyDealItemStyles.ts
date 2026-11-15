@@ -1,5 +1,20 @@
-import type { NearbyDealItemStyle } from "@/entities/building/model/nearbyDealItemStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface NearbyDealItemStyle {
+	item: HStackProps;
+	body: VStackProps;
+	name: TextProps;
+	meta: HStackProps;
+	metaText: TextProps;
+	amountBox: BoxProps;
+	amount: TextProps;
+}
 
 export const nearbyDealItemStyles: NearbyDealItemStyle = {
 	item: {

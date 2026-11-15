@@ -1,4 +1,8 @@
-import type { BuildingStatusStyle } from "@/pages/building/model/buildingStatusStyle";
+import type { VStackProps } from "@seed-design/react";
+
+export interface BuildingStatusStyle {
+	body: VStackProps;
+}
 
 export const buildingStatusStyles: BuildingStatusStyle = {
 	body: {

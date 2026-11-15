@@ -1,5 +1,5 @@
 import { Box, HStack, Text } from "@seed-design/react";
-import type { BuildingAddressStyle } from "@/entities/building/model/buildingAddressStyle";
+import type { BuildingAddressStyle } from "@/entities/building/config/buildingAddressStyles";
 
 interface BuildingAddressLineProps {
 	label: string;

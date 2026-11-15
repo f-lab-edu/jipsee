@@ -1,10 +1,19 @@
+import type { BoxProps, HStackProps, TextProps } from "@seed-design/react";
 import {
 	desktopHeaderRowHeight,
 	mobileHeaderRowHeight,
 } from "@/shared/config/headerHeight";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
-import type { HeaderStyle } from "@/widgets/header/model/headerStyle";
+
+export interface HeaderStyle {
+	container?: BoxProps;
+	row: HStackProps;
+	leftGroup?: HStackProps;
+	brandLink: HStackProps;
+	logoSize: number;
+	serviceName: TextProps;
+}
 
 export const headerStyles = defineResponsiveStyles<HeaderStyle>({
 	mobile: {

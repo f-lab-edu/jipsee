@@ -1,6 +1,6 @@
 import { VStack } from "@seed-design/react";
+import type { StatusStyle } from "@/shared/config/statusStyles";
 import type { StatusKind } from "@/shared/model/statusKind";
-import type { StatusStyle } from "@/shared/model/statusStyle";
 import RetryButton from "@/shared/ui/RetryButton";
 import StatusHomeLink from "@/shared/ui/StatusHomeLink";
 

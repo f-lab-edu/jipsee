@@ -1,6 +1,22 @@
-import type { ChatExpandedPanelStyle } from "@/features/askChatbot/model/chatExpandedPanelStyle";
+import type {
+	HStackProps,
+	IconProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
+import type { ChatHistoryLinkStyle } from "@/features/askChatbot/model/chatHistoryLinkStyle";
+import type { ChatLoginLinkStyle } from "@/features/askChatbot/model/chatLoginLinkStyle";
 import { bottomBarOffset } from "@/shared/config/bottomNavHeight";
 import { typography } from "@/shared/config/typography";
+
+export interface ChatExpandedPanelStyle {
+	root: VStackProps;
+	titleRow: HStackProps;
+	titleIcon: Omit<IconProps, "svg">;
+	title: TextProps;
+	historyLink: ChatHistoryLinkStyle;
+	loginLink: ChatLoginLinkStyle;
+}
 
 export const chatExpandedPanelStyles: ChatExpandedPanelStyle = {
 	root: {
