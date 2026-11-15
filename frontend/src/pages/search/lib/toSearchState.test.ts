@@ -23,4 +23,12 @@ describe("toSearchState", () => {
 	it("건물이 0건이면 noResult를 반환함", () => {
 		expect(toSearchState({ kind: "found", buildings: [] })).toBe("noResult");
 	});
+
+	it("요청 제한이면 rateLimited를 반환함", () => {
+		expect(toSearchState({ kind: "rateLimited" })).toBe("rateLimited");
+	});
+
+	it("호출이 실패했으면 error를 반환함", () => {
+		expect(toSearchState({ kind: "failed" })).toBe("error");
+	});
 });

@@ -10,6 +10,7 @@ import SearchPanel from "@/pages/search/ui/SearchPanel";
 import SearchResult from "@/pages/search/ui/SearchResult";
 import SearchScreen from "@/pages/search/ui/SearchScreen";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
+import PartialStatusPanel from "@/shared/ui/PartialStatusPanel";
 import SearchGuide from "@/widgets/searchGuide/ui/SearchGuide";
 
 interface SearchPageProps {
@@ -24,6 +25,7 @@ interface SearchPageProps {
  * - 모든 상태에서 홈으로 링크와 검색 영역 출력
  * - found에서만 모바일 기준 월 안내와 검색 결과 목록 출력
  * - noResult에서는 검색 영역 아래에 결과 없음 안내만 출력
+ * - error와 rateLimited에서는 검색 영역 아래 결과 영역만 오류 또는 요청 제한 안내로 대신 출력(화면 전체를 바꾸지 않음)
  * - queryTooShort에서는 검색창에 오류 줄과 검색 안내 출력
  *
  * @param keyword 비어 있지 않은 검색어
@@ -70,6 +72,23 @@ export default async function SearchPage({
 					/>
 				</VStack>
 				<NoResultNotice />
+			</SearchScreen>
+		);
+	}
+
+	if (state === "error" || state === "rateLimited") {
+		return (
+			<SearchScreen keyword={keyword} invalid={invalid} session={session}>
+				<VStack {...style.panelGroup}>
+					<HomeBackLink />
+					<SearchPanel
+						keyword={keyword}
+						baseMonth={baseMonth}
+						showsNoticeOnMobile={false}
+						invalid={invalid}
+					/>
+				</VStack>
+				<PartialStatusPanel kind={state} />
 			</SearchScreen>
 		);
 	}

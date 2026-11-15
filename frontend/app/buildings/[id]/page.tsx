@@ -11,7 +11,7 @@ import { toPageMetadata } from "@/shared/lib/metadata/toPageMetadata";
 /**
  * 건물 상세 > 메타데이터
  *
- * - id가 양의 정수가 아니거나 건물이 없으면 빈 메타데이터 반환
+ * - id가 양의 정수가 아니거나 건물이 없거나 요청 제한이면 빈 메타데이터 반환
  * - 있으면 건물 이름 또는 주소로 제목 생성
  */
 export async function generateMetadata(
@@ -25,13 +25,13 @@ export async function generateMetadata(
 		return {};
 	}
 
-	const detail = await getBuildingDetail(buildingId);
+	const result = await getBuildingDetail(buildingId);
 
-	if (detail === null) {
+	if (result.kind !== "found") {
 		return {};
 	}
 
-	return toPageMetadata(toBuildingTitle(detail), parent);
+	return toPageMetadata(toBuildingTitle(result.detail), parent);
 }
 
 /**
