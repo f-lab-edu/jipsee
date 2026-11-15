@@ -1,6 +1,6 @@
 // 오류 화면, 404, 요청 제한(429), 폼 전송 실패 안내 UI TC
 // 기대값: 설계 문서(2026-11-14-error-and-paging-design.md) 3, 4절과 캔버스 "오류와 404" 페이지의 Err* 보드. 미정 항목(7절)은 추천안을 따름
-// 백엔드가 없어 실제 429와 호출 실패를 만들 곳이 없음. 일부 실패와 요청 제한 TC는 쿠키 jipsee-mock-building(TC_BUILDING_FAILURE가 mockStorageState로 넣음)이 같은 값일 때만 돎. 기본값은 none
+// 실제 429와 호출 실패는 목업 스위치로 만듦. 로그아웃과 탈퇴의 백엔드 응답은 가짜 백엔드(support/stubBackend.ts)가 정함. 일부 실패와 요청 제한 TC는 쿠키 jipsee-mock-building(TC_BUILDING_FAILURE가 mockStorageState로 넣음)이 같은 값일 때만 돎. 기본값은 none
 // 폼 실패 안내 TC는 로그인한 상태(TC_SESSION=in, 쿠키 jipsee-mock-session)에서만 돌림. 그 밖의 TC는 로그인 여부와 상관없이 돎
 import { expect } from "@playwright/test";
 import { sameColor } from "./support/buildingDetail/sameColor";
@@ -9,8 +9,10 @@ import { caseId } from "./support/caseId";
 import { gotoAndSettle } from "./support/gotoAndSettle";
 import { readBox } from "./support/policy/readBox";
 import { readStyle } from "./support/policy/readStyle";
+import { STUB_ON, STUB_SKIP_REASON, setStubMode } from "./support/stubBackend";
 import { test } from "./support/test";
 import { DESKTOP, MOBILE } from "./support/viewports";
+import { waitForQuiet } from "./support/waitForQuiet";
 
 const SCREENS = [
 	{ label: "모바일", viewport: MOBILE, layout: "mobile" },
@@ -45,12 +47,6 @@ const LOGOUT_ACTION = "/api/auth/logout";
 const WITHDRAW_ACTION = "/api/account/withdraw";
 const CHAT_DELETE_ACTION = "/api/chat/1/delete";
 
-let e1Number = 1;
-let e2Number = 1;
-let e3Number = 1;
-let e4Number = 1;
-let e5Number = 1;
-
 // E1: 404 화면. 없는 주소와 notFound()를 던진 화면 모두 같은 화면이고 헤더, 푸터, 하단 내비게이션이 남음
 // 건물 상세 경로는 목업 스위치가 none일 때만 404임
 const NOT_FOUND_PATHS =
@@ -63,10 +59,10 @@ for (const { label, viewport, layout } of SCREENS) {
 		test.use({ viewport, colorScheme: "light" });
 
 		for (const path of NOT_FOUND_PATHS) {
-			test(`${caseId("E1", e1Number++)} ${label} ${path}는 404이고 제목, 설명, 홈으로 가기 링크가 나옴`, async ({
+			test(`${caseId("E1", 1)} ${label} ${path}는 404이고 제목, 설명, 홈으로 가기 링크가 나옴`, async ({
 				page,
 			}) => {
-				expect(await gotoAndSettle(page, path, 300)).toBe(404);
+				expect(await gotoAndSettle(page, path)).toBe(404);
 				const status = page.getByTestId(`status-${layout}`);
 				await expect(status.getByRole("heading", { level: 1 })).toHaveText(
 					COPY.notFoundTitle,
@@ -82,10 +78,10 @@ for (const { label, viewport, layout } of SCREENS) {
 			});
 		}
 
-		test(`${caseId("E1", e1Number++)} ${label} 404 화면에 헤더와 푸터가 있고 모바일은 하단 내비게이션에 활성 탭이 없음`, async ({
+		test(`${caseId("E1", 2)} ${label} 404 화면에 헤더와 푸터가 있고 모바일은 하단 내비게이션에 활성 탭이 없음`, async ({
 			page,
 		}) => {
-			await gotoAndSettle(page, "/nope", 300);
+			await gotoAndSettle(page, "/nope");
 			await expect(page.getByTestId(`header-${layout}`)).toBeVisible();
 			await expect(page.getByTestId(`footer-${layout}`)).toBeVisible();
 			if (layout === "mobile") {
@@ -95,10 +91,10 @@ for (const { label, viewport, layout } of SCREENS) {
 			}
 		});
 
-		test(`${caseId("E1", e1Number++)} ${label} 홈으로 가기를 누르면 홈으로 이동함`, async ({
+		test(`${caseId("E1", 3)} ${label} 홈으로 가기를 누르면 홈으로 이동함`, async ({
 			page,
 		}) => {
-			await gotoAndSettle(page, "/nope", 300);
+			await gotoAndSettle(page, "/nope");
 			await page
 				.getByTestId(`status-${layout}`)
 				.getByRole("link", { name: COPY.home })
@@ -111,10 +107,10 @@ for (const { label, viewport, layout } of SCREENS) {
 		test.describe(`${label} ${viewport.width}x${viewport.height} ${theme} 404 화면 치수와 색`, () => {
 			test.use({ viewport, colorScheme: theme });
 
-			test(`${caseId("E1", e1Number++)} ${label} ${theme} 아이콘 원 ${layout === "mobile" ? 72 : 80}, 제목 ${layout === "mobile" ? 20 : 22}/700, 버튼 280x48 모서리 12가 시안과 같음`, async ({
+			test(`${caseId("E1", 4)} ${label} ${theme} 아이콘 원 ${layout === "mobile" ? 72 : 80}, 제목 ${layout === "mobile" ? 20 : 22}/700, 버튼 280x48 모서리 12가 시안과 같음`, async ({
 				page,
 			}) => {
-				await gotoAndSettle(page, "/nope", 300);
+				await gotoAndSettle(page, "/nope");
 				const status = page.getByTestId(`status-${layout}`);
 				const circle = status
 					.locator('[data-area="status-notfound"] > div')
@@ -192,10 +188,10 @@ for (const { label, viewport, layout } of SCREENS) {
 			"TC_BUILDING_FAILURE=buildingFailed일 때만 돌림",
 		);
 
-		test(`${caseId("E2", e2Number++)} ${label} 조회가 실패하면 헤더, 푸터는 남고 일반 오류 화면에 다시 시도와 홈으로 가기가 나옴`, async ({
+		test(`${caseId("E2", 1)} ${label} 조회가 실패하면 헤더, 푸터는 남고 일반 오류 화면에 다시 시도와 홈으로 가기가 나옴`, async ({
 			page,
 		}) => {
-			await gotoAndSettle(page, "/buildings/1", 500);
+			await gotoAndSettle(page, "/buildings/1");
 			const status = page.getByTestId(`status-${layout}`);
 			await expect(status.getByRole("heading", { level: 1 })).toHaveText(
 				COPY.errorTitle,
@@ -210,15 +206,15 @@ for (const { label, viewport, layout } of SCREENS) {
 			await expect(page.getByTestId(`footer-${layout}`)).toBeVisible();
 		});
 
-		test(`${caseId("E2", e2Number++)} ${label} 다시 시도를 눌러도 계속 실패하면 같은 오류 화면이 다시 나오고 버튼이 다시 눌림`, async ({
+		test(`${caseId("E2", 2)} ${label} 다시 시도를 눌러도 계속 실패하면 같은 오류 화면이 다시 나오고 버튼이 다시 눌림`, async ({
 			page,
 		}) => {
-			await gotoAndSettle(page, "/buildings/1", 500);
+			await gotoAndSettle(page, "/buildings/1");
 			const retry = page
 				.getByTestId(`status-${layout}`)
 				.getByRole("button", { name: COPY.retry });
 			await retry.click();
-			await page.waitForTimeout(800);
+			await waitForQuiet(page);
 			await expect(retry).toBeVisible();
 			await expect(retry).toBeEnabled();
 			await expect(retry).toHaveAttribute("aria-busy", "false");
@@ -232,10 +228,10 @@ for (const { label, viewport, layout } of SCREENS) {
 			"TC_BUILDING_FAILURE=buildingRateLimited일 때만 돌림",
 		);
 
-		test(`${caseId("E2", e2Number++)} ${label} 요청 제한이면 본문만 요청 제한 안내로 바뀌고 헤더, 질문 바, 푸터는 남음`, async ({
+		test(`${caseId("E2", 3)} ${label} 요청 제한이면 본문만 요청 제한 안내로 바뀌고 헤더, 질문 바, 푸터는 남음`, async ({
 			page,
 		}) => {
-			expect(await gotoAndSettle(page, "/buildings/1", 500)).toBe(200);
+			expect(await gotoAndSettle(page, "/buildings/1")).toBe(200);
 			const partial = page.getByTestId(`partial-status-${layout}`);
 			await expect(partial.getByRole("alert")).toHaveText(COPY.rateTitle);
 			await expect(
@@ -269,12 +265,10 @@ for (const { label, viewport, layout } of SCREENS) {
 				`TC_BUILDING_FAILURE=${failure}일 때만 돌림`,
 			);
 
-			test(`${caseId("E3", e3Number++)} ${label} 결과 영역만 ${title}로 바뀌고 검색창은 그대로임`, async ({
+			test(`${caseId("E3", 1)} ${label} 결과 영역만 ${title}로 바뀌고 검색창은 그대로임`, async ({
 				page,
 			}) => {
-				expect(await gotoAndSettle(page, "/search?keyword=망원", 500)).toBe(
-					200,
-				);
+				expect(await gotoAndSettle(page, "/search?keyword=망원")).toBe(200);
 				const partial = page.getByTestId(`partial-status-${layout}`);
 				await expect(partial.locator(`[data-area="${area}"]`)).toBeVisible();
 				await expect(partial.getByRole("alert")).toHaveText(title);
@@ -287,10 +281,10 @@ for (const { label, viewport, layout } of SCREENS) {
 				await expect(input).toHaveValue("망원");
 			});
 
-			test(`${caseId("E3", e3Number++)} ${label} 아이콘 원 ${layout === "mobile" ? 72 : 80}, 제목 17/700, 다시 시도 버튼 높이 44 모서리 12가 시안과 같음`, async ({
+			test(`${caseId("E3", 2)} ${label} 아이콘 원 ${layout === "mobile" ? 72 : 80}, 제목 17/700, 다시 시도 버튼 높이 44 모서리 12가 시안과 같음`, async ({
 				page,
 			}) => {
-				await gotoAndSettle(page, "/search?keyword=망원", 500);
+				await gotoAndSettle(page, "/search?keyword=망원");
 				const partial = page.getByTestId(`partial-status-${layout}`);
 				const circle = partial.locator(`[data-area="${area}"] > div`).first();
 				const circleBox = await readBox(circle);
@@ -337,14 +331,14 @@ test.describe("기본 상태에서는 실패 안내가 없음", () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 	test.skip(FAILURE !== "none", "TC_BUILDING_FAILURE가 none일 때만 돌림");
 
-	test(`${caseId("E3", e3Number++)} 검색 결과와 건물 상세에 실패 안내가 없음`, async ({
+	test(`${caseId("E3", 3)} 검색 결과와 건물 상세에 실패 안내가 없음`, async ({
 		page,
 	}) => {
-		await gotoAndSettle(page, "/search?keyword=망원", 300);
+		await gotoAndSettle(page, "/search?keyword=망원");
 		await expect(
 			page.getByTestId("partial-status-mobile").getByRole("alert"),
 		).toHaveCount(0);
-		await gotoAndSettle(page, "/buildings/1", 300);
+		await gotoAndSettle(page, "/buildings/1");
 		await expect(
 			page.getByTestId("partial-status-mobile").getByRole("alert"),
 		).toHaveCount(0);
@@ -352,11 +346,11 @@ test.describe("기본 상태에서는 실패 안내가 없음", () => {
 	});
 });
 
-// E4: 폼 전송 실패. 일반 텍스트 응답 대신 폼을 보낸 화면으로 303 이동하고 error 쿼리를 붙임. 백엔드가 없어 폼을 보내면 항상 실패함
+// E4: 폼 전송 실패. 일반 텍스트 응답 대신 폼을 보낸 화면으로 303 이동하고 error 쿼리를 붙임. Origin 검사는 백엔드를 부르기 전에 하므로 백엔드와 상관없이 실패함
 test.describe("폼 전송 실패 응답", () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
-	test(`${caseId("E4", e4Number++)} Origin이 없는 로그아웃 POST는 /me?error=logout-failed로 303을 반환함`, async ({
+	test(`${caseId("E4", 1)} Origin이 없는 로그아웃 POST는 /me?error=logout-failed로 303을 반환함`, async ({
 		page,
 	}) => {
 		const response = await page.request.post(LOGOUT_ACTION, {
@@ -366,7 +360,7 @@ test.describe("폼 전송 실패 응답", () => {
 		expect(response.headers().location).toBe("/me?error=logout-failed");
 	});
 
-	test(`${caseId("E4", e4Number++)} Origin이 없는 탈퇴 POST는 /me?error=withdraw-failed로 303을 반환함`, async ({
+	test(`${caseId("E4", 2)} Origin이 없는 탈퇴 POST는 /me?error=withdraw-failed로 303을 반환함`, async ({
 		page,
 	}) => {
 		const response = await page.request.post(WITHDRAW_ACTION, {
@@ -376,7 +370,7 @@ test.describe("폼 전송 실패 응답", () => {
 		expect(response.headers().location).toBe("/me?error=withdraw-failed");
 	});
 
-	test(`${caseId("E4", e4Number++)} Origin이 없는 대화 삭제 POST는 /chat/history?error=chat-delete-failed로 303을 반환함`, async ({
+	test(`${caseId("E4", 3)} Origin이 없는 대화 삭제 POST는 /chat/history?error=chat-delete-failed로 303을 반환함`, async ({
 		page,
 	}) => {
 		const response = await page.request.post(CHAT_DELETE_ACTION, {
@@ -388,7 +382,7 @@ test.describe("폼 전송 실패 응답", () => {
 		);
 	});
 
-	test(`${caseId("E4", e4Number++)} 번호가 양의 정수가 아닌 대화 삭제 POST는 404를 반환함`, async ({
+	test(`${caseId("E4", 4)} 번호가 양의 정수가 아닌 대화 삭제 POST는 404를 반환함`, async ({
 		page,
 	}) => {
 		const response = await page.request.post("/api/chat/abc/delete", {
@@ -410,10 +404,10 @@ for (const { label, viewport, layout } of SCREENS) {
 		test.skip(!LOGGED_IN, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 
 		for (const { code, text } of ME_ERRORS) {
-			test(`${caseId("E5", e5Number++)} ${label} /me?error=${code}이면 띠에 "${text}"가 나오고 주소에서 error 쿼리가 지워짐`, async ({
+			test(`${caseId("E5", 1)} ${label} /me?error=${code}이면 띠에 "${text}"가 나오고 주소에서 error 쿼리가 지워짐`, async ({
 				page,
 			}) => {
-				await gotoAndSettle(page, `/me?error=${code}`, 500);
+				await gotoAndSettle(page, `/me?error=${code}`);
 				const banner = page.getByTestId(`me-body-${layout}`).getByRole("alert");
 				await expect(banner).toHaveText(text);
 				expect(new URL(page.url()).search).toBe("");
@@ -422,19 +416,19 @@ for (const { label, viewport, layout } of SCREENS) {
 			});
 		}
 
-		test(`${caseId("E5", e5Number++)} ${label} 모르는 코드와 다른 화면의 코드는 띠를 보이지 않음`, async ({
+		test(`${caseId("E5", 2)} ${label} 모르는 코드와 다른 화면의 코드는 띠를 보이지 않음`, async ({
 			page,
 		}) => {
-			await gotoAndSettle(page, "/me?error=unknown", 300);
+			await gotoAndSettle(page, "/me?error=unknown");
 			await expect(page.locator(BANNER)).toHaveCount(0);
-			await gotoAndSettle(page, "/me?error=chat-delete-failed", 300);
+			await gotoAndSettle(page, "/me?error=chat-delete-failed");
 			await expect(page.locator(BANNER)).toHaveCount(0);
 		});
 
-		test(`${caseId("E5", e5Number++)} ${label} 띠는 최소 높이 50, 모서리 12, 배경 critical weak이고 ${layout === "mobile" ? "제목 위 좌우 16, 위 16" : "제목 아래 카드 위"}에 놓임`, async ({
+		test(`${caseId("E5", 3)} ${label} 띠는 최소 높이 50, 모서리 12, 배경 critical weak이고 ${layout === "mobile" ? "제목 위 좌우 16, 위 16" : "제목 아래 카드 위"}에 놓임`, async ({
 			page,
 		}) => {
-			await gotoAndSettle(page, "/me?error=logout-failed", 500);
+			await gotoAndSettle(page, "/me?error=logout-failed");
 			const body = page.getByTestId(`me-body-${layout}`);
 			const banner = body.getByRole("alert");
 			const bannerBox = await readBox(banner);
@@ -467,10 +461,13 @@ for (const { label, viewport, layout } of SCREENS) {
 				.toBeGreaterThan(bannerBox.y + bannerBox.height);
 		});
 
-		test(`${caseId("E5", e5Number++)} ${label} 로그아웃 폼을 제출하면 /me에 로그아웃 실패 띠가 나오고 error 쿼리는 지워짐`, async ({
+		test(`${caseId("E5", 4)} ${label} 백엔드가 서버 오류를 줄 때 로그아웃 폼을 제출하면 /me에 로그아웃 실패 띠가 나오고 error 쿼리는 지워짐`, async ({
 			page,
+			context,
 		}) => {
-			await gotoAndSettle(page, "/me", 500);
+			test.skip(!STUB_ON(), STUB_SKIP_REASON);
+			await setStubMode(context, "serverError");
+			await gotoAndSettle(page, "/me");
 			await page
 				.getByTestId(`me-body-${layout}`)
 				.getByRole("button", { name: "로그아웃" })
@@ -479,10 +476,13 @@ for (const { label, viewport, layout } of SCREENS) {
 			await expect(page).toHaveURL(/\/me$/);
 		});
 
-		test(`${caseId("E5", e5Number++)} ${label} 탈퇴하기를 누르면 /me에 탈퇴 실패 띠가 나옴`, async ({
+		test(`${caseId("E5", 5)} ${label} 백엔드가 서버 오류를 줄 때 탈퇴하기를 누르면 /me에 탈퇴 실패 띠가 나옴`, async ({
 			page,
+			context,
 		}) => {
-			await gotoAndSettle(page, "/me", 500);
+			test.skip(!STUB_ON(), STUB_SKIP_REASON);
+			await setStubMode(context, "serverError");
+			await gotoAndSettle(page, "/me");
 			await page
 				.getByTestId(`me-body-${layout}`)
 				.getByRole("button", { name: "회원 탈퇴" })
@@ -505,10 +505,10 @@ test.describe("대화 삭제 실패 안내", () => {
 	test.describe("모바일 대화 목록", () => {
 		test.use({ viewport: MOBILE, colorScheme: "light" });
 
-		test(`${caseId("E5", e5Number++)} /chat/history?error=chat-delete-failed이면 제목 아래 목록 위에 띠가 나오고 주소에서 error 쿼리가 지워짐`, async ({
+		test(`${caseId("E5", 6)} /chat/history?error=chat-delete-failed이면 제목 아래 목록 위에 띠가 나오고 주소에서 error 쿼리가 지워짐`, async ({
 			page,
 		}) => {
-			await gotoAndSettle(page, "/chat/history?error=chat-delete-failed", 500);
+			await gotoAndSettle(page, "/chat/history?error=chat-delete-failed");
 			const banner = page.locator(BANNER);
 			await expect(banner).toHaveText(COPY.chatDeleteFailed);
 			const bannerBox = await readBox(banner);
@@ -522,10 +522,10 @@ test.describe("대화 삭제 실패 안내", () => {
 			expect(new URL(page.url()).search).toBe("");
 		});
 
-		test(`${caseId("E5", e5Number++)} 대화 목록 화면은 다른 화면의 코드를 무시함`, async ({
+		test(`${caseId("E5", 7)} 대화 목록 화면은 다른 화면의 코드를 무시함`, async ({
 			page,
 		}) => {
-			await gotoAndSettle(page, "/chat/history?error=logout-failed", 300);
+			await gotoAndSettle(page, "/chat/history?error=logout-failed");
 			await expect(page.locator(BANNER)).toHaveCount(0);
 		});
 	});
@@ -534,10 +534,10 @@ test.describe("대화 삭제 실패 안내", () => {
 		test.use({ viewport: DESKTOP, colorScheme: "light" });
 
 		for (const path of ["/chat", "/chat/1"]) {
-			test(`${caseId("E5", e5Number++)} ${path}?error=chat-delete-failed이면 레일 맨 위에 띠가 나오고 주소에서 error 쿼리가 지워짐`, async ({
+			test(`${caseId("E5", 8)} ${path}?error=chat-delete-failed이면 레일 맨 위에 띠가 나오고 주소에서 error 쿼리가 지워짐`, async ({
 				page,
 			}) => {
-				await gotoAndSettle(page, `${path}?error=chat-delete-failed`, 500);
+				await gotoAndSettle(page, `${path}?error=chat-delete-failed`);
 				const rail = page.locator('[data-area="chat-rail"]');
 				const banner = rail.getByRole("alert");
 				await expect(banner).toHaveText(COPY.chatDeleteFailed);
