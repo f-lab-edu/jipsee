@@ -8,7 +8,6 @@ import kr.jipsee.collect.application.DealCollectProcessor;
 import kr.jipsee.collect.application.DealKeyReader;
 import kr.jipsee.collect.application.DealKeys;
 import kr.jipsee.collect.application.DealReplaceWriter;
-import kr.jipsee.collect.application.SigunguCodes;
 import kr.jipsee.collect.client.RtmsApiClient;
 import kr.jipsee.collect.client.RtmsRhRentClient;
 import kr.jipsee.collect.client.RtmsRhTradeClient;
@@ -18,6 +17,7 @@ import kr.jipsee.collect.dto.DealReplaceItem;
 import kr.jipsee.deal.application.DealReplacer;
 import kr.jipsee.deal.application.RentDealService;
 import kr.jipsee.deal.application.SaleDealService;
+import kr.jipsee.region.service.RegionService;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -142,24 +142,26 @@ public class CollectJobConfig {
     @Bean
     @StepScope
     DealKeyReader dailyKeyReader(
-            SigunguCodes sigunguCodes, @Value("#{jobParameters['" + PARAM_COLLECT_DATE + "']}") String collectDate) {
-        return new DealKeyReader(DealKeys.recent(LocalDate.parse(collectDate), sigunguCodes.codes()));
+            RegionService regionService, @Value("#{jobParameters['" + PARAM_COLLECT_DATE + "']}") String collectDate) {
+        return new DealKeyReader(DealKeys.recent(LocalDate.parse(collectDate), regionService.sigunguCodes()));
     }
 
     /** 2011-01부터 endMonth까지의 키를 읽는 전월세 초기 적재 Reader */
     @Bean
     @StepScope
     DealKeyReader initialRentKeyReader(
-            SigunguCodes sigunguCodes, @Value("#{jobParameters['" + PARAM_END_MONTH + "']}") String endMonth) {
-        return new DealKeyReader(DealKeys.of(RENT_FIRST_MONTH, YearMonth.parse(endMonth), sigunguCodes.codes()));
+            RegionService regionService, @Value("#{jobParameters['" + PARAM_END_MONTH + "']}") String endMonth) {
+        return new DealKeyReader(
+                DealKeys.of(RENT_FIRST_MONTH, YearMonth.parse(endMonth), regionService.sigunguCodes()));
     }
 
     /** 2006-01부터 endMonth까지의 키를 읽는 매매 초기 적재 Reader */
     @Bean
     @StepScope
     DealKeyReader initialSaleKeyReader(
-            SigunguCodes sigunguCodes, @Value("#{jobParameters['" + PARAM_END_MONTH + "']}") String endMonth) {
-        return new DealKeyReader(DealKeys.of(SALE_FIRST_MONTH, YearMonth.parse(endMonth), sigunguCodes.codes()));
+            RegionService regionService, @Value("#{jobParameters['" + PARAM_END_MONTH + "']}") String endMonth) {
+        return new DealKeyReader(
+                DealKeys.of(SALE_FIRST_MONTH, YearMonth.parse(endMonth), regionService.sigunguCodes()));
     }
 
     /** RENT_DEAL의 마지막 수집 시각을 갱신하는 Step. 수집 Step 다음에 실행 */

@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import kr.jipsee.TestcontainersConfiguration;
-import kr.jipsee.collect.application.SigunguCodes;
 import kr.jipsee.collect.client.RtmsRhRentClient;
 import kr.jipsee.collect.client.RtmsRhTradeClient;
 import kr.jipsee.collect.dao.DataSourceDao;
@@ -26,6 +25,7 @@ import kr.jipsee.deal.dto.RentDealRow;
 import kr.jipsee.deal.dto.SaleDealRow;
 import kr.jipsee.global.publicdata.PublicDataApiException;
 import kr.jipsee.global.publicdata.PublicDataPage;
+import kr.jipsee.region.service.RegionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -71,7 +71,7 @@ class CollectJobIntegrationTest {
     JdbcTemplate jdbcTemplate;
 
     @MockitoBean
-    SigunguCodes sigunguCodes;
+    RegionService regionService;
 
     @MockitoBean
     RtmsRhRentClient rtmsRhRentClient;
@@ -96,7 +96,7 @@ class CollectJobIntegrationTest {
         jdbcTemplate.update("delete from rent_deal");
         jdbcTemplate.update("delete from sale_deal");
         jdbcTemplate.update("delete from data_source");
-        given(sigunguCodes.codes()).willReturn(CODES);
+        given(regionService.sigunguCodes()).willReturn(CODES);
         given(rtmsRhRentClient.fetch(anyString(), any(YearMonth.class), anyInt()))
                 .willAnswer(invocation -> {
                     YearMonth month = invocation.getArgument(1);
