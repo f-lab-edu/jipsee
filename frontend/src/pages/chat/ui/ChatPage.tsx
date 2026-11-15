@@ -6,6 +6,7 @@ import { chatCopy } from "@/pages/chat/config/chatCopy";
 import { chatScreenStyles } from "@/pages/chat/config/chatScreenStyles";
 import BuildingChip from "@/pages/chat/ui/BuildingChip";
 import ChatConversation from "@/pages/chat/ui/ChatConversation";
+import ChatNewChatProvider from "@/pages/chat/ui/ChatNewChatProvider";
 import ChatRail from "@/pages/chat/ui/ChatRail";
 import ChatToolbar from "@/pages/chat/ui/ChatToolbar";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
@@ -57,24 +58,26 @@ export default function ChatPage({
 				mobileBack={<HeaderBackButton />}
 			/>
 			<VStack as="main" data-area="main" {...style.main}>
-				<HStack
-					as="section"
-					aria-label={chatCopy.title}
-					data-area="chat-card"
-					{...style.card}
-				>
-					<ChatRail chats={chats} now={now} chatId={chatId} />
-					<VStack data-area="chat-pane" {...style.pane}>
-						<ChatToolbar />
-						{buildingName !== null && <BuildingChip name={buildingName} />}
-						<ChatConversation
-							chatId={chatId}
-							buildingId={buildingId}
-							initialMessages={initialMessages}
-							isLimitReached={isLimitReached}
-						/>
-					</VStack>
-				</HStack>
+				<ChatNewChatProvider>
+					<HStack
+						as="section"
+						aria-label={chatCopy.title}
+						data-area="chat-card"
+						{...style.card}
+					>
+						<ChatRail chats={chats} now={now} chatId={chatId} />
+						<VStack data-area="chat-pane" {...style.pane}>
+							<ChatToolbar />
+							{buildingName !== null && <BuildingChip name={buildingName} />}
+							<ChatConversation
+								chatId={chatId}
+								buildingId={buildingId}
+								initialMessages={initialMessages}
+								isLimitReached={isLimitReached}
+							/>
+						</VStack>
+					</HStack>
+				</ChatNewChatProvider>
 			</VStack>
 		</>
 	);

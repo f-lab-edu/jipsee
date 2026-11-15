@@ -347,6 +347,47 @@ test.describe("질문 전송과 스트리밍", () => {
 		await waitForAnswer(page);
 		await expect(page.locator(".chat-caret")).toHaveCount(0);
 	});
+
+	for (const path of ["/chat", "/chat?buildingId=1"]) {
+		test(`${caseId("C3", 11)} ${path}에서 스트리밍 중에 새 대화를 누르면 /chat의 빈 대화로 초기화되고 끊긴 답변은 나중에도 붙지 않음`, async ({
+			page,
+		}) => {
+			await gotoAndSettle(page, path);
+			await sendQuestion(page, CHAT_TEXT.question);
+			await expect(page.locator(ASSISTANT)).toHaveAttribute(
+				"aria-busy",
+				"true",
+			);
+			await page.getByLabel("집사에게 질문").fill("쓰던 질문");
+			await page.getByRole("link", { name: "새 대화" }).click();
+			await page.waitForURL(/\/chat$/);
+			await expect(page.locator(USER)).toHaveCount(0);
+			await expect(page.locator(ASSISTANT)).toHaveCount(0);
+			await expect(page.getByLabel("집사에게 질문")).toHaveValue("");
+			await expect(page.getByRole("button", { name: "보내기" })).toBeEnabled();
+			await expect(
+				page.locator('[data-area="chat-example-questions"] button'),
+			).toHaveText([...CHAT_TEXT.examples]);
+			// 끊긴 스트림의 답변이 나중에 붙지 않고 주소도 대화 주소로 바뀌지 않음
+			await page.waitForTimeout(4000);
+			await expect(page.locator(ASSISTANT)).toHaveCount(0);
+			expect(new URL(page.url()).pathname).toBe("/chat");
+		});
+	}
+
+	test(`${caseId("C3", 12)} 새 대화로 초기화한 뒤 새 질문을 보내면 새 대화로 이어지고 끝나면 대화 주소로 바뀜`, async ({
+		page,
+	}) => {
+		await gotoAndSettle(page, "/chat");
+		await sendQuestion(page, CHAT_TEXT.question);
+		await expect(page.locator(ASSISTANT)).toHaveAttribute("aria-busy", "true");
+		await page.getByRole("link", { name: "새 대화" }).click();
+		await expect(page.locator(USER)).toHaveCount(0);
+		await sendQuestion(page, CHAT_TEXT.examples[2]);
+		await waitForAnswer(page);
+		await page.waitForURL(/\/chat\/6$/);
+		await expect(page.locator(USER_TEXT)).toHaveText(CHAT_TEXT.examples[2]);
+	});
 });
 
 // 커밋 3: 판단 요청과 개별 사건 안내 (C4)
