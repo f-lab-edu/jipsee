@@ -54,7 +54,7 @@ erDiagram
         int article_number PK
         int branch_number PK
     }
-    data_source["data_source (데이터 출처별 마지막 수집 시각)"] {
+    collect_status["collect_status (데이터 출처별 마지막 수집 시각)"] {
         varchar source PK
     }
 ```
@@ -339,13 +339,13 @@ erDiagram
 - 파싱한 조문이 0건이면 교체하지 않고 로그만 남김
 - varchar 길이와 content 최대 길이는 2026-10-27 실측 최댓값 기준이며, varchar 길이를 초과하면 적재에 실패하고 로그를 남김
 
-## data_source
+## collect_status
 
 > 데이터 출처별 마지막 수집 시각
 
 ```mermaid
 erDiagram
-    data_source {
+    collect_status {
         varchar source PK "데이터 출처, 값은 RENT_DEAL, SALE_DEAL, BUILDING_REGISTER, LAW 중 하나"
         datetime loaded_at "마지막 수집 시각, 화면의 기준 월은 이 값의 월로 표시함"
         datetime created_at "행 생성 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
