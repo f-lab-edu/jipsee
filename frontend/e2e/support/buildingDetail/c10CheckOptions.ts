@@ -35,7 +35,7 @@ export async function c10CheckOptions(t: T, cond: C10Cond, label: string) {
 				.map(([text]) => text),
 		);
 		await t.page.keyboard.press("Escape");
-		await t.page.waitForTimeout(300);
+		await options.first().waitFor({ state: "hidden" });
 		t.eq(
 			`${label} ${C10_LABELS[name]} Escape로 닫힘`,
 			await trigger.getAttribute("aria-expanded"),

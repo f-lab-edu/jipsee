@@ -15,6 +15,8 @@ import { caseId } from "../support/caseId";
 import { SEARCH_PATH } from "../support/searchFixtures";
 import { test } from "../support/test";
 import { DESKTOP, MOBILE } from "../support/viewports";
+import { waitForFrames } from "../support/waitForFrames";
+import { waitForHydration } from "../support/waitForHydration";
 
 const THEMES: Theme[] = ["light", "dark"];
 
@@ -26,14 +28,14 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 		test(`${caseId("C3", 1 + index)} /buildings/${id}는 200을 반환함`, async ({
 			t,
 		}) => {
-			t.eq("status", await t.goto(`/buildings/${id}`, 200), 200);
+			t.eq("status", await t.goto(`/buildings/${id}`), 200);
 		});
 	}
 	for (const [index, seg] of NOT_FOUND.entries()) {
 		test(`${caseId("C3", 6 + index)} /buildings/${seg}는 404를 반환하고 404 화면이 나옴`, async ({
 			t,
 		}) => {
-			t.eq("status", await t.goto(`/buildings/${seg}`, 300), 404);
+			t.eq("status", await t.goto(`/buildings/${seg}`), 404);
 			const m = await t.measure();
 			t.ok(
 				"404 화면 문구",
@@ -68,7 +70,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		t,
 	}) => {
 		for (const [id, name] of Object.entries(NAMES)) {
-			await t.goto(`/buildings/${id}`, 400);
+			await t.goto(`/buildings/${id}`);
 			const m = await t.measure();
 			t.eq(`id ${id} h1 개수`, m.h1s.length, 1);
 			t.eq(`id ${id} h1 글자`, m.h1s[0]?.text, name);
@@ -111,7 +113,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 		t,
 	}) => {
 		for (const [id, name] of Object.entries(NAMES)) {
-			await t.goto(`/buildings/${id}`, 400);
+			await t.goto(`/buildings/${id}`);
 			const m = await t.measure();
 			t.eq(`id ${id} h1 글자`, m.h1s[0]?.text, name);
 			t.ok(
@@ -155,7 +157,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			const m = await t.measure();
 			t.eq("보이는 레이아웃의 헤더 개수", m.headerCount, 1);
 			// 높이는 로고 줄 56에 아래 테두리 1을 더한 값임(2026-11-13 헤더 구분선)
-			t.near("헤더 높이", m.header?.h, 57);
+			t.near("헤더 높이", m.header?.h, 57, 0);
 			t.near("헤더 y", m.header?.y, 0);
 			t.near("헤더 폭", m.header?.w, 390);
 			t.near("헤더 아래 border 두께 1", m.headerBorder?.w, 1);
@@ -211,7 +213,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 	test.describe(`${DESKTOP.width}x${DESKTOP.height} ${theme}`, () => {
 		test.use({ viewport: DESKTOP, colorScheme: theme });
 
-		test(`${caseId("C3", 22 + 4 * themeIndex)} 데스크톱 로고 헤더가 높이 64에 로그인 링크를 보여줌 (${theme})`, async ({
+		test(`${caseId("C3", 22 + 4 * themeIndex)} 데스크톱 로고 헤더가 높이 65(로고 줄 64와 아래 테두리 1)에 로그인 링크를 보여줌 (${theme})`, async ({
 			t,
 		}) => {
 			test.skip(
@@ -220,7 +222,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			);
 			await t.goto("/buildings/1");
 			const m = await t.measure();
-			t.near("헤더 높이", m.header?.h, 64);
+			t.near("헤더 높이", m.header?.h, 65, 0);
 			t.eq("로고 링크 개수", m.logoVisible, 1);
 			t.eq("로그인 버튼 개수", m.loginVisible, 1);
 			t.eq("내 정보 버튼 개수", m.myInfoVisible, 0);
@@ -348,7 +350,7 @@ test.describe("1279x900 light", () => {
 		await t.goto("/buildings/1");
 		const step = async (label: string, w: number, expectDesktop: boolean) => {
 			await t.page.setViewportSize({ width: w, height: 900 });
-			await t.page.waitForTimeout(250);
+			await waitForFrames(t.page);
 			const m = await t.measure();
 			const h1 = m.h1s[0];
 			let h1Place = "none";
@@ -357,7 +359,7 @@ test.describe("1279x900 light", () => {
 			t.eq(`${label} 보이는 뒤로 가기 버튼 개수`, m.backs.length, 1);
 			t.eq(`${label} 로고 링크 개수`, m.logoVisible, 1);
 			t.eq(`${label} h1 위치`, h1Place, "main");
-			t.near(`${label} 헤더 높이`, m.header?.h, expectDesktop ? 64 : 56);
+			t.near(`${label} 헤더 높이`, m.header?.h, expectDesktop ? 65 : 57, 0);
 		};
 		await step("1279", 1279, false);
 		await step("1280", 1280, true);
@@ -367,7 +369,7 @@ test.describe("1279x900 light", () => {
 
 // S1 검색 화면의 푸터 배경 (S2 푸터가 S1 Footer 그대로인지 비교하는 기준)
 async function s1FooterBg(t: T) {
-	await t.goto(SEARCH_PATH, 700);
+	await t.goto(SEARCH_PATH);
 	return t.page.evaluate(() => {
 		for (
 			let n: Element | null = document.querySelector("footer");
@@ -547,7 +549,7 @@ for (const [index, w] of [320, 390, 768, 1280, 1440].entries()) {
 			t,
 		}) => {
 			for (const id of [1, 4]) {
-				await t.goto(`/buildings/${id}`, 400);
+				await t.goto(`/buildings/${id}`);
 				const m = await t.measure();
 				t.ok(
 					`id ${id} 가로 스크롤`,
@@ -574,7 +576,7 @@ for (const [index, [label, viewport]] of (
 			t,
 		}) => {
 			for (const id of OK_IDS) {
-				await t.goto(`/buildings/${id}`, 400);
+				await t.goto(`/buildings/${id}`);
 				t.eq(`id ${id} 중복 id`, (await t.measure()).dupIds, []);
 			}
 		});
@@ -582,7 +584,7 @@ for (const [index, [label, viewport]] of (
 			t,
 		}) => {
 			for (const id of OK_IDS) {
-				await t.goto(`/buildings/${id}`, 400);
+				await t.goto(`/buildings/${id}`);
 				const m = await t.measure();
 				t.eq(`id ${id} 보이는 h1`, m.h1s.length, 1);
 				t.eq(`id ${id} main`, m.mainCount, 1);
@@ -593,11 +595,11 @@ for (const [index, [label, viewport]] of (
 
 // 뒤로 가기 버튼
 async function openFirstBuilding(t: T) {
-	await t.goto(SEARCH_PATH, 1000);
+	await t.goto(SEARCH_PATH);
 	const link = t.page.locator('a[href^="/buildings/"]:visible').first();
 	await link.click();
 	await t.page.waitForURL(/\/buildings\/\d+/);
-	await t.page.waitForTimeout(700);
+	await waitForHydration(t.page);
 }
 function expectSearchPage(t: T) {
 	const u = new URL(t.page.url());
@@ -694,7 +696,7 @@ for (const [index, [label, viewport, theme]] of (
 			];
 			for (const r of routes) {
 				t.issues.length = 0;
-				await t.goto(r, 1500);
+				await t.goto(r);
 				for (const i of t.issues) t.fail(`${r}: ${i}`);
 			}
 		});
@@ -715,7 +717,7 @@ for (const [index, w] of [1280, 1440].entries()) {
 			await h1.evaluate((e) => {
 				e.textContent = "가".repeat(49);
 			});
-			await t.page.waitForTimeout(200);
+			await waitForFrames(t.page);
 			const m = await t.measure();
 			t.ok(
 				"가로 스크롤 없음",
@@ -756,7 +758,7 @@ for (const [index, viewport] of [MOBILE, DESKTOP].entries()) {
 		}) => {
 			await t.goto("/buildings/1");
 			await t.page.evaluate(() => window.scrollTo(0, 600));
-			await t.page.waitForTimeout(250);
+			await waitForFrames(t.page);
 			const m = await t.page.evaluate(() => {
 				const header = document.querySelector("header");
 				if (!header) return null;

@@ -11,6 +11,7 @@ import { TOKENS } from "./support/buildingDetail/tokens";
 import { caseId } from "./support/caseId";
 import { CHAT_SCENARIO, LOGGED_IN } from "./support/chat/chatScenario";
 import { CHAT_COLORS, CHAT_TEXT } from "./support/chat/chatTexts";
+import { expectedHistoryTimes } from "./support/chat/historyTimes";
 import { readChatBubble } from "./support/chat/readChatBubble";
 import { sendQuestion } from "./support/chat/sendQuestion";
 import { isDimmedAt } from "./support/dialog/isDimmedAt";
@@ -19,9 +20,14 @@ import { readBox } from "./support/policy/readBox";
 import { SEARCH_PATH } from "./support/searchFixtures";
 import { test } from "./support/test";
 import { BOTTOM_NAV_HEIGHT, DESKTOP, MOBILE } from "./support/viewports";
+import { waitForAnimations } from "./support/waitForAnimations";
+import { waitForFrames } from "./support/waitForFrames";
+import { waitForQuiet } from "./support/waitForQuiet";
 
 const TABLET = { width: 768, height: 1024 };
 const THEMES = ["light", "dark"] as const;
+// 색을 확인하지 않는 TC는 라이트 한 벌만 돌림
+const LIGHT_ONLY = ["light"] as const;
 const MESSAGES_API = "**/api/chats/messages";
 const ASSISTANT = '[data-area="chat-message-assistant"]';
 const USER = '[data-area="chat-message-user"]';
@@ -42,7 +48,7 @@ async function waitForAnswer(page: Page, count = 1) {
 	await expect(page.getByRole("button", { name: "보내기" })).toBeEnabled();
 }
 
-// 커밋 1: 접근 제어, 라우트, 내비게이션 (C1)
+// 커밋 1: 접근 제어, 라우트, 내비게이션 (CH1)
 test.describe("로그아웃 접근 제어", () => {
 	test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
 	test.use({ viewport: MOBILE });
@@ -59,7 +65,7 @@ test.describe("로그아웃 접근 제어", () => {
 	];
 
 	for (const { number, path, next } of cases) {
-		test(`${caseId("C1", number)} ${path}는 /login?next=${next}로 이동함`, async ({
+		test(`${caseId("CH1", number)} ${path}는 /login?next=${next}로 이동함`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, path);
@@ -73,7 +79,7 @@ test.describe("라우트와 하단 내비게이션", () => {
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: MOBILE });
 
-	test(`${caseId("C1", 5)} /chat은 200이고 h1 이름이 집사, 문서 제목이 집사 | 집씨임`, async ({
+	test(`${caseId("CH1", 5)} /chat은 200이고 h1 이름이 집사, 문서 제목이 집사 | 집씨임`, async ({
 		page,
 	}) => {
 		expect(await gotoAndSettle(page, "/chat")).toBe(200);
@@ -83,7 +89,7 @@ test.describe("라우트와 하단 내비게이션", () => {
 		await expect(page).toHaveTitle("집사 | 집씨");
 	});
 
-	test(`${caseId("C1", 6)} /chat/history는 h1 이름이 대화 목록, 문서 제목이 대화 목록 | 집씨임`, async ({
+	test(`${caseId("CH1", 6)} /chat/history는 h1 이름이 대화 목록, 문서 제목이 대화 목록 | 집씨임`, async ({
 		page,
 	}) => {
 		expect(await gotoAndSettle(page, "/chat/history")).toBe(200);
@@ -93,18 +99,18 @@ test.describe("라우트와 하단 내비게이션", () => {
 		await expect(page).toHaveTitle("대화 목록 | 집씨");
 	});
 
-	test(`${caseId("C1", 7)} /chat/1은 문서 제목이 집사 | 집씨이고 /chat/99999, /chat/abc, 건물 쿼리 오류는 404임`, async ({
+	test(`${caseId("CH1", 7)} /chat/1은 문서 제목이 집사 | 집씨이고 /chat/99999, /chat/abc, 건물 쿼리 오류는 404임`, async ({
 		page,
 	}) => {
 		expect(await gotoAndSettle(page, "/chat/1")).toBe(200);
 		await expect(page).toHaveTitle("집사 | 집씨");
-		expect(await gotoAndSettle(page, "/chat/99999", 300)).toBe(404);
-		expect(await gotoAndSettle(page, "/chat/abc", 300)).toBe(404);
-		expect(await gotoAndSettle(page, "/chat?buildingId=99999", 300)).toBe(404);
-		expect(await gotoAndSettle(page, "/chat?buildingId=abc", 300)).toBe(404);
+		expect(await gotoAndSettle(page, "/chat/99999")).toBe(404);
+		expect(await gotoAndSettle(page, "/chat/abc")).toBe(404);
+		expect(await gotoAndSettle(page, "/chat?buildingId=99999")).toBe(404);
+		expect(await gotoAndSettle(page, "/chat?buildingId=abc")).toBe(404);
 	});
 
-	test(`${caseId("C1", 8)} 홈과 검색 결과의 지난 대화 링크가 /chat/history임`, async ({
+	test(`${caseId("CH1", 8)} 홈과 검색 결과의 지난 대화 링크가 /chat/history임`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/");
@@ -126,7 +132,7 @@ test.describe("라우트와 하단 내비게이션", () => {
 	});
 
 	for (const [index, viewport] of [MOBILE, TABLET].entries()) {
-		test(`${caseId("C1", 9 + index)} ${viewport.width}에서 집사 탭은 /chat에서 page, /chat/history와 /chat/1에서 true이고 href가 /chat임`, async ({
+		test(`${caseId("CH1", 9 + index)} ${viewport.width}에서 집사 탭은 /chat에서 page, /chat/history와 /chat/1에서 true이고 href가 /chat임`, async ({
 			page,
 		}) => {
 			await page.setViewportSize(viewport);
@@ -143,13 +149,13 @@ test.describe("라우트와 하단 내비게이션", () => {
 	}
 });
 
-// 커밋 2: 빈 대화, 예시 질문, 건물 기준 새 대화 (C2)
-for (const theme of THEMES) {
+// 커밋 2: 빈 대화, 예시 질문, 건물 기준 새 대화 (CH2)
+for (const theme of LIGHT_ONLY) {
 	test.describe(`빈 대화 ${theme}`, () => {
 		test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 		test.use({ viewport: MOBILE, colorScheme: theme });
 
-		test(`${caseId("C2", 1)} ${theme} /chat의 빈 대화에 제목과 예시 질문 버튼 세 개가 있고 건물 칩이 없음`, async ({
+		test(`${caseId("CH2", 1)} /chat의 빈 대화에 제목과 예시 질문 버튼 세 개가 있고 건물 칩이 없음`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/chat");
@@ -166,7 +172,7 @@ for (const theme of THEMES) {
 			).toHaveCount(0);
 		});
 
-		test(`${caseId("C2", 2)} ${theme} 예시 질문을 누르면 입력에 채워지고 전송되지 않음`, async ({
+		test(`${caseId("CH2", 2)} 예시 질문을 누르면 입력에 채워지고 전송되지 않음`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/chat");
@@ -176,11 +182,11 @@ for (const theme of THEMES) {
 			await expect(page.getByLabel("집사에게 질문")).toHaveValue(
 				CHAT_TEXT.examples[1],
 			);
-			await page.waitForTimeout(800);
+			await waitForQuiet(page);
 			await expect(page.locator(USER)).toHaveCount(0);
 		});
 
-		test(`${caseId("C2", 3)} ${theme} /chat?buildingId=1은 ○○빌라 기준 칩과 건물 기준 예시 질문 두 개를 보이고 칩은 링크나 버튼이 아님`, async ({
+		test(`${caseId("CH2", 3)} /chat?buildingId=1은 ○○빌라 기준 칩과 건물 기준 예시 질문 두 개를 보이고 칩은 링크나 버튼이 아님`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/chat?buildingId=1");
@@ -193,7 +199,7 @@ for (const theme of THEMES) {
 			).toHaveText([...CHAT_TEXT.buildingExamples]);
 		});
 
-		test(`${caseId("C2", 4)} ${theme} 건물 기준 대화에서 새 대화를 누르면 /chat으로 가고 칩이 없음`, async ({
+		test(`${caseId("CH2", 4)} 건물 기준 대화에서 새 대화를 누르면 /chat으로 가고 칩이 없음`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/chat?buildingId=1");
@@ -207,7 +213,7 @@ for (const theme of THEMES) {
 			).toHaveText([...CHAT_TEXT.examples]);
 		});
 
-		test(`${caseId("C2", 5)} ${theme} /chat/4는 ○○빌라 기준 칩이 보이고 /chat/1은 칩이 없음`, async ({
+		test(`${caseId("CH2", 5)} /chat/4는 ○○빌라 기준 칩이 보이고 /chat/1은 칩이 없음`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/chat/4");
@@ -222,12 +228,12 @@ for (const theme of THEMES) {
 	});
 }
 
-// 커밋 3: 질문 전송과 스트리밍 (C3)
+// 커밋 3: 질문 전송과 스트리밍 (CH3)
 test.describe("질문 전송과 스트리밍", () => {
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: MOBILE });
 
-	test(`${caseId("C3", 1)} 질문을 입력하고 Enter를 누르면 사용자 말풍선에 질문이 보이고 입력이 비워짐`, async ({
+	test(`${caseId("CH3", 1)} 질문을 입력하고 Enter를 누르면 사용자 말풍선에 질문이 보이고 입력이 비워짐`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -236,7 +242,7 @@ test.describe("질문 전송과 스트리밍", () => {
 		await expect(page.getByLabel("집사에게 질문")).toHaveValue("");
 	});
 
-	test(`${caseId("C3", 2)} 전송 직후 답변 말풍선에 aria-busy가 true이고 보내기 버튼만 비활성화됨`, async ({
+	test(`${caseId("CH3", 2)} 전송 직후 답변 말풍선에 aria-busy가 true이고 보내기 버튼만 비활성화됨`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -247,7 +253,7 @@ test.describe("질문 전송과 스트리밍", () => {
 		await expect(page.getByRole("status")).toHaveText("답변을 작성하는 중");
 	});
 
-	test(`${caseId("C3", 3)} 스트림이 끝나면 aria-busy가 빠지고 보내기가 켜지며 출처와 기준일이 보임`, async ({
+	test(`${caseId("CH3", 3)} 스트림이 끝나면 aria-busy가 빠지고 보내기가 켜지며 출처와 기준일이 보임`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -261,7 +267,7 @@ test.describe("질문 전송과 스트리밍", () => {
 		]);
 	});
 
-	test(`${caseId("C3", 4)} 답변의 건물 링크 ○○빌라 상세가 /buildings/1로 가고 높이가 44 이상임`, async ({
+	test(`${caseId("CH3", 4)} 답변의 건물 링크 ○○빌라 상세가 /buildings/1로 가고 높이가 44 이상임`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -272,16 +278,16 @@ test.describe("질문 전송과 스트리밍", () => {
 		expect((await readBox(link)).height).toBeGreaterThanOrEqual(44);
 	});
 
-	test(`${caseId("C3", 5)} 공백만 입력하고 제출하면 말풍선이 생기지 않음`, async ({
+	test(`${caseId("CH3", 5)} 공백만 입력하고 제출하면 말풍선이 생기지 않음`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
 		await sendQuestion(page, "   ");
-		await page.waitForTimeout(800);
+		await waitForQuiet(page);
 		await expect(page.locator(USER)).toHaveCount(0);
 	});
 
-	test(`${caseId("C3", 6)} 첫 질문의 답이 끝나면 주소가 /chat/{id}로 바뀌고 새로고침해도 대화가 남음`, async ({
+	test(`${caseId("CH3", 6)} 첫 질문의 답이 끝나면 주소가 /chat/{id}로 바뀌고 새로고침해도 대화가 남음`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -293,7 +299,7 @@ test.describe("질문 전송과 스트리밍", () => {
 		await expect(page.locator(ASSISTANT)).toHaveCount(1);
 	});
 
-	test(`${caseId("C3", 7)} 메시지 목록은 role log, aria-live polite이고 이름이 대화 내용임`, async ({
+	test(`${caseId("CH3", 7)} 메시지 목록은 role log, aria-live polite이고 이름이 대화 내용임`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat/1");
@@ -303,7 +309,7 @@ test.describe("질문 전송과 스트리밍", () => {
 		await expect(log).toHaveAttribute("data-area", "chat-thread");
 	});
 
-	test(`${caseId("C3", 8)} 홈 질문 폼에서 보낸 질문이 /chat에 도착하자마자 첫 말풍선이고 스트리밍이 시작됨`, async ({
+	test(`${caseId("CH3", 8)} 홈 질문 폼에서 보낸 질문이 /chat에 도착하자마자 첫 말풍선이고 스트리밍이 시작됨`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/");
@@ -316,7 +322,7 @@ test.describe("질문 전송과 스트리밍", () => {
 		await expect(page.locator(USER)).toHaveCount(1);
 	});
 
-	test(`${caseId("C3", 9)} /chat/1은 말풍선 네 개이고 둘째 답변 출처가 법령 줄과 법제처 기준일임`, async ({
+	test(`${caseId("CH3", 9)} /chat/1은 말풍선 네 개이고 둘째 답변 출처가 법령 줄과 법제처 기준일임`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat/1");
@@ -338,7 +344,7 @@ test.describe("질문 전송과 스트리밍", () => {
 		).toHaveText([CHAT_TEXT.lawSource, CHAT_TEXT.lawBase]);
 	});
 
-	test(`${caseId("C3", 10)} 받은 글자 뒤에 깜빡이는 커서가 있고 끝나면 사라짐`, async ({
+	test(`${caseId("CH3", 10)} 받은 글자 뒤에 깜빡이는 커서가 있고 끝나면 사라짐`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -349,7 +355,7 @@ test.describe("질문 전송과 스트리밍", () => {
 	});
 
 	for (const path of ["/chat", "/chat?buildingId=1"]) {
-		test(`${caseId("C3", 11)} ${path}에서 스트리밍 중에 새 대화를 누르면 /chat의 빈 대화로 초기화되고 끊긴 답변은 나중에도 붙지 않음`, async ({
+		test(`${caseId("CH3", 11)} ${path}에서 스트리밍 중에 새 대화를 누르면 /chat의 빈 대화로 초기화되고 끊긴 답변은 나중에도 붙지 않음`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, path);
@@ -359,6 +365,9 @@ test.describe("질문 전송과 스트리밍", () => {
 				"true",
 			);
 			await page.getByLabel("집사에게 질문").fill("쓰던 질문");
+			const aborted = page.waitForEvent("requestfailed", (request) =>
+				request.url().includes("/api/chats/messages"),
+			);
 			await page.getByRole("link", { name: "새 대화" }).click();
 			await page.waitForURL(/\/chat$/);
 			await expect(page.locator(USER)).toHaveCount(0);
@@ -368,14 +377,15 @@ test.describe("질문 전송과 스트리밍", () => {
 			await expect(
 				page.locator('[data-area="chat-example-questions"] button'),
 			).toHaveText([...CHAT_TEXT.examples]);
-			// 끊긴 스트림의 답변이 나중에 붙지 않고 주소도 대화 주소로 바뀌지 않음
-			await page.waitForTimeout(4000);
+			// 끊긴 스트림의 요청이 중단되어 답변이 나중에 붙지 않고 주소도 대화 주소로 바뀌지 않음
+			await aborted;
+			await waitForQuiet(page);
 			await expect(page.locator(ASSISTANT)).toHaveCount(0);
 			expect(new URL(page.url()).pathname).toBe("/chat");
 		});
 	}
 
-	test(`${caseId("C3", 12)} 새 대화로 초기화한 뒤 새 질문을 보내면 새 대화로 이어지고 끝나면 대화 주소로 바뀜`, async ({
+	test(`${caseId("CH3", 12)} 새 대화로 초기화한 뒤 새 질문을 보내면 새 대화로 이어지고 끝나면 대화 주소로 바뀜`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -390,12 +400,12 @@ test.describe("질문 전송과 스트리밍", () => {
 	});
 });
 
-// 커밋 3: 판단 요청과 개별 사건 안내 (C4)
+// 커밋 3: 판단 요청과 개별 사건 안내 (CH4)
 test.describe("고정 안내 답변", () => {
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: MOBILE });
 
-	test(`${caseId("C4", 1)} 판단 요청을 보내면 안내 두 줄이 보이고 출처 묶음이 없음`, async ({
+	test(`${caseId("CH4", 1)} 판단 요청을 보내면 안내 두 줄이 보이고 출처 묶음이 없음`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -407,7 +417,7 @@ test.describe("고정 안내 답변", () => {
 		await expect(page.locator('[data-area="chat-sources"]')).toHaveCount(0);
 	});
 
-	test(`${caseId("C4", 2)} 개별 사건 질문을 보내면 안내 두 줄과 관련 조문 출처가 보임`, async ({
+	test(`${caseId("CH4", 2)} 개별 사건 질문을 보내면 안내 두 줄과 관련 조문 출처가 보임`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -422,7 +432,7 @@ test.describe("고정 안내 답변", () => {
 	});
 });
 
-// 커밋 4: 일일 한도, 오류와 다시 시도 (C5, C6)
+// 커밋 4: 일일 한도, 오류와 다시 시도 (CH5, CH6)
 test.describe("일일 한도 시나리오", () => {
 	test.skip(
 		!LOGGED_IN || CHAT_SCENARIO !== "dailyLimit",
@@ -433,7 +443,7 @@ test.describe("일일 한도 시나리오", () => {
 		test.describe(`${viewport.width}x${viewport.height}`, () => {
 			test.use({ viewport });
 
-			test(`${caseId("C5", 1 + index * 2)} ${viewport.width} /chat은 질문 입력 대신 질문 한도 안내가 있고 문구 두 줄이 보임`, async ({
+			test(`${caseId("CH5", 1 + index * 2)} ${viewport.width} /chat은 질문 입력 대신 질문 한도 안내가 있고 문구 두 줄이 보임`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/chat");
@@ -446,7 +456,7 @@ test.describe("일일 한도 시나리오", () => {
 				]);
 			});
 
-			test(`${caseId("C5", 2 + index * 2)} ${viewport.width} 입력 칸과 보내기 버튼이 없고 안내 상자가 하단 바 자리에 있음`, async ({
+			test(`${caseId("CH5", 2 + index * 2)} ${viewport.width} 입력 칸과 보내기 버튼이 없고 안내 상자가 하단 바 자리에 있음`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/chat");
@@ -475,7 +485,7 @@ test.describe("일일 한도 시나리오", () => {
 	test.describe("1440x900 다크", () => {
 		test.use({ viewport: DESKTOP, colorScheme: "dark" });
 
-		test(`${caseId("C5", 6)} 1440 다크 한도 안내 바 배경이 bg.layerFloating임`, async ({
+		test(`${caseId("CH5", 6)} 1440 다크 한도 안내 바 배경이 bg.layerFloating임`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/chat");
@@ -491,7 +501,7 @@ test.describe("일일 한도 응답과 오류 응답", () => {
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: MOBILE });
 
-	test(`${caseId("C5", 5)} 전송 중 429(CHAT_DAILY_LIMIT)가 오면 질문 말풍선이 지워지고 입력이 한도 안내로 바뀜`, async ({
+	test(`${caseId("CH5", 5)} 전송 중 429(CHAT_DAILY_LIMIT)가 오면 질문 말풍선이 지워지고 입력이 한도 안내로 바뀜`, async ({
 		page,
 	}) => {
 		await page.route(MESSAGES_API, (route) =>
@@ -508,7 +518,7 @@ test.describe("일일 한도 응답과 오류 응답", () => {
 		await expect(page.getByLabel("집사에게 질문")).toHaveCount(0);
 	});
 
-	test(`${caseId("C6", 1)} 서버 오류이면 오류 상자에 일시적인 오류 문구가 있고 질문 말풍선은 남으며 다시 시도 버튼 높이가 44 이상임`, async ({
+	test(`${caseId("CH6", 1)} 서버 오류이면 오류 상자에 일시적인 오류 문구가 있고 질문 말풍선은 남으며 다시 시도 버튼 높이가 44 이상임`, async ({
 		page,
 	}) => {
 		await page.route(MESSAGES_API, (route) => route.fulfill({ status: 500 }));
@@ -521,7 +531,7 @@ test.describe("일일 한도 응답과 오류 응답", () => {
 		expect((await readBox(retry)).height).toBeGreaterThanOrEqual(44);
 	});
 
-	test(`${caseId("C6", 2)} 요청 제한 429이면 오류 상자에 요청이 많아요 문구가 있음`, async ({
+	test(`${caseId("CH6", 2)} 요청 제한 429이면 오류 상자에 요청이 많아요 문구가 있음`, async ({
 		page,
 	}) => {
 		await page.route(MESSAGES_API, (route) =>
@@ -536,7 +546,7 @@ test.describe("일일 한도 응답과 오류 응답", () => {
 		await expect(page.locator(ERROR)).toContainText(CHAT_TEXT.rateLimit);
 	});
 
-	test(`${caseId("C6", 3)} 오류 뒤 다시 시도를 누르면 오류 상자가 사라지고 같은 질문으로 새 답변이 스트리밍됨`, async ({
+	test(`${caseId("CH6", 3)} 오류 뒤 다시 시도를 누르면 오류 상자가 사라지고 같은 질문으로 새 답변이 스트리밍됨`, async ({
 		page,
 	}) => {
 		let calls = 0;
@@ -560,7 +570,7 @@ test.describe("일일 한도 응답과 오류 응답", () => {
 		expect(calls).toBe(2);
 	});
 
-	test(`${caseId("C6", 4)} 오류 직후에도 입력과 보내기 버튼이 활성화되어 있음`, async ({
+	test(`${caseId("CH6", 4)} 오류 직후에도 입력과 보내기 버튼이 활성화되어 있음`, async ({
 		page,
 	}) => {
 		await page.route(MESSAGES_API, (route) => route.fulfill({ status: 500 }));
@@ -571,7 +581,7 @@ test.describe("일일 한도 응답과 오류 응답", () => {
 		await expect(page.getByRole("button", { name: "보내기" })).toBeEnabled();
 	});
 
-	test(`${caseId("C6", 5)} 스트림 중간에 끊겨도 받은 글자를 지우고 오류 상자를 보임`, async ({
+	test(`${caseId("CH6", 5)} 스트림 중간에 끊겨도 받은 글자를 지우고 오류 상자를 보임`, async ({
 		page,
 	}) => {
 		await page.route(MESSAGES_API, (route) =>
@@ -587,7 +597,7 @@ test.describe("일일 한도 응답과 오류 응답", () => {
 		await expect(page.locator(ASSISTANT)).toHaveCount(0);
 	});
 
-	test(`${caseId("C6", 6)} 로그인이 풀려 401이 오면 돌아올 경로를 담아 로그인으로 이동함`, async ({
+	test(`${caseId("CH6", 6)} 로그인이 풀려 401이 오면 돌아올 경로를 담아 로그인으로 이동함`, async ({
 		page,
 	}) => {
 		await page.route(MESSAGES_API, (route) => route.fulfill({ status: 401 }));
@@ -601,7 +611,7 @@ test.describe("일일 한도 응답과 오류 응답", () => {
 	});
 });
 
-// 커밋 5: 대화 목록과 삭제 (C7)
+// 커밋 5: 대화 목록과 삭제 (CH7)
 const ITEMS = '[data-area="chat-history-item"]';
 const RAIL = '[data-area="chat-rail"]';
 
@@ -609,7 +619,7 @@ test.describe("대화 목록", () => {
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: MOBILE });
 
-	test(`${caseId("C7", 1)} 항목 다섯 개가 최근 순이고 첫 항목이 오늘 14:20, 둘째가 어제, 셋째가 10.21임`, async ({
+	test(`${caseId("CH7", 1)} 항목 다섯 개가 최근 순이고 시각이 오늘 HH:mm, 어제, M.D 규칙에 맞게 표시됨(목업의 오늘 14:20, 어제, 10.21, 10.18, 10.15를 지금 날짜로 계산)`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat/history");
@@ -618,12 +628,12 @@ test.describe("대화 목록", () => {
 			const item = page.locator(ITEMS).nth(index);
 			await expect(item.locator("a")).toContainText(title);
 			await expect(item.locator("a")).toContainText(
-				CHAT_TEXT.historyTimes[index],
+				expectedHistoryTimes()[index],
 			);
 		}
 	});
 
-	test(`${caseId("C7", 2)} 항목 링크의 href가 /chat/{id}이고 누르면 그 대화로 이동함`, async ({
+	test(`${caseId("CH7", 2)} 항목 링크의 href가 /chat/{id}이고 누르면 그 대화로 이동함`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat/history");
@@ -642,7 +652,7 @@ test.describe("대화 목록", () => {
 		await expect(page.locator(USER_TEXT)).toHaveText(CHAT_TEXT.examples[1]);
 	});
 
-	test(`${caseId("C7", 3)} 항목 제목이 한 줄이고 넘치면 말줄임함`, async ({
+	test(`${caseId("CH7", 3)} 항목 제목이 한 줄이고 넘치면 말줄임함`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -673,7 +683,7 @@ test.describe("대화 목록", () => {
 		);
 	});
 
-	test(`${caseId("C7", 4)} 새로 만든 대화는 목록 맨 앞에 오고 삭제 버튼 이름이 삭제: 제목임`, async ({
+	test(`${caseId("CH7", 4)} 새로 만든 대화는 목록 맨 앞에 오고 삭제 버튼 이름이 삭제: 제목임`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -690,7 +700,7 @@ test.describe("대화 목록", () => {
 	});
 
 	for (const viewport of [MOBILE, DESKTOP]) {
-		test(`${caseId("C7", viewport === MOBILE ? 5 : 6)} ${viewport.width}에서 삭제를 누르면 확인 창이 ${viewport === MOBILE ? "바텀시트" : "가운데 대화상자"}로 열림`, async ({
+		test(`${caseId("CH7", viewport === MOBILE ? 5 : 6)} ${viewport.width}에서 삭제를 누르면 확인 창이 ${viewport === MOBILE ? "바텀시트" : "가운데 대화상자"}로 열림`, async ({
 			page,
 		}) => {
 			await page.setViewportSize(viewport);
@@ -704,7 +714,7 @@ test.describe("대화 목록", () => {
 				.click();
 			const dialog = page.getByRole("dialog");
 			await expect(dialog).toHaveCount(1);
-			await page.waitForTimeout(700);
+			await waitForAnimations(page);
 			await expect(dialog).toHaveAttribute("data-area", "chat-delete-dialog");
 			await expect(
 				dialog.getByRole("heading", { name: CHAT_TEXT.deleteTitle }),
@@ -722,7 +732,7 @@ test.describe("대화 목록", () => {
 		});
 	}
 
-	test(`${caseId("C7", 7)} 확인 창에서 취소하면 창이 닫히고 항목 수가 그대로임`, async ({
+	test(`${caseId("CH7", 7)} 확인 창에서 취소하면 창이 닫히고 항목 수가 그대로임`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat/history");
@@ -730,13 +740,13 @@ test.describe("대화 목록", () => {
 			.getByRole("button", { name: `삭제: ${CHAT_TEXT.historyTitles[0]}` })
 			.click();
 		await expect(page.getByRole("dialog")).toHaveCount(1);
-		await page.waitForTimeout(700);
+		await waitForAnimations(page);
 		await page.getByRole("button", { name: "취소" }).click();
 		await expect(page.getByRole("dialog")).toHaveCount(0);
 		await expect(page.locator(ITEMS)).toHaveCount(5);
 	});
 
-	test(`${caseId("C7", 8)} 확인 창에서 삭제하기를 누르면 /chat/history로 돌아오고 항목이 하나 줄고 삭제한 대화는 404임`, async ({
+	test(`${caseId("CH7", 8)} 확인 창에서 삭제하기를 누르면 /chat/history로 돌아오고 항목이 하나 줄고 삭제한 대화는 404임`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat/history");
@@ -744,17 +754,17 @@ test.describe("대화 목록", () => {
 			.getByRole("button", { name: `삭제: ${CHAT_TEXT.historyTitles[0]}` })
 			.click();
 		await expect(page.getByRole("dialog")).toHaveCount(1);
-		await page.waitForTimeout(700);
+		await waitForAnimations(page);
 		await page.getByRole("button", { name: "삭제하기" }).click();
 		await page.waitForURL(/\/chat\/history$/);
 		await expect(page.locator(ITEMS)).toHaveCount(4);
 		await expect(page.locator(ITEMS).first().locator("a")).toContainText(
 			CHAT_TEXT.historyTitles[1],
 		);
-		expect(await gotoAndSettle(page, "/chat/1", 300)).toBe(404);
+		expect(await gotoAndSettle(page, "/chat/1")).toBe(404);
 	});
 
-	test(`${caseId("C7", 10)} 확인 창이 열린 채 1279에서 1280으로 넘으면 창이 닫히고 /chat으로 이동하며 레일에서 다시 열면 가운데 대화상자임`, async ({
+	test(`${caseId("CH7", 10)} 확인 창이 열린 채 1279에서 1280으로 넘으면 창이 닫히고 /chat으로 이동하며 레일에서 다시 열면 가운데 대화상자임`, async ({
 		page,
 	}) => {
 		await page.setViewportSize({ width: 1279, height: 900 });
@@ -763,7 +773,7 @@ test.describe("대화 목록", () => {
 			.getByRole("button", { name: `삭제: ${CHAT_TEXT.historyTitles[0]}` })
 			.click();
 		await expect(page.getByRole("dialog")).toHaveCount(1);
-		await page.waitForTimeout(700);
+		await waitForAnimations(page);
 		await page.setViewportSize({ width: 1280, height: 900 });
 		await expect(page.getByRole("dialog")).toHaveCount(0);
 		await page.waitForURL(/\/chat$/);
@@ -772,12 +782,12 @@ test.describe("대화 목록", () => {
 			.click();
 		const dialog = page.getByRole("dialog");
 		await expect(dialog).toHaveCount(1);
-		await page.waitForTimeout(700);
+		await waitForAnimations(page);
 		const box = await readBox(dialog);
 		expect(box.y + box.height / 2).toBeCloseTo(450, 0);
 	});
 
-	test(`${caseId("C7", 11)} 확인 창이 열린 채 1280에서 1279로 넘으면 창이 닫히고 레일이 사라짐`, async ({
+	test(`${caseId("CH7", 11)} 확인 창이 열린 채 1280에서 1279로 넘으면 창이 닫히고 레일이 사라짐`, async ({
 		page,
 	}) => {
 		await page.setViewportSize({ width: 1280, height: 900 });
@@ -786,14 +796,14 @@ test.describe("대화 목록", () => {
 			.getByRole("button", { name: `삭제: ${CHAT_TEXT.historyTitles[0]}` })
 			.click();
 		await expect(page.getByRole("dialog")).toHaveCount(1);
-		await page.waitForTimeout(700);
+		await waitForAnimations(page);
 		await page.setViewportSize({ width: 1279, height: 900 });
 		await expect(page.getByRole("dialog")).toHaveCount(0);
 		await expect(page.locator(RAIL)).toBeHidden();
 	});
 
 	for (const [index, viewport] of [MOBILE, TABLET, DESKTOP].entries()) {
-		test(`${caseId("C7", 12 + index)} ${viewport.width}에서 확인 창이 열리면 딤이 헤더와 ${viewport === DESKTOP ? "양옆 하늘빛 배경" : "푸터와 하단 내비게이션"}까지 덮음`, async ({
+		test(`${caseId("CH7", 12 + index)} ${viewport.width}에서 확인 창이 열리면 딤이 헤더와 ${viewport === DESKTOP ? "양옆 하늘빛 배경" : "푸터와 하단 내비게이션"}까지 덮음`, async ({
 			page,
 		}) => {
 			await page.setViewportSize(viewport);
@@ -805,16 +815,24 @@ test.describe("대화 목록", () => {
 				.getByRole("button", { name: `삭제: ${CHAT_TEXT.historyTitles[0]}` })
 				.click();
 			await expect(page.getByRole("dialog")).toHaveCount(1);
-			await page.waitForTimeout(700);
+			await waitForAnimations(page);
 			expect(await isDimmedAt(page, viewport.width / 2, 10)).toBe(true);
 			expect(await isDimmedAt(page, 5, 10)).toBe(true);
 			if (viewport === DESKTOP) {
 				expect(await isDimmedAt(page, 5, viewport.height / 2)).toBe(true);
 				return;
 			}
-			expect(await isDimmedAt(page, 5, viewport.height - 10)).toBe(true);
+			// 폭 768에서 x 5는 흰 열 바깥(하늘빛 배경)이라 열 가운데 x로 확인함
+			const columnCenter = viewport.width / 2;
+			expect(await isDimmedAt(page, columnCenter, viewport.height - 10)).toBe(
+				true,
+			);
 			expect(
-				await isDimmedAt(page, 5, viewport.height - BOTTOM_NAV_HEIGHT - 10),
+				await isDimmedAt(
+					page,
+					columnCenter,
+					viewport.height - BOTTOM_NAV_HEIGHT - 10,
+				),
 			).toBe(true);
 		});
 	}
@@ -827,7 +845,7 @@ test.describe("빈 대화 목록 시나리오", () => {
 	);
 	test.use({ viewport: MOBILE });
 
-	test(`${caseId("C7", 9)} /chat/history는 지난 대화가 없어요 안내가 보이고 항목이 없음`, async ({
+	test(`${caseId("CH7", 9)} /chat/history는 지난 대화가 없어요 안내가 보이고 항목이 없음`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat/history");
@@ -838,7 +856,7 @@ test.describe("빈 대화 목록 시나리오", () => {
 	});
 });
 
-// 커밋 6: 레이아웃과 스타일 값 (C8)
+// 커밋 6: 레이아웃과 스타일 값 (CH8)
 const COLUMNS = [
 	{ label: "모바일", viewport: MOBILE, x: 0, width: 390 },
 	{ label: "태블릿", viewport: TABLET, x: 24, width: 720 },
@@ -852,7 +870,7 @@ for (const { label, viewport, x, width } of COLUMNS) {
 			const colors = CHAT_COLORS[theme];
 			const isMobile = viewport === MOBILE;
 
-			test(`${caseId("C8", isMobile ? 1 : 11)} ${label} ${theme} 열 배경, 헤더, 도구줄, 입력 바, 입력, 푸터 크기가 시안과 같음`, async ({
+			test(`${caseId("CH8", isMobile ? 1 : 11)} ${label} ${theme} 열 배경, 헤더, 도구줄, 입력 바, 입력, 푸터 크기가 시안과 같음`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/chat/1");
@@ -892,25 +910,27 @@ for (const { label, viewport, x, width } of COLUMNS) {
 				expect.soft(footer.height, "푸터 높이").toBe(44);
 			});
 
-			test(`${caseId("C8", isMobile ? 2 : 12)} ${label} ${theme} 아래에서 위로 내비게이션, 푸터, 입력 바 순서로 붙어 있음`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/chat/1");
-				const nav = await readBox(page.locator(NAV));
-				const footer = await readBox(page.locator(FOOTER_MOBILE));
-				const bar = await readBox(page.locator(COMPOSER));
-				expect
-					.soft(nav.y + nav.height, "내비게이션 아래 끝")
-					.toBeCloseTo(viewport.height, 0);
-				expect
-					.soft(footer.y + footer.height, "푸터 아래 끝")
-					.toBeCloseTo(nav.y, 0);
-				expect
-					.soft(bar.y + bar.height, "입력 바 아래 끝")
-					.toBeCloseTo(footer.y, 0);
-			});
+			if (theme === "light") {
+				test(`${caseId("CH8", isMobile ? 2 : 12)} ${label} 아래에서 위로 내비게이션, 푸터, 입력 바 순서로 붙어 있음`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/chat/1");
+					const nav = await readBox(page.locator(NAV));
+					const footer = await readBox(page.locator(FOOTER_MOBILE));
+					const bar = await readBox(page.locator(COMPOSER));
+					expect
+						.soft(nav.y + nav.height, "내비게이션 아래 끝")
+						.toBeCloseTo(viewport.height, 0);
+					expect
+						.soft(footer.y + footer.height, "푸터 아래 끝")
+						.toBeCloseTo(nav.y, 0);
+					expect
+						.soft(bar.y + bar.height, "입력 바 아래 끝")
+						.toBeCloseTo(footer.y, 0);
+				});
+			}
 
-			test(`${caseId("C8", isMobile ? 3 : 13)} ${label} ${theme} 말풍선 배경, 글자색, 모서리가 시안과 같음`, async ({
+			test(`${caseId("CH8", isMobile ? 3 : 13)} ${label} ${theme} 말풍선 배경, 글자색, 모서리가 시안과 같음`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/chat/1");
@@ -939,30 +959,32 @@ for (const { label, viewport, x, width } of COLUMNS) {
 					.toBe("18px 18px 18px 4px");
 			});
 
-			test(`${caseId("C8", isMobile ? 4 : 14)} ${label} ${theme} 말풍선 최대 폭이 대화 영역 안쪽 폭의 비율 이하임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/chat");
-				await sendQuestion(
+			if (theme === "light") {
+				test(`${caseId("CH8", isMobile ? 4 : 14)} ${label} 말풍선 최대 폭이 대화 영역 안쪽 폭의 비율 이하임`, async ({
 					page,
-					"계약갱신요구권을 행사하면 보증금을 얼마나 올릴 수 있는지와 갱신 거절 사유를 한꺼번에 알려줘",
-				);
-				await waitForAnswer(page);
-				const inner = width - 32;
-				const userRatio = isMobile ? 0.86 : 0.72;
-				const assistantRatio = isMobile ? 0.92 : 0.82;
-				const userWidth = (await readBox(page.locator(USER))).width;
-				const assistantWidth = (await readBox(page.locator(ASSISTANT))).width;
-				expect
-					.soft(userWidth, "사용자 말풍선 폭")
-					.toBeLessThanOrEqual(inner * userRatio + 1);
-				expect
-					.soft(userWidth, "긴 질문은 최대 폭까지 참")
-					.toBeGreaterThan(inner * userRatio - 40);
-				expect
-					.soft(assistantWidth, "답변 말풍선 폭")
-					.toBeLessThanOrEqual(inner * assistantRatio + 1);
-			});
+				}) => {
+					await gotoAndSettle(page, "/chat");
+					await sendQuestion(
+						page,
+						"계약갱신요구권을 행사하면 보증금을 얼마나 올릴 수 있는지와 갱신 거절 사유를 한꺼번에 알려줘",
+					);
+					await waitForAnswer(page);
+					const inner = width - 32;
+					const userRatio = isMobile ? 0.86 : 0.72;
+					const assistantRatio = isMobile ? 0.92 : 0.82;
+					const userWidth = (await readBox(page.locator(USER))).width;
+					const assistantWidth = (await readBox(page.locator(ASSISTANT))).width;
+					expect
+						.soft(userWidth, "사용자 말풍선 폭")
+						.toBeLessThanOrEqual(inner * userRatio + 1);
+					expect
+						.soft(userWidth, "긴 질문은 최대 폭까지 참")
+						.toBeGreaterThan(inner * userRatio - 40);
+					expect
+						.soft(assistantWidth, "답변 말풍선 폭")
+						.toBeLessThanOrEqual(inner * assistantRatio + 1);
+				});
+			}
 		});
 	}
 }
@@ -971,7 +993,7 @@ test.describe("데스크톱 레이아웃", () => {
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 
 	for (const theme of THEMES) {
-		test(`${caseId("C8", theme === "light" ? 5 : 15)} ${theme} 1440x900에서 폭 1152 카드가 가운데에서 헤더와 푸터 사이를 채우고 모서리 20, 입력 높이 52임`, async ({
+		test(`${caseId("CH8", theme === "light" ? 5 : 15)} ${theme} 1440x900에서 폭 1152 카드가 가운데에서 헤더와 푸터 사이를 채우고 모서리 20, 입력 높이 52임`, async ({
 			page,
 		}) => {
 			await page.setViewportSize(DESKTOP);
@@ -1022,7 +1044,7 @@ test.describe("데스크톱 레이아웃", () => {
 		});
 	}
 
-	test(`${caseId("C8", 6)} 1279에서는 열이 흰색이고 내비게이션이 보이며 1280에서는 카드가 보이고 열이 흰색이 아님`, async ({
+	test(`${caseId("CH8", 6)} 1279에서는 열이 흰색이고 내비게이션이 보이며 1280에서는 카드가 보이고 열이 흰색이 아님`, async ({
 		page,
 	}) => {
 		await page.setViewportSize({ width: 1279, height: 900 });
@@ -1050,13 +1072,14 @@ test.describe("데스크톱 레이아웃", () => {
 	});
 });
 
-for (const { label, viewport } of COLUMNS) {
+// 헤더 구분선은 모바일과 태블릿이 같은 모양이라 모바일에서만 확인함
+for (const { label, viewport } of COLUMNS.slice(0, 1)) {
 	for (const theme of THEMES) {
 		test.describe(`헤더 구분선 ${label} ${theme}`, () => {
 			test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 			test.use({ viewport, colorScheme: theme });
 
-			test(`${caseId("C8", 7)} ${label} ${theme} 헤더 아래 테두리가 1px stroke.neutralMuted이고 아래로 퍼지는 그림자가 있음`, async ({
+			test(`${caseId("CH8", 7)} ${label} ${theme} 헤더 아래 테두리가 1px stroke.neutralMuted이고 아래로 퍼지는 그림자가 있음`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/chat/1");
@@ -1077,7 +1100,7 @@ test.describe("스크롤", () => {
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: { width: 390, height: 480 } });
 
-	test(`${caseId("C8", 9)} /chat/1을 스크롤해도 헤더, 입력 바, 푸터, 내비게이션이 제자리에 있음`, async ({
+	test(`${caseId("CH8", 9)} /chat/1을 스크롤해도 헤더, 입력 바, 푸터, 내비게이션이 제자리에 있음`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat/1");
@@ -1095,7 +1118,7 @@ test.describe("스크롤", () => {
 			selectors.map((s) => readBox(page.locator(s))),
 		);
 		await page.evaluate(() => window.scrollTo(0, 120));
-		await page.waitForTimeout(200);
+		await waitForFrames(page);
 		const after = await Promise.all(
 			selectors.map((s) => readBox(page.locator(s))),
 		);
@@ -1107,7 +1130,7 @@ test.describe("스크롤", () => {
 	});
 });
 
-// 데스크톱 대화 목록 레일 (C10). 설계 문서 15절과 캔버스 S3 집사 데스크톱 보드 S3DConceptA, S3DEmpty, S3DBuilding
+// 데스크톱 대화 목록 레일 (CH10). 설계 문서 15절과 캔버스 S3 집사 데스크톱 보드 S3DConceptA, S3DEmpty, S3DBuilding
 const RAIL_NEW_CHAT = `${RAIL} [data-area="chat-toolbar-desktop"] a`;
 const RAIL_ITEM_LINKS = `${RAIL} [data-area="chat-history-item"] a`;
 
@@ -1117,7 +1140,7 @@ for (const theme of THEMES) {
 		test.use({ viewport: DESKTOP, colorScheme: theme });
 		const colors = CHAT_COLORS[theme];
 
-		test(`${caseId("C10", theme === "light" ? 1 : 2)} ${theme} 레일 폭 296, 배경, 오른쪽 테두리, 제목, 새 대화 버튼, 소제목, 항목 크기가 시안과 같음`, async ({
+		test(`${caseId("CH10", theme === "light" ? 1 : 2)} ${theme} 레일 폭 296, 배경, 오른쪽 테두리, 제목, 새 대화 버튼, 소제목, 항목 크기가 시안과 같음`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/chat/1");
@@ -1236,7 +1259,7 @@ for (const theme of THEMES) {
 			expect.soft(itemTimeStyle.line, "시각 줄 높이").toBe("18px");
 		});
 
-		test(`${caseId("C10", theme === "light" ? 3 : 4)} ${theme} 지금 보는 대화 항목은 흰 바탕, 테두리, 굵은 제목, aria-current이고 새 대화 버튼은 기본 모양임`, async ({
+		test(`${caseId("CH10", theme === "light" ? 3 : 4)} ${theme} 지금 보는 대화 항목은 흰 바탕, 테두리, 굵은 제목, aria-current이고 새 대화 버튼은 기본 모양임`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/chat/2");
@@ -1281,7 +1304,7 @@ for (const theme of THEMES) {
 		});
 
 		for (const [index, path] of ["/chat", "/chat?buildingId=1"].entries()) {
-			test(`${caseId("C10", 5 + index + (theme === "light" ? 0 : 2))} ${theme} ${path}에서는 항목이 선택되지 않고 새 대화 버튼이 파란 테두리, brandWeak 채움, aria-current임`, async ({
+			test(`${caseId("CH10", 5 + index + (theme === "light" ? 0 : 2))} ${theme} ${path}에서는 항목이 선택되지 않고 새 대화 버튼이 파란 테두리, brandWeak 채움, aria-current임`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, path);
@@ -1310,7 +1333,7 @@ test.describe("데스크톱 레일 동작", () => {
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: DESKTOP });
 
-	test(`${caseId("C10", 9)} 대화 본문, 입력, 건물 칩, 예시 질문이 폭 720 열로 가운데에 있음`, async ({
+	test(`${caseId("CH10", 9)} 대화 본문, 입력, 건물 칩, 예시 질문이 폭 720 열로 가운데에 있음`, async ({
 		page,
 	}) => {
 		const pane = { x: 441, width: 854 };
@@ -1345,7 +1368,7 @@ test.describe("데스크톱 레일 동작", () => {
 		expect.soft(examples.width, "예시 질문 폭").toBe(480);
 	});
 
-	test(`${caseId("C10", 10)} 데스크톱에서 /chat/history를 열면 /chat으로 이동하고 레일이 보임`, async ({
+	test(`${caseId("CH10", 10)} 데스크톱에서 /chat/history를 열면 /chat으로 이동하고 레일이 보임`, async ({
 		page,
 	}) => {
 		await page.goto("/chat/history");
@@ -1354,7 +1377,7 @@ test.describe("데스크톱 레일 동작", () => {
 		await expect(page.locator(`${RAIL} ${ITEMS}`)).toHaveCount(5);
 	});
 
-	test(`${caseId("C10", 11)} 모바일과 태블릿에서는 레일이 없고 /chat/history가 그대로 열림`, async ({
+	test(`${caseId("CH10", 11)} 모바일과 태블릿에서는 레일이 없고 /chat/history가 그대로 열림`, async ({
 		page,
 	}) => {
 		for (const viewport of [MOBILE, TABLET]) {
@@ -1367,7 +1390,7 @@ test.describe("데스크톱 레일 동작", () => {
 		}
 	});
 
-	test(`${caseId("C10", 12)} 새 대화는 스트리밍 중에는 레일에 없고 답변이 끝나 /chat/{id}로 바뀐 뒤 맨 위에 나타나 선택됨`, async ({
+	test(`${caseId("CH10", 12)} 새 대화는 스트리밍 중에는 레일에 없고 답변이 끝나 /chat/{id}로 바뀐 뒤 맨 위에 나타나 선택됨`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -1394,7 +1417,7 @@ test.describe("데스크톱 레일 동작", () => {
 		);
 	});
 
-	test(`${caseId("C10", 13)} 지난 대화에 질문하고 답변이 끝나면 그 대화가 레일 맨 위로 올라옴`, async ({
+	test(`${caseId("CH10", 13)} 지난 대화에 질문하고 답변이 끝나면 그 대화가 레일 맨 위로 올라옴`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat/3");
@@ -1410,7 +1433,7 @@ test.describe("데스크톱 레일 동작", () => {
 		await expect(items).toHaveCount(5);
 	});
 
-	test(`${caseId("C10", 14)} 레일 항목의 삭제를 누르고 삭제하기를 누르면 /chat으로 이동하고 항목이 하나 줄고 삭제한 대화는 404임`, async ({
+	test(`${caseId("CH10", 14)} 레일 항목의 삭제를 누르고 삭제하기를 누르면 /chat으로 이동하고 항목이 하나 줄고 삭제한 대화는 404임`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat/1");
@@ -1419,7 +1442,7 @@ test.describe("데스크톱 레일 동작", () => {
 			.click();
 		const dialog = page.getByRole("dialog");
 		await expect(dialog).toHaveCount(1);
-		await page.waitForTimeout(700);
+		await waitForAnimations(page);
 		expect((await readBox(dialog)).width).toBe(480);
 		await page.getByRole("button", { name: "삭제하기" }).click();
 		await page.waitForURL(/\/chat$/);
@@ -1432,10 +1455,10 @@ test.describe("데스크톱 레일 동작", () => {
 			"aria-current",
 			"page",
 		);
-		expect(await gotoAndSettle(page, "/chat/1", 300)).toBe(404);
+		expect(await gotoAndSettle(page, "/chat/1")).toBe(404);
 	});
 
-	test(`${caseId("C10", 19)} 열려 있지 않은 대화를 레일에서 삭제하면 주소와 열린 대화가 그대로이고 항목만 하나 줄어듦`, async ({
+	test(`${caseId("CH10", 19)} 열려 있지 않은 대화를 레일에서 삭제하면 주소와 열린 대화가 그대로이고 항목만 하나 줄어듦`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat/2");
@@ -1443,7 +1466,7 @@ test.describe("데스크톱 레일 동작", () => {
 			.getByRole("button", { name: `삭제: ${CHAT_TEXT.historyTitles[0]}` })
 			.click();
 		await expect(page.getByRole("dialog")).toHaveCount(1);
-		await page.waitForTimeout(700);
+		await waitForAnimations(page);
 		await page.getByRole("button", { name: "삭제하기" }).click();
 		await expect(page.locator(`${RAIL} ${ITEMS}`)).toHaveCount(4);
 		expect(new URL(page.url()).pathname).toBe("/chat/2");
@@ -1453,10 +1476,10 @@ test.describe("데스크톱 레일 동작", () => {
 		await expect(
 			page.locator(`${RAIL} ${ITEMS} a[aria-current="page"]`),
 		).toHaveAttribute("href", "/chat/2");
-		expect(await gotoAndSettle(page, "/chat/1", 300)).toBe(404);
+		expect(await gotoAndSettle(page, "/chat/1")).toBe(404);
 	});
 
-	test(`${caseId("C10", 20)} 새 대화 화면에서 레일의 대화를 삭제하면 /chat에 머물고 항목이 하나 줄어듦`, async ({
+	test(`${caseId("CH10", 20)} 새 대화 화면에서 레일의 대화를 삭제하면 /chat에 머물고 항목이 하나 줄어듦`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -1464,7 +1487,7 @@ test.describe("데스크톱 레일 동작", () => {
 			.getByRole("button", { name: `삭제: ${CHAT_TEXT.historyTitles[0]}` })
 			.click();
 		await expect(page.getByRole("dialog")).toHaveCount(1);
-		await page.waitForTimeout(700);
+		await waitForAnimations(page);
 		await page.getByRole("button", { name: "삭제하기" }).click();
 		await expect(page.locator(`${RAIL} ${ITEMS}`)).toHaveCount(4);
 		expect(new URL(page.url()).pathname).toBe("/chat");
@@ -1474,7 +1497,7 @@ test.describe("데스크톱 레일 동작", () => {
 		);
 	});
 
-	test(`${caseId("C10", 15)} 레일 확인 창에서 취소하면 창이 닫히고 항목 수와 주소가 그대로임`, async ({
+	test(`${caseId("CH10", 15)} 레일 확인 창에서 취소하면 창이 닫히고 항목 수와 주소가 그대로임`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat/2");
@@ -1482,14 +1505,14 @@ test.describe("데스크톱 레일 동작", () => {
 			.getByRole("button", { name: `삭제: ${CHAT_TEXT.historyTitles[3]}` })
 			.click();
 		await expect(page.getByRole("dialog")).toHaveCount(1);
-		await page.waitForTimeout(700);
+		await waitForAnimations(page);
 		await page.getByRole("button", { name: "취소" }).click();
 		await expect(page.getByRole("dialog")).toHaveCount(0);
 		await expect(page.locator(`${RAIL} ${ITEMS}`)).toHaveCount(5);
 		expect(new URL(page.url()).pathname).toBe("/chat/2");
 	});
 
-	test(`${caseId("C10", 16)} 목록이 길어도 레일 높이는 카드 높이에 묶이고 목록만 레일 안에서 스크롤됨`, async ({
+	test(`${caseId("CH10", 16)} 목록이 길어도 레일 높이는 카드 높이에 묶이고 목록만 레일 안에서 스크롤됨`, async ({
 		page,
 	}) => {
 		await page.setViewportSize({ width: 1440, height: 500 });
@@ -1515,7 +1538,7 @@ test.describe("데스크톱 빈 목록 시나리오", () => {
 	);
 	test.use({ viewport: DESKTOP });
 
-	test(`${caseId("C10", 17)} /chat 레일에 지난 대화가 없어요 안내가 보이고 항목이 없음`, async ({
+	test(`${caseId("CH10", 17)} /chat 레일에 지난 대화가 없어요 안내가 보이고 항목이 없음`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -1537,7 +1560,7 @@ test.describe("데스크톱 한도 시나리오", () => {
 	);
 	test.use({ viewport: DESKTOP });
 
-	test(`${caseId("C10", 18)} 한도 안내 상자가 폭 720 열에 맞고 바 패딩이 16 24 20이며 레일은 그대로 보임`, async ({
+	test(`${caseId("CH10", 18)} 한도 안내 상자가 폭 720 열에 맞고 바 패딩이 16 24 20이며 레일은 그대로 보임`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat/1");
@@ -1552,12 +1575,12 @@ test.describe("데스크톱 한도 시나리오", () => {
 	});
 });
 
-// 커밋 7: 접근성과 콘솔 (C9)
+// 커밋 7: 접근성과 콘솔 (CH9)
 test.describe("접근성", () => {
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: MOBILE });
 
-	test(`${caseId("C9", 1)} 입력에 연결된 이름 집사에게 질문, 버튼 이름 보내기, 도구줄 링크 이름 대화 목록과 새 대화가 있음`, async ({
+	test(`${caseId("CH9", 1)} 입력에 연결된 이름 집사에게 질문, 버튼 이름 보내기, 도구줄 링크 이름 대화 목록과 새 대화가 있음`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/chat");
@@ -1579,7 +1602,7 @@ test.describe("접근성", () => {
 		"/chat?buildingId=1",
 		"/chat/history",
 	]) {
-		test(`${caseId("C9", 2)} ${path}에 겹치는 id가 없음`, async ({ page }) => {
+		test(`${caseId("CH9", 2)} ${path}에 겹치는 id가 없음`, async ({ page }) => {
 			await gotoAndSettle(page, path);
 			const duplicates = await page.evaluate(() => {
 				const ids = [...document.querySelectorAll("[id]")].map(
@@ -1591,7 +1614,7 @@ test.describe("접근성", () => {
 		});
 	}
 
-	test(`${caseId("C9", 3)} 모든 상태를 지나는 동안 콘솔 오류가 없음`, async ({
+	test(`${caseId("CH9", 3)} 모든 상태를 지나는 동안 콘솔 오류가 없음`, async ({
 		page,
 	}) => {
 		// 콘솔 오류는 fixture가 테스트 끝에서 확인함
@@ -1606,5 +1629,120 @@ test.describe("접근성", () => {
 		await expect(page.getByRole("dialog")).toHaveCount(1);
 		await page.getByRole("button", { name: "취소" }).click();
 		await gotoAndSettle(page, "/chat?buildingId=1");
+	});
+});
+
+// 대화 삭제 경로 직접 요청 (CH11). 기대값은 app/api/chat/[chatId]/delete 라우트 규칙과 설계 15절: 삭제 뒤 이동 경로는 같은 출처의 Referer로 정함
+// 열려 있던 /chat/{번호}가 삭제한 대화가 아니면 그 경로, 삭제한 대화이거나 /chat이면 /chat, 그 밖이면 /chat/history임
+const DELETE_ROUTE = (chatId: number | string) => `/api/chat/${chatId}/delete`;
+const FOREIGN_ORIGIN = "https://evil.example";
+
+test.describe("대화 삭제 경로 직접 요청", () => {
+	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
+
+	const redirectCases = [
+		{
+			what: "Referer가 없으면",
+			referer: null,
+			chatId: 1,
+			location: "/chat/history",
+		},
+		{
+			what: "Referer가 대화 목록 화면이면",
+			referer: "/chat/history",
+			chatId: 1,
+			location: "/chat/history",
+		},
+		{
+			what: "Referer가 /chat이면",
+			referer: "/chat",
+			chatId: 1,
+			location: "/chat",
+		},
+		{
+			what: "Referer가 삭제하지 않은 다른 대화 /chat/3이면",
+			referer: "/chat/3",
+			chatId: 1,
+			location: "/chat/3",
+		},
+		{
+			what: "Referer가 삭제한 대화 /chat/1이면",
+			referer: "/chat/1",
+			chatId: 1,
+			location: "/chat",
+		},
+	];
+
+	for (const { what, referer, chatId, location } of redirectCases) {
+		test(`${caseId("CH11", 1)} ${DELETE_ROUTE(chatId)}는 ${what} ${location}으로 303 이동함`, async ({
+			request,
+			baseURL,
+		}) => {
+			const response = await request.post(DELETE_ROUTE(chatId), {
+				maxRedirects: 0,
+				headers: {
+					origin: baseURL ?? "",
+					...(referer ? { referer: `${baseURL}${referer}` } : {}),
+				},
+			});
+			expect(response.status()).toBe(303);
+			expect(response.headers().location).toBe(location);
+		});
+	}
+
+	test(`${caseId("CH11", 2)} 다른 출처의 Referer는 무시하고 /chat/history로 이동함`, async ({
+		request,
+		baseURL,
+	}) => {
+		const response = await request.post(DELETE_ROUTE(1), {
+			maxRedirects: 0,
+			headers: { origin: baseURL ?? "", referer: `${FOREIGN_ORIGIN}/chat/3` },
+		});
+		expect(response.status()).toBe(303);
+		expect(response.headers().location).toBe("/chat/history");
+	});
+
+	test(`${caseId("CH11", 3)} 삭제에 성공하면 그 대화는 404이고 다른 대화는 그대로 열림`, async ({
+		request,
+		baseURL,
+	}) => {
+		expect((await request.get("/chat/1")).status()).toBe(200);
+		const response = await request.post(DELETE_ROUTE(1), {
+			maxRedirects: 0,
+			headers: { origin: baseURL ?? "" },
+		});
+		expect(response.status()).toBe(303);
+		expect((await request.get("/chat/1")).status()).toBe(404);
+		expect((await request.get("/chat/2")).status()).toBe(200);
+	});
+
+	test(`${caseId("CH11", 4)} 다른 출처의 Origin이면 삭제하지 않고 /chat/history?error=chat-delete-failed로 303 이동함`, async ({
+		request,
+	}) => {
+		const response = await request.post(DELETE_ROUTE(1), {
+			maxRedirects: 0,
+			headers: { origin: FOREIGN_ORIGIN },
+		});
+		expect(response.status()).toBe(303);
+		expect(response.headers().location).toBe(
+			"/chat/history?error=chat-delete-failed",
+		);
+		expect((await request.get("/chat/1")).status()).toBe(200);
+	});
+});
+
+test.describe("대화 삭제 경로 로그아웃 요청", () => {
+	test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
+
+	test(`${caseId("CH11", 5)} 로그인하지 않으면 삭제하지 않고 돌아올 경로를 담아 로그인 화면으로 303 이동함`, async ({
+		request,
+		baseURL,
+	}) => {
+		const response = await request.post(DELETE_ROUTE(1), {
+			maxRedirects: 0,
+			headers: { origin: baseURL ?? "", referer: `${baseURL}/chat/3` },
+		});
+		expect(response.status()).toBe(303);
+		expect(response.headers().location).toBe("/login?next=%2Fchat%2F3");
 	});
 });

@@ -163,7 +163,7 @@ test.describe("320x700 light", () => {
 	test("C7-16 320px에서 id 3의 이전 건물 거래 목록이 가로 스크롤 없이 들어오고 금액 칸이 행 폭의 55%를 넘지 않음", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/3", 400);
+		await t.goto("/buildings/3");
 		const m = await t.page.evaluate(measureDeals, "prev" as const);
 		t.ok("가로 스크롤 없음", m.scrollW <= m.vw, m.scrollW, `문서 폭 ≤ ${m.vw}`);
 		checkMobileDeals(

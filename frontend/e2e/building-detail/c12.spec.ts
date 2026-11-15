@@ -54,7 +54,7 @@ for (const layout of LAYOUTS) {
 		}) => {
 			for (const st of C12_STATES) {
 				t.issues.length = 0;
-				await t.goto(`/buildings/${st.id}${st.q}`, 500);
+				await t.goto(`/buildings/${st.id}${st.q}`);
 				const m = await nearbyMeasure(t);
 				const l = `${name} ${st.label}`;
 				t.eq(`${l} 섹션이 보임`, m.found, true);
@@ -93,7 +93,7 @@ for (const layout of LAYOUTS) {
 			t,
 		}) => {
 			for (const q of ["", "?type=wolse"]) {
-				await t.goto(`/buildings/4${q}`, 500);
+				await t.goto(`/buildings/4${q}`);
 				const m = await nearbyMeasure(t);
 				const l = `${name} id 4${q ? " 월세" : ""}`;
 				t.eq(`${l} 조건 확장 안내 개수`, c12Notices(m).length, 0);
@@ -132,7 +132,7 @@ for (const theme of THEMES) {
 				t,
 			}) => {
 				for (const st of SHAPE_STATES) {
-					await t.goto(`/buildings/${st.id}${st.q}`, 500);
+					await t.goto(`/buildings/${st.id}${st.q}`);
 					const m = await nearbyMeasure(t);
 					const l = `${name} ${theme} ${st.label}`;
 					c12CheckNotice(t, m, kind, st, l);
@@ -150,10 +150,10 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 	test("C12-09 id 2의 월세에서도 0건 안내 제목이 같고 모바일 다크에서 id 3 월세의 색이 다크 토큰임", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/2?type=wolse", 500);
+		await t.goto("/buildings/2?type=wolse");
 		const m = await nearbyMeasure(t);
 		c12CheckNotice(t, m, "mobile", C12_ID2_WOLSE, "모바일 다크 id 2 월세");
-		await t.goto("/buildings/3?type=wolse", 500);
+		await t.goto("/buildings/3?type=wolse");
 		const m3 = await nearbyMeasure(t);
 		c12CheckNotice(t, m3, "mobile", C12_ID3_WOLSE, "모바일 다크 id 3 월세");
 	});
@@ -166,7 +166,7 @@ test.describe("320x700 light", () => {
 		t,
 	}) => {
 		for (const st of C12_STATES.filter((s) => s.title)) {
-			await t.goto(`/buildings/${st.id}${st.q}`, 400);
+			await t.goto(`/buildings/${st.id}${st.q}`);
 			const m = await nearbyMeasure(t);
 			const l = `${st.label} 320`;
 			const nan = Number.NaN;

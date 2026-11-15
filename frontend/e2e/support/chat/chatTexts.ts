@@ -39,7 +39,6 @@ export const CHAT_TEXT = {
 		"이 건물 최근 2년 전세 거래 알려줘",
 		"보증금을 얼마까지 올릴 수 있어?",
 	],
-	historyTimes: ["오늘 14:20", "어제", "10.21", "10.18", "10.15"],
 } as const;
 
 // 사용자 말풍선은 팔레트 값(라이트 blue800, 다크 blue500), 답변 말풍선은 bg.neutralWeak, 흰색은 palette.staticWhite
