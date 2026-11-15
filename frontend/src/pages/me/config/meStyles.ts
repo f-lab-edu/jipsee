@@ -1,5 +1,6 @@
 import { providerColors } from "@/entities/session/config/providerColors";
 import type { MeSectionStyle, MeStyle } from "@/pages/me/model/meStyle";
+import { columnWidth } from "@/shared/config/columnWidth";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
 
@@ -27,7 +28,7 @@ export const meStyles: MeStyle = {
 	mobileDivider: { height: "8px", bg: "bg.layerBasement" },
 	mobileSpacer: { flexGrow: 1 },
 	desktopBody: { flexGrow: 1, alignItems: "center", px: "x6", py: "x10" },
-	desktopColumn: { width: "480px", gap: "x4" },
+	desktopColumn: { width: columnWidth.narrow, gap: "x4" },
 	desktopTitleBox: { pb: "x2" },
 	desktopTitle: {
 		...typography.size26,

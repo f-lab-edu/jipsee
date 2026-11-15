@@ -15,7 +15,7 @@ interface NearbyDealItemProps {
  *
  * - 왼쪽에 건물명과 계약 구분 칩, 계약 월, 전용면적, 오른쪽에 금액 출력
  * - 모바일 목록 항목의 내용이며 계약 구분이 없으면 칩을 출력하지 않음
- * - 건물명이 길면 한 줄로 줄이고 말줄임표를 붙임
+ * - 건물명이 길면 한 줄로 줄이고 말줄임표 처리
  */
 export default function NearbyDealItem({ deal }: NearbyDealItemProps) {
 	const style = nearbyDealItemStyles;

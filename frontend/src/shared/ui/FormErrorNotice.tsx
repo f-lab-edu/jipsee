@@ -1,11 +1,11 @@
 "use client";
 
+import IconExclamationmarkCircleLine from "@karrotmarket/react-monochrome-icon/IconExclamationmarkCircleLine";
 import { Box, HStack, Icon, Text } from "@seed-design/react";
 import { useEffect } from "react";
 import { errorNoticeStyles } from "@/shared/config/errorNoticeStyles";
 import { formErrorCopy } from "@/shared/config/formErrorCopy";
 import type { FormErrorCode } from "@/shared/model/formErrorCode";
-import ErrorNoticeIcon from "@/shared/ui/ErrorNoticeIcon";
 
 interface FormErrorNoticeProps {
 	code: FormErrorCode;
@@ -29,7 +29,7 @@ export default function FormErrorNotice({ code }: FormErrorNoticeProps) {
 	return (
 		<HStack role="alert" data-area="form-error-banner" {...style.box}>
 			<Box {...style.iconCell}>
-				<Icon svg={<ErrorNoticeIcon />} {...style.icon} />
+				<Icon svg={<IconExclamationmarkCircleLine />} {...style.icon} />
 			</Box>
 			<Text as="p" {...style.text}>
 				{formErrorCopy[code]}

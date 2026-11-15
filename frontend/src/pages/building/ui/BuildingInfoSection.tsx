@@ -21,7 +21,7 @@ interface BuildingInfoSectionProps {
  * - 모바일은 건물명이 있을 때만 제목 아래에 주소 출력
  * - 데스크톱은 주소 없이 테두리가 있는 카드로 출력
  *
- * @param layout 섹션 모양과 `id` 접미사를 정함
+ * @param layout 섹션 모양과 `id` 접미사 결정
  */
 export default function BuildingInfoSection({
 	layout,
@@ -48,7 +48,7 @@ export default function BuildingInfoSection({
 			</VStack>
 			{detail.dongs.map((dong, index) => (
 				<DongInfoCard
-					// biome-ignore lint/suspicious/noArrayIndexKey: 동 이름이 없거나 겹칠 수 있어 순서를 키로 씀
+					// biome-ignore lint/suspicious/noArrayIndexKey: 동 이름이 없거나 겹칠 수 있어 순서를 키로 사용
 					key={index}
 					dong={dong}
 					layout={layout}

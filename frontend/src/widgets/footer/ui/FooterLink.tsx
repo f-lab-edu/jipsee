@@ -20,8 +20,8 @@ interface FooterLinkProps {
  * @param variant 글자 크기를 고를 화면 크기
  */
 export default function FooterLink({ link, variant }: FooterLinkProps) {
-	const style = footerStyles[variant];
 	const pathname = usePathname();
+	const style = footerStyles[variant];
 
 	if (pathname === link.href) {
 		return (

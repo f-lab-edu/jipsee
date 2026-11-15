@@ -1,7 +1,7 @@
 import type { SVGProps } from "react";
 
-/** 채팅 > 오류 아이콘 */
-export default function ChatErrorIcon(props: SVGProps<SVGSVGElement>) {
+/** 공통 > 오른쪽 화살표 아이콘 */
+export default function ChevronRightIcon(props: SVGProps<SVGSVGElement>) {
 	return (
 		<svg
 			viewBox="0 0 24 24"
@@ -13,9 +13,7 @@ export default function ChatErrorIcon(props: SVGProps<SVGSVGElement>) {
 			aria-hidden="true"
 			{...props}
 		>
-			<circle cx="12" cy="12" r="9" />
-			<path d="M12 7v6" />
-			<path d="M12 16.5v.01" />
+			<path d="M9 6l6 6-6 6" />
 		</svg>
 	);
 }

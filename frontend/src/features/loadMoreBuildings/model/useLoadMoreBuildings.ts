@@ -15,13 +15,13 @@ interface UseLoadMoreBuildingsOptions {
 /**
  * 더 보기 > 건물 목록 상태
  *
- * - 처음 20건에서 시작해 loadMore를 부를 때마다 다음 페이지를 불러와 목록 끝에 붙임
+ * - 처음 20건에서 시작해 loadMore를 부를 때마다 다음 페이지를 불러와 목록 끝에 추가
  * - 불러오는 중에는 loadMore를 다시 불러도 요청하지 않음
  * - 이미 불러온 건물과 번호가 같은 건물은 붙이지 않음
- * - 새로 붙은 건물이 있으면 첫 건물 번호와 건수를 added에 담음
+ * - 새로 붙은 건물이 있으면 첫 건물 번호와 건수를 added에 저장
  * - 실패하면 같은 페이지를 그대로 두고 오류 상태로 바꿈. 다시 부르면 같은 페이지를 요청
  *
- * @param keyword 검색어. 바뀌면 호출하는 쪽이 key로 새로 만들어야 함
+ * @param keyword 검색어. 바뀌면 호출하는 쪽의 key 재생성 필요
  */
 export function useLoadMoreBuildings({
 	keyword,

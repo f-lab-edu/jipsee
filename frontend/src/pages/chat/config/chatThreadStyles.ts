@@ -1,4 +1,5 @@
 import type { ChatThreadStyle } from "@/pages/chat/model/chatThreadStyle";
+import { columnWidth } from "@/shared/config/columnWidth";
 import { typography } from "@/shared/config/typography";
 
 // button은 border-box라 시안의 높이를 그대로 씀
@@ -10,7 +11,7 @@ export const chatThreadStyles: ChatThreadStyle = {
 	column: {
 		flexGrow: 1,
 		width: "full",
-		maxWidth: "720px",
+		maxWidth: columnWidth.wide,
 		mx: "auto",
 		gap: { base: "x3", lg: "x4" },
 	},
@@ -39,7 +40,7 @@ export const chatThreadStyles: ChatThreadStyle = {
 	},
 	examples: {
 		width: "full",
-		maxWidth: { base: "420px", lg: "480px" },
+		maxWidth: { base: "420px", lg: columnWidth.narrow },
 		gap: "x2",
 		className: "list-reset",
 	},

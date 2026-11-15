@@ -1,4 +1,7 @@
-import { desktopHeaderRowHeight } from "@/shared/config/headerHeight";
+import {
+	desktopHeaderRowHeight,
+	mobileHeaderRowHeight,
+} from "@/shared/config/headerHeight";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
 import type { HeaderStyle } from "@/widgets/header/model/headerStyle";
@@ -14,7 +17,7 @@ export const headerStyles = defineResponsiveStyles<HeaderStyle>({
 			className: "header-shadow",
 		},
 		row: {
-			height: "56px",
+			height: mobileHeaderRowHeight,
 			px: "spacingX.globalGutter",
 			justifyContent: "space-between",
 			alignItems: "center",

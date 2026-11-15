@@ -1,4 +1,5 @@
 import { VStack } from "@seed-design/react";
+import type { ChatErrorCode } from "@/entities/chat/model/chatErrorCode";
 import type { ChatMessage } from "@/entities/chat/model/chatMessage";
 import AssistantDraft from "@/entities/chat/ui/AssistantDraft";
 import type { ChatPhase } from "@/features/sendChatMessage/model/chatPhase";
@@ -13,7 +14,7 @@ interface ChatThreadProps {
 	messages: ChatMessage[];
 	draft: string;
 	phase: ChatPhase;
-	errorCode: Nullable<"TOO_MANY_REQUESTS" | "SERVER_ERROR">;
+	errorCode: Nullable<ChatErrorCode>;
 	exampleQuestions: readonly string[];
 	onSelectExample: (question: string) => void;
 	onRetry: () => void;
@@ -22,11 +23,11 @@ interface ChatThreadProps {
 /**
  * 채팅 > 메시지 목록
  *
- * - role이 log인 영역이고 새 메시지와 글자를 낭독함
- * - 메시지가 없으면 빈 대화 출력. 한도를 모두 사용했으면 예시 질문은 숨김
+ * - role이 log인 영역이고 새 메시지와 글자 낭독
+ * - 메시지가 없으면 빈 대화 출력. 한도를 모두 사용했으면 예시 질문은 숨김 처리
  * - 메시지를 차례로 출력하고 대기나 스트리밍 중이면 작성 중인 답변을 끝에 출력
  * - 오류이면 실패한 질문 아래에 오류 상자 출력
- * - 내용은 폭 720 열로 가운데에 둠
+ * - 내용은 폭 720 열로 가운데 배치
  */
 export default function ChatThread({
 	messages,

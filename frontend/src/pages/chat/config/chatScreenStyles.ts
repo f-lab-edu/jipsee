@@ -1,4 +1,5 @@
 import type { ChatScreenStyle } from "@/pages/chat/model/chatScreenStyle";
+import { columnWidth } from "@/shared/config/columnWidth";
 import { typography } from "@/shared/config/typography";
 
 // 카드 폭은 1152에서 테두리 2를 뺌. 카드 모양은 theme.css의 .chat-card가 정함
@@ -52,7 +53,7 @@ export const chatScreenStyles: ChatScreenStyle = {
 		pt: { base: 0, lg: "x4" },
 		pb: { base: "x3", lg: 0 },
 	},
-	chipColumn: { width: "full", maxWidth: "720px", mx: "auto" },
+	chipColumn: { width: "full", maxWidth: columnWidth.wide, mx: "auto" },
 	chip: {
 		alignSelf: "flex-start",
 		alignItems: "center",

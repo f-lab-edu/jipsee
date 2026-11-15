@@ -18,7 +18,7 @@ interface ProviderSectionProps {
  * - 제목, 제공자 표시, 로그아웃 버튼 순서로 출력
  * - 데스크톱은 테두리가 있는 카드로 출력
  *
- * @param layout 섹션 모양과 `id` 접미사를 정함
+ * @param layout 섹션 모양과 `id` 접미사 결정
  */
 export default function ProviderSection({
 	layout,
