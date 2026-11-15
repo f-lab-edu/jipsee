@@ -1,13 +1,14 @@
 import { Box, Text } from "@seed-design/react";
 import { deleteChatCopy } from "@/features/deleteChat/config/deleteChatCopy";
 import { deleteChatStyles } from "@/features/deleteChat/config/deleteChatStyles";
+import type { DeleteChatVariant } from "@/features/deleteChat/model/deleteChatVariant";
 import { paths } from "@/shared/routes/paths";
 import ConfirmDialog from "@/shared/ui/ConfirmDialog";
 
 interface DeleteChatButtonProps {
 	chatId: number;
 	title: string;
-	variant: "list" | "rail";
+	variant: DeleteChatVariant;
 }
 
 /**

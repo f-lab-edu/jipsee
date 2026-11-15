@@ -2,6 +2,7 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { redirect } from "next/navigation";
 import { getSession } from "@/entities/session/api/getSession";
 import MePage from "@/pages/me/ui/MePage";
+import { pageTitleCopy } from "@/shared/config/pageTitleCopy";
 import { toFormError } from "@/shared/lib/formError/toFormError";
 import { toPageMetadata } from "@/shared/lib/metadata/toPageMetadata";
 import { paths } from "@/shared/routes/paths";
@@ -15,7 +16,7 @@ export async function generateMetadata(
 	_props: PageProps<"/me">,
 	parent: ResolvingMetadata,
 ): Promise<Metadata> {
-	return toPageMetadata("내 정보", parent);
+	return toPageMetadata(pageTitleCopy.me, parent);
 }
 
 /**

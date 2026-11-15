@@ -1,4 +1,5 @@
 import { VStack } from "@seed-design/react";
+import type { ChatErrorCode } from "@/entities/chat/model/chatErrorCode";
 import type { ChatMessage } from "@/entities/chat/model/chatMessage";
 import AssistantDraft from "@/entities/chat/ui/AssistantDraft";
 import type { ChatPhase } from "@/features/sendChatMessage/model/chatPhase";
@@ -13,7 +14,7 @@ interface ChatThreadProps {
 	messages: ChatMessage[];
 	draft: string;
 	phase: ChatPhase;
-	errorCode: Nullable<"TOO_MANY_REQUESTS" | "SERVER_ERROR">;
+	errorCode: Nullable<ChatErrorCode>;
 	exampleQuestions: readonly string[];
 	onSelectExample: (question: string) => void;
 	onRetry: () => void;

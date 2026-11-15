@@ -1,10 +1,11 @@
 import IconExclamationmarkCircleLine from "@karrotmarket/react-monochrome-icon/IconExclamationmarkCircleLine";
 import { Box, HStack, Icon, Text, VStack } from "@seed-design/react";
+import type { ChatErrorCode } from "@/entities/chat/model/chatErrorCode";
 import { chatCopy } from "@/pages/chat/config/chatCopy";
 import { chatThreadStyles } from "@/pages/chat/config/chatThreadStyles";
 
 interface ChatErrorNoticeProps {
-	code: "TOO_MANY_REQUESTS" | "SERVER_ERROR";
+	code: ChatErrorCode;
 	onRetry: () => void;
 }
 

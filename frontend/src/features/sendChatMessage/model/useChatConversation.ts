@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { streamChatAnswer } from "@/entities/chat/api/streamChatAnswer";
+import type { ChatErrorCode } from "@/entities/chat/model/chatErrorCode";
 import type { ChatMessage } from "@/entities/chat/model/chatMessage";
 import type { ChatConversationState } from "@/features/sendChatMessage/model/chatConversationState";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
@@ -79,7 +80,7 @@ export function useChatConversation({
 				errorCode: null,
 			}));
 
-			const fail = (code: "TOO_MANY_REQUESTS" | "SERVER_ERROR") =>
+			const fail = (code: ChatErrorCode) =>
 				setState((previous) => ({
 					...previous,
 					chatId: previousChatId,
