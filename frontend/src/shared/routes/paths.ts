@@ -18,4 +18,5 @@ export const paths = {
 	privacy: "/policies/privacy",
 	buildings: "/buildings",
 	building: (id: number) => `/buildings/${id}`,
+	buildingsSearchApi: "/api/buildings/search",
 } as const;
