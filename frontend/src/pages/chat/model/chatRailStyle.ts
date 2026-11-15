@@ -9,6 +9,7 @@ import type {
 export interface ChatRailStyle {
 	root: VStackProps;
 	inner: VStackProps;
+	notice: BoxProps;
 	toolbar: VStackProps;
 	titleBox: BoxProps;
 	title: TextProps;

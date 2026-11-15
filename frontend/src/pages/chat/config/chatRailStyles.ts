@@ -47,6 +47,7 @@ export const chatRailStyles: ChatRailStyle = {
 		left: 0,
 		right: 0,
 	},
+	notice: { pt: "x4", px: "x4" },
 	toolbar: { gap: "14px", pt: "18px", pb: "x3", px: "x4" },
 	titleBox: { ml: "x1" },
 	title: { ...typography.size22, fontWeight: "bold", color: "fg.neutral" },
