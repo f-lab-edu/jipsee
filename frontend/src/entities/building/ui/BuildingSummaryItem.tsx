@@ -15,7 +15,7 @@ interface BuildingSummaryItemProps {
  * 건물 > 요약 링크
  *
  * - 건물명, 주소, 상세 정보와 오른쪽 화살표 출력
- * - 건물명이 없으면 주소로 대체
+ * - 건물명이 없으면 지번 주소로 대체
  */
 export default function BuildingSummaryItem({
 	building,
@@ -26,8 +26,8 @@ export default function BuildingSummaryItem({
 		<Link href={paths.building(building.id)}>
 			<Flex {...style.row}>
 				<VStack {...style.body}>
-					<Text {...style.name}>{building.name ?? building.address}</Text>
-					<BuildingAddress building={building} />
+					<Text {...style.name}>{building.name ?? building.lotAddress}</Text>
+					<BuildingAddress building={building} variant="mobile" />
 					<Box {...style.detailCell}>
 						<Text {...style.detail}>{toBuildingSummaryDetail(building)}</Text>
 					</Box>

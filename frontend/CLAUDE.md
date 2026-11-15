@@ -9,3 +9,10 @@ Before writing or reviewing code in frontend/, follow the `code-conventions`, `f
 ## Verify
 
 Run in `frontend/` before committing: `pnpm check`, `pnpm lint:boundaries`, `pnpm typecheck`, `pnpm test`.
+
+## Mocks
+
+- The mock session and chat scenario are not source constants. They are read per request from the cookies `jipsee-mock-session` (`KAKAO`, `GOOGLE`, `NAVER`, `none`) and `jipsee-mock-chat` (`normal`, `dailyLimit`, `serverError`, `rateLimit`, `noHistory`), plus `jipsee-mock-building` (`none`, `searchFailed`, `searchRateLimited`, `buildingFailed`, `buildingRateLimited`) for the search and building failure screens, falling back to the env vars `MOCK_SESSION`, `MOCK_CHAT` and `MOCK_BUILDING` in `.env.local` (see `.env.example`). Never edit source to switch a mock.
+- Production builds (`NODE_ENV=production`) ignore both cookies and env vars: the session is always `null` and the scenario is always `normal` (`src/shared/lib/mock/isMockEnabled.ts`).
+- Mock-only types and helpers live next to the mocks in `entities/*/api/`, not in `model/` or `lib/`.
+- e2e: `playwright.config.ts` puts the cookies into every browser from `TC_SESSION=in`, `TC_PROVIDER`, `TC_CHAT` and `TC_BUILDING_FAILURE` (`e2e/support/mockStorageState.ts`), so one dev server serves every mode. Run `TC_SESSION=in pnpm test:e2e <spec>` for the logged-in mode.

@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { buildingDetailMock } from "@/entities/building/api/buildingDetailMock";
-import { buildingMockFailure } from "@/entities/building/api/buildingMockFailureSwitch";
+import { readBuildingMockFailure } from "@/entities/building/api/readBuildingMockFailure";
 import type { BuildingDetailResult } from "@/entities/building/model/buildingDetailResult";
 
 /**
@@ -15,11 +15,13 @@ import type { BuildingDetailResult } from "@/entities/building/model/buildingDet
  */
 export const getBuildingDetail = cache(
 	async (id: number): Promise<BuildingDetailResult> => {
-		if (buildingMockFailure === "buildingFailed") {
+		const failure = await readBuildingMockFailure();
+
+		if (failure === "buildingFailed") {
 			throw new Error("건물 상세 호출 실패 목업");
 		}
 
-		if (buildingMockFailure === "buildingRateLimited") {
+		if (failure === "buildingRateLimited") {
 			return { kind: "rateLimited" };
 		}
 

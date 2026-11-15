@@ -1,7 +1,7 @@
-import type { BuildingSummary } from "@/entities/building/model/buildingSummary";
+import type { BuildingSearchPage } from "@/entities/building/model/buildingSearchPage";
 
 export type BuildingSearchResult =
 	| { kind: "queryTooShort" }
 	| { kind: "rateLimited" }
 	| { kind: "failed" }
-	| { kind: "found"; buildings: BuildingSummary[] };
+	| ({ kind: "found" } & BuildingSearchPage);

@@ -1,7 +1,7 @@
 // S4 로그인, S5 내 정보 UI TC
 // 기대값: 설계 문서(2026-11-08-s4-s5-account-design.md) 5절의 로그인 링크 표와 캔버스 S4, S5 보드. 2026-11-09 피드백이 설계 문서와 다르면 피드백을 따름
-// 로그인한 상태의 TC는 앱의 sessionMock이 { provider: "GOOGLE" } 같은 값일 때만 의미가 있어 TC_SESSION=in일 때만 돌림. 기본 실행은 로그아웃 TC만 돎
-// S5 TC는 sessionMock의 제공자를 TC_PROVIDER(google, kakao, naver. 기본 kakao)로 알려 줘야 함. 제공자별 TC는 그 값과 맞을 때만 돎
+// 로그인 상태는 TC_SESSION=in일 때 쿠키로 정함(e2e/support/mockStorageState.ts). 앱 소스는 고치지 않음. 기본 실행은 로그아웃 TC만 돎
+// S5 TC는 로그인 제공자를 TC_PROVIDER(google, kakao, naver. 기본 kakao)로 정함. 제공자별 TC는 그 값과 맞을 때만 돎
 import { expect, type Page } from "@playwright/test";
 import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
@@ -1082,7 +1082,7 @@ for (const { label, viewport } of SCREENS) {
 				}) => {
 					test.skip(
 						CURRENT_PROVIDER !== key,
-						"sessionMock의 제공자가 다르면 돌리지 않음",
+						"TC_PROVIDER의 제공자가 다르면 돌리지 않음",
 					);
 					await gotoAndSettle(page, "/me");
 					const name = page.locator(section).getByText(expected.name);

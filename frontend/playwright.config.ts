@@ -1,4 +1,5 @@
 import { defineConfig } from "@playwright/test";
+import { mockStorageState } from "./e2e/support/mockStorageState";
 
 export default defineConfig({
 	testDir: "e2e",
@@ -11,6 +12,7 @@ export default defineConfig({
 		baseURL: "http://localhost:3000",
 		channel: "chrome",
 		screenshot: "only-on-failure",
+		storageState: mockStorageState,
 	},
 	webServer: {
 		command: "pnpm dev",

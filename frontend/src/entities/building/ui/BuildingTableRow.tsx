@@ -16,7 +16,7 @@ interface BuildingTableRowProps {
 /**
  * 건물 > 표 행
  *
- * - 건물 칸에 건물 상세 링크 출력, 건물명이 없으면 주소로 대체
+ * - 건물 칸에 건물 상세 링크 출력, 건물명이 없으면 지번 주소로 대체
  * - 사용승인 연도가 없으면 사용승인 칸을 비워 둠
  * - 건물 칸 링크의 누르는 영역을 행 전체로 넓힘
  * - 화살표 링크 이름은 건물명 뒤에 상세를 붙임
@@ -28,7 +28,7 @@ export default function BuildingTableRow({
 	columns,
 }: BuildingTableRowProps) {
 	const style = buildingTableRowStyles;
-	const title = building.name ?? building.address;
+	const title = building.name ?? building.lotAddress;
 
 	return (
 		<Grid role="row" columns={columns} {...style.row}>
@@ -36,7 +36,7 @@ export default function BuildingTableRow({
 				<VStack asChild {...style.link}>
 					<Link href={paths.building(building.id)}>
 						<Text {...style.name}>{title}</Text>
-						<BuildingAddress building={building} />
+						<BuildingAddress building={building} variant="desktop" />
 					</Link>
 				</VStack>
 			</Box>

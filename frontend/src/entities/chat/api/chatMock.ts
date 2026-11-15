@@ -1,9 +1,5 @@
+import type { ChatMockAnswer } from "@/entities/chat/api/chatMockAnswer";
 import type { ChatBuildingLink } from "@/entities/chat/model/chatBuildingLink";
-import type { ChatMockAnswer } from "@/entities/chat/model/chatMockAnswer";
-import type { ChatMockScenario } from "@/entities/chat/model/chatMockScenario";
-
-// 이 값을 고쳐 화면 상태를 바꿈. 질문 전송, 한도, 목록 비움을 이 값이 정함
-export const chatMockScenario: ChatMockScenario = "normal";
 
 // 답변 글자 조각 사이 지연. 첫 조각이 오기 전 점 세 개 단계도 이 간격만큼 보임
 export const chatMockStreamDelayMs = 400;

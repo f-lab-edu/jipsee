@@ -2,8 +2,8 @@ import {
 	chatMockAnswers,
 	chatMockBuildings,
 } from "@/entities/chat/api/chatMock";
-import { createKstDate } from "@/entities/chat/lib/createKstDate";
-import { toKstIso } from "@/entities/chat/lib/toKstIso";
+import { createKstDate } from "@/entities/chat/api/createKstDate";
+import { toKstIso } from "@/entities/chat/api/toKstIso";
 import { toKstParts } from "@/entities/chat/lib/toKstParts";
 import type { Chat } from "@/entities/chat/model/chat";
 

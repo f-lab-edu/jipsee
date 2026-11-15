@@ -54,7 +54,7 @@ export default async function SearchPage({
 						invalid={invalid}
 					/>
 				</VStack>
-				<SearchResult result={result} />
+				<SearchResult keyword={keyword} result={result} />
 			</SearchScreen>
 		);
 	}

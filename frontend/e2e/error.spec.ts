@@ -1,7 +1,7 @@
 // 오류 화면, 404, 요청 제한(429), 폼 전송 실패 안내 UI TC
 // 기대값: 설계 문서(2026-11-14-error-and-paging-design.md) 3, 4절과 캔버스 "오류와 404" 페이지의 Err* 보드. 미정 항목(7절)은 추천안을 따름
-// 백엔드가 없어 실제 429와 호출 실패를 만들 곳이 없음. 일부 실패와 요청 제한 TC는 buildingMockFailureSwitch.ts의 buildingMockFailure와 같은 값을 TC_BUILDING_FAILURE로 알려 줄 때만 돎. 기본값은 none
-// 폼 실패 안내 TC는 sessionMock이 { provider: "KAKAO" }일 때만 의미가 있어 TC_SESSION=in일 때만 돌림. 로그아웃 전제 TC는 TC_SESSION=in이면 건너뜀
+// 백엔드가 없어 실제 429와 호출 실패를 만들 곳이 없음. 일부 실패와 요청 제한 TC는 쿠키 jipsee-mock-building(TC_BUILDING_FAILURE가 mockStorageState로 넣음)이 같은 값일 때만 돎. 기본값은 none
+// 폼 실패 안내 TC는 로그인한 상태(TC_SESSION=in, 쿠키 jipsee-mock-session)에서만 돌림. 그 밖의 TC는 로그인 여부와 상관없이 돎
 import { expect } from "@playwright/test";
 import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
@@ -61,7 +61,6 @@ const NOT_FOUND_PATHS =
 for (const { label, viewport, layout } of SCREENS) {
 	test.describe(`${label} ${viewport.width}x${viewport.height} 404 화면`, () => {
 		test.use({ viewport, colorScheme: "light" });
-		test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
 
 		for (const path of NOT_FOUND_PATHS) {
 			test(`${caseId("E1", e1Number++)} ${label} ${path}는 404이고 제목, 설명, 홈으로 가기 링크가 나옴`, async ({
@@ -111,7 +110,6 @@ for (const { label, viewport, layout } of SCREENS) {
 	for (const theme of THEMES) {
 		test.describe(`${label} ${viewport.width}x${viewport.height} ${theme} 404 화면 치수와 색`, () => {
 			test.use({ viewport, colorScheme: theme });
-			test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
 
 			test(`${caseId("E1", e1Number++)} ${label} ${theme} 아이콘 원 ${layout === "mobile" ? 72 : 80}, 제목 ${layout === "mobile" ? 20 : 22}/700, 버튼 280x48 모서리 12가 시안과 같음`, async ({
 				page,
@@ -190,8 +188,8 @@ for (const { label, viewport, layout } of SCREENS) {
 	test.describe(`${label} ${viewport.width}x${viewport.height} 건물 상세 조회 실패`, () => {
 		test.use({ viewport, colorScheme: "light" });
 		test.skip(
-			LOGGED_IN || FAILURE !== "buildingFailed",
-			"TC_BUILDING_FAILURE=buildingFailed이고 로그아웃일 때만 돌림",
+			FAILURE !== "buildingFailed",
+			"TC_BUILDING_FAILURE=buildingFailed일 때만 돌림",
 		);
 
 		test(`${caseId("E2", e2Number++)} ${label} 조회가 실패하면 헤더, 푸터는 남고 일반 오류 화면에 다시 시도와 홈으로 가기가 나옴`, async ({
@@ -230,8 +228,8 @@ for (const { label, viewport, layout } of SCREENS) {
 	test.describe(`${label} ${viewport.width}x${viewport.height} 건물 상세 요청 제한`, () => {
 		test.use({ viewport, colorScheme: "light" });
 		test.skip(
-			LOGGED_IN || FAILURE !== "buildingRateLimited",
-			"TC_BUILDING_FAILURE=buildingRateLimited이고 로그아웃일 때만 돌림",
+			FAILURE !== "buildingRateLimited",
+			"TC_BUILDING_FAILURE=buildingRateLimited일 때만 돌림",
 		);
 
 		test(`${caseId("E2", e2Number++)} ${label} 요청 제한이면 본문만 요청 제한 안내로 바뀌고 헤더, 질문 바, 푸터는 남음`, async ({
@@ -267,8 +265,8 @@ for (const { label, viewport, layout } of SCREENS) {
 		test.describe(`${label} ${viewport.width}x${viewport.height} 검색 ${failure}`, () => {
 			test.use({ viewport, colorScheme: "light" });
 			test.skip(
-				LOGGED_IN || FAILURE !== failure,
-				`TC_BUILDING_FAILURE=${failure}이고 로그아웃일 때만 돌림`,
+				FAILURE !== failure,
+				`TC_BUILDING_FAILURE=${failure}일 때만 돌림`,
 			);
 
 			test(`${caseId("E3", e3Number++)} ${label} 결과 영역만 ${title}로 바뀌고 검색창은 그대로임`, async ({
@@ -337,10 +335,7 @@ for (const { label, viewport, layout } of SCREENS) {
 // 기본 상태(none)에서는 검색과 건물 상세가 정상 화면이고 실패 안내가 없음
 test.describe("기본 상태에서는 실패 안내가 없음", () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
-	test.skip(
-		LOGGED_IN || FAILURE !== "none",
-		"TC_BUILDING_FAILURE가 none일 때만 돌림",
-	);
+	test.skip(FAILURE !== "none", "TC_BUILDING_FAILURE가 none일 때만 돌림");
 
 	test(`${caseId("E3", e3Number++)} 검색 결과와 건물 상세에 실패 안내가 없음`, async ({
 		page,
