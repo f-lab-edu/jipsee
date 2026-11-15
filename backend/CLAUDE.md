@@ -6,9 +6,10 @@ Spring Boot 단일 모듈로 구성함. 패키지 루트는 `kr.jipsee`이고, �
 
 ## 구조
 
-- 도메인 패키지는 `kr.jipsee` 아래에 둠(building, deal, matching, collect, global). 코드가 생길 때만 만듦.
-- 도메인 패키지마다 필요한 만큼 `api`, `application`, `client`, `config`, `dao`, `domain`, `dto`, `exception` 하위 패키지를 둠.
-- 예외 처리기, 기본 엔티티, 설정처럼 여러 도메인이 함께 쓰는 코드는 `kr.jipsee.global`에 둠.
+- 최상위 패키지는 업무 도메인(`deal`, `building`, `region`, 이후 `matching`, `law` 등), 진입점 `batch`, 기반 코드 `global`임. 코드가 생길 때만 만듦.
+- `batch`는 Job 단위 하위 패키지(`batch/deal`, `batch/building`)와 공통(`batch/common`)으로 나누고, Job과 Step 설정, Reader, Processor, Writer, Tasklet, 스케줄러를 둠. 배치 코드는 도메인의 `service`와 `client`를 부름.
+- 도메인 하위 패키지는 필요한 것만 둠: `controller`(REST 컨트롤러), `service`(트랜잭션 경계), `repository`(DB 접근, JdbcTemplate 클래스도 `*Repository`), `client`(외부 API 호출과 응답 변환), `entity`(JPA 엔티티), `dto`, `config`, `exception`.
+- `global`에는 업무 개념이 없는 기반 코드만 둠(공공데이터 호출 기반, 예외 처리, 공통 상수). 법정동 사전은 `region` 도메인임.
 
 ## 규칙
 

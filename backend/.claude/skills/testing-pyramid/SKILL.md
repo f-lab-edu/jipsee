@@ -16,8 +16,10 @@ Slice Tests        — partial Spring context (@WebMvcTest, @DataJpaTest) (20%)
 Integration Tests  — full context + real MySQL via Testcontainers  (10%)
 ```
 
-Test packages mirror main packages: `src/main/java/kr/jipsee/<domain>/application/OrderService.java`
-is tested by `src/test/java/kr/jipsee/<domain>/application/OrderServiceTest.java`.
+Test packages mirror main packages: `src/main/java/kr/jipsee/<domain>/service/OrderService.java`
+is tested by `src/test/java/kr/jipsee/<domain>/service/OrderServiceTest.java`. Batch code lives under the
+top-level `batch` package: `src/main/java/kr/jipsee/batch/<job>/DealKeyReader.java` is tested by
+`src/test/java/kr/jipsee/batch/<job>/DealKeyReaderTest.java`.
 
 ## Conventions (all test levels)
 

@@ -32,6 +32,10 @@ Packages: `org.springframework.batch.core.job.Job`, `core.job.builder.JobBuilder
 `Chunk`), with readers/writers in `infrastructure.item.database.*` and their builders in
 `infrastructure.item.database.builder.*`.
 
+Package placement: Job config, Reader, Processor, Writer, Tasklet, and scheduler go in the top-level
+`kr.jipsee.batch.<job>` package (`batch/common` for shared code, e.g. `batch/deal`). Batch code calls
+the domain's `service` and `client`, never its `repository`.
+
 Single Spring instance only: no ShedLock, `@Scheduled` is enough.
 
 ## Job & Step (Spring Batch 6 API)
