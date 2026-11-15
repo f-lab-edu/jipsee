@@ -24,6 +24,14 @@ export function collectConsoleIssues(page: Page): string[] {
 		) {
 			return;
 		}
+		// 오류 TC가 일부러 500으로 가로챈 검색 더 보기 요청임. 화면의 오류 띠가 이 실패를 보여 줌
+		if (
+			message.type() === "error" &&
+			/Failed to load resource/.test(text) &&
+			message.location().url.includes("/api/buildings/search")
+		) {
+			return;
+		}
 		if (
 			message.type() === "error" ||
 			(message.type() === "warning" && /hydrat/i.test(text))
