@@ -10,6 +10,7 @@ import ChatNewChatProvider from "@/pages/chat/ui/ChatNewChatProvider";
 import ChatRail from "@/pages/chat/ui/ChatRail";
 import ChatToolbar from "@/pages/chat/ui/ChatToolbar";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
+import type { FormErrorCode } from "@/shared/model/formErrorCode";
 import Header from "@/widgets/header/ui/Header";
 import HeaderBackButton from "@/widgets/header/ui/HeaderBackButton";
 
@@ -23,6 +24,7 @@ interface ChatPageProps {
 	isLimitReached: boolean;
 	chats: ChatSummary[];
 	now: Date;
+	formError: Nullable<FormErrorCode>;
 }
 
 /**
@@ -36,6 +38,7 @@ interface ChatPageProps {
  *
  * @param chats 레일에 출력할 대화 목록
  * @param now 레일의 시각 표시에서 오늘과 어제를 정하는 기준
+ * @param formError 폼 전송 실패 코드. 레일 맨 위의 실패 안내로 전달
  */
 export default function ChatPage({
 	session,
@@ -47,6 +50,7 @@ export default function ChatPage({
 	isLimitReached,
 	chats,
 	now,
+	formError,
 }: ChatPageProps) {
 	const style = chatScreenStyles;
 
@@ -65,7 +69,12 @@ export default function ChatPage({
 						data-area="chat-card"
 						{...style.card}
 					>
-						<ChatRail chats={chats} now={now} chatId={chatId} />
+						<ChatRail
+							chats={chats}
+							now={now}
+							chatId={chatId}
+							formError={formError}
+						/>
 						<VStack data-area="chat-pane" {...style.pane}>
 							<ChatToolbar />
 							{buildingName !== null && <BuildingChip name={buildingName} />}

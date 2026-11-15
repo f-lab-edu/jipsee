@@ -16,6 +16,18 @@ export function collectConsoleIssues(page: Page): string[] {
 		) {
 			return;
 		}
+		// 개발 서버에서 오류 경계가 화면을 다시 그리면 head의 아이콘 링크가 빠져 브라우저가 /favicon.ico를 직접 요청함. 운영 빌드에는 없음
+		if (
+			message.type() === "error" &&
+			/Failed to load resource/.test(text) &&
+			message.location().url.endsWith("/favicon.ico")
+		) {
+			return;
+		}
+		// 오류 화면 TC가 목업 스위치로 일부러 던진 서버 오류임. 개발 서버가 오류 경계에 걸린 오류를 콘솔에 남김
+		if (message.type() === "error" && text.includes("호출 실패 목업")) {
+			return;
+		}
 		// 오류 TC가 일부러 4xx와 5xx로 가로챈 질문 전송 요청임. 화면의 오류 상자가 이 실패를 보여 줌
 		if (
 			message.type() === "error" &&

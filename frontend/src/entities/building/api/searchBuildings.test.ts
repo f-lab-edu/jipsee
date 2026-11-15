@@ -1,7 +1,17 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { searchBuildings } from "@/entities/building/api/searchBuildings";
 
+const failure = vi.hoisted(() => ({ value: "none" }));
+
+vi.mock("@/entities/building/api/readBuildingMockFailure", () => ({
+	readBuildingMockFailure: async () => failure.value,
+}));
+
 describe("searchBuildings", () => {
+	beforeEach(() => {
+		failure.value = "none";
+	});
+
 	it("검색어가 2자 미만이면 queryTooShort를 반환함", async () => {
 		expect(await searchBuildings("망")).toEqual({ kind: "queryTooShort" });
 	});
@@ -41,5 +51,23 @@ describe("searchBuildings", () => {
 			buildings: [],
 			hasNext: false,
 		});
+	});
+
+	it("요청 제한 목업이면 rateLimited를 반환함", async () => {
+		failure.value = "searchRateLimited";
+
+		expect(await searchBuildings("망원동")).toEqual({ kind: "rateLimited" });
+	});
+
+	it("호출 실패 목업이면 failed를 반환함", async () => {
+		failure.value = "searchFailed";
+
+		expect(await searchBuildings("망원동")).toEqual({ kind: "failed" });
+	});
+
+	it("검색어가 2자 미만이면 실패 목업이어도 queryTooShort를 반환함", async () => {
+		failure.value = "searchFailed";
+
+		expect(await searchBuildings("망")).toEqual({ kind: "queryTooShort" });
 	});
 });

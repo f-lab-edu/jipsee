@@ -37,13 +37,17 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 			const m = await t.measure();
 			t.ok(
 				"404 화면 문구",
-				/404/.test(m.bodyText),
+				m.bodyText.includes("페이지를 찾을 수 없어요"),
 				m.bodyText.slice(0, 60),
-				"본문에 404가 있음",
+				"본문에 페이지를 찾을 수 없어요가 있음",
 			);
+			// 404 화면의 h1은 제목 하나뿐이고 건물 제목 h1은 없음
 			t.eq(
-				"건물 제목 h1 없음",
-				m.h1s.filter((h) => h.inHeader || h.inMain).length,
+				"404 제목 외의 h1 없음",
+				m.h1s.filter(
+					(h) =>
+						(h.inHeader || h.inMain) && h.text !== "페이지를 찾을 수 없어요",
+				).length,
 				0,
 			);
 		});

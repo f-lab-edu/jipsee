@@ -1343,7 +1343,7 @@ for (const { label, viewport } of SCREENS) {
 
 // 커밋 7: 로그아웃 (A7)
 // 기대값: 설계 문서 5절 S5(로그아웃은 /api/auth/logout에 POST하는 폼의 제출 버튼)와 Route Handler 표. 버튼 모양은 A5와 같음
-// 개발 환경에 백엔드(API_URL)가 없으므로 제출하면 502가 나는 것까지만 확인함. Origin이 없는 직접 POST는 403임
+// 개발 환경에 백엔드(API_URL)가 없으므로 제출하면 실패하고, 실패하면 /me로 303 이동해 error 쿼리가 붙음(2026-11-14 오류 화면 설계 4절). 실패 안내 띠는 error.spec.ts가 확인함. Origin이 없는 직접 POST도 같은 실패 이동임
 const LOGOUT_ACTION = "/api/auth/logout";
 
 let a7Number = 1;
@@ -1372,7 +1372,7 @@ for (const { label, viewport } of SCREENS) {
 			await expect(button).toHaveAttribute("type", "submit");
 		});
 
-		test(`${caseId("A7", a7Number++)} ${label} 백엔드가 없을 때 로그아웃 폼을 제출하면 ${LOGOUT_ACTION}가 502를 반환함`, async ({
+		test(`${caseId("A7", a7Number++)} ${label} 백엔드가 없을 때 로그아웃 폼을 제출하면 ${LOGOUT_ACTION}가 /me?error=logout-failed로 303을 반환함`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/me");
@@ -1385,16 +1385,19 @@ for (const { label, viewport } of SCREENS) {
 				.locator(section)
 				.getByRole("button", { name: ME_TEXT.logout })
 				.click();
-			expect((await responsePromise).status()).toBe(502);
+			const response = await responsePromise;
+			expect(response.status()).toBe(303);
+			expect(response.headers().location).toBe("/me?error=logout-failed");
 		});
 
-		test(`${caseId("A7", a7Number++)} ${label} Origin이 없는 직접 POST는 ${LOGOUT_ACTION}가 403을 반환함`, async ({
+		test(`${caseId("A7", a7Number++)} ${label} Origin이 없는 직접 POST는 ${LOGOUT_ACTION}가 /me?error=logout-failed로 303을 반환함`, async ({
 			page,
 		}) => {
 			const response = await page.request.post(LOGOUT_ACTION, {
 				maxRedirects: 0,
 			});
-			expect(response.status()).toBe(403);
+			expect(response.status()).toBe(303);
+			expect(response.headers().location).toBe("/me?error=logout-failed");
 		});
 	});
 }
@@ -1669,7 +1672,7 @@ test.describe("탈퇴 확인 창 요청", () => {
 		"로그인 TC는 TC_SESSION=in일 때만 돌림",
 	);
 
-	test(`${caseId("A8", a8Number++)} 백엔드가 없을 때 탈퇴하기를 누르면 ${WITHDRAW_ACTION}가 502를 반환함`, async ({
+	test(`${caseId("A8", a8Number++)} 백엔드가 없을 때 탈퇴하기를 누르면 ${WITHDRAW_ACTION}가 /me?error=withdraw-failed로 303을 반환함`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/me");
@@ -1686,16 +1689,19 @@ test.describe("탈퇴 확인 창 요청", () => {
 			.getByRole("dialog")
 			.getByRole("button", { name: WITHDRAW_DIALOG_TEXT.confirm, exact: true })
 			.click();
-		expect((await responsePromise).status()).toBe(502);
+		const response = await responsePromise;
+		expect(response.status()).toBe(303);
+		expect(response.headers().location).toBe("/me?error=withdraw-failed");
 	});
 
-	test(`${caseId("A8", a8Number++)} Origin이 없는 직접 POST는 ${WITHDRAW_ACTION}가 403을 반환함`, async ({
+	test(`${caseId("A8", a8Number++)} Origin이 없는 직접 POST는 ${WITHDRAW_ACTION}가 /me?error=withdraw-failed로 303을 반환함`, async ({
 		page,
 	}) => {
 		const response = await page.request.post(WITHDRAW_ACTION, {
 			maxRedirects: 0,
 		});
-		expect(response.status()).toBe(403);
+		expect(response.status()).toBe(303);
+		expect(response.headers().location).toBe("/me?error=withdraw-failed");
 	});
 });
 

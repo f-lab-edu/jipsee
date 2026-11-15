@@ -19,6 +19,7 @@ export interface MeSectionStyle {
 export interface MeStyle {
 	main: VStackProps;
 	mobileBody: VStackProps;
+	mobileNotice: BoxProps;
 	mobileTitleBox: BoxProps;
 	mobileTitle: TextProps;
 	mobileDivider: BoxProps;

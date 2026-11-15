@@ -1,4 +1,9 @@
-import type { HStackProps, TextProps, VStackProps } from "@seed-design/react";
+import type {
+	BoxProps,
+	HStackProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 
 export interface ChatHistoryStyle {
 	list: VStackProps;
@@ -9,4 +14,5 @@ export interface ChatHistoryStyle {
 	empty: VStackProps;
 	emptyText: TextProps;
 	root: VStackProps;
+	notice: BoxProps;
 }

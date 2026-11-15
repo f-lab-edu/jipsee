@@ -7,6 +7,7 @@ import { getSession } from "@/entities/session/api/getSession";
 import { chatCopy } from "@/pages/chat/config/chatCopy";
 import { toChatPath } from "@/pages/chat/lib/toChatPath";
 import ChatPage from "@/pages/chat/ui/ChatPage";
+import { toFormError } from "@/shared/lib/formError/toFormError";
 import { toPositiveId } from "@/shared/lib/ids/toPositiveId";
 import { toPageMetadata } from "@/shared/lib/metadata/toPageMetadata";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
@@ -30,9 +31,10 @@ export async function generateMetadata(
  * - 로그인하지 않은 상태면 돌아올 경로(buildingId 쿼리 포함)를 담아 로그인으로 이동
  * - buildingId가 있으면 건물을 조회하고 양의 정수가 아니거나 없는 건물이면 404
  * - 세션과 쿼리, 건물과 한도 소진 여부와 대화 목록은 서로 기다리지 않고 함께 조회해 페이지에 전달
+ * - error 쿼리가 대화 삭제 실패 코드이면 실패 안내용으로 전달
  */
 export default async function Page({ searchParams }: PageProps<"/chat">) {
-	const [{ buildingId: rawBuildingId }, session] = await Promise.all([
+	const [{ buildingId: rawBuildingId, error }, session] = await Promise.all([
 		searchParams,
 		getSession(),
 	]);
@@ -76,6 +78,7 @@ export default async function Page({ searchParams }: PageProps<"/chat">) {
 			isLimitReached={dailyLimitReached}
 			chats={chats}
 			now={new Date()}
+			formError={toFormError(error, ["chat-delete-failed"])}
 		/>
 	);
 }

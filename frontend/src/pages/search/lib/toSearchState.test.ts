@@ -26,4 +26,12 @@ describe("toSearchState", () => {
 			toSearchState({ kind: "found", buildings: [], hasNext: false }),
 		).toBe("noResult");
 	});
+
+	it("요청 제한이면 rateLimited를 반환함", () => {
+		expect(toSearchState({ kind: "rateLimited" })).toBe("rateLimited");
+	});
+
+	it("호출이 실패했으면 error를 반환함", () => {
+		expect(toSearchState({ kind: "failed" })).toBe("error");
+	});
 });

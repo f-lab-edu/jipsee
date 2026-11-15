@@ -16,6 +16,7 @@ const iconShared = {
 export const meStyles: MeStyle = {
 	main: { flexGrow: 1 },
 	mobileBody: { flexGrow: 1, bg: "bg.layerDefault" },
+	mobileNotice: { pt: "x4", px: "spacingX.globalGutter" },
 	mobileTitleBox: { pt: "x5", px: "spacingX.globalGutter" },
 	mobileTitle: {
 		...typography.size18LineHeight24,

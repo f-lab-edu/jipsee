@@ -6,6 +6,7 @@ import { getChatList } from "@/entities/chat/api/getChatList";
 import { getSession } from "@/entities/session/api/getSession";
 import { chatCopy } from "@/pages/chat/config/chatCopy";
 import ChatPage from "@/pages/chat/ui/ChatPage";
+import { toFormError } from "@/shared/lib/formError/toFormError";
 import { toPositiveId } from "@/shared/lib/ids/toPositiveId";
 import { toPageMetadata } from "@/shared/lib/metadata/toPageMetadata";
 import { paths } from "@/shared/routes/paths";
@@ -28,10 +29,15 @@ export async function generateMetadata(
  * - 로그인하지 않은 상태면 돌아올 경로를 담아 로그인으로 이동
  * - 번호가 양의 정수가 아니거나 없는 대화이면 404
  * - 세션과 대화, 한도 소진 여부와 대화 목록은 서로 기다리지 않고 함께 조회해 대화의 이전 메시지와 건물 기준, 대화 목록을 페이지에 전달
+ * - error 쿼리가 대화 삭제 실패 코드이면 실패 안내용으로 전달
  */
-export default async function Page({ params }: PageProps<"/chat/[chatId]">) {
-	const [{ chatId: rawChatId }, session] = await Promise.all([
+export default async function Page({
+	params,
+	searchParams,
+}: PageProps<"/chat/[chatId]">) {
+	const [{ chatId: rawChatId }, { error }, session] = await Promise.all([
 		params,
+		searchParams,
 		getSession(),
 	]);
 
@@ -66,6 +72,7 @@ export default async function Page({ params }: PageProps<"/chat/[chatId]">) {
 			isLimitReached={dailyLimitReached}
 			chats={chats}
 			now={new Date()}
+			formError={toFormError(error, ["chat-delete-failed"])}
 		/>
 	);
 }
