@@ -1,4 +1,4 @@
-package kr.jipsee.collect.config;
+package kr.jipsee.batch.deal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import kr.jipsee.TestcontainersConfiguration;
-import kr.jipsee.collect.dao.DataSourceDao;
+import kr.jipsee.batch.common.DataSourceRepository;
 import kr.jipsee.deal.client.RtmsRhRentClient;
 import kr.jipsee.deal.client.RtmsRhTradeClient;
 import kr.jipsee.deal.dto.RentDealRow;
@@ -48,7 +48,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 @SpringBootTest
 @ActiveProfiles("test")
 @Import(TestcontainersConfiguration.class)
-class CollectJobIntegrationTest {
+class DealJobIntegrationTest {
 
     private static final List<String> CODES = List.of("11110", "11140", "11170");
 
@@ -80,7 +80,7 @@ class CollectJobIntegrationTest {
     RtmsRhTradeClient rtmsRhTradeClient;
 
     @MockitoSpyBean
-    DataSourceDao dataSourceDao;
+    DataSourceRepository dataSourceRepository;
 
     @BeforeEach
     void setUp() {
@@ -193,7 +193,7 @@ class CollectJobIntegrationTest {
         JobParameters params = endMonth("2011-02");
         willThrow(new IllegalStateException("테스트용 실패"))
                 .willCallRealMethod()
-                .given(dataSourceDao)
+                .given(dataSourceRepository)
                 .saveLoadedAt(anyString(), any(LocalDateTime.class));
 
         // when

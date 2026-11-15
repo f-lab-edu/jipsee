@@ -1,38 +1,38 @@
-package kr.jipsee.collect.config;
+package kr.jipsee.batch.deal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.Clock;
 import java.time.YearMonth;
-import java.time.ZoneId;
 import kr.jipsee.TestcontainersConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @Import(TestcontainersConfiguration.class)
-class CollectConfigTest {
+class DealBatchPropertiesTest {
 
     @Autowired
-    CollectProperties properties;
+    DealBatchProperties properties;
 
     @Autowired
-    Clock clock;
+    Environment environment;
 
     @Test
-    @DisplayName("수집 설정 값을 읽음")
-    void 수집_설정_값을_읽음() {
+    @DisplayName("초기 적재 종료 월을 새 키에서 읽음")
+    void 초기_적재_종료_월을_새_키에서_읽음() {
         assertThat(properties.initialLoadEndMonth()).isEqualTo(YearMonth.of(2026, 10));
     }
 
     @Test
-    @DisplayName("수집 날짜 계산에 쓰는 시계는 Asia/Seoul 시간대임")
-    void 수집_날짜_계산에_쓰는_시계는_Asia_Seoul_시간대임() {
-        assertThat(clock.getZone()).isEqualTo(ZoneId.of("Asia/Seoul"));
+    @DisplayName("옛 설정 키는 남지 않음")
+    void 옛_설정_키는_남지_않음() {
+        assertThat(environment.getProperty("jipsee.collect.initial-load-end-month"))
+                .isNull();
     }
 }

@@ -1,4 +1,4 @@
-package kr.jipsee.collect.application;
+package kr.jipsee.batch.deal;
 
 import java.util.List;
 import kr.jipsee.deal.dto.DealKey;

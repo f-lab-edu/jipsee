@@ -1,4 +1,4 @@
-package kr.jipsee.collect.application;
+package kr.jipsee.batch.deal;
 
 import kr.jipsee.deal.dto.DealReplaceItem;
 import kr.jipsee.deal.service.DealReplacer;

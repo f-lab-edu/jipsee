@@ -1,4 +1,4 @@
-package kr.jipsee.collect.application;
+package kr.jipsee.batch.common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
@@ -7,7 +7,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import kr.jipsee.collect.dao.DataSourceDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,13 +21,13 @@ class DataSourceLoadTaskletTest {
     private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-11-03T19:00:00Z"), ZoneId.of("Asia/Seoul"));
 
     @Mock
-    DataSourceDao dataSourceDao;
+    DataSourceRepository dataSourceRepository;
 
     DataSourceLoadTasklet tasklet;
 
     @BeforeEach
     void setUp() {
-        tasklet = new DataSourceLoadTasklet(dataSourceDao, CLOCK, "RENT_DEAL");
+        tasklet = new DataSourceLoadTasklet(dataSourceRepository, CLOCK, "RENT_DEAL");
     }
 
     @Test
@@ -39,6 +38,6 @@ class DataSourceLoadTaskletTest {
 
         // then
         assertThat(status).isEqualTo(RepeatStatus.FINISHED);
-        then(dataSourceDao).should().saveLoadedAt("RENT_DEAL", LocalDateTime.of(2026, 11, 4, 4, 0));
+        then(dataSourceRepository).should().saveLoadedAt("RENT_DEAL", LocalDateTime.of(2026, 11, 4, 4, 0));
     }
 }

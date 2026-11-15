@@ -1,4 +1,4 @@
-package kr.jipsee.collect.application;
+package kr.jipsee.batch.deal;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,7 +16,6 @@ import java.time.Instant;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.stream.Stream;
-import kr.jipsee.collect.config.CollectProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,7 +65,7 @@ class DealCollectSchedulerTest {
         given(dailySaleJob.getName()).willReturn("dailySaleCollectJob");
         given(initialRentJob.getName()).willReturn("initialRentLoadJob");
         given(initialSaleJob.getName()).willReturn("initialSaleLoadJob");
-        CollectProperties properties = new CollectProperties(YearMonth.of(2026, 10));
+        DealBatchProperties properties = new DealBatchProperties(YearMonth.of(2026, 10));
         scheduler = new DealCollectScheduler(
                 jobOperator, dailyRentJob, dailySaleJob, initialRentJob, initialSaleJob, properties, CLOCK);
     }

@@ -1,4 +1,4 @@
-package kr.jipsee.collect.dao;
+package kr.jipsee.batch.common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,10 +16,10 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("test")
 @Import(TestcontainersConfiguration.class)
-class DataSourceDaoTest {
+class DataSourceRepositoryTest {
 
     @Autowired
-    DataSourceDao dataSourceDao;
+    DataSourceRepository dataSourceRepository;
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -33,10 +33,10 @@ class DataSourceDaoTest {
     @DisplayName("행이 없으면 만들고 있으면 loaded_at만 바꿈")
     void 행이_없으면_만들고_있으면_loaded_at만_바꿈() {
         // given
-        dataSourceDao.saveLoadedAt("RENT_DEAL", LocalDateTime.of(2026, 11, 4, 4, 0));
+        dataSourceRepository.saveLoadedAt("RENT_DEAL", LocalDateTime.of(2026, 11, 4, 4, 0));
 
         // when
-        dataSourceDao.saveLoadedAt("RENT_DEAL", LocalDateTime.of(2026, 11, 5, 4, 0));
+        dataSourceRepository.saveLoadedAt("RENT_DEAL", LocalDateTime.of(2026, 11, 5, 4, 0));
 
         // then
         assertThat(jdbcTemplate.queryForObject("select count(*) from data_source", Integer.class))

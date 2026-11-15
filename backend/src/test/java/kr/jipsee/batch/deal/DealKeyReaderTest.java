@@ -1,4 +1,4 @@
-package kr.jipsee.collect.application;
+package kr.jipsee.batch.deal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

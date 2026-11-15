@@ -1,17 +1,15 @@
-package kr.jipsee.collect.config;
+package kr.jipsee.batch.common;
 
 import java.time.Clock;
 import kr.jipsee.global.common.TimeZones;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-/** 데이터 수집 설정 */
+/** 배치 스케줄링 설정 */
 @Configuration
 @EnableScheduling
-@EnableConfigurationProperties(CollectProperties.class)
-public class CollectConfig {
+public class SchedulingConfig {
 
     /** 수집 대상 월 계산. Asia/Seoul 기준 */
     @Bean

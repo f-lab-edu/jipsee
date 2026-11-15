@@ -1,11 +1,10 @@
-package kr.jipsee.collect.application;
+package kr.jipsee.batch.deal;
 
-import static kr.jipsee.collect.config.CollectJobConfig.PARAM_COLLECT_DATE;
-import static kr.jipsee.collect.config.CollectJobConfig.PARAM_END_MONTH;
+import static kr.jipsee.batch.deal.DealJobConfig.PARAM_COLLECT_DATE;
+import static kr.jipsee.batch.deal.DealJobConfig.PARAM_END_MONTH;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import kr.jipsee.collect.config.CollectProperties;
 import kr.jipsee.global.common.TimeZones;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,7 @@ public class DealCollectScheduler {
     private final Job dailySaleCollectJob;
     private final Job initialRentLoadJob;
     private final Job initialSaleLoadJob;
-    private final CollectProperties properties;
+    private final DealBatchProperties properties;
     private final Clock clock;
 
     /** 일일 Job 2개, 초기 적재 Job 2개 순서로 시작. 하나의 Job에서 예외가 발생해도 다음 Job의 시작을 막지 않음 */

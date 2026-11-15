@@ -1,4 +1,4 @@
-package kr.jipsee.collect.dao;
+package kr.jipsee.batch.common;
 
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 /** data_source 테이블의 마지막 수집 시각 저장 */
 @Repository
 @RequiredArgsConstructor
-public class DataSourceDao {
+public class DataSourceRepository {
     private final JdbcTemplate jdbcTemplate;
 
     /** 출처의 마지막 수집 시각 저장. 행이 없으면 생성하고, 있으면 loaded_at만 변경 */

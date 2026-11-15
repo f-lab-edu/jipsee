@@ -1,14 +1,10 @@
-package kr.jipsee.collect.config;
+package kr.jipsee.batch.deal;
 
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import kr.jipsee.collect.application.DataSourceLoadTasklet;
-import kr.jipsee.collect.application.DealCollectProcessor;
-import kr.jipsee.collect.application.DealKeyReader;
-import kr.jipsee.collect.application.DealKeys;
-import kr.jipsee.collect.application.DealReplaceWriter;
-import kr.jipsee.collect.dao.DataSourceDao;
+import kr.jipsee.batch.common.DataSourceLoadTasklet;
+import kr.jipsee.batch.common.DataSourceRepository;
 import kr.jipsee.deal.client.RtmsApiClient;
 import kr.jipsee.deal.client.RtmsRhRentClient;
 import kr.jipsee.deal.client.RtmsRhTradeClient;
@@ -25,13 +21,15 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /** 실거래 수집 Job 4개와 Step, Reader 빈 구성 */
 @Configuration
-public class CollectJobConfig {
+@EnableConfigurationProperties(DealBatchProperties.class)
+public class DealJobConfig {
     static final String DAILY_RENT_JOB = "dailyRentCollectJob";
     static final String DAILY_SALE_JOB = "dailySaleCollectJob";
     static final String INITIAL_RENT_JOB = "initialRentLoadJob";
@@ -169,9 +167,10 @@ public class CollectJobConfig {
     Step rentLoadedAtStep(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
-            DataSourceDao dataSourceDao,
+            DataSourceRepository dataSourceRepository,
             Clock clock) {
-        return loadedAtStep("rentLoadedAtStep", jobRepository, transactionManager, dataSourceDao, clock, RENT_SOURCE);
+        return loadedAtStep(
+                "rentLoadedAtStep", jobRepository, transactionManager, dataSourceRepository, clock, RENT_SOURCE);
     }
 
     /** SALE_DEAL의 마지막 수집 시각을 갱신하는 Step. 수집 Step 다음에 실행 */
@@ -179,9 +178,10 @@ public class CollectJobConfig {
     Step saleLoadedAtStep(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
-            DataSourceDao dataSourceDao,
+            DataSourceRepository dataSourceRepository,
             Clock clock) {
-        return loadedAtStep("saleLoadedAtStep", jobRepository, transactionManager, dataSourceDao, clock, SALE_SOURCE);
+        return loadedAtStep(
+                "saleLoadedAtStep", jobRepository, transactionManager, dataSourceRepository, clock, SALE_SOURCE);
     }
 
     /** 키 하나를 chunk 하나, 트랜잭션 하나로 처리하는 수집 Step 생성 */
@@ -206,11 +206,11 @@ public class CollectJobConfig {
             String name,
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
-            DataSourceDao dataSourceDao,
+            DataSourceRepository dataSourceRepository,
             Clock clock,
             String source) {
         return new StepBuilder(name, jobRepository)
-                .tasklet(new DataSourceLoadTasklet(dataSourceDao, clock, source), transactionManager)
+                .tasklet(new DataSourceLoadTasklet(dataSourceRepository, clock, source), transactionManager)
                 .build();
     }
 }
