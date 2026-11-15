@@ -16,18 +16,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 
 @ExtendWith(MockitoExtension.class)
-class DataSourceLoadTaskletTest {
+class CollectStatusTaskletTest {
 
     private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-11-03T19:00:00Z"), ZoneId.of("Asia/Seoul"));
 
     @Mock
-    DataSourceRepository dataSourceRepository;
+    CollectStatusRepository collectStatusRepository;
 
-    DataSourceLoadTasklet tasklet;
+    CollectStatusTasklet tasklet;
 
     @BeforeEach
     void setUp() {
-        tasklet = new DataSourceLoadTasklet(dataSourceRepository, CLOCK, "RENT_DEAL");
+        tasklet = new CollectStatusTasklet(collectStatusRepository, CLOCK, "RENT_DEAL");
     }
 
     @Test
@@ -38,6 +38,6 @@ class DataSourceLoadTaskletTest {
 
         // then
         assertThat(status).isEqualTo(RepeatStatus.FINISHED);
-        then(dataSourceRepository).should().saveLoadedAt("RENT_DEAL", LocalDateTime.of(2026, 11, 4, 4, 0));
+        then(collectStatusRepository).should().saveLoadedAt("RENT_DEAL", LocalDateTime.of(2026, 11, 4, 4, 0));
     }
 }

@@ -3,8 +3,8 @@ package kr.jipsee.batch.deal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import kr.jipsee.batch.common.DataSourceLoadTasklet;
-import kr.jipsee.batch.common.DataSourceRepository;
+import kr.jipsee.batch.common.CollectStatusRepository;
+import kr.jipsee.batch.common.CollectStatusTasklet;
 import kr.jipsee.deal.client.RtmsApiClient;
 import kr.jipsee.deal.client.RtmsRhRentClient;
 import kr.jipsee.deal.client.RtmsRhTradeClient;
@@ -167,10 +167,10 @@ public class DealJobConfig {
     Step rentLoadedAtStep(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
-            DataSourceRepository dataSourceRepository,
+            CollectStatusRepository collectStatusRepository,
             Clock clock) {
         return loadedAtStep(
-                "rentLoadedAtStep", jobRepository, transactionManager, dataSourceRepository, clock, RENT_SOURCE);
+                "rentLoadedAtStep", jobRepository, transactionManager, collectStatusRepository, clock, RENT_SOURCE);
     }
 
     /** SALE_DEAL의 마지막 수집 시각을 갱신하는 Step. 수집 Step 다음에 실행 */
@@ -178,10 +178,10 @@ public class DealJobConfig {
     Step saleLoadedAtStep(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
-            DataSourceRepository dataSourceRepository,
+            CollectStatusRepository collectStatusRepository,
             Clock clock) {
         return loadedAtStep(
-                "saleLoadedAtStep", jobRepository, transactionManager, dataSourceRepository, clock, SALE_SOURCE);
+                "saleLoadedAtStep", jobRepository, transactionManager, collectStatusRepository, clock, SALE_SOURCE);
     }
 
     /** 키 하나를 chunk 하나, 트랜잭션 하나로 처리하는 수집 Step 생성 */
@@ -206,11 +206,11 @@ public class DealJobConfig {
             String name,
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
-            DataSourceRepository dataSourceRepository,
+            CollectStatusRepository collectStatusRepository,
             Clock clock,
             String source) {
         return new StepBuilder(name, jobRepository)
-                .tasklet(new DataSourceLoadTasklet(dataSourceRepository, clock, source), transactionManager)
+                .tasklet(new CollectStatusTasklet(collectStatusRepository, clock, source), transactionManager)
                 .build();
     }
 }
