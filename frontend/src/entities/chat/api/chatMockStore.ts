@@ -1,4 +1,4 @@
-import type { ChatMockUser } from "@/entities/chat/model/chatMockUser";
+import type { ChatMockUser } from "@/entities/chat/api/chatMockUser";
 
 const globalForStore = globalThis as typeof globalThis & {
 	chatMockStore?: Map<string, ChatMockUser>;

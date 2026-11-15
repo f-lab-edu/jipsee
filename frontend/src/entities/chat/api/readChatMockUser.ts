@@ -3,7 +3,7 @@ import {
 	chatMockCookieName,
 	chatMockStore,
 } from "@/entities/chat/api/chatMockStore";
-import type { ChatMockUser } from "@/entities/chat/model/chatMockUser";
+import type { ChatMockUser } from "@/entities/chat/api/chatMockUser";
 
 /**
  * 채팅 > 목업 사용자 상태 조회

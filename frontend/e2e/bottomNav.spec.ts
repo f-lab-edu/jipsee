@@ -1,7 +1,7 @@
 // 모바일과 태블릿 하단 내비게이션, 흰 세로 열, 하단 푸터 UI TC
 // 기대값: 설계 문서(2026-11-12-mobile-nav-card-design.md) 3, 6, 9, 10절과 캔버스 Col*Mobile, Col*Tablet 보드
 // 안전 영역 높이는 브라우저에서 값이 0이라 확인하지 않음
-// /me는 sessionMock이 { provider: "KAKAO" }일 때만 열려 TC_SESSION=in일 때만 돌림. 로그아웃 전제 TC는 TC_SESSION=in이면 건너뜀
+// /me는 로그인 상태에서만 열려 TC_SESSION=in일 때만 돌림. 로그인 상태는 쿠키로 정함(e2e/support/mockStorageState.ts). 로그아웃 전제 TC는 TC_SESSION=in이면 건너뜀
 import { expect } from "@playwright/test";
 import { parseShadow } from "./support/bottomNav/parseShadow";
 import { readColumn } from "./support/bottomNav/readColumn";

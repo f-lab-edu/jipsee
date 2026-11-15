@@ -1,5 +1,5 @@
-import { chatMockScenario } from "@/entities/chat/api/chatMock";
 import { createChatMockChats } from "@/entities/chat/api/createChatMockChats";
+import { readChatMockScenario } from "@/entities/chat/api/readChatMockScenario";
 import { readChatMockUser } from "@/entities/chat/api/readChatMockUser";
 import type { ChatSummary } from "@/entities/chat/model/chatSummary";
 
@@ -11,7 +11,7 @@ import type { ChatSummary } from "@/entities/chat/model/chatSummary";
  * - 백엔드가 없어 목업이 조회를 대신함
  */
 export async function getChatList(): Promise<ChatSummary[]> {
-	if (chatMockScenario === "noHistory") {
+	if ((await readChatMockScenario()) === "noHistory") {
 		return [];
 	}
 
