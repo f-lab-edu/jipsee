@@ -3,7 +3,7 @@
 // S6 치수와 색(P6)은 캔버스 S6 보드 6장과 다크 짝(S6TermsMobile 등, 캔버스 https://claude.ai/artifact/CqbqcKedWvYUEwqB77ZKj6 "S6 정책")에서 가져옴. 보드가 설계 문서와 다르면 보드를 따름
 // 본문 글자는 config 데이터와 화면의 개수와 일치만 확인함(정식 본문으로 바뀌면 config만 바꿈)
 // Seed fontWeight에 600이 없어 보드의 글자 굵기 600은 700으로 확인함
-// 로그인 상태 TC는 sessionMock이 { provider: "KAKAO" }일 때만 의미가 있어 TC_SESSION=in일 때만 돌림. 로그아웃 전제 TC는 TC_SESSION=in이면 건너뜀
+// 로그인 상태 TC는 TC_SESSION=in일 때만 돌림. 로그인 상태는 쿠키로 정함(e2e/support/mockStorageState.ts). 로그아웃 전제 TC는 TC_SESSION=in이면 건너뜀
 import { expect, type Page } from "@playwright/test";
 import { privacyDocument } from "../src/pages/policy/config/privacyDocument";
 import { termsDocument } from "../src/pages/policy/config/termsDocument";

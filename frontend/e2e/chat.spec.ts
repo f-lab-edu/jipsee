@@ -1,7 +1,7 @@
 // S3 집사 UI TC
 // 기대값: 설계 문서(2026-11-13-s3-chat-design.md) 10절과 11절 사용자 결정, 캔버스 S3 보드
-// 로그인 TC는 sessionMock이 { provider: "KAKAO" }일 때만 의미가 있어 TC_SESSION=in일 때만 돌림. 로그아웃 TC는 TC_SESSION=in이면 건너뜀
-// 시나리오 TC는 chatMock.ts의 chatMockScenario와 같은 값을 TC_CHAT(dailyLimit, noHistory)으로 알려 줘야 함. 오류 TC는 요청을 가로채 오류 응답을 주므로 normal에서 돎
+// 로그인 TC는 TC_SESSION=in일 때만 돌림. 로그아웃 TC는 TC_SESSION=in이면 건너뜀. 로그인 상태는 쿠키로 정하므로 앱 소스는 고치지 않음(e2e/support/mockStorageState.ts)
+// 시나리오 TC는 TC_CHAT(dailyLimit, noHistory)으로 시나리오를 정함. 오류 TC는 요청을 가로채 오류 응답을 주므로 normal에서 돎
 // 확인 창 폭은 S5 탈퇴 확인 창과 같은 Seed 기본값 480임(설계 문서는 400으로 적었으나 S5 TC가 480으로 정함)
 import { expect, type Page } from "@playwright/test";
 import { parseShadow } from "./support/bottomNav/parseShadow";
@@ -426,7 +426,7 @@ test.describe("고정 안내 답변", () => {
 test.describe("일일 한도 시나리오", () => {
 	test.skip(
 		!LOGGED_IN || CHAT_SCENARIO !== "dailyLimit",
-		"TC_SESSION=in이고 chatMockScenario와 TC_CHAT이 dailyLimit일 때만 돌림",
+		"TC_SESSION=in이고 TC_CHAT이 dailyLimit일 때만 돌림",
 	);
 
 	for (const [index, viewport] of [MOBILE, DESKTOP].entries()) {
@@ -823,7 +823,7 @@ test.describe("대화 목록", () => {
 test.describe("빈 대화 목록 시나리오", () => {
 	test.skip(
 		!LOGGED_IN || CHAT_SCENARIO !== "noHistory",
-		"TC_SESSION=in이고 chatMockScenario와 TC_CHAT이 noHistory일 때만 돌림",
+		"TC_SESSION=in이고 TC_CHAT이 noHistory일 때만 돌림",
 	);
 	test.use({ viewport: MOBILE });
 
@@ -1511,7 +1511,7 @@ test.describe("데스크톱 레일 동작", () => {
 test.describe("데스크톱 빈 목록 시나리오", () => {
 	test.skip(
 		!LOGGED_IN || CHAT_SCENARIO !== "noHistory",
-		"TC_SESSION=in이고 chatMockScenario와 TC_CHAT이 noHistory일 때만 돌림",
+		"TC_SESSION=in이고 TC_CHAT이 noHistory일 때만 돌림",
 	);
 	test.use({ viewport: DESKTOP });
 
@@ -1533,7 +1533,7 @@ test.describe("데스크톱 빈 목록 시나리오", () => {
 test.describe("데스크톱 한도 시나리오", () => {
 	test.skip(
 		!LOGGED_IN || CHAT_SCENARIO !== "dailyLimit",
-		"TC_SESSION=in이고 chatMockScenario와 TC_CHAT이 dailyLimit일 때만 돌림",
+		"TC_SESSION=in이고 TC_CHAT이 dailyLimit일 때만 돌림",
 	);
 	test.use({ viewport: DESKTOP });
 
