@@ -7,7 +7,7 @@ import ConfirmDialog from "@/shared/ui/ConfirmDialog";
 /**
  * 회원 탈퇴 > 버튼
  *
- * - 글자 버튼을 누르면 확인 창을 엶
+ * - 글자 버튼을 누르면 확인 창 열기
  */
 export default function WithdrawButton() {
 	const style = withdrawStyles;

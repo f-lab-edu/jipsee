@@ -24,8 +24,8 @@ interface ChatPanelDesktopProps {
  * - 비로그인 시 맨 아래에 로그인 유도 버튼 출력
  */
 export default function ChatPanelDesktop({ session }: ChatPanelDesktopProps) {
-	const style = chatPanelDesktopStyles;
 	const titleId = useId();
+	const style = chatPanelDesktopStyles;
 
 	return (
 		<VStack

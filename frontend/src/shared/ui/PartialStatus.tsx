@@ -17,8 +17,8 @@ interface PartialStatusProps {
  * 공통 > 영역 상태
  *
  * - 화면 일부만 실패했을 때 그 영역 안에 아이콘, 제목, 다시 시도 버튼 출력
- * - 제목은 role="alert"로 알림
- * - 다시 시도는 서버 데이터를 다시 요청해 영역을 새로 그림
+ * - 제목은 role="alert"로 안내
+ * - 다시 시도는 서버 데이터를 다시 요청해 영역 새로 그리기
  */
 export default function PartialStatus({ layout, kind }: PartialStatusProps) {
 	const style = partialStatusStyles[layout];

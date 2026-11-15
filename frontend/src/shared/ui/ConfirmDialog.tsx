@@ -21,9 +21,9 @@ interface ConfirmDialogProps {
 /**
  * 확인 창
  *
- * - trigger를 누르면 확인 창을 엶
+ * - trigger를 누르면 확인 창 열기
  * - lg 미만은 바텀시트, lg 이상은 대화상자로 출력
- * - 화면 폭이 lg 경계를 넘으면 루트를 새로 만들어 열려 있던 창을 닫음
+ * - 화면 폭이 lg 경계를 넘으면 루트를 새로 만들어 열려 있던 창 닫기
  *
  * @param trigger 창을 여는 버튼 요소
  * @param action 확인 시 POST할 경로

@@ -14,12 +14,12 @@ interface DeleteChatButtonProps {
 /**
  * 대화 삭제 > 버튼
  *
- * - 삭제 버튼을 누르면 확인 창을 엶
+ * - 삭제 버튼을 누르면 확인 창 열기
  * - 접근 가능한 이름은 삭제: 제목
  *
  * @param chatId 삭제할 대화 번호
  * @param title 접근 가능한 이름에 붙일 대화 제목
- * @param variant 목록 화면은 list, 데스크톱 레일은 rail. 버튼 크기를 정함
+ * @param variant 목록 화면은 list, 데스크톱 레일은 rail. 버튼 크기 결정
  */
 export default function DeleteChatButton({
 	chatId,

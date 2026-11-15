@@ -29,9 +29,9 @@ interface ConfirmDialogContentProps {
  * 확인 창 > 내용
  *
  * - 제목, 설명, 취소와 확인 버튼 출력
- * - 취소는 창을 닫음
+ * - 취소는 창 닫기
  * - 확인은 action 경로로 POST하는 폼의 제출 버튼이며 닫기 동작으로 감싸지 않음
- * - 폼을 제출하면 확인 버튼을 비활성화해 중복 요청을 막음
+ * - 폼을 제출하면 확인 버튼을 비활성화해 중복 요청 방지
  *
  * @param action 확인 시 POST할 경로
  * @param dataArea 내용 요소에 붙일 data-area 값
@@ -43,8 +43,8 @@ export default function ConfirmDialogContent({
 	action,
 	dataArea,
 }: ConfirmDialogContentProps) {
-	const style = confirmDialogStyles;
 	const [isSubmitted, setIsSubmitted] = useState(false);
+	const style = confirmDialogStyles;
 
 	return (
 		<>

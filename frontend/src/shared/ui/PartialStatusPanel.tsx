@@ -10,7 +10,7 @@ interface PartialStatusPanelProps {
  * 공통 > 영역 상태 패널
  *
  * - 화면 전체를 바꾸지 않고 실패한 본문 영역만 대신해 출력
- * - 모바일과 데스크톱 레이아웃을 모두 그리고 화면 폭에 맞는 쪽만 보임
+ * - 모바일과 데스크톱 레이아웃을 모두 그리고 화면 폭에 맞는 쪽만 노출
  */
 export default function PartialStatusPanel({ kind }: PartialStatusPanelProps) {
 	return (

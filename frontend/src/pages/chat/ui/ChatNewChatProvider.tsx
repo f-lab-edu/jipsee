@@ -10,8 +10,8 @@ interface ChatNewChatProviderProps {
 /**
  * 채팅 > 새 대화 신호 제공자
  *
- * - 새 대화 링크를 누를 때마다 신호 횟수를 올림
- * - 대화 본문은 이 횟수를 key로 써 같은 주소에서도 새로 시작함
+ * - 새 대화 링크를 누를 때마다 신호 횟수 증가
+ * - 대화 본문은 이 횟수를 key로 사용해 같은 주소에서도 새로 시작
  */
 export default function ChatNewChatProvider({
 	children,

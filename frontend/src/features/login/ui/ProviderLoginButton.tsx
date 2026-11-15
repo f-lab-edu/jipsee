@@ -17,7 +17,7 @@ interface ProviderLoginButtonProps {
  * - OAuth 시작 경로로 이동하는 링크 출력
  * - 백엔드 경로라 Next 링크를 쓰지 않음
  *
- * @param next 로그인 뒤 돌아갈 경로. 있으면 시작 경로에 붙임
+ * @param next 로그인 뒤 돌아갈 경로. 있으면 시작 경로에 추가
  */
 export default function ProviderLoginButton({
 	provider,

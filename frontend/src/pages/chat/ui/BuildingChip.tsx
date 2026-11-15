@@ -12,7 +12,7 @@ interface BuildingChipProps {
  *
  * - 건물 이름이나 주소 뒤에 기준을 붙여 출력
  * - 누르거나 지울 수 없는 표시 전용
- * - 1280 이상은 폭 720 대화 열의 왼쪽 끝에 맞춤
+ * - 1280 이상은 폭 720 대화 열의 왼쪽 끝에 정렬
  */
 export default function BuildingChip({ name }: BuildingChipProps) {
 	const style = chatScreenStyles;

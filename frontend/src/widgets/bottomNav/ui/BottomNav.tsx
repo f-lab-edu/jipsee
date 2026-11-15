@@ -17,11 +17,11 @@ interface BottomNavProps {
  *
  * - 1280 미만에서만 보이고 화면 아래에 붙는 nav
  * - 홈, 집사, 내 정보 탭 출력
- * - 활성 탭은 현재 경로로 정함
+ * - 활성 탭은 현재 경로로 결정
  */
 export default function BottomNav({ session }: BottomNavProps) {
-	const style = bottomNavStyles;
 	const pathname = usePathname() ?? "";
+	const style = bottomNavStyles;
 
 	return (
 		<Box

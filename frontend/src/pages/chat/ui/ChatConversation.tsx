@@ -15,7 +15,7 @@ interface ChatConversationProps {
 /**
  * 채팅 > 대화
  *
- * - 새 대화 링크를 누를 때마다 대화 본문을 새로 시작해 진행 중인 스트림과 입력을 버림
+ * - 새 대화 링크를 누를 때마다 대화 본문을 새로 시작해 진행 중인 스트림과 입력 버리기
  */
 export default function ChatConversation(props: ChatConversationProps) {
 	const { newChatCount } = useNewChat();

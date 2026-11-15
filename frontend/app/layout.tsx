@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 	twitter: { card: siteMetadata.twitterCard },
 };
 
-// env(safe-area-inset-bottom)가 값을 가지려면 viewport-fit=cover가 필요함
+// env(safe-area-inset-bottom)가 값을 가지려면 viewport-fit=cover 필요
 export const viewport: Viewport = { viewportFit: "cover" };
 
 /**
