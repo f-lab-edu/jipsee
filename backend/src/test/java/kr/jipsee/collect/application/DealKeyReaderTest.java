@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.YearMonth;
 import java.util.List;
-import kr.jipsee.collect.dto.DealKey;
+import kr.jipsee.deal.dto.DealKey;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.infrastructure.item.ExecutionContext;

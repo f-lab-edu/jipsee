@@ -4,9 +4,9 @@ import static org.mockito.BDDMockito.then;
 
 import java.time.YearMonth;
 import java.util.List;
-import kr.jipsee.collect.dto.DealKey;
-import kr.jipsee.collect.dto.DealReplaceItem;
-import kr.jipsee.deal.application.DealReplacer;
+import kr.jipsee.deal.dto.DealKey;
+import kr.jipsee.deal.dto.DealReplaceItem;
+import kr.jipsee.deal.service.DealReplacer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

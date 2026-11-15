@@ -1,4 +1,4 @@
-package kr.jipsee.deal.application;
+package kr.jipsee.deal.service;
 
 import java.time.YearMonth;
 import java.util.List;

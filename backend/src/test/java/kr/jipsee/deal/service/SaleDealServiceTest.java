@@ -1,4 +1,4 @@
-package kr.jipsee.deal.application;
+package kr.jipsee.deal.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;

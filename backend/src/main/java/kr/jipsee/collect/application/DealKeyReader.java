@@ -1,7 +1,7 @@
 package kr.jipsee.collect.application;
 
 import java.util.List;
-import kr.jipsee.collect.dto.DealKey;
+import kr.jipsee.deal.dto.DealKey;
 import org.springframework.batch.infrastructure.item.support.AbstractItemCountingItemStreamItemReader;
 
 /**

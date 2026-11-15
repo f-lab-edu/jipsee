@@ -5,7 +5,7 @@ import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import kr.jipsee.collect.dto.DealKey;
+import kr.jipsee.deal.dto.DealKey;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

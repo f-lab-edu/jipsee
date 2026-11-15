@@ -1,9 +1,9 @@
-package kr.jipsee.deal.application;
+package kr.jipsee.deal.service;
 
 import java.time.YearMonth;
 import java.util.List;
-import kr.jipsee.deal.dao.RentDealDao;
 import kr.jipsee.deal.dto.RentDealRow;
+import kr.jipsee.deal.repository.RentDealRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,17 +14,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class RentDealService implements DealReplacer<RentDealRow> {
 
-    private final RentDealDao rentDealDao;
+    private final RentDealRepository rentDealRepository;
 
     @Override
     public int countByMonth(String sigunguCode, YearMonth dealMonth) {
-        return rentDealDao.countByMonth(sigunguCode, dealMonth);
+        return rentDealRepository.countByMonth(sigunguCode, dealMonth);
     }
 
     @Override
     @Transactional
     public void replace(String sigunguCode, YearMonth dealMonth, List<RentDealRow> rows) {
-        rentDealDao.deleteByMonth(sigunguCode, dealMonth);
-        rentDealDao.insertAll(rows);
+        rentDealRepository.deleteByMonth(sigunguCode, dealMonth);
+        rentDealRepository.insertAll(rows);
     }
 }

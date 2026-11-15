@@ -1,4 +1,4 @@
-package kr.jipsee.collect.client;
+package kr.jipsee.deal.client;
 
 import java.time.LocalDate;
 import java.time.YearMonth;

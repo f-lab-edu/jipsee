@@ -1,4 +1,4 @@
-package kr.jipsee.collect.dto;
+package kr.jipsee.deal.dto;
 
 import java.util.List;
 

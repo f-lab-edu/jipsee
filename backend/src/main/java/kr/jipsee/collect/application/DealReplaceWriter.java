@@ -1,7 +1,7 @@
 package kr.jipsee.collect.application;
 
-import kr.jipsee.collect.dto.DealReplaceItem;
-import kr.jipsee.deal.application.DealReplacer;
+import kr.jipsee.deal.dto.DealReplaceItem;
+import kr.jipsee.deal.service.DealReplacer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.batch.infrastructure.item.ItemWriter;

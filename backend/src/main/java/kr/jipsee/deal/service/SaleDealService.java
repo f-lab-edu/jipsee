@@ -1,9 +1,9 @@
-package kr.jipsee.deal.application;
+package kr.jipsee.deal.service;
 
 import java.time.YearMonth;
 import java.util.List;
-import kr.jipsee.deal.dao.SaleDealDao;
 import kr.jipsee.deal.dto.SaleDealRow;
+import kr.jipsee.deal.repository.SaleDealRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,17 +14,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class SaleDealService implements DealReplacer<SaleDealRow> {
 
-    private final SaleDealDao saleDealDao;
+    private final SaleDealRepository saleDealRepository;
 
     @Override
     public int countByMonth(String sigunguCode, YearMonth dealMonth) {
-        return saleDealDao.countByMonth(sigunguCode, dealMonth);
+        return saleDealRepository.countByMonth(sigunguCode, dealMonth);
     }
 
     @Override
     @Transactional
     public void replace(String sigunguCode, YearMonth dealMonth, List<SaleDealRow> rows) {
-        saleDealDao.deleteByMonth(sigunguCode, dealMonth);
-        saleDealDao.insertAll(rows);
+        saleDealRepository.deleteByMonth(sigunguCode, dealMonth);
+        saleDealRepository.insertAll(rows);
     }
 }

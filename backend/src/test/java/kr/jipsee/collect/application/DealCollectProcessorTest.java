@@ -11,10 +11,10 @@ import static org.mockito.Mockito.never;
 
 import java.time.YearMonth;
 import java.util.List;
-import kr.jipsee.collect.client.RtmsApiClient;
-import kr.jipsee.collect.dto.DealKey;
-import kr.jipsee.collect.dto.DealReplaceItem;
-import kr.jipsee.deal.application.DealReplacer;
+import kr.jipsee.deal.client.RtmsApiClient;
+import kr.jipsee.deal.dto.DealKey;
+import kr.jipsee.deal.dto.DealReplaceItem;
+import kr.jipsee.deal.service.DealReplacer;
 import kr.jipsee.global.publicdata.PublicDataApiException;
 import kr.jipsee.global.publicdata.PublicDataPage;
 import org.junit.jupiter.api.BeforeEach;

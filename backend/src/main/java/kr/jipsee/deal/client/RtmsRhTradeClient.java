@@ -1,4 +1,4 @@
-package kr.jipsee.collect.client;
+package kr.jipsee.deal.client;
 
 import kr.jipsee.deal.dto.SaleDealRow;
 import kr.jipsee.global.publicdata.PublicDataItem;
