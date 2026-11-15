@@ -4,6 +4,6 @@ spring:
     fail-on-missing-locations: true
 
 jipsee:
-  collect:
+  public-data:
     api:
       service-key: test-service-key

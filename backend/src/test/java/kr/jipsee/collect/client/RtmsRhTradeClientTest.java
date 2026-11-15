@@ -8,9 +8,12 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import kr.jipsee.collect.config.CollectProperties;
-import kr.jipsee.collect.exception.RtmsApiException;
 import kr.jipsee.deal.dto.SaleDealRow;
+import kr.jipsee.global.publicdata.PublicDataApiClient;
+import kr.jipsee.global.publicdata.PublicDataApiException;
+import kr.jipsee.global.publicdata.PublicDataItem;
+import kr.jipsee.global.publicdata.PublicDataPage;
+import kr.jipsee.global.publicdata.PublicDataProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +38,7 @@ class RtmsRhTradeClientTest {
                 PublicDataApiClient.restClient(builder, "http://localhost/1613000"),
                 PublicDataApiClient.retryTemplate(Duration.ofMillis(1)),
                 JSON,
-                new CollectProperties(new CollectProperties.Api("http://localhost/1613000", "test-key"), null));
+                new PublicDataProperties(new PublicDataProperties.Api("http://localhost/1613000", "test-key")));
     }
 
     /** 거래 JSON들을 담은 정상 응답 본문 */
@@ -48,8 +51,8 @@ class RtmsRhTradeClientTest {
         server.expect(request -> {}).andRespond(withSuccess(pageBody(items), MediaType.APPLICATION_JSON));
     }
 
-    private static RtmsItem item(String json) {
-        return RtmsItem.of(JSON.readTree(json));
+    private static PublicDataItem item(String json) {
+        return PublicDataItem.of(JSON.readTree(json));
     }
 
     @Test
@@ -64,7 +67,7 @@ class RtmsRhTradeClientTest {
         respondWith(plain);
 
         // when
-        RtmsPage<SaleDealRow> page = client.fetch("12170", OCTOBER, 1);
+        PublicDataPage<SaleDealRow> page = client.fetch("12170", OCTOBER, 1);
 
         // then
         assertThat(page.items())
@@ -86,7 +89,7 @@ class RtmsRhTradeClientTest {
     @DisplayName("해제된 거래는 해제 구분과 20YY-MM-DD로 바꾼 해제일을 담음")
     void 해제된_거래는_해제_구분과_20YY_MM_DD로_바꾼_해제일을_담음() {
         // given
-        RtmsItem cancelled = item("""
+        PublicDataItem cancelled = item("""
                 {"buildYear":2007,"cdealDay":"26.03.15","cdealType":"O","dealAmount":4800,"dealDay":14,"dealMonth":10,
                  "dealYear":2025,"excluUseAr":74,"floor":2,"jibun":745,"mhouseNm":" ","sggCd":12170,"umdNm":"이창동"}""");
 
@@ -102,8 +105,8 @@ class RtmsRhTradeClientTest {
     }
 
     @Test
-    @DisplayName("응답 행의 계약 월이 요청과 다르면 RtmsApiException을 던짐")
-    void 응답_행의_계약_월이_요청과_다르면_RtmsApiException을_던짐() {
+    @DisplayName("응답 행의 계약 월이 요청과 다르면 PublicDataApiException을 던짐")
+    void 응답_행의_계약_월이_요청과_다르면_PublicDataApiException을_던짐() {
         // given
         String otherMonth = """
                 {"dealAmount":4800,"dealDay":14,"dealMonth":9,"dealYear":2026,"excluUseAr":74,"jibun":745,
@@ -114,12 +117,12 @@ class RtmsRhTradeClientTest {
         Throwable thrown = catchThrowable(() -> client.fetch("12170", OCTOBER, 1));
 
         // then
-        assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("2026-09");
+        assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("2026-09");
     }
 
     @Test
-    @DisplayName("응답 행의 시군구가 요청과 다르면 RtmsApiException을 던짐")
-    void 응답_행의_시군구가_요청과_다르면_RtmsApiException을_던짐() {
+    @DisplayName("응답 행의 시군구가 요청과 다르면 PublicDataApiException을 던짐")
+    void 응답_행의_시군구가_요청과_다르면_PublicDataApiException을_던짐() {
         // given
         String otherSigungu = """
                 {"dealAmount":4800,"dealDay":14,"dealMonth":10,"dealYear":2026,"excluUseAr":74,"jibun":745,
@@ -130,6 +133,6 @@ class RtmsRhTradeClientTest {
         Throwable thrown = catchThrowable(() -> client.fetch("12170", OCTOBER, 1));
 
         // then
-        assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("11110");
+        assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("11110");
     }
 }

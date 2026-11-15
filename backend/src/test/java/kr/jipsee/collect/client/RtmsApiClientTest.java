@@ -11,8 +11,11 @@ import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.time.YearMonth;
 import java.util.function.Function;
-import kr.jipsee.collect.exception.RtmsApiException;
-import kr.jipsee.collect.exception.RtmsApiTransientException;
+import kr.jipsee.global.publicdata.PublicDataApiClient;
+import kr.jipsee.global.publicdata.PublicDataApiException;
+import kr.jipsee.global.publicdata.PublicDataApiTransientException;
+import kr.jipsee.global.publicdata.PublicDataItem;
+import kr.jipsee.global.publicdata.PublicDataPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -58,7 +61,7 @@ class RtmsApiClientTest {
     }
 
     /** 응답 거래를 그대로 반환하는 테스트용 클라이언트 */
-    private static class TestClient extends RtmsApiClient<RtmsItem> {
+    private static class TestClient extends RtmsApiClient<PublicDataItem> {
         TestClient(RestClient restClient, RetryTemplate retryTemplate) {
             super(restClient, retryTemplate, JsonMapper.builder().build(), KEY, PATH, Function.identity());
         }
@@ -76,7 +79,7 @@ class RtmsApiClientTest {
                 PublicDataApiClient.retryTemplate(Duration.ofMillis(1)));
     }
 
-    private RtmsPage<RtmsItem> call() {
+    private PublicDataPage<PublicDataItem> call() {
         return client.fetch("11110", OCTOBER, 1);
     }
 
@@ -108,7 +111,7 @@ class RtmsApiClientTest {
         void 거래가_여러_건이면_resultCode_totalCount_거래_목록을_반환함() {
             server.expect(request -> {}).andRespond(withSuccess(TWO_ITEMS_BODY, MediaType.APPLICATION_JSON));
 
-            RtmsPage<RtmsItem> page = call();
+            PublicDataPage<PublicDataItem> page = call();
 
             assertThat(page.resultCode()).isEqualTo("000");
             assertThat(page.totalCount()).isEqualTo(2);
@@ -122,7 +125,7 @@ class RtmsApiClientTest {
         void 거래가_1건이라_item이_객체로_와도_목록_1개로_반환함() {
             server.expect(request -> {}).andRespond(withSuccess(ONE_ITEM_BODY, MediaType.APPLICATION_JSON));
 
-            RtmsPage<RtmsItem> page = call();
+            PublicDataPage<PublicDataItem> page = call();
 
             assertThat(page.totalCount()).isEqualTo(1);
             assertThat(page.items()).hasSize(1);
@@ -134,7 +137,7 @@ class RtmsApiClientTest {
         void 거래가_0건이라_items가_빈_문자열로_와도_빈_목록을_반환함() {
             server.expect(request -> {}).andRespond(withSuccess(EMPTY_BODY, MediaType.APPLICATION_JSON));
 
-            RtmsPage<RtmsItem> page = call();
+            PublicDataPage<PublicDataItem> page = call();
 
             assertThat(page.resultCode()).isEqualTo("000");
             assertThat(page.totalCount()).isZero();
@@ -152,7 +155,7 @@ class RtmsApiClientTest {
             server.expect(ExpectedCount.times(2), request -> {}).andRespond(withServerError());
             server.expect(request -> {}).andRespond(withSuccess(TWO_ITEMS_BODY, MediaType.APPLICATION_JSON));
 
-            RtmsPage<RtmsItem> page = call();
+            PublicDataPage<PublicDataItem> page = call();
 
             assertThat(page.items()).hasSize(2);
             server.verify();
@@ -167,7 +170,7 @@ class RtmsApiClientTest {
                             .body("Bad Gateway"));
             server.expect(request -> {}).andRespond(withSuccess(TWO_ITEMS_BODY, MediaType.APPLICATION_JSON));
 
-            RtmsPage<RtmsItem> page = call();
+            PublicDataPage<PublicDataItem> page = call();
 
             assertThat(page.items()).hasSize(2);
             server.verify();
@@ -181,7 +184,7 @@ class RtmsApiClientTest {
             server.expect(request -> {}).andRespond(withSuccess(TWO_ITEMS_BODY, MediaType.APPLICATION_JSON));
 
             // when
-            RtmsPage<RtmsItem> page = call();
+            PublicDataPage<PublicDataItem> page = call();
 
             // then
             assertThat(page.items()).hasSize(2);
@@ -189,8 +192,8 @@ class RtmsApiClientTest {
         }
 
         @Test
-        @DisplayName("본문이 빈 200이 계속되면 처음 한 번과 재시도 세 번 뒤에 RtmsApiTransientException으로 실패함")
-        void 본문이_빈_200이_계속되면_처음_한_번과_재시도_세_번_뒤에_RtmsApiTransientException으로_실패함() {
+        @DisplayName("본문이 빈 200이 계속되면 처음 한 번과 재시도 세 번 뒤에 PublicDataApiTransientException으로 실패함")
+        void 본문이_빈_200이_계속되면_처음_한_번과_재시도_세_번_뒤에_PublicDataApiTransientException으로_실패함() {
             // given
             server.expect(ExpectedCount.times(4), request -> {})
                     .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
@@ -199,7 +202,9 @@ class RtmsApiClientTest {
             Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
             // then
-            assertThat(thrown).isInstanceOf(RtmsApiTransientException.class).hasMessageContaining("빈 응답(HTTP 200)");
+            assertThat(thrown)
+                    .isInstanceOf(PublicDataApiTransientException.class)
+                    .hasMessageContaining("빈 응답(HTTP 200)");
             assertThat(thrown.getMessage()).doesNotContain("abc");
             server.verify();
         }
@@ -212,7 +217,7 @@ class RtmsApiClientTest {
             Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
             assertThat(thrown)
-                    .isInstanceOf(RtmsApiException.class)
+                    .isInstanceOf(PublicDataApiException.class)
                     .hasMessageContaining("11110")
                     .hasNoCause();
             assertThat(thrown.getMessage()).doesNotContain("abc");
@@ -220,14 +225,14 @@ class RtmsApiClientTest {
         }
 
         @Test
-        @DisplayName("타임아웃이 계속되면 서비스 키가 없는 RtmsApiException으로 실패함")
-        void 타임아웃이_계속되면_서비스_키가_없는_RtmsApiException으로_실패함() {
+        @DisplayName("타임아웃이 계속되면 서비스 키가 없는 PublicDataApiException으로 실패함")
+        void 타임아웃이_계속되면_서비스_키가_없는_PublicDataApiException으로_실패함() {
             server.expect(ExpectedCount.times(4), request -> {})
                     .andRespond(withException(new SocketTimeoutException("Read timed out")));
 
             Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
-            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasNoCause();
+            assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasNoCause();
             assertThat(thrown.getMessage()).doesNotContain("abc").doesNotContain("serviceKey");
             server.verify();
         }
@@ -242,7 +247,7 @@ class RtmsApiClientTest {
                             .body(JSON_LIMIT_23));
             server.expect(request -> {}).andRespond(withSuccess(TWO_ITEMS_BODY, MediaType.APPLICATION_JSON));
 
-            RtmsPage<RtmsItem> page = call();
+            PublicDataPage<PublicDataItem> page = call();
 
             assertThat(page.items()).hasSize(2);
             server.verify();
@@ -257,7 +262,7 @@ class RtmsApiClientTest {
                             MediaType.APPLICATION_XML));
             server.expect(request -> {}).andRespond(withSuccess(TWO_ITEMS_BODY, MediaType.APPLICATION_JSON));
 
-            RtmsPage<RtmsItem> page = call();
+            PublicDataPage<PublicDataItem> page = call();
 
             assertThat(page.items()).hasSize(2);
             server.verify();
@@ -270,20 +275,22 @@ class RtmsApiClientTest {
 
         @ParameterizedTest(name = "HTTP {0}")
         @ValueSource(ints = {400, 401, 403, 404})
-        @DisplayName("404를 포함한 4xx는 재시도하지 않고 바로 RtmsApiException으로 실패함")
-        void 사백사를_포함한_4xx는_재시도하지_않고_바로_RtmsApiException으로_실패함(int status) {
+        @DisplayName("404를 포함한 4xx는 재시도하지 않고 바로 PublicDataApiException으로 실패함")
+        void 사백사를_포함한_4xx는_재시도하지_않고_바로_PublicDataApiException으로_실패함(int status) {
             server.expect(request -> {}).andRespond(withStatus(HttpStatus.valueOf(status)));
 
             Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
-            assertThat(thrown).isInstanceOf(RtmsApiException.class).isNotInstanceOf(RtmsApiTransientException.class);
+            assertThat(thrown)
+                    .isInstanceOf(PublicDataApiException.class)
+                    .isNotInstanceOf(PublicDataApiTransientException.class);
             server.verify();
         }
 
         @ParameterizedTest(name = "HTTP {0}")
         @ValueSource(ints = {200, 429, 500})
-        @DisplayName("JSON 본문의 오류 코드가 22이면 상태 코드와 관계없이 코드를 담은 RtmsApiException으로 실패하고 재시도하지 않음 (추정한 형식)")
-        void JSON_본문의_오류_코드가_22이면_상태_코드와_관계없이_코드를_담은_RtmsApiException으로_실패하고_재시도하지_않음(int status) {
+        @DisplayName("JSON 본문의 오류 코드가 22이면 상태 코드와 관계없이 코드를 담은 PublicDataApiException으로 실패하고 재시도하지 않음 (추정한 형식)")
+        void JSON_본문의_오류_코드가_22이면_상태_코드와_관계없이_코드를_담은_PublicDataApiException으로_실패하고_재시도하지_않음(int status) {
             server.expect(request -> {})
                     .andRespond(withStatus(HttpStatus.valueOf(status))
                             .contentType(MediaType.APPLICATION_JSON)
@@ -292,16 +299,16 @@ class RtmsApiClientTest {
             Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
             assertThat(thrown)
-                    .isInstanceOf(RtmsApiException.class)
-                    .isNotInstanceOf(RtmsApiTransientException.class)
+                    .isInstanceOf(PublicDataApiException.class)
+                    .isNotInstanceOf(PublicDataApiTransientException.class)
                     .hasMessageContaining("22");
             server.verify();
         }
 
         @ParameterizedTest(name = "HTTP {0}")
         @ValueSource(ints = {200, 429, 500})
-        @DisplayName("XML 본문의 오류 코드가 22이면 상태 코드와 관계없이 코드를 담은 RtmsApiException으로 실패하고 재시도하지 않음 (관측하지 못한 형식)")
-        void XML_본문의_오류_코드가_22이면_상태_코드와_관계없이_코드를_담은_RtmsApiException으로_실패하고_재시도하지_않음(int status) {
+        @DisplayName("XML 본문의 오류 코드가 22이면 상태 코드와 관계없이 코드를 담은 PublicDataApiException으로 실패하고 재시도하지 않음 (관측하지 못한 형식)")
+        void XML_본문의_오류_코드가_22이면_상태_코드와_관계없이_코드를_담은_PublicDataApiException으로_실패하고_재시도하지_않음(int status) {
             server.expect(request -> {})
                     .andRespond(withStatus(HttpStatus.valueOf(status))
                             .contentType(MediaType.APPLICATION_XML)
@@ -310,15 +317,15 @@ class RtmsApiClientTest {
             Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
             assertThat(thrown)
-                    .isInstanceOf(RtmsApiException.class)
-                    .isNotInstanceOf(RtmsApiTransientException.class)
+                    .isInstanceOf(PublicDataApiException.class)
+                    .isNotInstanceOf(PublicDataApiTransientException.class)
                     .hasMessageContaining("22");
             server.verify();
         }
 
         @Test
-        @DisplayName("JSON 본문의 resultCode가 22여도 코드를 담은 RtmsApiException으로 실패함")
-        void JSON_본문의_resultCode가_22여도_코드를_담은_RtmsApiException으로_실패함() {
+        @DisplayName("JSON 본문의 resultCode가 22여도 코드를 담은 PublicDataApiException으로 실패함")
+        void JSON_본문의_resultCode가_22여도_코드를_담은_PublicDataApiException으로_실패함() {
             server.expect(request -> {})
                     .andRespond(withSuccess(
                             "{\"response\":{\"header\":{\"resultCode\":\"22\",\"resultMsg\":\"LIMITED\"}}}",
@@ -327,15 +334,15 @@ class RtmsApiClientTest {
             Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
             assertThat(thrown)
-                    .isInstanceOf(RtmsApiException.class)
-                    .isNotInstanceOf(RtmsApiTransientException.class)
+                    .isInstanceOf(PublicDataApiException.class)
+                    .isNotInstanceOf(PublicDataApiTransientException.class)
                     .hasMessageContaining("22");
             server.verify();
         }
 
         @Test
-        @DisplayName("오류 23이 계속되면 재시도 횟수를 다 쓴 뒤 RtmsApiException으로 실패함")
-        void 오류_23이_계속되면_재시도_횟수를_다_쓴_뒤_RtmsApiException으로_실패함() {
+        @DisplayName("오류 23이 계속되면 재시도 횟수를 다 쓴 뒤 PublicDataApiException으로 실패함")
+        void 오류_23이_계속되면_재시도_횟수를_다_쓴_뒤_PublicDataApiException으로_실패함() {
             server.expect(ExpectedCount.times(4), request -> {})
                     .andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -343,7 +350,7 @@ class RtmsApiClientTest {
 
             Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
-            assertThat(thrown).isInstanceOf(RtmsApiException.class);
+            assertThat(thrown).isInstanceOf(PublicDataApiException.class);
             server.verify();
         }
 
@@ -355,13 +362,13 @@ class RtmsApiClientTest {
 
             Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
-            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("20");
+            assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("20");
             server.verify();
         }
 
         @Test
-        @DisplayName("응답 상태가 200이어도 resultCode가 000이 아니면 RtmsApiException으로 실패함")
-        void 응답_상태가_200이어도_resultCode가_000이_아니면_RtmsApiException으로_실패함() {
+        @DisplayName("응답 상태가 200이어도 resultCode가 000이 아니면 PublicDataApiException으로 실패함")
+        void 응답_상태가_200이어도_resultCode가_000이_아니면_PublicDataApiException으로_실패함() {
             server.expect(request -> {})
                     .andRespond(withSuccess(
                             "{\"response\":{\"header\":{\"resultCode\":\"99\",\"resultMsg\":\"ERROR\"},\"body\":{\"totalCount\":0}}}",
@@ -370,15 +377,15 @@ class RtmsApiClientTest {
             Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
             assertThat(thrown)
-                    .isInstanceOf(RtmsApiException.class)
-                    .isNotInstanceOf(RtmsApiTransientException.class)
+                    .isInstanceOf(PublicDataApiException.class)
+                    .isNotInstanceOf(PublicDataApiTransientException.class)
                     .hasMessageContaining("99");
             server.verify();
         }
 
         @Test
-        @DisplayName("정상이 아닌 resultCode 00은 거래 API에서는 코드를 담은 RtmsApiException으로 실패함")
-        void 정상이_아닌_resultCode_00은_거래_API에서는_코드를_담은_RtmsApiException으로_실패함() {
+        @DisplayName("정상이 아닌 resultCode 00은 거래 API에서는 코드를 담은 PublicDataApiException으로 실패함")
+        void 정상이_아닌_resultCode_00은_거래_API에서는_코드를_담은_PublicDataApiException으로_실패함() {
             // given
             server.expect(request -> {})
                     .andRespond(withSuccess(EMPTY_BODY.replace("\"000\"", "\"00\""), MediaType.APPLICATION_JSON));
@@ -388,37 +395,37 @@ class RtmsApiClientTest {
 
             // then
             assertThat(thrown)
-                    .isInstanceOf(RtmsApiException.class)
-                    .isNotInstanceOf(RtmsApiTransientException.class)
+                    .isInstanceOf(PublicDataApiException.class)
+                    .isNotInstanceOf(PublicDataApiTransientException.class)
                     .hasMessageContaining("00");
             server.verify();
         }
 
         @Test
-        @DisplayName("JSON이 아닌 본문이면 RtmsApiException으로 실패함")
-        void JSON이_아닌_본문이면_RtmsApiException으로_실패함() {
+        @DisplayName("JSON이 아닌 본문이면 PublicDataApiException으로 실패함")
+        void JSON이_아닌_본문이면_PublicDataApiException으로_실패함() {
             server.expect(request -> {}).andRespond(withSuccess("not json", MediaType.TEXT_PLAIN));
 
             Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
-            assertThat(thrown).isInstanceOf(RtmsApiException.class);
+            assertThat(thrown).isInstanceOf(PublicDataApiException.class);
         }
 
         @Test
-        @DisplayName("응답에 resultCode가 없으면 RtmsApiException으로 실패함")
-        void 응답에_resultCode가_없으면_RtmsApiException으로_실패함() {
+        @DisplayName("응답에 resultCode가 없으면 PublicDataApiException으로 실패함")
+        void 응답에_resultCode가_없으면_PublicDataApiException으로_실패함() {
             server.expect(request -> {})
                     .andRespond(withSuccess(
                             "{\"response\":{\"body\":{\"items\":\"\",\"totalCount\":0}}}", MediaType.APPLICATION_JSON));
 
             Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
-            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("resultCode");
+            assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("resultCode");
         }
 
         @Test
-        @DisplayName("응답에 totalCount가 없으면 RtmsApiException으로 실패함")
-        void 응답에_totalCount가_없으면_RtmsApiException으로_실패함() {
+        @DisplayName("응답에 totalCount가 없으면 PublicDataApiException으로 실패함")
+        void 응답에_totalCount가_없으면_PublicDataApiException으로_실패함() {
             server.expect(request -> {})
                     .andRespond(withSuccess(
                             "{\"response\":{\"header\":{\"resultCode\":\"000\"},\"body\":{\"items\":\"\"}}}",
@@ -426,7 +433,7 @@ class RtmsApiClientTest {
 
             Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
-            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("totalCount");
+            assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("totalCount");
         }
 
         @Test
@@ -439,8 +446,8 @@ class RtmsApiClientTest {
             Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
 
             assertThat(thrown)
-                    .isInstanceOf(RtmsApiException.class)
-                    .isNotInstanceOf(RtmsApiTransientException.class)
+                    .isInstanceOf(PublicDataApiException.class)
+                    .isNotInstanceOf(PublicDataApiTransientException.class)
                     .hasNoCause()
                     .hasMessageContaining("LAWD_CD=11110")
                     .hasMessageContaining("DEAL_YMD=202610")

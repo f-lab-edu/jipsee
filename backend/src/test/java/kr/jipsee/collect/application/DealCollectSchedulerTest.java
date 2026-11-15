@@ -66,8 +66,7 @@ class DealCollectSchedulerTest {
         given(dailySaleJob.getName()).willReturn("dailySaleCollectJob");
         given(initialRentJob.getName()).willReturn("initialRentLoadJob");
         given(initialSaleJob.getName()).willReturn("initialSaleLoadJob");
-        CollectProperties properties =
-                new CollectProperties(new CollectProperties.Api("http://localhost", "key"), YearMonth.of(2026, 10));
+        CollectProperties properties = new CollectProperties(YearMonth.of(2026, 10));
         scheduler = new DealCollectScheduler(
                 jobOperator, dailyRentJob, dailySaleJob, initialRentJob, initialSaleJob, properties, CLOCK);
     }

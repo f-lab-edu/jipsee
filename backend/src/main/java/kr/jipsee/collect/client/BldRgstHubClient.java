@@ -6,7 +6,10 @@ import java.util.regex.Pattern;
 import kr.jipsee.building.dto.BuildingRegisterRow;
 import kr.jipsee.building.dto.LegalDongKey;
 import kr.jipsee.building.dto.ParcelKey;
-import kr.jipsee.collect.config.CollectProperties;
+import kr.jipsee.global.publicdata.PublicDataApiClient;
+import kr.jipsee.global.publicdata.PublicDataItem;
+import kr.jipsee.global.publicdata.PublicDataPage;
+import kr.jipsee.global.publicdata.PublicDataProperties;
 import org.springframework.core.retry.RetryTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -24,12 +27,19 @@ public class BldRgstHubClient extends PublicDataApiClient {
     private static final Pattern YEAR_PREFIX = Pattern.compile("\\d{4}");
 
     public BldRgstHubClient(
-            RestClient restClient, RetryTemplate retryTemplate, JsonMapper jsonMapper, CollectProperties properties) {
-        super(restClient, retryTemplate, jsonMapper, properties.api().serviceKey());
+            RestClient publicDataRestClient,
+            RetryTemplate publicDataRetryTemplate,
+            JsonMapper jsonMapper,
+            PublicDataProperties properties) {
+        super(
+                publicDataRestClient,
+                publicDataRetryTemplate,
+                jsonMapper,
+                properties.api().serviceKey());
     }
 
     /** 법정동의 표제부 한 페이지를 행으로 변환해 반환 */
-    public RtmsPage<BuildingRegisterRow> fetch(LegalDongKey key, int pageNo) {
+    public PublicDataPage<BuildingRegisterRow> fetch(LegalDongKey key, int pageNo) {
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("sigunguCd", key.sigunguCode());
         params.put("bjdongCd", key.legalDongCode());
@@ -48,7 +58,7 @@ public class BldRgstHubClient extends PublicDataApiClient {
     }
 
     /** 응답 표제부 1건을 building_register 행으로 변환 */
-    static BuildingRegisterRow toRow(RtmsItem item) {
+    static BuildingRegisterRow toRow(PublicDataItem item) {
         ParcelKey parcelKey = new ParcelKey(
                 item.optionalStrippedText("sigunguCd"),
                 item.optionalStrippedText("bjdongCd"),
@@ -85,7 +95,7 @@ public class BldRgstHubClient extends PublicDataApiClient {
     }
 
     /** 사용승인일은 앞 4자가 숫자일 때만 원본 그대로 반환. 아니면 null */
-    private static String useApprovalDate(RtmsItem item) {
+    private static String useApprovalDate(PublicDataItem item) {
         String text = item.optionalStrippedText("useAprDay");
 
         if (text == null || !YEAR_PREFIX.matcher(text).lookingAt()) {

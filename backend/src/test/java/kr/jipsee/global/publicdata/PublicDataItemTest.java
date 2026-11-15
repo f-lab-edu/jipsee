@@ -1,22 +1,21 @@
-package kr.jipsee.collect.client;
+package kr.jipsee.global.publicdata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import kr.jipsee.collect.exception.RtmsApiException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
 
-class RtmsItemTest {
+class PublicDataItemTest {
 
     private static final JsonMapper JSON = JsonMapper.builder().build();
 
-    private static RtmsItem item(String json) {
-        return RtmsItem.of(JSON.readTree(json));
+    private static PublicDataItem item(String json) {
+        return PublicDataItem.of(JSON.readTree(json));
     }
 
     @Nested
@@ -26,7 +25,7 @@ class RtmsItemTest {
         @Test
         @DisplayName("값이 정확히 공백 1자이면 null을 반환함")
         void 값이_정확히_공백_1자이면_null을_반환함() {
-            RtmsItem item = item("{\"preDeposit\":\" \"}");
+            PublicDataItem item = item("{\"preDeposit\":\" \"}");
 
             assertThat(item.optionalText("preDeposit")).isNull();
             assertThat(item.optionalInt("preDeposit")).isNull();
@@ -49,7 +48,7 @@ class RtmsItemTest {
         @Test
         @DisplayName("공백 1자가 아닌 값은 다듬지 않고 그대로 반환함")
         void 공백_1자가_아닌_값은_다듬지_않고_그대로_반환함() {
-            RtmsItem item = item("{\"a\":\"효동빌라\u3000\",\"b\":\"  \",\"c\":\" 가 \"}");
+            PublicDataItem item = item("{\"a\":\"효동빌라\u3000\",\"b\":\"  \",\"c\":\" 가 \"}");
 
             assertThat(item.optionalText("a")).isEqualTo("효동빌라\u3000");
             assertThat(item.optionalText("b")).isEqualTo("  ");
@@ -64,18 +63,18 @@ class RtmsItemTest {
         }
 
         @Test
-        @DisplayName("NOT NULL 컬럼에 해당하는 필드가 비어 있으면 RtmsApiException을 던짐")
-        void NOT_NULL_컬럼에_해당하는_필드가_비어_있으면_RtmsApiException을_던짐() {
-            RtmsItem item = item("{\"umdNm\":\" \",\"excluUseAr\":\" \"}");
+        @DisplayName("NOT NULL 컬럼에 해당하는 필드가 비어 있으면 PublicDataApiException을 던짐")
+        void NOT_NULL_컬럼에_해당하는_필드가_비어_있으면_PublicDataApiException을_던짐() {
+            PublicDataItem item = item("{\"umdNm\":\" \",\"excluUseAr\":\" \"}");
 
             assertThat(catchThrowable(() -> item.requiredText("umdNm")))
-                    .isInstanceOf(RtmsApiException.class)
+                    .isInstanceOf(PublicDataApiException.class)
                     .hasMessageContaining("umdNm");
             assertThat(catchThrowable(() -> item.requiredInt("deposit")))
-                    .isInstanceOf(RtmsApiException.class)
+                    .isInstanceOf(PublicDataApiException.class)
                     .hasMessageContaining("deposit");
             assertThat(catchThrowable(() -> item.requiredDecimal("excluUseAr")))
-                    .isInstanceOf(RtmsApiException.class)
+                    .isInstanceOf(PublicDataApiException.class)
                     .hasMessageContaining("excluUseAr");
         }
     }
@@ -110,12 +109,12 @@ class RtmsItemTest {
         }
 
         @Test
-        @DisplayName("정수로 읽을 수 없는 값이면 RtmsApiException을 던짐")
-        void 정수로_읽을_수_없는_값이면_RtmsApiException을_던짐() {
+        @DisplayName("정수로 읽을 수 없는 값이면 PublicDataApiException을 던짐")
+        void 정수로_읽을_수_없는_값이면_PublicDataApiException을_던짐() {
             Throwable thrown =
                     catchThrowable(() -> item("{\"deposit\":\"abc\"}").requiredInt("deposit"));
 
-            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("deposit");
+            assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("deposit");
         }
 
         @Test
@@ -144,11 +143,11 @@ class RtmsItemTest {
         }
 
         @Test
-        @DisplayName("requiredStrippedText는 비면 RtmsApiException임")
-        void requiredStrippedText는_비면_RtmsApiException임() {
+        @DisplayName("requiredStrippedText는 비면 PublicDataApiException임")
+        void requiredStrippedText는_비면_PublicDataApiException임() {
             Throwable thrown = catchThrowable(() -> item("{\"a\":\" \"}").requiredStrippedText("a"));
 
-            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("a");
+            assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("a");
         }
 
         @Test
@@ -160,11 +159,11 @@ class RtmsItemTest {
         }
 
         @Test
-        @DisplayName("optionalDecimal은 숫자가 아닌 값이면 RtmsApiException임")
-        void optionalDecimal은_숫자가_아닌_값이면_RtmsApiException임() {
+        @DisplayName("optionalDecimal은 숫자가 아닌 값이면 PublicDataApiException임")
+        void optionalDecimal은_숫자가_아닌_값이면_PublicDataApiException임() {
             Throwable thrown = catchThrowable(() -> item("{\"a\":\"abc\"}").optionalDecimal("a"));
 
-            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("a");
+            assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("a");
         }
     }
 

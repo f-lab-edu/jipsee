@@ -8,9 +8,12 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import kr.jipsee.collect.config.CollectProperties;
-import kr.jipsee.collect.exception.RtmsApiException;
 import kr.jipsee.deal.dto.RentDealRow;
+import kr.jipsee.global.publicdata.PublicDataApiClient;
+import kr.jipsee.global.publicdata.PublicDataApiException;
+import kr.jipsee.global.publicdata.PublicDataItem;
+import kr.jipsee.global.publicdata.PublicDataPage;
+import kr.jipsee.global.publicdata.PublicDataProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +38,7 @@ class RtmsRhRentClientTest {
                 PublicDataApiClient.restClient(builder, "http://localhost/1613000"),
                 PublicDataApiClient.retryTemplate(Duration.ofMillis(1)),
                 JSON,
-                new CollectProperties(new CollectProperties.Api("http://localhost/1613000", "test-key"), null));
+                new PublicDataProperties(new PublicDataProperties.Api("http://localhost/1613000", "test-key")));
     }
 
     /** 거래 JSON들을 담은 정상 응답 본문 */
@@ -48,8 +51,8 @@ class RtmsRhRentClientTest {
         server.expect(request -> {}).andRespond(withSuccess(pageBody(items), MediaType.APPLICATION_JSON));
     }
 
-    private static RtmsItem item(String json) {
-        return RtmsItem.of(JSON.readTree(json));
+    private static PublicDataItem item(String json) {
+        return PublicDataItem.of(JSON.readTree(json));
     }
 
     @Test
@@ -69,7 +72,7 @@ class RtmsRhRentClientTest {
         respondWith(plain, renewed);
 
         // when
-        RtmsPage<RentDealRow> page = client.fetch("11110", OCTOBER, 1);
+        PublicDataPage<RentDealRow> page = client.fetch("11110", OCTOBER, 1);
 
         // then
         assertThat(page.resultCode()).isEqualTo("000");
@@ -114,7 +117,7 @@ class RtmsRhRentClientTest {
     @DisplayName("숫자로 온 지번과 건물명, 콤마가 있는 월세도 행으로 바꿈")
     void 숫자로_온_지번과_건물명_콤마가_있는_월세도_행으로_바꿈() {
         // given
-        RtmsItem numeric = item("""
+        PublicDataItem numeric = item("""
                 {"buildYear":1990,"contractTerm":" ","contractType":" ","dealDay":3,"dealMonth":10,"dealYear":2025,
                  "deposit":5000,"excluUseAr":64,"floor":-1,"jibun":130,"mhouseNm":12,"monthlyRent":"1,070",
                  "preDeposit":" ","preMonthlyRent":" ","sggCd":11110,"umdNm":"동숭동","useRRRight":" "}""");
@@ -132,8 +135,8 @@ class RtmsRhRentClientTest {
     }
 
     @Test
-    @DisplayName("응답 행의 계약 월이 요청과 다르면 RtmsApiException을 던짐")
-    void 응답_행의_계약_월이_요청과_다르면_RtmsApiException을_던짐() {
+    @DisplayName("응답 행의 계약 월이 요청과 다르면 PublicDataApiException을 던짐")
+    void 응답_행의_계약_월이_요청과_다르면_PublicDataApiException을_던짐() {
         // given
         String otherMonth = """
                 {"dealDay":3,"dealMonth":9,"dealYear":2025,"deposit":5000,"excluUseAr":64,"jibun":130,"monthlyRent":0,
@@ -144,12 +147,12 @@ class RtmsRhRentClientTest {
         Throwable thrown = catchThrowable(() -> client.fetch("11110", OCTOBER, 1));
 
         // then
-        assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("2025-09");
+        assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("2025-09");
     }
 
     @Test
-    @DisplayName("응답 행의 시군구가 요청과 다르면 RtmsApiException을 던짐")
-    void 응답_행의_시군구가_요청과_다르면_RtmsApiException을_던짐() {
+    @DisplayName("응답 행의 시군구가 요청과 다르면 PublicDataApiException을 던짐")
+    void 응답_행의_시군구가_요청과_다르면_PublicDataApiException을_던짐() {
         // given
         String otherSigungu = """
                 {"dealDay":3,"dealMonth":10,"dealYear":2025,"deposit":5000,"excluUseAr":64,"jibun":130,"monthlyRent":0,
@@ -160,6 +163,6 @@ class RtmsRhRentClientTest {
         Throwable thrown = catchThrowable(() -> client.fetch("11110", OCTOBER, 1));
 
         // then
-        assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("11140");
+        assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("11140");
     }
 }

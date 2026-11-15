@@ -12,11 +12,11 @@ import static org.mockito.Mockito.never;
 import java.time.YearMonth;
 import java.util.List;
 import kr.jipsee.collect.client.RtmsApiClient;
-import kr.jipsee.collect.client.RtmsPage;
 import kr.jipsee.collect.dto.DealKey;
 import kr.jipsee.collect.dto.DealReplaceItem;
-import kr.jipsee.collect.exception.RtmsApiException;
 import kr.jipsee.deal.application.DealReplacer;
+import kr.jipsee.global.publicdata.PublicDataApiException;
+import kr.jipsee.global.publicdata.PublicDataPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -44,8 +44,8 @@ class DealCollectProcessorTest {
         processor = new DealCollectProcessor<>(client, replacer);
     }
 
-    private static RtmsPage<String> page(String resultCode, int totalCount, String... items) {
-        return new RtmsPage<>(resultCode, totalCount, List.of(items));
+    private static PublicDataPage<String> page(String resultCode, int totalCount, String... items) {
+        return new PublicDataPage<>(resultCode, totalCount, List.of(items));
     }
 
     @Nested
@@ -113,34 +113,36 @@ class DealCollectProcessorTest {
     class Fail {
 
         @Test
-        @DisplayName("받은 건수가 totalCount보다 적으면 RtmsApiException을 던짐")
-        void 받은_건수가_totalCount보다_적으면_RtmsApiException을_던짐() {
+        @DisplayName("받은 건수가 totalCount보다 적으면 PublicDataApiException을 던짐")
+        void 받은_건수가_totalCount보다_적으면_PublicDataApiException을_던짐() {
             given(client.fetch("11110", OCTOBER, 1)).willReturn(page("000", 3, "a", "b"));
             given(client.fetch("11110", OCTOBER, 2)).willReturn(page("000", 3));
 
             Throwable thrown = catchThrowable(() -> processor.process(KEY));
 
-            assertThat(thrown).isInstanceOf(RtmsApiException.class);
+            assertThat(thrown).isInstanceOf(PublicDataApiException.class);
         }
 
         @Test
-        @DisplayName("받은 건수가 totalCount보다 많으면 RtmsApiException을 던짐")
-        void 받은_건수가_totalCount보다_많으면_RtmsApiException을_던짐() {
+        @DisplayName("받은 건수가 totalCount보다 많으면 PublicDataApiException을 던짐")
+        void 받은_건수가_totalCount보다_많으면_PublicDataApiException을_던짐() {
             given(client.fetch("11110", OCTOBER, 1)).willReturn(page("000", 1, "a", "b"));
 
             Throwable thrown = catchThrowable(() -> processor.process(KEY));
 
-            assertThat(thrown).isInstanceOf(RtmsApiException.class);
+            assertThat(thrown).isInstanceOf(PublicDataApiException.class);
         }
 
         @Test
-        @DisplayName("클라이언트가 던진 RtmsApiException을 그대로 전달함")
-        void 클라이언트가_던진_RtmsApiException을_그대로_전달함() {
-            willThrow(new RtmsApiException("일일 호출 허용량 초과 오류 22")).given(client).fetch("11110", OCTOBER, 1);
+        @DisplayName("클라이언트가 던진 PublicDataApiException을 그대로 전달함")
+        void 클라이언트가_던진_PublicDataApiException을_그대로_전달함() {
+            willThrow(new PublicDataApiException("일일 호출 허용량 초과 오류 22"))
+                    .given(client)
+                    .fetch("11110", OCTOBER, 1);
 
             Throwable thrown = catchThrowable(() -> processor.process(KEY));
 
-            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("22");
+            assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("22");
         }
     }
 }

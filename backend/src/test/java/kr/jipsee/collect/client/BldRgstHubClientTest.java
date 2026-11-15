@@ -10,8 +10,11 @@ import java.util.stream.Stream;
 import kr.jipsee.building.dto.BuildingRegisterRow;
 import kr.jipsee.building.dto.LegalDongKey;
 import kr.jipsee.building.dto.ParcelKey;
-import kr.jipsee.collect.config.CollectProperties;
-import kr.jipsee.collect.exception.RtmsApiException;
+import kr.jipsee.global.publicdata.PublicDataApiClient;
+import kr.jipsee.global.publicdata.PublicDataApiException;
+import kr.jipsee.global.publicdata.PublicDataItem;
+import kr.jipsee.global.publicdata.PublicDataPage;
+import kr.jipsee.global.publicdata.PublicDataProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -61,7 +64,7 @@ class BldRgstHubClientTest {
                 PublicDataApiClient.restClient(builder, "http://localhost/1613000"),
                 PublicDataApiClient.retryTemplate(Duration.ofMillis(1)),
                 JSON,
-                new CollectProperties(new CollectProperties.Api("http://localhost/1613000", "abc%2Bdef%3D"), null));
+                new PublicDataProperties(new PublicDataProperties.Api("http://localhost/1613000", "abc%2Bdef%3D")));
     }
 
     /** 실제 응답과 같은 껍데기(resultCode 00, 문자열 totalCount)에 item들을 담은 본문 */
@@ -71,14 +74,14 @@ class BldRgstHubClientTest {
                 + "\"pageNo\":\"1\",\"totalCount\":\"" + items.length + "\"}}}";
     }
 
-    /** 실제 item의 필드 하나를 바꾼 RtmsItem */
-    private static RtmsItem itemWith(String field, JsonNode value) {
+    /** 실제 item의 필드 하나를 바꾼 PublicDataItem */
+    private static PublicDataItem itemWith(String field, JsonNode value) {
         ObjectNode node = (ObjectNode) JSON.readTree(REAL_ITEM);
         node.replace(field, value);
-        return RtmsItem.of(node);
+        return PublicDataItem.of(node);
     }
 
-    private static RtmsItem itemWith(String field, String value) {
+    private static PublicDataItem itemWith(String field, String value) {
         return itemWith(field, JSON.getNodeFactory().stringNode(value));
     }
 
@@ -109,7 +112,7 @@ class BldRgstHubClientTest {
                 .andRespond(withSuccess(pageBody(REAL_ITEM, REAL_ITEM), MediaType.APPLICATION_JSON));
 
         // when
-        RtmsPage<BuildingRegisterRow> page = client.fetch(KEY, 1);
+        PublicDataPage<BuildingRegisterRow> page = client.fetch(KEY, 1);
 
         // then
         assertThat(page.resultCode()).isEqualTo("00");
@@ -131,7 +134,7 @@ class BldRgstHubClientTest {
         server.expect(request -> {}).andRespond(withSuccess(body, MediaType.APPLICATION_JSON));
 
         // when
-        RtmsPage<BuildingRegisterRow> page = client.fetch(KEY, 1);
+        PublicDataPage<BuildingRegisterRow> page = client.fetch(KEY, 1);
 
         // then
         assertThat(page.totalCount()).isZero();
@@ -139,8 +142,8 @@ class BldRgstHubClientTest {
     }
 
     @Test
-    @DisplayName("정상이 아닌 resultCode 000은 건축HUB에서는 코드를 담은 RtmsApiException으로 실패함")
-    void 정상이_아닌_resultCode_000은_건축HUB에서는_코드를_담은_RtmsApiException으로_실패함() {
+    @DisplayName("정상이 아닌 resultCode 000은 건축HUB에서는 코드를 담은 PublicDataApiException으로 실패함")
+    void 정상이_아닌_resultCode_000은_건축HUB에서는_코드를_담은_PublicDataApiException으로_실패함() {
         // given
         String body = pageBody(REAL_ITEM).replace("\"resultCode\":\"00\"", "\"resultCode\":\"000\"");
         server.expect(request -> {}).andRespond(withSuccess(body, MediaType.APPLICATION_JSON));
@@ -149,7 +152,7 @@ class BldRgstHubClientTest {
         Throwable thrown = catchThrowable(() -> client.fetch(KEY, 1));
 
         // then
-        assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("000");
+        assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("000");
         server.verify();
     }
 
@@ -157,7 +160,7 @@ class BldRgstHubClientTest {
     @DisplayName("응답 한 건을 컬럼에 맞는 행으로 바꿈")
     void 응답_한_건을_컬럼에_맞는_행으로_바꿈() {
         // given
-        RtmsItem item = RtmsItem.of(JSON.readTree(REAL_ITEM));
+        PublicDataItem item = PublicDataItem.of(JSON.readTree(REAL_ITEM));
 
         // when
         BuildingRegisterRow row = BldRgstHubClient.toRow(item);
@@ -191,7 +194,7 @@ class BldRgstHubClientTest {
     @DisplayName("숫자로 온 22자리 관리 키도 자릿수를 잃지 않고 읽음")
     void 숫자로_온_22자리_관리_키도_자릿수를_잃지_않고_읽음() {
         // given
-        RtmsItem item = itemWith("mgmBldrgstPk", JSON.readTree("1000000000000000454433"));
+        PublicDataItem item = itemWith("mgmBldrgstPk", JSON.readTree("1000000000000000454433"));
 
         // when
         BuildingRegisterRow row = BldRgstHubClient.toRow(item);
@@ -211,7 +214,7 @@ class BldRgstHubClientTest {
         node.put("newPlatPlc", " ");
 
         // when
-        BuildingRegisterRow row = BldRgstHubClient.toRow(RtmsItem.of(node));
+        BuildingRegisterRow row = BldRgstHubClient.toRow(PublicDataItem.of(node));
 
         // then
         assertThat(row.lotAddress()).isEqualTo("서울특별시 노원구 하계동 130-69");
@@ -230,7 +233,7 @@ class BldRgstHubClientTest {
         node.put("indrAutoUtcnt", 0);
 
         // when
-        BuildingRegisterRow row = BldRgstHubClient.toRow(RtmsItem.of(node));
+        BuildingRegisterRow row = BldRgstHubClient.toRow(PublicDataItem.of(node));
 
         // then
         assertThat(row.householdCount()).isZero();
@@ -242,7 +245,7 @@ class BldRgstHubClientTest {
     @DisplayName("연면적은 소수 4자리를 잃지 않음")
     void 연면적은_소수_4자리를_잃지_않음() {
         // given
-        RtmsItem item = itemWith("totArea", JSON.readTree("176783.0394"));
+        PublicDataItem item = itemWith("totArea", JSON.readTree("176783.0394"));
 
         // when
         BuildingRegisterRow row = BldRgstHubClient.toRow(item);
@@ -268,7 +271,7 @@ class BldRgstHubClientTest {
     @DisplayName("사용승인일은 앞 4자가 숫자일 때만 원본 그대로 저장함")
     void 사용승인일은_앞_4자가_숫자일_때만_원본_그대로_저장함(String useAprDay, String expected) {
         // given
-        RtmsItem item = itemWith("useAprDay", useAprDay);
+        PublicDataItem item = itemWith("useAprDay", useAprDay);
 
         // when
         BuildingRegisterRow row = BldRgstHubClient.toRow(item);
@@ -286,7 +289,7 @@ class BldRgstHubClientTest {
     @DisplayName("내진설계 적용 여부가 비면 null이고 0과 1은 그대로 저장함")
     void 내진설계_적용_여부가_비면_null이고_0과_1은_그대로_저장함(String flag, String expected) {
         // given
-        RtmsItem item = itemWith("rserthqkDsgnApplyYn", flag);
+        PublicDataItem item = itemWith("rserthqkDsgnApplyYn", flag);
 
         // when
         BuildingRegisterRow row = BldRgstHubClient.toRow(item);
@@ -297,16 +300,16 @@ class BldRgstHubClientTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"mgmBldrgstPk", "platPlc", "mainAtchGbCd"})
-    @DisplayName("필수 값이 비면 필드 이름을 담은 RtmsApiException으로 실패함")
-    void 필수_값이_비면_필드_이름을_담은_RtmsApiException으로_실패함(String field) {
+    @DisplayName("필수 값이 비면 필드 이름을 담은 PublicDataApiException으로 실패함")
+    void 필수_값이_비면_필드_이름을_담은_PublicDataApiException으로_실패함(String field) {
         // given
-        RtmsItem item = itemWith(field, " ");
+        PublicDataItem item = itemWith(field, " ");
 
         // when
         Throwable thrown = catchThrowable(() -> BldRgstHubClient.toRow(item));
 
         // then
-        assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining(field);
+        assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining(field);
     }
 
     @ParameterizedTest(name = "[{index}] {0}=\"{1}\"")
@@ -314,7 +317,7 @@ class BldRgstHubClientTest {
     @DisplayName("시군구, 법정동, 대지구분 코드가 비어 있으면 예외 없이 null로 읽고 필지 키는 완전하지 않음")
     void 시군구_법정동_대지구분_코드가_비어_있으면_예외_없이_null로_읽고_필지_키는_완전하지_않음(String field, String value) {
         // given
-        RtmsItem item = itemWith(field, value);
+        PublicDataItem item = itemWith(field, value);
 
         // when
         ParcelKey parcelKey = BldRgstHubClient.toRow(item).parcelKey();
@@ -338,7 +341,7 @@ class BldRgstHubClientTest {
     @DisplayName("본번이나 부번이 비어 있으면 0000으로 읽고 필지 키는 완전함")
     void 본번이나_부번이_비어_있으면_0000으로_읽고_필지_키는_완전함(String field, String value) {
         // given
-        RtmsItem item = itemWith(field, value);
+        PublicDataItem item = itemWith(field, value);
 
         // when
         ParcelKey parcelKey = BldRgstHubClient.toRow(item).parcelKey();
@@ -360,7 +363,7 @@ class BldRgstHubClientTest {
         node.put("ji", " 0022 ");
 
         // when
-        ParcelKey parcelKey = BldRgstHubClient.toRow(RtmsItem.of(node)).parcelKey();
+        ParcelKey parcelKey = BldRgstHubClient.toRow(PublicDataItem.of(node)).parcelKey();
 
         // then
         assertThat(parcelKey).isEqualTo(new ParcelKey("11350", "10400", "0", "0067", "0022"));

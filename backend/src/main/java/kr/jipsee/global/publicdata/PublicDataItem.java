@@ -1,26 +1,25 @@
-package kr.jipsee.collect.client;
+package kr.jipsee.global.publicdata;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import kr.jipsee.collect.exception.RtmsApiException;
 import tools.jackson.databind.JsonNode;
 
-/** 실거래 API 응답의 item 하나 */
-public final class RtmsItem {
+/** 공공데이터 API 응답의 item 하나 */
+public final class PublicDataItem {
     private static final String BLANK = " ";
     private static final DateTimeFormatter SHORT_DATE = DateTimeFormatter.ofPattern("yy.MM.dd");
 
     private final JsonNode node;
 
-    private RtmsItem(JsonNode node) {
+    private PublicDataItem(JsonNode node) {
         this.node = node;
     }
 
     /** 응답 item 노드로 생성 */
-    public static RtmsItem of(JsonNode node) {
-        return new RtmsItem(node);
+    public static PublicDataItem of(JsonNode node) {
+        return new PublicDataItem(node);
     }
 
     /** 필드의 텍스트 반환. 없거나 공백 1자이면 null */
@@ -35,12 +34,12 @@ public final class RtmsItem {
         return BLANK.equals(text) ? null : text;
     }
 
-    /** 필드의 텍스트 반환. 값이 없으면 RtmsApiException */
+    /** 필드의 텍스트 반환. 값이 없으면 PublicDataApiException */
     public String requiredText(String field) {
         String text = optionalText(field);
 
         if (text == null) {
-            throw new RtmsApiException("필수 값이 없음: " + field);
+            throw new PublicDataApiException("필수 값이 없음: " + field);
         }
 
         return text;
@@ -58,12 +57,12 @@ public final class RtmsItem {
         return stripped.isEmpty() ? null : stripped;
     }
 
-    /** 앞뒤 공백을 지운 텍스트 반환. 없거나 비면 RtmsApiException */
+    /** 앞뒤 공백을 지운 텍스트 반환. 없거나 비면 PublicDataApiException */
     public String requiredStrippedText(String field) {
         String text = optionalStrippedText(field);
 
         if (text == null) {
-            throw new RtmsApiException("필수 값이 없음: " + field);
+            throw new PublicDataApiException("필수 값이 없음: " + field);
         }
 
         return text;
@@ -80,7 +79,7 @@ public final class RtmsItem {
         try {
             return new BigDecimal(text);
         } catch (NumberFormatException e) {
-            throw new RtmsApiException("숫자로 읽을 수 없음: " + field + "=" + text);
+            throw new PublicDataApiException("숫자로 읽을 수 없음: " + field + "=" + text);
         }
     }
 
@@ -93,26 +92,26 @@ public final class RtmsItem {
         try {
             return Integer.parseInt(text.replace(",", ""));
         } catch (NumberFormatException e) {
-            throw new RtmsApiException("정수로 읽을 수 없음: " + field + "=" + text);
+            throw new PublicDataApiException("정수로 읽을 수 없음: " + field + "=" + text);
         }
     }
 
-    /** 콤마를 없앤 정수 반환. 값이 없으면 RtmsApiException */
+    /** 콤마를 없앤 정수 반환. 값이 없으면 PublicDataApiException */
     public int requiredInt(String field) {
         Integer value = optionalInt(field);
         if (value == null) {
-            throw new RtmsApiException("필수 값이 없음: " + field);
+            throw new PublicDataApiException("필수 값이 없음: " + field);
         }
         return value;
     }
 
-    /** BigDecimal 반환. 값이 없으면 RtmsApiException */
+    /** BigDecimal 반환. 값이 없으면 PublicDataApiException */
     public BigDecimal requiredDecimal(String field) {
         String text = requiredText(field);
         try {
             return new BigDecimal(text);
         } catch (NumberFormatException e) {
-            throw new RtmsApiException("숫자로 읽을 수 없음: " + field + "=" + text);
+            throw new PublicDataApiException("숫자로 읽을 수 없음: " + field + "=" + text);
         }
     }
 
@@ -125,7 +124,7 @@ public final class RtmsItem {
         try {
             return LocalDate.parse(text, SHORT_DATE);
         } catch (DateTimeParseException e) {
-            throw new RtmsApiException("날짜로 읽을 수 없음: " + field + "=" + text);
+            throw new PublicDataApiException("날짜로 읽을 수 없음: " + field + "=" + text);
         }
     }
 }

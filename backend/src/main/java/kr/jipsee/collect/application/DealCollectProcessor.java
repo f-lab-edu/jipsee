@@ -3,11 +3,11 @@ package kr.jipsee.collect.application;
 import java.util.ArrayList;
 import java.util.List;
 import kr.jipsee.collect.client.RtmsApiClient;
-import kr.jipsee.collect.client.RtmsPage;
 import kr.jipsee.collect.dto.DealKey;
 import kr.jipsee.collect.dto.DealReplaceItem;
-import kr.jipsee.collect.exception.RtmsApiException;
 import kr.jipsee.deal.application.DealReplacer;
+import kr.jipsee.global.publicdata.PublicDataApiException;
+import kr.jipsee.global.publicdata.PublicDataPage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
@@ -22,20 +22,20 @@ public class DealCollectProcessor<T> implements ItemProcessor<DealKey, DealRepla
     /** 모든 페이지를 받아 교체 항목으로 반환. 기존 행이 있는데 0건이면 null로 교체를 건너뜀 */
     @Override
     public DealReplaceItem<T> process(DealKey key) {
-        RtmsPage<T> firstPage = client.fetch(key.sigunguCode(), key.dealMonth(), 1);
+        PublicDataPage<T> firstPage = client.fetch(key.sigunguCode(), key.dealMonth(), 1);
         int totalCount = firstPage.totalCount();
         List<T> rows = new ArrayList<>(firstPage.items());
         boolean previousPageHasItems = !firstPage.items().isEmpty();
         int pageNo = 1;
 
         while (rows.size() < totalCount && previousPageHasItems) {
-            RtmsPage<T> page = client.fetch(key.sigunguCode(), key.dealMonth(), ++pageNo);
+            PublicDataPage<T> page = client.fetch(key.sigunguCode(), key.dealMonth(), ++pageNo);
             rows.addAll(page.items());
             previousPageHasItems = !page.items().isEmpty();
         }
 
         if (rows.size() != totalCount) {
-            throw new RtmsApiException("공공데이터 API 응답의 item 개수가 totalCount와 다름: 응답 item 개수 " + rows.size()
+            throw new PublicDataApiException("공공데이터 API 응답의 item 개수가 totalCount와 다름: 응답 item 개수 " + rows.size()
                     + ", totalCount " + totalCount + ", 시군구 " + key.sigunguCode() + ", 월 " + key.dealMonth());
         }
 

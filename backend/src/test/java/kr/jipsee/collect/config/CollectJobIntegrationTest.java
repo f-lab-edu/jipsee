@@ -19,13 +19,13 @@ import java.time.YearMonth;
 import java.util.List;
 import kr.jipsee.TestcontainersConfiguration;
 import kr.jipsee.collect.application.SigunguCodes;
-import kr.jipsee.collect.client.RtmsPage;
 import kr.jipsee.collect.client.RtmsRhRentClient;
 import kr.jipsee.collect.client.RtmsRhTradeClient;
 import kr.jipsee.collect.dao.DataSourceDao;
-import kr.jipsee.collect.exception.RtmsApiException;
 import kr.jipsee.deal.dto.RentDealRow;
 import kr.jipsee.deal.dto.SaleDealRow;
+import kr.jipsee.global.publicdata.PublicDataApiException;
+import kr.jipsee.global.publicdata.PublicDataPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -100,12 +100,12 @@ class CollectJobIntegrationTest {
         given(rtmsRhRentClient.fetch(anyString(), any(YearMonth.class), anyInt()))
                 .willAnswer(invocation -> {
                     YearMonth month = invocation.getArgument(1);
-                    return new RtmsPage<>("000", 1, List.of(rentRow(invocation.getArgument(0), month)));
+                    return new PublicDataPage<>("000", 1, List.of(rentRow(invocation.getArgument(0), month)));
                 });
         given(rtmsRhTradeClient.fetch(anyString(), any(YearMonth.class), anyInt()))
                 .willAnswer(invocation -> {
                     YearMonth month = invocation.getArgument(1);
-                    return new RtmsPage<>("000", 1, List.of(saleRow(invocation.getArgument(0), month)));
+                    return new PublicDataPage<>("000", 1, List.of(saleRow(invocation.getArgument(0), month)));
                 });
     }
 
@@ -163,8 +163,8 @@ class CollectJobIntegrationTest {
         // given: 매매의 다섯 번째 키(11140, 2011-01)가 첫 호출에서만 실패함
         JobParameters params = endMonth("2011-02");
         given(rtmsRhTradeClient.fetch("11140", YearMonth.of(2011, 1), 1))
-                .willThrow(new RtmsApiException("테스트용 실패"))
-                .willReturn(new RtmsPage<>("000", 1, List.of(saleRow("11140", YearMonth.of(2011, 1)))));
+                .willThrow(new PublicDataApiException("테스트용 실패"))
+                .willReturn(new PublicDataPage<>("000", 1, List.of(saleRow("11140", YearMonth.of(2011, 1)))));
 
         // when
         JobExecution failed = jobOperator.start(initialSaleLoadJob, params);
@@ -224,7 +224,7 @@ class CollectJobIntegrationTest {
         // given
         JobParameters params = endMonth("2011-02");
         given(rtmsRhRentClient.fetch(anyString(), any(YearMonth.class), anyInt()))
-                .willThrow(new RtmsApiException("테스트용 실패"));
+                .willThrow(new PublicDataApiException("테스트용 실패"));
 
         // when
         JobExecution rent = jobOperator.start(initialRentLoadJob, params);
@@ -244,8 +244,8 @@ class CollectJobIntegrationTest {
         // given
         JobParameters params = endMonth("2011-02");
         given(rtmsRhTradeClient.fetch("11140", YearMonth.of(2011, 1), 1))
-                .willThrow(new RtmsApiException("테스트용 실패"))
-                .willReturn(new RtmsPage<>("000", 1, List.of(saleRow("11140", YearMonth.of(2011, 1)))));
+                .willThrow(new PublicDataApiException("테스트용 실패"))
+                .willReturn(new PublicDataPage<>("000", 1, List.of(saleRow("11140", YearMonth.of(2011, 1)))));
         JobExecution failed = jobOperator.start(initialSaleLoadJob, params);
 
         // when: STARTED로 남은 상태를 만듦

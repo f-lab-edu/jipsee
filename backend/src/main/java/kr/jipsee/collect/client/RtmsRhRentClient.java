@@ -1,7 +1,8 @@
 package kr.jipsee.collect.client;
 
-import kr.jipsee.collect.config.CollectProperties;
 import kr.jipsee.deal.dto.RentDealRow;
+import kr.jipsee.global.publicdata.PublicDataItem;
+import kr.jipsee.global.publicdata.PublicDataProperties;
 import org.springframework.core.retry.RetryTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -13,13 +14,13 @@ public class RtmsRhRentClient extends RtmsApiClient<RentDealRow> {
     static final String PATH = "/RTMSDataSvcRHRent/getRTMSDataSvcRHRent";
 
     public RtmsRhRentClient(
-            RestClient rtmsRestClient,
-            RetryTemplate rtmsRetryTemplate,
+            RestClient publicDataRestClient,
+            RetryTemplate publicDataRetryTemplate,
             JsonMapper jsonMapper,
-            CollectProperties properties) {
+            PublicDataProperties properties) {
         super(
-                rtmsRestClient,
-                rtmsRetryTemplate,
+                publicDataRestClient,
+                publicDataRetryTemplate,
                 jsonMapper,
                 properties.api().serviceKey(),
                 PATH,
@@ -27,7 +28,7 @@ public class RtmsRhRentClient extends RtmsApiClient<RentDealRow> {
     }
 
     /** 응답 거래 1건을 rent_deal 행으로 변환 */
-    static RentDealRow toRow(RtmsItem item) {
+    static RentDealRow toRow(PublicDataItem item) {
         return new RentDealRow(
                 item.requiredText("sggCd"),
                 item.requiredText("umdNm"),

@@ -1,4 +1,4 @@
-package kr.jipsee.collect.client;
+package kr.jipsee.global.publicdata;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import kr.jipsee.collect.exception.RtmsApiException;
-import kr.jipsee.collect.exception.RtmsApiTransientException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.retry.RetryPolicy;
 import org.springframework.core.retry.RetryTemplate;
@@ -54,25 +52,26 @@ public abstract class PublicDataApiClient {
                 .delay(retryDelay)
                 .multiplier(2.0)
                 .maxDelay(Duration.ofSeconds(10))
-                .includes(RtmsApiTransientException.class)
+                .includes(PublicDataApiTransientException.class)
                 .build());
     }
 
     /** resultCode가 이 API의 정상 응답이면 true */
     protected abstract boolean isSuccess(String resultCode);
 
-    /** params 순서대로 쿼리를 붙여 API를 호출하고 한 페이지로 변환. {@link RtmsApiTransientException}이면 재시도 */
-    protected final RtmsPage<RtmsItem> call(String path, Map<String, Object> params, String requestInfo) {
+    /** params 순서대로 쿼리를 붙여 API를 호출하고 한 페이지로 변환. {@link PublicDataApiTransientException}이면 재시도 */
+    protected final PublicDataPage<PublicDataItem> call(String path, Map<String, Object> params, String requestInfo) {
         return retryTemplate.invoke(() -> callOnce(path, params, requestInfo));
     }
 
     /** API를 한 번 호출하고 2xx의 빈 본문, 오류 코드, 상태 코드, 본문 순으로 검증 */
-    private RtmsPage<RtmsItem> callOnce(String path, Map<String, Object> params, String requestInfo) {
+    private PublicDataPage<PublicDataItem> callOnce(String path, Map<String, Object> params, String requestInfo) {
         Response response = request(path, params, requestInfo);
         String body = response.body().strip();
 
         if (body.isEmpty() && response.status().is2xxSuccessful()) {
-            throw new RtmsApiTransientException("빈 응답(HTTP " + response.status().value() + "): " + requestInfo);
+            throw new PublicDataApiTransientException(
+                    "빈 응답(HTTP " + response.status().value() + "): " + requestInfo);
         }
 
         boolean isXml = body.startsWith("<");
@@ -80,7 +79,7 @@ public abstract class PublicDataApiClient {
         if (isXml) {
             String errorCode = findXmlErrorCode(body);
             throwIfFailed(errorCode, response.status(), requestInfo);
-            throw new RtmsApiException("오류 응답(" + errorCode + "): " + requestInfo);
+            throw new PublicDataApiException("오류 응답(" + errorCode + "): " + requestInfo);
         }
 
         JsonNode root = readJson(body, response.status(), requestInfo);
@@ -107,9 +106,10 @@ public abstract class PublicDataApiClient {
                     .exchange((req, res) -> new Response(
                             res.getStatusCode(), new String(res.getBody().readAllBytes(), StandardCharsets.UTF_8)));
         } catch (ResourceAccessException e) {
-            throw new RtmsApiTransientException("API 연결 실패(" + e.getClass().getSimpleName() + "): " + requestInfo);
+            throw new PublicDataApiTransientException(
+                    "API 연결 실패(" + e.getClass().getSimpleName() + "): " + requestInfo);
         } catch (RuntimeException e) {
-            throw new RtmsApiException("API 호출 실패(" + e.getClass().getSimpleName() + "): " + requestInfo);
+            throw new PublicDataApiException("API 호출 실패(" + e.getClass().getSimpleName() + "): " + requestInfo);
         }
     }
 
@@ -119,39 +119,39 @@ public abstract class PublicDataApiClient {
         return matcher.find() ? matcher.group(1) : null;
     }
 
-    /** JSON 파싱. 실패 시 5xx는 RtmsApiTransientException, 그 밖은 RtmsApiException 반환 */
+    /** JSON 파싱. 실패 시 5xx는 PublicDataApiTransientException, 그 밖은 PublicDataApiException 반환 */
     private JsonNode readJson(String body, HttpStatusCode status, String requestInfo) {
         try {
             return jsonMapper.readTree(body);
         } catch (JacksonException e) {
             if (status.is5xxServerError()) {
-                throw new RtmsApiTransientException("서버 오류(" + status + "): " + requestInfo);
+                throw new PublicDataApiTransientException("서버 오류(" + status + "): " + requestInfo);
             }
 
-            throw new RtmsApiException("JSON이 아닌 응답: " + requestInfo);
+            throw new PublicDataApiException("JSON이 아닌 응답: " + requestInfo);
         }
     }
 
     /** 오류 코드 22, 23, 상태 코드, 그 밖의 오류 코드 순으로 실패 판단 */
     private static void throwIfFailed(String errorCode, HttpStatusCode status, String requestInfo) {
         switch (errorCode) {
-            case "22" -> throw new RtmsApiException("호출 한도 초과(22): " + requestInfo);
-            case "23" -> throw new RtmsApiTransientException("초당 요청 수 초과(23): " + requestInfo);
+            case "22" -> throw new PublicDataApiException("호출 한도 초과(22): " + requestInfo);
+            case "23" -> throw new PublicDataApiTransientException("초당 요청 수 초과(23): " + requestInfo);
             case null, default -> {
                 // 그 외 에러는 하위에서 판단
             }
         }
 
         if (status.is5xxServerError()) {
-            throw new RtmsApiTransientException("서버 오류(" + status + "): " + requestInfo);
+            throw new PublicDataApiTransientException("서버 오류(" + status + "): " + requestInfo);
         }
 
         if (!status.is2xxSuccessful()) {
-            throw new RtmsApiException("HTTP " + status + ": " + requestInfo);
+            throw new PublicDataApiException("HTTP " + status + ": " + requestInfo);
         }
 
         if (errorCode != null) {
-            throw new RtmsApiException("오류 응답(" + errorCode + "): " + requestInfo);
+            throw new PublicDataApiException("오류 응답(" + errorCode + "): " + requestInfo);
         }
     }
 
@@ -177,32 +177,33 @@ public abstract class PublicDataApiClient {
     }
 
     /**
-     * 정상적인 JSON 응답을 RtmsPage로 변환
+     * 정상적인 JSON 응답을 PublicDataPage로 변환
      * - item은 2건 이상이면 배열, 1건이면 객체, 0건이면 없음
      */
-    private static RtmsPage<RtmsItem> toPage(JsonNode root, String requestInfo) {
+    private static PublicDataPage<PublicDataItem> toPage(JsonNode root, String requestInfo) {
         JsonNode resultCode = root.path(RESPONSE).path("header").path("resultCode");
 
         if (resultCode.isMissingNode()) {
-            throw new RtmsApiException("resultCode 없음: " + requestInfo);
+            throw new PublicDataApiException("resultCode 없음: " + requestInfo);
         }
 
         JsonNode body = root.path(RESPONSE).path("body");
         JsonNode totalCount = body.path("totalCount");
 
         if (totalCount.isMissingNode()) {
-            throw new RtmsApiException("totalCount 없음 (resultCode=" + resultCode.asString() + "): " + requestInfo);
+            throw new PublicDataApiException(
+                    "totalCount 없음 (resultCode=" + resultCode.asString() + "): " + requestInfo);
         }
 
-        List<RtmsItem> items = new ArrayList<>();
+        List<PublicDataItem> items = new ArrayList<>();
         JsonNode item = body.path("items").path("item"); // 0건이면 items가 빈 문자열
 
         if (item.isArray()) {
-            item.forEach(node -> items.add(RtmsItem.of(node)));
+            item.forEach(node -> items.add(PublicDataItem.of(node)));
         } else if (item.isObject()) {
-            items.add(RtmsItem.of(item)); // 1건이면 배열이 아니라 객체
+            items.add(PublicDataItem.of(item)); // 1건이면 배열이 아니라 객체
         }
 
-        return new RtmsPage<>(resultCode.asString(), totalCount.asInt(), items);
+        return new PublicDataPage<>(resultCode.asString(), totalCount.asInt(), items);
     }
 }
