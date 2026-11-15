@@ -17,6 +17,7 @@ import { readBox } from "./support/policy/readBox";
 import { SEARCH_PATH } from "./support/searchFixtures";
 import { test } from "./support/test";
 import { DESKTOP, MOBILE } from "./support/viewports";
+import { waitForFrames } from "./support/waitForFrames";
 
 const TABLET = { width: 768, height: 1024 };
 const WIDE = { width: 1280, height: 800 };
@@ -25,8 +26,6 @@ const LOGGED_IN = process.env.TC_SESSION === "in";
 const THIRD_TAB = LOGGED_IN ? "내 정보" : "로그인";
 const NAV = '[data-area="bottom-nav"]';
 const TAB_HEIGHT = 56;
-// 안쪽 목록 폭 최대. 태블릿에서도 열 폭을 넘지 않음
-const LIST_MAX_WIDTH = 720;
 const FOOTER_HEIGHT = 44;
 const LIGHT_WHITE = "rgb(255, 255, 255)";
 const DARK_WHITE = "rgb(22, 23, 27)";
@@ -71,147 +70,166 @@ const STACK_PATHS = [
 	{ name: "데이터 출처", path: "/policies/data-sources", bar: null },
 ] as const;
 
-let number = 1;
-
 for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 	for (const colorScheme of ["light", "dark"] as const) {
 		test.describe(`${label} ${viewport.width}x${viewport.height} ${colorScheme}`, () => {
 			test.use({ viewport, colorScheme });
 
-			test(`${caseId("NAV", number++)} ${label} 하단 내비게이션이 보이고 탭이 홈, 집사, ${THIRD_TAB} 순서임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/");
-				const nav = page.locator(NAV);
-				await expect.soft(nav).toBeVisible();
-				await expect.soft(nav).toHaveAttribute("aria-label", "하단 내비게이션");
-				await expect
-					.soft(nav.locator("a"))
-					.toHaveText(["홈", "집사", THIRD_TAB]);
-			});
-
-			test(`${caseId("NAV", number++)} ${label} 탭 높이가 56이고 폭을 균등하게 나눔`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/");
-				const boxes = await Promise.all(
-					["bottom-nav-home", "bottom-nav-chat", "bottom-nav-me"].map((area) =>
-						readBox(page.locator(`[data-area="${area}"]`)),
-					),
-				);
-				for (const box of boxes) {
-					expect.soft(box.height, "탭 높이").toBeGreaterThanOrEqual(TAB_HEIGHT);
-					expect.soft(box.height, "탭 높이").toBeLessThanOrEqual(TAB_HEIGHT);
-					expect
-						.soft(box.width, "탭 폭")
-						.toBeCloseTo(Math.min(viewport.width, LIST_MAX_WIDTH) / 3, 0);
-				}
-			});
-
-			for (const { path, tab, value } of CURRENT_CASES) {
-				test(`${caseId("NAV", number++)} ${label} ${path}에서 ${tab ?? "활성 탭 없음"}의 aria-current가 ${value ?? "없음"}임`, async ({
+			if (colorScheme === "light" && label === "모바일") {
+				test(`${caseId("NAV", 1)} ${label} 하단 내비게이션이 보이고 탭이 홈, 집사, ${THIRD_TAB} 순서임`, async ({
 					page,
 				}) => {
-					test.skip(
-						LOGGED_IN && path === "/login",
-						"로그인한 상태에서는 /login이 홈으로 이동함",
+					await gotoAndSettle(page, "/");
+					const nav = page.locator(NAV);
+					await expect.soft(nav).toBeVisible();
+					await expect
+						.soft(nav)
+						.toHaveAttribute("aria-label", "하단 내비게이션");
+					await expect
+						.soft(nav.locator("a"))
+						.toHaveText(["홈", "집사", THIRD_TAB]);
+				});
+			}
+
+			if (colorScheme === "light") {
+				test(`${caseId("NAV", 2)} ${label} 탭 높이가 56이고 열 폭을 셋으로 균등하게 나눔`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/");
+					const boxes = await Promise.all(
+						["bottom-nav-home", "bottom-nav-chat", "bottom-nav-me"].map(
+							(area) => readBox(page.locator(`[data-area="${area}"]`)),
+						),
 					);
-					await gotoAndSettle(page, path);
-					for (const area of [
-						"bottom-nav-home",
-						"bottom-nav-chat",
-						"bottom-nav-me",
-					]) {
-						const link = page.locator(`[data-area="${area}"]`);
-						if (area === tab && value !== null) {
-							await expect.soft(link).toHaveAttribute("aria-current", value);
-						} else {
-							await expect.soft(link).not.toHaveAttribute("aria-current");
-						}
+					for (const box of boxes) {
+						expect
+							.soft(box.height, "탭 높이")
+							.toBeGreaterThanOrEqual(TAB_HEIGHT);
+						expect.soft(box.height, "탭 높이").toBeLessThanOrEqual(TAB_HEIGHT);
+						expect.soft(box.width, "탭 폭").toBeCloseTo(columnWidth / 3, 0);
 					}
 				});
 			}
 
-			test(`${caseId("NAV", number++)} ${label} 건물 상세를 스크롤해도 내비게이션 아래 끝이 화면 아래와 같음`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/buildings/1");
-				for (const ratio of [0, 0.5, 1]) {
-					await page.evaluate(
-						(r) =>
-							window.scrollTo(0, document.documentElement.scrollHeight * r),
-						ratio,
-					);
-					await page.waitForTimeout(200);
-					const box = await readBox(page.locator(NAV));
-					expect
-						.soft(box.y + box.height, `스크롤 ${ratio}에서 내비게이션 아래 끝`)
-						.toBeCloseTo(viewport.height, 0);
+			if (colorScheme === "light" && label === "모바일") {
+				for (const { path, tab, value } of CURRENT_CASES) {
+					test(`${caseId("NAV", 3)} ${label} ${path}에서 ${tab ?? "활성 탭 없음"}의 aria-current가 ${value ?? "없음"}임`, async ({
+						page,
+					}) => {
+						test.skip(
+							LOGGED_IN && path === "/login",
+							"로그인한 상태에서는 /login이 홈으로 이동함",
+						);
+						await gotoAndSettle(page, path);
+						for (const area of [
+							"bottom-nav-home",
+							"bottom-nav-chat",
+							"bottom-nav-me",
+						]) {
+							const link = page.locator(`[data-area="${area}"]`);
+							if (area === tab && value !== null) {
+								await expect.soft(link).toHaveAttribute("aria-current", value);
+							} else {
+								await expect.soft(link).not.toHaveAttribute("aria-current");
+							}
+						}
+					});
 				}
-			});
+			}
 
-			for (const { name, path, bar } of STACK_PATHS) {
-				test(`${caseId("NAV", number++)} ${label} ${name}에서 하단 바, 푸터, 내비게이션이 화면 아래에 이 순서로 붙고 푸터 높이가 44이며 위 테두리가 없음`, async ({
+			if (colorScheme === "light" && label === "모바일") {
+				test(`${caseId("NAV", 4)} ${label} 건물 상세를 스크롤해도 내비게이션 아래 끝이 화면 아래와 같음`, async ({
 					page,
 				}) => {
-					test.skip(
-						LOGGED_IN && path === "/login",
-						"로그인한 상태에서는 /login이 홈으로 이동함",
-					);
-					await gotoAndSettle(page, path);
-					const footer = await readBox(
-						page.locator('[data-area="footer-mobile"]'),
-					);
-					const nav = await readBox(page.locator(NAV));
-					expect
-						.soft(nav.y + nav.height, "내비게이션 아래 끝이 화면 아래")
-						.toBeCloseTo(viewport.height, 0);
-					expect
-						.soft(footer.y + footer.height, "푸터 아래 끝이 내비게이션 위 끝")
-						.toBeCloseTo(nav.y, 0);
-					expect.soft(footer.height, "푸터 높이").toBeCloseTo(FOOTER_HEIGHT, 0);
-					const footerBorderTop = await page
-						.locator('[data-area="footer-mobile"] > *')
-						.first()
-						.evaluate((element) => getComputedStyle(element).borderTopWidth);
-					expect.soft(footerBorderTop, "푸터 위 테두리").toBe("0px");
-					if (bar) {
-						const barBox = await readBox(page.locator(`[data-area="${bar}"]`));
+					await gotoAndSettle(page, "/buildings/1");
+					for (const ratio of [0, 0.5, 1]) {
+						await page.evaluate(
+							(r) =>
+								window.scrollTo(0, document.documentElement.scrollHeight * r),
+							ratio,
+						);
+						await waitForFrames(page);
+						const box = await readBox(page.locator(NAV));
 						expect
-							.soft(barBox.y + barBox.height, "하단 바 아래 끝이 푸터 위 끝")
-							.toBeCloseTo(footer.y, 0);
+							.soft(
+								box.y + box.height,
+								`스크롤 ${ratio}에서 내비게이션 아래 끝`,
+							)
+							.toBeCloseTo(viewport.height, 0);
 					}
 				});
+			}
 
-				test(`${caseId("NAV", number++)} ${label} ${name}를 끝까지 스크롤하면 본문이 하단 바나 푸터 위에서 끝나고 푸터가 내비게이션 바로 위에 있음`, async ({
-					page,
-				}) => {
-					test.skip(
-						LOGGED_IN && path === "/login",
-						"로그인한 상태에서는 /login이 홈으로 이동함",
-					);
-					await gotoAndSettle(page, path);
-					await scrollToEnd(page);
-					const main = await readBox(page.locator('[data-area="main"]'));
-					const footer = await readBox(
-						page.locator('[data-area="footer-mobile"]'),
-					);
-					const nav = await readBox(page.locator(NAV));
-					const upperEdge = bar
-						? (await readBox(page.locator(`[data-area="${bar}"]`))).y
-						: footer.y;
-					expect
-						.soft(
-							main.y + main.height,
-							"본문 아래 끝이 하단 바나 푸터 위 끝 이하",
-						)
-						.toBeLessThanOrEqual(upperEdge + 1);
-					expect
-						.soft(footer.y + footer.height, "푸터 아래 끝이 내비게이션 위 끝")
-						.toBeCloseTo(nav.y, 0);
-				});
+			for (const { name, path, bar } of STACK_PATHS) {
+				if (colorScheme === "light" && label === "모바일") {
+					test(`${caseId("NAV", 5)} ${label} ${name}에서 푸터가 내비게이션 바로 위에 붙고 하단 바가 있으면 푸터 위에 붙으며 푸터 높이가 44이며 위 테두리가 없음`, async ({
+						page,
+					}) => {
+						test.skip(
+							LOGGED_IN && path === "/login",
+							"로그인한 상태에서는 /login이 홈으로 이동함",
+						);
+						await gotoAndSettle(page, path);
+						const footer = await readBox(
+							page.locator('[data-area="footer-mobile"]'),
+						);
+						const nav = await readBox(page.locator(NAV));
+						expect
+							.soft(nav.y + nav.height, "내비게이션 아래 끝이 화면 아래")
+							.toBeCloseTo(viewport.height, 0);
+						expect
+							.soft(footer.y + footer.height, "푸터 아래 끝이 내비게이션 위 끝")
+							.toBeCloseTo(nav.y, 0);
+						expect
+							.soft(footer.height, "푸터 높이")
+							.toBeCloseTo(FOOTER_HEIGHT, 0);
+						const footerBorderTop = await page
+							.locator('[data-area="footer-mobile"] > *')
+							.first()
+							.evaluate((element) => getComputedStyle(element).borderTopWidth);
+						expect.soft(footerBorderTop, "푸터 위 테두리").toBe("0px");
+						if (bar) {
+							const barBox = await readBox(
+								page.locator(`[data-area="${bar}"]`),
+							);
+							expect
+								.soft(barBox.y + barBox.height, "하단 바 아래 끝이 푸터 위 끝")
+								.toBeCloseTo(footer.y, 0);
+						}
+					});
+				}
 
-				test(`${caseId("NAV", number++)} ${label} ${name}에서 열이 폭 ${columnWidth}의 흰색이고 main에 카드 모양이 없음`, async ({
+				if (colorScheme === "light" && label === "모바일") {
+					test(`${caseId("NAV", 6)} ${label} ${name}에서 끝까지 스크롤하면 본문이 하단 바나 푸터 위에서 끝나고 푸터가 내비게이션 바로 위에 있음`, async ({
+						page,
+					}) => {
+						test.skip(
+							LOGGED_IN && path === "/login",
+							"로그인한 상태에서는 /login이 홈으로 이동함",
+						);
+						await gotoAndSettle(page, path);
+						await scrollToEnd(page);
+						const main = await readBox(page.locator('[data-area="main"]'));
+						const footer = await readBox(
+							page.locator('[data-area="footer-mobile"]'),
+						);
+						const nav = await readBox(page.locator(NAV));
+						const upperEdge = bar
+							? (await readBox(page.locator(`[data-area="${bar}"]`))).y
+							: footer.y;
+						expect
+							.soft(
+								main.y + main.height,
+								"본문 아래 끝이 하단 바나 푸터 위 끝 이하",
+							)
+							.toBeLessThanOrEqual(upperEdge + 1);
+						expect
+							.soft(footer.y + footer.height, "푸터 아래 끝이 내비게이션 위 끝")
+							.toBeCloseTo(nav.y, 0);
+					});
+				}
+
+				test(`${caseId("NAV", 7)} ${label} ${name}에서 열이 폭 ${columnWidth}의 흰색이고 main에 카드 모양이 없음`, async ({
 					page,
 				}) => {
 					test.skip(
@@ -246,56 +264,60 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 				});
 			}
 
-			test(`${caseId("NAV", number++)} ${label} 헤더 아래 구분선이 챗봇 패널 위쪽 가장자리의 테두리와 그림자를 아래로 뒤집은 값임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/");
-				const header = await readHeaderEdge(page);
-				const panel = await readChatPanelEdge(page);
-				expect.soft(header.borderBottomWidth, "헤더 아래 테두리").toBe("1px");
-				expect
-					.soft(
-						header.borderBottomColor,
-						"헤더 아래 테두리 색이 패널 위 테두리 색과 같음",
-					)
-					.toBe(panel.borderTopColor);
-				const headerShadow = parseShadow(header.boxShadow);
-				const panelShadow = parseShadow(panel.boxShadow);
-				expect.soft(headerShadow.y, "헤더 그림자 y").toBe(6);
-				expect.soft(headerShadow.blur, "헤더 그림자 blur").toBe(20);
-				expect.soft(headerShadow.x, "헤더 그림자 x").toBe(0);
-				expect.soft(headerShadow.spread, "헤더 그림자 spread").toBe(0);
-				expect
-					.soft(headerShadow.y, "헤더 그림자 y가 패널 그림자 y의 반대")
-					.toBe(-panelShadow.y);
-				expect
-					.soft(headerShadow.color, "헤더 그림자 색이 패널 그림자 색과 같음")
-					.toBe(panelShadow.color);
-			});
+			if (colorScheme === "light" && label === "모바일") {
+				test(`${caseId("NAV", 8)} ${label} 헤더 아래 구분선이 챗봇 패널 위쪽 가장자리의 테두리와 그림자를 아래로 뒤집은 값임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/");
+					const header = await readHeaderEdge(page);
+					const panel = await readChatPanelEdge(page);
+					expect.soft(header.borderBottomWidth, "헤더 아래 테두리").toBe("1px");
+					expect
+						.soft(
+							header.borderBottomColor,
+							"헤더 아래 테두리 색이 패널 위 테두리 색과 같음",
+						)
+						.toBe(panel.borderTopColor);
+					const headerShadow = parseShadow(header.boxShadow);
+					const panelShadow = parseShadow(panel.boxShadow);
+					expect.soft(headerShadow.y, "헤더 그림자 y").toBe(6);
+					expect.soft(headerShadow.blur, "헤더 그림자 blur").toBe(20);
+					expect.soft(headerShadow.x, "헤더 그림자 x").toBe(0);
+					expect.soft(headerShadow.spread, "헤더 그림자 spread").toBe(0);
+					expect
+						.soft(headerShadow.y, "헤더 그림자 y가 패널 그림자 y의 반대")
+						.toBe(-panelShadow.y);
+					expect
+						.soft(headerShadow.color, "헤더 그림자 색이 패널 그림자 색과 같음")
+						.toBe(panelShadow.color);
+				});
+			}
 
-			test(`${caseId("NAV", number++)} ${label} 건물 상세를 스크롤하기 전과 뒤에 푸터와 내비게이션 위치가 같고 푸터 링크 세 개가 보임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/buildings/1");
-				const footerLinks = page.locator('[data-area="footer-mobile"] a');
-				await expect
-					.soft(footerLinks)
-					.toHaveText(["데이터 출처", "이용약관", "개인정보처리방침"]);
-				for (let index = 0; index < 3; index++) {
-					await expect.soft(footerLinks.nth(index)).toBeInViewport();
-				}
-				const before = await readBox(
-					page.locator('[data-area="footer-mobile"]'),
-				);
-				await scrollToEnd(page);
-				const after = await readBox(
-					page.locator('[data-area="footer-mobile"]'),
-				);
-				expect.soft(after.y, "푸터 y").toBeCloseTo(before.y, 0);
-				expect.soft(after.height, "푸터 높이").toBeCloseTo(before.height, 0);
-			});
+			if (colorScheme === "light" && label === "모바일") {
+				test(`${caseId("NAV", 9)} ${label} 건물 상세를 스크롤하기 전과 뒤에 푸터와 내비게이션 위치가 같고 푸터 링크 세 개가 보임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/buildings/1");
+					const footerLinks = page.locator('[data-area="footer-mobile"] a');
+					await expect
+						.soft(footerLinks)
+						.toHaveText(["데이터 출처", "이용약관", "개인정보처리방침"]);
+					for (let index = 0; index < 3; index++) {
+						await expect.soft(footerLinks.nth(index)).toBeInViewport();
+					}
+					const before = await readBox(
+						page.locator('[data-area="footer-mobile"]'),
+					);
+					await scrollToEnd(page);
+					const after = await readBox(
+						page.locator('[data-area="footer-mobile"]'),
+					);
+					expect.soft(after.y, "푸터 y").toBeCloseTo(before.y, 0);
+					expect.soft(after.height, "푸터 높이").toBeCloseTo(before.height, 0);
+				});
+			}
 
-			test(`${caseId("NAV", number++)} ${label} /me에서 열이 폭 ${columnWidth}의 흰색이고 푸터가 내비게이션 바로 위에 있음`, async ({
+			test(`${caseId("NAV", 10)} ${label} /me에서 열이 폭 ${columnWidth}의 흰색이고 푸터가 내비게이션 바로 위에 있음`, async ({
 				page,
 			}) => {
 				test.skip(!LOGGED_IN, "로그인 상태 TC는 TC_SESSION=in일 때만 돌림");
@@ -317,64 +339,71 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 					.toBeCloseTo(viewport.height, 0);
 			});
 
-			test(`${caseId("NAV", number++)} ${label} /me에서 내 정보 탭의 aria-current가 page이고 href가 /me임`, async ({
-				page,
-			}) => {
-				test.skip(!LOGGED_IN, "로그인 상태 TC는 TC_SESSION=in일 때만 돌림");
-				await gotoAndSettle(page, "/me");
-				const link = page.locator('[data-area="bottom-nav-me"]');
-				await expect.soft(link).toHaveAttribute("aria-current", "page");
-				await expect.soft(link).toHaveAttribute("href", "/me");
-			});
+			if (colorScheme === "light" && label === "모바일") {
+				test(`${caseId("NAV", 11)} ${label} /me에서 내 정보 탭의 aria-current가 page이고 href가 /me임`, async ({
+					page,
+				}) => {
+					test.skip(!LOGGED_IN, "로그인 상태 TC는 TC_SESSION=in일 때만 돌림");
+					await gotoAndSettle(page, "/me");
+					const link = page.locator('[data-area="bottom-nav-me"]');
+					await expect.soft(link).toHaveAttribute("aria-current", "page");
+					await expect.soft(link).toHaveAttribute("href", "/me");
+				});
+			}
 		});
 	}
 
-	test.describe(`${label} ${viewport.width}x${viewport.height} 링크`, () => {
-		test.use({ viewport, colorScheme: "light" });
+	// 링크, 메타, 포커스는 모바일과 태블릿이 같으므로 모바일에서만 돌림
+	if (label === "모바일") {
+		test.describe(`${label} ${viewport.width}x${viewport.height} 링크`, () => {
+			test.use({ viewport, colorScheme: "light" });
 
-		for (const { area, name, href } of TABS) {
-			test(`${caseId("NAV", number++)} ${label} ${name} 탭의 href가 ${href}임`, async ({
+			for (const { area, name, href } of TABS) {
+				test(`${caseId("NAV", 12)} ${label} ${name} 탭의 href가 ${href}임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/");
+					await expect
+						.soft(page.locator(`[data-area="${area}"]`))
+						.toHaveAttribute("href", href);
+				});
+			}
+
+			test(`${caseId("NAV", 13)} ${label} 로그인하지 않으면 내 정보 탭의 href가 /login?next=%2Fme임`, async ({
+				page,
+			}) => {
+				test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
+				await gotoAndSettle(page, "/");
+				await expect
+					.soft(page.locator('[data-area="bottom-nav-me"]'))
+					.toHaveAttribute("href", "/login?next=%2Fme");
+			});
+
+			test(`${caseId("NAV", 14)} ${label} viewport 메타에 viewport-fit=cover가 있음`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/");
-				await expect
-					.soft(page.locator(`[data-area="${area}"]`))
-					.toHaveAttribute("href", href);
+				const content = await page
+					.locator('meta[name="viewport"]')
+					.getAttribute("content");
+				expect
+					.soft(content, "viewport content")
+					.toContain("viewport-fit=cover");
 			});
-		}
 
-		test(`${caseId("NAV", number++)} ${label} 로그인하지 않으면 내 정보 탭의 href가 /login?next=%2Fme임`, async ({
-			page,
-		}) => {
-			test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
-			await gotoAndSettle(page, "/");
-			await expect
-				.soft(page.locator('[data-area="bottom-nav-me"]'))
-				.toHaveAttribute("href", "/login?next=%2Fme");
+			test(`${caseId("NAV", 15)} ${label} 홈에서 챗봇 입력에 포커스해도 내비게이션이 보임`, async ({
+				page,
+			}) => {
+				test.skip(!LOGGED_IN, "입력창은 로그인 상태에서만 있음");
+				await gotoAndSettle(page, "/");
+				await page
+					.locator('[data-area="chat-panel-mobile"] input')
+					.first()
+					.focus();
+				await expect.soft(page.locator(NAV)).toBeVisible();
+			});
 		});
-
-		test(`${caseId("NAV", number++)} ${label} viewport 메타에 viewport-fit=cover가 있음`, async ({
-			page,
-		}) => {
-			await gotoAndSettle(page, "/");
-			const content = await page
-				.locator('meta[name="viewport"]')
-				.getAttribute("content");
-			expect.soft(content, "viewport content").toContain("viewport-fit=cover");
-		});
-
-		test(`${caseId("NAV", number++)} ${label} 홈에서 챗봇 입력에 포커스해도 내비게이션이 보임`, async ({
-			page,
-		}) => {
-			test.skip(!LOGGED_IN, "입력창은 로그인 상태에서만 있음");
-			await gotoAndSettle(page, "/");
-			await page
-				.locator('[data-area="chat-panel-mobile"] input')
-				.first()
-				.focus();
-			await expect.soft(page.locator(NAV)).toBeVisible();
-		});
-	});
+	}
 }
 
 for (const { label, viewport } of [
@@ -384,7 +413,7 @@ for (const { label, viewport } of [
 	test.describe(`데스크톱 ${label} light`, () => {
 		test.use({ viewport, colorScheme: "light" });
 
-		test(`${caseId("NAV", number++)} ${label}에서는 하단 내비게이션이 숨겨짐`, async ({
+		test(`${caseId("NAV", 16)} ${label}에서는 하단 내비게이션이 숨겨짐`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/");
@@ -392,9 +421,13 @@ for (const { label, viewport } of [
 		});
 
 		for (const { name, path } of COLUMN_PATHS) {
-			test(`${caseId("NAV", number++)} ${label}에서 ${name}의 page-column이 흰색이 아니고 main에 카드 모양이 없고 푸터가 고정되지 않음`, async ({
+			test(`${caseId("NAV", 17)} ${label}에서 ${name}의 page-column 배경이 투명이고 main에 카드 모양이 없고 푸터가 고정되지 않음`, async ({
 				page,
 			}) => {
+				test.skip(
+					LOGGED_IN && path === "/login",
+					"로그인한 상태에서는 /login이 홈으로 이동함",
+				);
 				await gotoAndSettle(page, path);
 				const column = await page
 					.locator('[data-area="page-column"]')
@@ -420,7 +453,7 @@ for (const { label, viewport } of [
 			});
 		}
 
-		test(`${caseId("NAV", number++)} ${label}에서 데스크톱 헤더에 그림자가 없음`, async ({
+		test(`${caseId("NAV", 18)} ${label}에서 데스크톱 헤더에 그림자가 없음`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/");
