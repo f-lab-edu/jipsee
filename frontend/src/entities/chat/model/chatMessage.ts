@@ -1,7 +1,7 @@
 import type { ChatBuildingLink } from "@/entities/chat/model/chatBuildingLink";
 import type { ChatSource } from "@/entities/chat/model/chatSource";
 
-// sources와 buildings는 사용자 메시지에서 빈 배열. createdAt은 ISO 8601 한국 시간
+// sources와 buildings는 사용자 메시지에서 빈 배열. createdAt은 ISO 8601 한국 시간(KST)이며 오프셋이 없을 수 있음. 오프셋이 없으면 한국 시간으로 해석
 export type ChatMessage = {
 	id: number;
 	role: "USER" | "ASSISTANT";
