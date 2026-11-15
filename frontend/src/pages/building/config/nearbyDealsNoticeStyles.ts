@@ -1,6 +1,15 @@
-import type { NearbyDealsNoticeStyle } from "@/pages/building/model/nearbyDealsNoticeStyle";
+import type { BoxProps, IconProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface NearbyDealsNoticeStyle {
+	notice: BoxProps;
+	iconCell: BoxProps;
+	icon: Omit<IconProps, "svg">;
+	textGroup: BoxProps;
+	title: TextProps;
+	body: TextProps;
+}
 
 export const nearbyDealsNoticeStyles =
 	defineResponsiveStyles<NearbyDealsNoticeStyle>({

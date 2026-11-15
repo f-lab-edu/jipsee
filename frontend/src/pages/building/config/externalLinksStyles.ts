@@ -1,7 +1,18 @@
-import type { BoxProps } from "@seed-design/react";
-import type { ExternalLinksStyle } from "@/pages/building/model/externalLinksStyle";
+import type {
+	BoxProps,
+	GridProps,
+	IconProps,
+	TextProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface ExternalLinksStyle {
+	container: GridProps;
+	link: BoxProps;
+	label: TextProps;
+	icon: Omit<IconProps, "svg">;
+}
 
 const shared: Omit<ExternalLinksStyle, "container" | "link"> = {
 	label: { ...typography.size14, fontWeight: "medium", color: "fg.neutral" },

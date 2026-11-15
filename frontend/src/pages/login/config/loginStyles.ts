@@ -1,5 +1,30 @@
-import type { LoginStyle } from "@/pages/login/model/loginStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	IconProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface LoginStyle {
+	main: VStackProps;
+	mobileBody: VStackProps;
+	desktopBody: VStackProps;
+	card: VStackProps;
+	actions: VStackProps;
+	providers: VStackProps;
+	errorNotice: {
+		box: HStackProps;
+		iconCell: BoxProps;
+		icon: Omit<IconProps, "svg">;
+		text: TextProps;
+	};
+	intro: VStackProps;
+	logoSize: number;
+	title: TextProps;
+	description: TextProps;
+}
 
 export const loginStyles: LoginStyle = {
 	main: { flexGrow: 1 },

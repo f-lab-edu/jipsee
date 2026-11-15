@@ -1,5 +1,22 @@
-import type { ChatHistoryStyle } from "@/pages/chat/model/chatHistoryStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface ChatHistoryStyle {
+	list: VStackProps;
+	item: HStackProps;
+	link: VStackProps;
+	title: TextProps;
+	time: TextProps;
+	empty: VStackProps;
+	emptyText: TextProps;
+	root: VStackProps;
+	notice: BoxProps;
+}
 
 // Box가 content-box이므로 링크 최소 높이 68은 위아래 패딩 24를 뺀 44임. 목록 항목 높이는 아래 구분선 1이 더해짐
 export const chatHistoryStyles: ChatHistoryStyle = {

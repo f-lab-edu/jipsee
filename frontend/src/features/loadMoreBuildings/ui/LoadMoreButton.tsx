@@ -1,6 +1,6 @@
 import { Box, Icon, Text } from "@seed-design/react";
 import { loadMoreCopy } from "@/features/loadMoreBuildings/config/loadMoreCopy";
-import type { LoadMoreStyle } from "@/features/loadMoreBuildings/model/loadMoreStyle";
+import type { LoadMoreStyle } from "@/features/loadMoreBuildings/config/loadMoreStyles";
 import LoadMoreChevronIcon from "@/features/loadMoreBuildings/ui/LoadMoreChevronIcon";
 import LoadMoreSpinnerIcon from "@/features/loadMoreBuildings/ui/LoadMoreSpinnerIcon";
 

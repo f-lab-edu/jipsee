@@ -1,7 +1,7 @@
 import { Box, Icon, Text } from "@seed-design/react";
 import type { ReactNode } from "react";
 import { noResultCopy } from "@/pages/search/config/noResultCopy";
-import type { NoResultNoticeStyle } from "@/pages/search/model/noResultNoticeStyle";
+import type { NoResultNoticeStyle } from "@/pages/search/config/noResultNoticeStyles";
 import NoResultIcon from "@/pages/search/ui/NoResultIcon";
 
 interface NoResultNoticeContentProps {

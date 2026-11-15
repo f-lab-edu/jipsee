@@ -1,6 +1,24 @@
-import type { DataSourceCardStyle } from "@/entities/dataSource/model/dataSourceCardStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	IconProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface DataSourceCardStyle {
+	card: VStackProps;
+	name: TextProps;
+	providerBox: BoxProps;
+	provider: TextProps;
+	footer: HStackProps;
+	updateLine: TextProps;
+	originalLink: BoxProps;
+	originalLinkText: TextProps;
+	originalLinkIcon: Omit<IconProps, "svg">;
+}
 
 export const dataSourceCardStyles = defineResponsiveStyles<DataSourceCardStyle>(
 	{

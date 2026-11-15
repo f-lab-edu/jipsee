@@ -1,5 +1,13 @@
-import type { BuildingDealListStyle } from "@/pages/building/model/buildingDealListStyle";
+import type { BoxProps, GridProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface BuildingDealListStyle {
+	list: BoxProps;
+	headerRow: GridProps;
+	headerCell: BoxProps;
+	amountHeaderCell: BoxProps;
+	headerText: TextProps;
+}
 
 export const buildingDealListStyles: BuildingDealListStyle = {
 	list: { m: 0, p: 0 },

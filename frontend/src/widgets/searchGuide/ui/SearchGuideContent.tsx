@@ -4,7 +4,7 @@ import { Grid, Icon, Text, VStack } from "@seed-design/react";
 import { formatYearMonthWithUnit } from "@/shared/lib/dates/formatYearMonthWithUnit";
 import type { YearMonth } from "@/shared/lib/dates/yearMonth";
 import { searchGuideCopy } from "@/widgets/searchGuide/config/searchGuideCopy";
-import type { SearchGuideLayoutStyle } from "@/widgets/searchGuide/model/searchGuideLayoutStyle";
+import type { SearchGuideLayoutStyle } from "@/widgets/searchGuide/config/searchGuideStyles";
 import SearchGuideCheckIcon from "@/widgets/searchGuide/ui/SearchGuideCheckIcon";
 import SearchGuideItem from "@/widgets/searchGuide/ui/SearchGuideItem";
 

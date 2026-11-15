@@ -1,6 +1,19 @@
-import type { BuildingAddressStyle } from "@/entities/building/model/buildingAddressStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface BuildingAddressStyle {
+	lines: VStackProps;
+	line: HStackProps;
+	label: BoxProps;
+	labelText: TextProps;
+	text: TextProps;
+}
 
 const common = {
 	lines: { gap: "x0_5" },

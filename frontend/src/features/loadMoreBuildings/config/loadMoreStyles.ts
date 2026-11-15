@@ -1,6 +1,26 @@
-import type { LoadMoreStyle } from "@/features/loadMoreBuildings/model/loadMoreStyle";
+import type {
+	BoxProps,
+	FlexProps,
+	IconProps,
+	TextProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface LoadMoreStyle {
+	area: FlexProps;
+	button: BoxProps;
+	buttonText: TextProps;
+	buttonIcon: Omit<IconProps, "svg">;
+	loadingIconBox: BoxProps;
+	loadingIcon: Omit<IconProps, "svg">;
+	error: FlexProps;
+	errorRow: FlexProps;
+	errorIcon: Omit<IconProps, "svg">;
+	errorText: TextProps;
+	retryButton: BoxProps;
+	retryText: TextProps;
+}
 
 const common = {
 	buttonText: { ...typography.size15, fontWeight: "bold", color: "fg.neutral" },
