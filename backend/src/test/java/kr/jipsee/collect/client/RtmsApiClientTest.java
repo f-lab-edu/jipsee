@@ -174,6 +174,31 @@ class RtmsApiClientTest {
         }
 
         @Test
+        @DisplayName("본문이 빈 200이 한 번 오고 이후 성공하면 결과를 반환함")
+        void 본문이_빈_200이_한_번_오고_이후_성공하면_결과를_반환함() {
+            server.expect(request -> {}).andRespond(withSuccess("", MediaType.APPLICATION_JSON));
+            server.expect(request -> {}).andRespond(withSuccess(TWO_ITEMS_BODY, MediaType.APPLICATION_JSON));
+
+            RtmsPage<RtmsItem> page = call();
+
+            assertThat(page.items()).hasSize(2);
+            server.verify();
+        }
+
+        @Test
+        @DisplayName("본문이 빈 200이 계속되면 처음 한 번과 재시도 세 번 뒤에 RtmsApiTransientException으로 실패함")
+        void 본문이_빈_200이_계속되면_처음_한_번과_재시도_세_번_뒤에_RtmsApiTransientException으로_실패함() {
+            server.expect(ExpectedCount.times(4), request -> {})
+                    .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
+
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
+
+            assertThat(thrown).isInstanceOf(RtmsApiTransientException.class).hasMessageContaining("빈 응답(HTTP 200)");
+            assertThat(thrown.getMessage()).doesNotContain("abc");
+            server.verify();
+        }
+
+        @Test
         @DisplayName("5xx가 계속되면 처음 한 번과 재시도 세 번 뒤에 실패함")
         void 서버_오류가_계속되면_처음_한_번과_재시도_세_번_뒤에_실패함() {
             server.expect(ExpectedCount.times(4), request -> {}).andRespond(withServerError());

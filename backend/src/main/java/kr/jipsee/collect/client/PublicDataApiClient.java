@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import kr.jipsee.collect.exception.RtmsApiException;
@@ -26,6 +27,7 @@ import tools.jackson.databind.json.JsonMapper;
 public abstract class PublicDataApiClient {
     private static final String RESPONSE = "response";
     private static final String SERVICE_KEY = "serviceKey";
+    private static final Set<String> SUCCESS_CODES = Set.of("00", "000"); // 거래 API는 000, 건축HUB는 00
     private static final Pattern XML_REASON_CODE =
             Pattern.compile("<returnReasonCode>\\s*(\\d+)\\s*</returnReasonCode>");
 
@@ -63,10 +65,15 @@ public abstract class PublicDataApiClient {
         return retryTemplate.invoke(() -> callOnce(path, params, requestInfo));
     }
 
-    /** API를 한 번 호출하고 오류 코드, 상태 코드, 본문 순으로 검증 */
+    /** API를 한 번 호출하고 2xx의 빈 본문, 오류 코드, 상태 코드, 본문 순으로 검증 */
     private RtmsPage<RtmsItem> callOnce(String path, Map<String, Object> params, String requestInfo) {
         Response response = request(path, params, requestInfo);
         String body = response.body().strip();
+
+        if (body.isEmpty() && response.status().is2xxSuccessful()) {
+            throw new RtmsApiTransientException("빈 응답(HTTP " + response.status().value() + "): " + requestInfo);
+        }
+
         boolean isXml = body.startsWith("<");
 
         if (isXml) {
@@ -150,7 +157,7 @@ public abstract class PublicDataApiClient {
     /** exchange 내부에서 읽은 상태 코드와 본문 */
     private record Response(HttpStatusCode status, String body) {}
 
-    /** 게이트웨이 오류 코드를 먼저 확인하고, 없으면 000(정상)이 아닌 resultCode 반환 */
+    /** 게이트웨이 오류 코드를 먼저 확인하고, 없으면 정상(00, 000)이 아닌 resultCode 반환 */
     private static String findErrorCode(JsonNode root) {
         JsonNode reasonCode =
                 root.path("OpenAPI_ServiceResponse").path("cmmMsgHeader").path("returnReasonCode");
@@ -161,7 +168,7 @@ public abstract class PublicDataApiClient {
 
         JsonNode resultCode = root.path(RESPONSE).path("header").path("resultCode");
 
-        if (!resultCode.isMissingNode() && !"000".equals(resultCode.asString())) {
+        if (!resultCode.isMissingNode() && !SUCCESS_CODES.contains(resultCode.asString())) {
             return resultCode.asString();
         }
 
