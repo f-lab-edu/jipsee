@@ -1,4 +1,4 @@
-package kr.jipsee.collect.client;
+package kr.jipsee.building.client;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
