@@ -1,6 +1,11 @@
-import type { NearbyDealContractChipStyle } from "@/entities/building/model/nearbyDealContractChipStyle";
+import type { BoxProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface NearbyDealContractChipStyle {
+	chip: BoxProps;
+	label: TextProps;
+}
 
 export const nearbyDealContractChipStyles =
 	defineResponsiveStyles<NearbyDealContractChipStyle>({

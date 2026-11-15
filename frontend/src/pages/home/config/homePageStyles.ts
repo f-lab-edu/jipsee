@@ -1,4 +1,9 @@
-import type { HomePageStyle } from "@/pages/home/model/homePageStyle";
+import type { BoxProps } from "@seed-design/react";
+
+export interface HomePageStyle {
+	introWrapper: BoxProps;
+	guideCell: BoxProps;
+}
 
 export const homePageStyles: HomePageStyle = {
 	introWrapper: {

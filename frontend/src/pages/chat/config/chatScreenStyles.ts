@@ -1,6 +1,34 @@
-import type { ChatScreenStyle } from "@/pages/chat/model/chatScreenStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	IconProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { columnWidth } from "@/shared/config/columnWidth";
 import { typography } from "@/shared/config/typography";
+
+export interface ChatToolbarStyle {
+	root: HStackProps;
+	titleGroup: HStackProps;
+	title: TextProps;
+	actions: HStackProps;
+	button: BoxProps;
+	buttonText: TextProps;
+}
+
+export interface ChatScreenStyle {
+	main: VStackProps;
+	card: HStackProps;
+	hiddenOnDesktopCard: HStackProps;
+	pane: VStackProps;
+	toolbar: ChatToolbarStyle;
+	chip: HStackProps;
+	chipWrapper: VStackProps;
+	chipColumn: VStackProps;
+	chipIcon: Omit<IconProps, "svg">;
+	chipText: TextProps;
+}
 
 // 카드 폭은 1152에서 테두리 2를 뺌. 카드 모양은 theme.css의 .chat-card가 정함
 const cardShared = {

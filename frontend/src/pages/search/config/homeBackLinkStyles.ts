@@ -1,5 +1,11 @@
-import type { HomeBackLinkStyle } from "@/pages/search/model/homeBackLinkStyle";
+import type { BoxProps, IconProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface HomeBackLinkStyle {
+	link: BoxProps;
+	icon: Omit<IconProps, "svg">;
+	label: TextProps;
+}
 
 export const homeBackLinkStyles: HomeBackLinkStyle = {
 	link: {

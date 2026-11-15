@@ -1,7 +1,14 @@
 import type { BoxProps, TextProps } from "@seed-design/react";
 import { providerColors } from "@/entities/session/config/providerColors";
-import type { LoginButtonStyle } from "@/features/login/model/loginButtonStyle";
+import type { Provider } from "@/entities/session/model/session";
 import { typography } from "@/shared/config/typography";
+
+export interface LoginButtonStyle {
+	button: Record<Provider, BoxProps>;
+	iconBox: BoxProps;
+	iconSize: Record<Provider, number>;
+	label: Record<Provider, TextProps>;
+}
 
 const buttonShared: BoxProps = {
 	position: "relative",

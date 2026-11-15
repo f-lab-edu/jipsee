@@ -1,7 +1,24 @@
-import type { BoxProps } from "@seed-design/react";
+import type {
+	BoxProps,
+	GridProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { colors } from "@/shared/config/colors";
 import { typography } from "@/shared/config/typography";
-import type { ConfirmDialogStyle } from "@/shared/model/confirmDialogStyle";
+
+export interface ConfirmDialogStyle {
+	contentClassName: string;
+	body: VStackProps;
+	title: TextProps;
+	description: TextProps;
+	form: BoxProps;
+	buttons: GridProps;
+	cancelButton: BoxProps;
+	cancelText: TextProps;
+	confirmButton: BoxProps;
+	confirmText: TextProps;
+}
 
 const buttonShared: BoxProps = {
 	display: "flex",

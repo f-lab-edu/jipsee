@@ -1,6 +1,15 @@
-import type { AreaFixedRowStyle } from "@/pages/building/model/areaFixedRowStyle";
+import type { BoxProps, IconProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface AreaFixedRowStyle {
+	row: BoxProps;
+	labelCell: BoxProps;
+	label: TextProps;
+	content: BoxProps;
+	icon: Omit<IconProps, "svg">;
+	text: TextProps;
+}
 
 const shared: Omit<AreaFixedRowStyle, "labelCell"> = {
 	row: { display: "flex", alignItems: "center", gap: "x2", width: "100%" },

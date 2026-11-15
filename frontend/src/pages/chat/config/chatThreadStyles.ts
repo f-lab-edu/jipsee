@@ -1,6 +1,31 @@
-import type { ChatThreadStyle } from "@/pages/chat/model/chatThreadStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	IconProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { columnWidth } from "@/shared/config/columnWidth";
 import { typography } from "@/shared/config/typography";
+
+export interface ChatThreadStyle {
+	thread: VStackProps;
+	column: VStackProps;
+	empty: VStackProps;
+	emptyHeading: VStackProps;
+	emptyIcon: BoxProps;
+	emptyIconSvg: Omit<IconProps, "svg">;
+	emptyTitle: TextProps;
+	examples: VStackProps;
+	example: BoxProps;
+	exampleText: TextProps;
+	error: VStackProps;
+	errorRow: HStackProps;
+	errorIcon: Omit<IconProps, "svg">;
+	errorText: TextProps;
+	retryButton: BoxProps;
+	retryText: TextProps;
+}
 
 // button은 border-box라 시안의 높이를 그대로 씀
 export const chatThreadStyles: ChatThreadStyle = {

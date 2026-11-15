@@ -1,7 +1,7 @@
 import IconExclamationmarkCircleLine from "@karrotmarket/react-monochrome-icon/IconExclamationmarkCircleLine";
 import { Box, Flex, Icon, Text } from "@seed-design/react";
 import { loadMoreCopy } from "@/features/loadMoreBuildings/config/loadMoreCopy";
-import type { LoadMoreStyle } from "@/features/loadMoreBuildings/model/loadMoreStyle";
+import type { LoadMoreStyle } from "@/features/loadMoreBuildings/config/loadMoreStyles";
 
 interface LoadMoreErrorProps {
 	style: LoadMoreStyle;

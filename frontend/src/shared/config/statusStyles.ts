@@ -1,6 +1,27 @@
+import type {
+	BoxProps,
+	IconProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
-import type { StatusStyle } from "@/shared/model/statusStyle";
+
+export interface StatusStyle {
+	body: VStackProps;
+	card: VStackProps;
+	root: VStackProps;
+	circle: BoxProps;
+	icon: Omit<IconProps, "svg">;
+	textBlock: VStackProps;
+	title: TextProps;
+	description: TextProps;
+	actions: VStackProps;
+	primaryButton: BoxProps;
+	primaryText: TextProps;
+	secondaryButton: BoxProps;
+	secondaryText: TextProps;
+}
 
 const buttonShared = {
 	display: "flex",

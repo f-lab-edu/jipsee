@@ -1,6 +1,21 @@
+import type {
+	BoxProps,
+	IconProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
-import type { PartialStatusStyle } from "@/shared/model/partialStatusStyle";
+
+export interface PartialStatusStyle {
+	panel: VStackProps;
+	root: VStackProps;
+	circle: BoxProps;
+	icon: Omit<IconProps, "svg">;
+	title: TextProps;
+	retryButton: BoxProps;
+	retryText: TextProps;
+}
 
 const circleShared = {
 	display: "flex",

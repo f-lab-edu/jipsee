@@ -1,6 +1,11 @@
-import type { BoxProps } from "@seed-design/react";
-import type { DeleteChatStyle } from "@/features/deleteChat/model/deleteChatStyle";
+import type { BoxProps, TextProps } from "@seed-design/react";
+import type { DeleteChatVariant } from "@/features/deleteChat/model/deleteChatVariant";
 import { typography } from "@/shared/config/typography";
+
+export interface DeleteChatStyle {
+	trigger: Record<DeleteChatVariant, BoxProps>;
+	triggerText: TextProps;
+}
 
 const triggerShared: BoxProps = {
 	display: "flex",

@@ -1,5 +1,21 @@
-import type { BuildingSummaryItemStyle } from "@/entities/building/model/buildingSummaryItemStyle";
+import type {
+	BoxProps,
+	FlexProps,
+	IconProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface BuildingSummaryItemStyle {
+	row: FlexProps;
+	body: VStackProps;
+	name: TextProps;
+	detailCell: BoxProps;
+	detail: TextProps;
+	chevronCell: BoxProps;
+	chevron: Omit<IconProps, "svg">;
+}
 
 export const buildingSummaryItemStyles: BuildingSummaryItemStyle = {
 	row: {

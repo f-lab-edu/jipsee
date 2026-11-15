@@ -1,5 +1,37 @@
-import type { ChatRailStyle } from "@/pages/chat/model/chatRailStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	IconProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface ChatRailStyle {
+	root: VStackProps;
+	inner: VStackProps;
+	notice: BoxProps;
+	toolbar: VStackProps;
+	titleBox: BoxProps;
+	title: TextProps;
+	newChat: BoxProps;
+	newChatCurrent: BoxProps;
+	newChatIcon: Omit<IconProps, "svg">;
+	newChatText: TextProps;
+	newChatCurrentText: TextProps;
+	headingBox: BoxProps;
+	heading: TextProps;
+	nav: VStackProps;
+	list: VStackProps;
+	item: HStackProps;
+	itemCurrent: HStackProps;
+	link: VStackProps;
+	linkTitle: TextProps;
+	linkTitleCurrent: TextProps;
+	linkTime: TextProps;
+	empty: VStackProps;
+	emptyText: TextProps;
+}
 
 const newChatShared = {
 	display: "flex",

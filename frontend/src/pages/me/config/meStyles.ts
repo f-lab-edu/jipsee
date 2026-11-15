@@ -1,8 +1,40 @@
+import type {
+	BoxProps,
+	HStackProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { providerColors } from "@/entities/session/config/providerColors";
-import type { MeSectionStyle, MeStyle } from "@/pages/me/model/meStyle";
+import type { Provider } from "@/entities/session/model/session";
 import { columnWidth } from "@/shared/config/columnWidth";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface MeSectionStyle {
+	section: VStackProps;
+	title: TextProps;
+	provider: HStackProps;
+	providerName: TextProps;
+	withdraw: BoxProps;
+	withdrawBody: VStackProps;
+	withdrawDescription: TextProps;
+}
+
+export interface MeStyle {
+	main: VStackProps;
+	mobileBody: VStackProps;
+	mobileNotice: BoxProps;
+	mobileTitleBox: BoxProps;
+	mobileTitle: TextProps;
+	mobileDivider: BoxProps;
+	mobileSpacer: BoxProps;
+	desktopBody: VStackProps;
+	desktopColumn: VStackProps;
+	desktopTitleBox: BoxProps;
+	desktopTitle: TextProps;
+	providerIcon: Record<Provider, BoxProps>;
+	providerIconSize: Record<Provider, number>;
+}
 
 const iconShared = {
 	display: "flex",

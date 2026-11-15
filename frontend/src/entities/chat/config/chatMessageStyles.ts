@@ -1,6 +1,29 @@
-import type { ChatMessageStyle } from "@/entities/chat/model/chatMessageStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	IconProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { colors } from "@/shared/config/colors";
 import { typography } from "@/shared/config/typography";
+
+export interface ChatMessageStyle {
+	userArticle: VStackProps;
+	userBubble: BoxProps;
+	userText: TextProps;
+	assistantArticle: VStackProps;
+	assistantBubble: VStackProps;
+	assistantLine: TextProps;
+	waitingBubble: HStackProps;
+	waitingDot: BoxProps;
+	caret: BoxProps;
+	sources: VStackProps;
+	sourceLine: TextProps;
+	buildingLink: BoxProps;
+	buildingLinkText: TextProps;
+	buildingLinkIcon: Omit<IconProps, "svg">;
+}
 
 // 말풍선 모서리는 보낸 쪽 아래 모서리만 4임. 긴 글자 줄바꿈 클래스는 theme.css의 .chat-bubble에 있음
 export const chatMessageStyles: ChatMessageStyle = {

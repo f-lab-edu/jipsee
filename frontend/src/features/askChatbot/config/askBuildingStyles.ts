@@ -1,8 +1,16 @@
-import type { BoxProps } from "@seed-design/react";
-import type { AskBuildingStyle } from "@/features/askChatbot/model/askBuildingStyle";
+import type { BoxProps, IconProps, TextProps } from "@seed-design/react";
 import { bottomBarOffset } from "@/shared/config/bottomNavHeight";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
+
+export interface AskBuildingStyle {
+	bar: BoxProps;
+	card: BoxProps;
+	button: Record<ResponsiveVariant, BoxProps>;
+	buttonIcon: Omit<IconProps, "svg">;
+	buttonText: TextProps;
+}
 
 const buttonShared: BoxProps = {
 	display: "flex",

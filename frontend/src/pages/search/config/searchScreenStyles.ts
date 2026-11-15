@@ -1,4 +1,12 @@
-import type { SearchScreenStyle } from "@/pages/search/model/searchScreenStyle";
+import type { GridItemProps, GridProps, VStackProps } from "@seed-design/react";
+
+export interface SearchScreenStyle {
+	main: VStackProps;
+	grid: GridProps;
+	bodyCell: GridItemProps;
+	body: VStackProps;
+	asideCell: GridItemProps;
+}
 
 export const searchScreenStyles: SearchScreenStyle = {
 	main: { flexGrow: 1 },

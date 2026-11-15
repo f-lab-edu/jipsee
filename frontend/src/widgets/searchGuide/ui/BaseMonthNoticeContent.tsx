@@ -2,8 +2,8 @@ import { Flex, Text } from "@seed-design/react";
 import type { ReactNode } from "react";
 import { formatYearMonthWithUnit } from "@/shared/lib/dates/formatYearMonthWithUnit";
 import type { YearMonth } from "@/shared/lib/dates/yearMonth";
+import type { BaseMonthNoticeStyle } from "@/widgets/searchGuide/config/baseMonthNoticeStyles";
 import { searchGuideCopy } from "@/widgets/searchGuide/config/searchGuideCopy";
-import type { BaseMonthNoticeStyle } from "@/widgets/searchGuide/model/baseMonthNoticeStyle";
 
 interface BaseMonthNoticeContentProps {
 	style: BaseMonthNoticeStyle;

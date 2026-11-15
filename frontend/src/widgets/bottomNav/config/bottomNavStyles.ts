@@ -1,7 +1,27 @@
+import type {
+	BoxProps,
+	HStackProps,
+	IconProps,
+	TextProps,
+} from "@seed-design/react";
 import { bottomNavTabHeight } from "@/shared/config/bottomNavHeight";
 import { columnWidth } from "@/shared/config/columnWidth";
 import { typography } from "@/shared/config/typography";
-import type { BottomNavStyle } from "@/widgets/bottomNav/model/bottomNavStyle";
+
+export interface BottomNavTabStateStyle {
+	icon: Omit<IconProps, "svg">;
+	label: TextProps;
+	strokeWidth: number;
+}
+
+export interface BottomNavStyle {
+	root: BoxProps;
+	list: HStackProps;
+	item: BoxProps;
+	link: BoxProps;
+	active: BottomNavTabStateStyle;
+	inactive: BottomNavTabStateStyle;
+}
 
 // z-index는 헤더와 같고 Seed 다이얼로그, 시트(2)보다 낮게 둠
 export const bottomNavStyles: BottomNavStyle = {

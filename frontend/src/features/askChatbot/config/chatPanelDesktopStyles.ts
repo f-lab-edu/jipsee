@@ -1,6 +1,25 @@
-import type { ChatPanelDesktopStyle } from "@/features/askChatbot/model/chatPanelDesktopStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	IconProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
+import type { ChatHistoryLinkStyle } from "@/features/askChatbot/model/chatHistoryLinkStyle";
+import type { ChatLoginLinkStyle } from "@/features/askChatbot/model/chatLoginLinkStyle";
 import { desktopHeaderHeight } from "@/shared/config/headerHeight";
 import { typography } from "@/shared/config/typography";
+
+export interface ChatPanelDesktopStyle {
+	root: VStackProps;
+	titleRow: HStackProps;
+	iconBox: BoxProps;
+	icon: Omit<IconProps, "svg">;
+	title: TextProps;
+	historyLink: ChatHistoryLinkStyle;
+	questionForm: BoxProps;
+	loginLink: ChatLoginLinkStyle;
+}
 
 export const chatPanelDesktopStyles: ChatPanelDesktopStyle = {
 	root: {
