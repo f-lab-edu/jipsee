@@ -72,8 +72,8 @@ class RtmsApiClientTest {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();
         client = new TestClient(
-                RtmsApiClient.restClient(builder, "http://localhost/1613000"),
-                RtmsApiClient.retryTemplate(Duration.ofMillis(1)));
+                PublicDataApiClient.restClient(builder, "http://localhost/1613000"),
+                PublicDataApiClient.retryTemplate(Duration.ofMillis(1)));
     }
 
     private RtmsPage<RtmsItem> call() {
