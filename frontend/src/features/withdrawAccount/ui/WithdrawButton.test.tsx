@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vitest";
 import WithdrawButton from "@/features/withdrawAccount/ui/WithdrawButton";
 
-describe("WithdrawDialog", () => {
+describe("WithdrawButton", () => {
 	beforeAll(() => {
 		window.matchMedia = (query) =>
 			({

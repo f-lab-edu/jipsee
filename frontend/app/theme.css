@@ -124,13 +124,17 @@ button {
 	--jipsee-color-google-text: #e3e3e3;
 }
 
-/* 탈퇴하기 버튼 배경. 흰 글자와 대비를 맞춘 팔레트 값이라 Seed 의미 토큰이 없음 */
+/* 확인 창의 파괴적 확인 버튼 배경(탈퇴하기, 삭제하기). 흰 글자와 대비를 맞춘 팔레트 값이라 Seed 의미 토큰이 없음 */
 :root {
-	--jipsee-color-withdraw-button-background: var(--seed-color-palette-red-800);
+	--jipsee-color-destructive-button-background: var(
+		--seed-color-palette-red-800
+	);
 }
 
 :root[data-seed-color-mode="system"][data-seed-user-color-scheme="dark"] {
-	--jipsee-color-withdraw-button-background: var(--seed-color-palette-red-500);
+	--jipsee-color-destructive-button-background: var(
+		--seed-color-palette-red-500
+	);
 }
 
 /* 집사 사용자 말풍선 배경. 흰 글자와 대비를 맞춘 팔레트 값이라 Seed 의미 토큰이 없음 */
@@ -146,15 +150,13 @@ button {
 	);
 }
 
-/* 탈퇴 확인 창과 집사 대화 삭제 확인 창 콘텐츠의 줄바꿈. Seed 대화상자와 바텀시트 콘텐츠가 break-all을 지정함 */
-:root .withdraw-dialog-content,
-:root .delete-chat-dialog-content {
+/* 확인 창 콘텐츠의 줄바꿈. Seed 대화상자와 바텀시트 콘텐츠가 break-all을 지정함 */
+:root .confirm-dialog-content {
 	word-break: keep-all;
 }
 
-/* 탈퇴 확인 창과 집사 대화 삭제 확인 창의 제목과 설명. Seed 제목과 설명 클래스가 Text 글자 값을 덮어쓰는 순서가 로드 순서에 따라 달라짐 */
-:root .withdraw-dialog-content .seed-text,
-:root .delete-chat-dialog-content .seed-text {
+/* 확인 창의 제목과 설명. Seed 제목과 설명 클래스가 Text 글자 값을 덮어쓰는 순서가 로드 순서에 따라 달라짐 */
+:root .confirm-dialog-content .seed-text {
 	font-size: var(--seed-font-size);
 	line-height: var(--seed-line-height);
 	font-weight: var(--seed-font-weight);

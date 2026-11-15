@@ -13,44 +13,64 @@ import {
 	VStack,
 } from "@seed-design/react";
 import { useState } from "react";
-import { withdrawCopy } from "@/features/withdrawAccount/config/withdrawCopy";
-import { withdrawStyles } from "@/features/withdrawAccount/config/withdrawStyles";
-import { paths } from "@/shared/routes/paths";
+import { confirmDialogCopy } from "@/shared/config/confirmDialogCopy";
+import { confirmDialogStyles } from "@/shared/config/confirmDialogStyles";
+import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
+
+interface ConfirmDialogContentProps {
+	title: string;
+	description: string;
+	confirmLabel: string;
+	action: string;
+	dataArea: Nullable<string>;
+}
 
 /**
- * 회원 탈퇴 > 확인 창
+ * 확인 창 > 내용
  *
- * - 제목, 설명, 취소와 탈퇴하기 버튼 출력
+ * - 제목, 설명, 취소와 확인 버튼 출력
  * - 취소는 창을 닫음
- * - 탈퇴하기는 탈퇴 경로로 POST하는 폼의 제출 버튼이며 닫기 동작으로 감싸지 않음
- * - 폼을 제출하면 탈퇴하기 버튼을 비활성화해 중복 요청을 막음
+ * - 확인은 action 경로로 POST하는 폼의 제출 버튼이며 닫기 동작으로 감싸지 않음
+ * - 폼을 제출하면 확인 버튼을 비활성화해 중복 요청을 막음
+ *
+ * @param action 확인 시 POST할 경로
+ * @param dataArea 내용 요소에 붙일 data-area 값
  */
-export default function WithdrawDialog() {
-	const style = withdrawStyles;
+export default function ConfirmDialogContent({
+	title,
+	description,
+	confirmLabel,
+	action,
+	dataArea,
+}: ConfirmDialogContentProps) {
+	const style = confirmDialogStyles;
 	const [isSubmitted, setIsSubmitted] = useState(false);
 
 	return (
 		<>
 			<ResponsiveDialogBackdrop />
 			<ResponsiveDialogPositioner>
-				<ResponsiveDialogContent className={style.contentClassName}>
+				<ResponsiveDialogContent
+					className={style.contentClassName}
+					data-area={dataArea ?? undefined}
+				>
 					<ResponsiveDialogHandle />
 					<ResponsiveDialogBody>
 						<VStack {...style.body}>
 							<ResponsiveDialogTitle asChild>
 								<Text as="h2" {...style.title}>
-									{withdrawCopy.dialogTitle}
+									{title}
 								</Text>
 							</ResponsiveDialogTitle>
 							<ResponsiveDialogDescription asChild>
 								<Text as="p" {...style.description}>
-									{withdrawCopy.description}
+									{description}
 								</Text>
 							</ResponsiveDialogDescription>
 							<Box asChild {...style.form}>
 								<form
 									method="post"
-									action={paths.withdrawAction}
+									action={action}
 									onSubmit={() => setIsSubmitted(true)}
 								>
 									<Grid {...style.buttons}>
@@ -58,16 +78,14 @@ export default function WithdrawDialog() {
 											<Box asChild {...style.cancelButton}>
 												<button type="button">
 													<Text {...style.cancelText}>
-														{withdrawCopy.cancel}
+														{confirmDialogCopy.cancel}
 													</Text>
 												</button>
 											</Box>
 										</ResponsiveDialogAction>
 										<Box asChild {...style.confirmButton}>
 											<button type="submit" disabled={isSubmitted}>
-												<Text {...style.confirmText}>
-													{withdrawCopy.confirm}
-												</Text>
+												<Text {...style.confirmText}>{confirmLabel}</Text>
 											</button>
 										</Box>
 									</Grid>
