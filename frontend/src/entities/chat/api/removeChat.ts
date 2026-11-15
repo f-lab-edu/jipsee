@@ -5,13 +5,13 @@ import { resolveChatMockIdentifier } from "@/entities/chat/api/resolveChatMockId
  * 채팅 > 대화 삭제
  *
  * - 삭제한 대화 목록에 더하고 질문을 더한 대화에서는 뺌
- * - 받은 경로로 303 반환
  * - 백엔드가 없어 목업이 삭제를 대신함
+ *
+ * @returns setCookie는 목업이 식별자를 새로 만들었을 때만 있음
  */
 export async function removeChat(
 	chatId: number,
-	location: string,
-): Promise<Response> {
+): Promise<{ setCookie?: string }> {
 	const { identifier, setCookie } = await resolveChatMockIdentifier();
 	const user = chatMockStore.get(identifier);
 
@@ -20,11 +20,5 @@ export async function removeChat(
 		user.touchedChats = user.touchedChats.filter((chat) => chat.id !== chatId);
 	}
 
-	const headers = new Headers({ location });
-
-	if (setCookie) {
-		headers.append("set-cookie", setCookie);
-	}
-
-	return new Response(null, { status: 303, headers });
+	return { setCookie };
 }

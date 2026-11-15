@@ -5,8 +5,8 @@ import { getChatLimit } from "@/entities/chat/api/getChatLimit";
 import { getChatList } from "@/entities/chat/api/getChatList";
 import { getSession } from "@/entities/session/api/getSession";
 import { chatCopy } from "@/pages/chat/config/chatCopy";
-import { toPositiveId } from "@/pages/chat/lib/toPositiveId";
 import ChatPage from "@/pages/chat/ui/ChatPage";
+import { toPositiveId } from "@/shared/lib/ids/toPositiveId";
 import { toPageMetadata } from "@/shared/lib/metadata/toPageMetadata";
 import { paths } from "@/shared/routes/paths";
 

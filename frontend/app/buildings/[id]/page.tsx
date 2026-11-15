@@ -2,10 +2,10 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { getBuildingDetail } from "@/entities/building/api/getBuildingDetail";
 import { getSession } from "@/entities/session/api/getSession";
-import { toBuildingId } from "@/pages/building/lib/toBuildingId";
 import { toBuildingTitle } from "@/pages/building/lib/toBuildingTitle";
 import { toNearbyCondition } from "@/pages/building/lib/toNearbyCondition";
 import BuildingPage from "@/pages/building/ui/BuildingPage";
+import { toPositiveId } from "@/shared/lib/ids/toPositiveId";
 import { toPageMetadata } from "@/shared/lib/metadata/toPageMetadata";
 
 /**
@@ -19,7 +19,7 @@ export async function generateMetadata(
 	parent: ResolvingMetadata,
 ): Promise<Metadata> {
 	const { id } = await params;
-	const buildingId = toBuildingId(id);
+	const buildingId = toPositiveId(id);
 
 	if (buildingId === null) {
 		return {};
@@ -47,7 +47,7 @@ export default async function Page({
 	searchParams,
 }: PageProps<"/buildings/[id]">) {
 	const { id } = await params;
-	const buildingId = toBuildingId(id);
+	const buildingId = toPositiveId(id);
 
 	if (buildingId === null) {
 		notFound();

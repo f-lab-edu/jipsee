@@ -3,7 +3,7 @@ import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 const idPattern = /^[1-9]\d*$/;
 
 /**
- * 채팅 > 번호 변환
+ * 번호 > 양의 정수 변환
  *
  * - 양의 정수 문자열이면 숫자 반환
  * - 그 밖의 값(문자열이 아닌 값 포함)이면 null 반환
