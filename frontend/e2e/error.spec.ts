@@ -39,6 +39,8 @@ const CRITICAL_WEAK = { light: "rgb(254, 241, 240)", dark: "rgb(54, 22, 22)" };
 // 하늘빛 배경(본문 body)과 데스크톱 카드 모서리 20
 const CARD = { width: 480, radius: "20px" };
 
+// Next가 라우트 이동을 알리려고 넣는 빈 role="alert" 요소가 있어 띠는 data-area로 찾음
+const BANNER = '[data-area="form-error-banner"]';
 const LOGOUT_ACTION = "/api/auth/logout";
 const WITHDRAW_ACTION = "/api/account/withdraw";
 const CHAT_DELETE_ACTION = "/api/chat/1/delete";
@@ -421,7 +423,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				await expect(banner).toHaveText(text);
 				expect(new URL(page.url()).search).toBe("");
 				await page.reload();
-				await expect(page.getByRole("alert")).toHaveCount(0);
+				await expect(page.locator(BANNER)).toHaveCount(0);
 			});
 		}
 
@@ -429,9 +431,9 @@ for (const { label, viewport, layout } of SCREENS) {
 			page,
 		}) => {
 			await gotoAndSettle(page, "/me?error=unknown", 300);
-			await expect(page.getByRole("alert")).toHaveCount(0);
+			await expect(page.locator(BANNER)).toHaveCount(0);
 			await gotoAndSettle(page, "/me?error=chat-delete-failed", 300);
-			await expect(page.getByRole("alert")).toHaveCount(0);
+			await expect(page.locator(BANNER)).toHaveCount(0);
 		});
 
 		test(`${caseId("E5", e5Number++)} ${label} 띠는 최소 높이 50, 모서리 12, 배경 critical weak이고 ${layout === "mobile" ? "제목 위 좌우 16, 위 16" : "제목 아래 카드 위"}에 놓임`, async ({
@@ -478,9 +480,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				.getByTestId(`me-body-${layout}`)
 				.getByRole("button", { name: "로그아웃" })
 				.click();
-			await expect(page.getByRole("alert").first()).toHaveText(
-				COPY.logoutFailed,
-			);
+			await expect(page.locator(BANNER).first()).toHaveText(COPY.logoutFailed);
 			await expect(page).toHaveURL(/\/me$/);
 		});
 
@@ -496,7 +496,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				.getByRole("dialog")
 				.getByRole("button", { name: "탈퇴하기", exact: true })
 				.click();
-			await expect(page.getByRole("alert").first()).toHaveText(
+			await expect(page.locator(BANNER).first()).toHaveText(
 				COPY.withdrawFailed,
 			);
 			await expect(page).toHaveURL(/\/me$/);
@@ -514,7 +514,7 @@ test.describe("대화 삭제 실패 안내", () => {
 			page,
 		}) => {
 			await gotoAndSettle(page, "/chat/history?error=chat-delete-failed", 500);
-			const banner = page.getByRole("alert");
+			const banner = page.locator(BANNER);
 			await expect(banner).toHaveText(COPY.chatDeleteFailed);
 			const bannerBox = await readBox(banner);
 			const titleBox = await readBox(
@@ -531,7 +531,7 @@ test.describe("대화 삭제 실패 안내", () => {
 			page,
 		}) => {
 			await gotoAndSettle(page, "/chat/history?error=logout-failed", 300);
-			await expect(page.getByRole("alert")).toHaveCount(0);
+			await expect(page.locator(BANNER)).toHaveCount(0);
 		});
 	});
 
