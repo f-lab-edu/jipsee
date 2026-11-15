@@ -1,4 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { StrictMode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { streamChatAnswer } from "@/entities/chat/api/streamChatAnswer";
 import type { ChatMessage } from "@/entities/chat/model/chatMessage";
@@ -26,14 +27,22 @@ const answer: ChatMessage = {
 	createdAt: "2026-11-13T14:20:00+09:00",
 };
 
-// 이벤트를 하나씩 밀어 넣을 수 있는 스트림. end를 부르면 끝남
+// 이벤트를 하나씩 밀어 넣을 수 있는 스트림. end를 부르면 끝나고, signal이 취소되면 실제 함수처럼 예외를 던짐
 function createController() {
 	const queue: ChatStreamEvent[] = [];
 	let wake: (() => void) | null = null;
 	let isEnded = false;
 
-	async function* stream(): AsyncGenerator<ChatStreamEvent> {
+	async function* stream(
+		signal?: AbortSignal,
+	): AsyncGenerator<ChatStreamEvent> {
+		signal?.addEventListener("abort", () => wake?.());
+
 		while (true) {
+			if (signal?.aborted) {
+				throw new DOMException("aborted", "AbortError");
+			}
+
 			if (queue.length > 0) {
 				yield queue.shift() as ChatStreamEvent;
 				continue;
@@ -271,5 +280,89 @@ describe("useChatConversation", () => {
 		});
 
 		await waitFor(() => expect(push).toHaveBeenCalledWith("/login?next=%2F"));
+	});
+
+	it("알 수 없는 오류 코드이면 서버 오류로 바꿈", async () => {
+		const controller = createController();
+		vi.mocked(streamChatAnswer).mockReturnValue(controller.stream());
+		const { result } = renderHook(() => useChatConversation(baseOptions));
+
+		act(() => result.current.send("질문"));
+		await act(async () => {
+			controller.push({ type: "error", code: "SOMETHING_NEW" as never });
+		});
+
+		await waitFor(() => expect(result.current.phase).toBe("error"));
+		expect(result.current.errorCode).toBe("SERVER_ERROR");
+	});
+
+	it("새 대화의 첫 답변이 실패하면 저장되지 않은 대화 번호를 버리고 다시 시도는 새 대화로 보내 끝나면 대화 주소로 바꿈", async () => {
+		const failed = createController();
+		vi.mocked(streamChatAnswer).mockReturnValueOnce(failed.stream());
+		const { result } = renderHook(() => useChatConversation(baseOptions));
+
+		act(() => result.current.send("질문"));
+		await act(async () => {
+			failed.push({ type: "chat", chatId: 6, title: "질문" });
+			failed.push({ type: "error", code: "SERVER_ERROR" });
+		});
+		await waitFor(() => expect(result.current.phase).toBe("error"));
+		expect(result.current.chatId).toBeNull();
+
+		const retried = createController();
+		vi.mocked(streamChatAnswer).mockReturnValueOnce(retried.stream());
+		act(() => result.current.retry());
+
+		expect(vi.mocked(streamChatAnswer).mock.calls[1][0].chatId).toBeNull();
+
+		await act(async () => {
+			retried.push({ type: "chat", chatId: 7, title: "질문" });
+			retried.push({ type: "done", message: answer });
+			retried.end();
+		});
+
+		await waitFor(() =>
+			expect(replace).toHaveBeenCalledWith("/chat/7", { scroll: false }),
+		);
+		expect(refresh).not.toHaveBeenCalled();
+	});
+
+	it("있는 대화의 답변이 실패해도 대화 번호를 유지함", async () => {
+		const failed = createController();
+		vi.mocked(streamChatAnswer).mockReturnValueOnce(failed.stream());
+		const { result } = renderHook(() =>
+			useChatConversation({ ...baseOptions, chatId: 1 }),
+		);
+
+		act(() => result.current.send("질문"));
+		await act(async () => {
+			failed.push({ type: "error", code: "SERVER_ERROR" });
+		});
+
+		await waitFor(() => expect(result.current.phase).toBe("error"));
+		expect(result.current.chatId).toBe(1);
+	});
+
+	it("StrictMode에서 첫 질문 효과가 두 번 돌아도 사용자 말풍선이 남고 요청은 둘째만 살아 있음", async () => {
+		const signals: AbortSignal[] = [];
+		vi.mocked(streamChatAnswer).mockImplementation((_request, signal) => {
+			signals.push(signal);
+
+			return createController().stream(signal);
+		});
+		const { result } = renderHook(
+			() => useChatConversation({ ...baseOptions, firstQuestion: "첫 질문" }),
+			{ wrapper: StrictMode },
+		);
+
+		await act(async () => {});
+
+		expect(signals).toHaveLength(2);
+		expect(signals[0].aborted).toBe(true);
+		expect(signals[1].aborted).toBe(false);
+		expect(result.current.phase).toBe("waiting");
+		expect(result.current.messages.map((message) => message.content)).toEqual([
+			"첫 질문",
+		]);
 	});
 });

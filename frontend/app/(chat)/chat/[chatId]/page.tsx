@@ -27,11 +27,13 @@ export async function generateMetadata(
  *
  * - 로그인하지 않은 상태면 돌아올 경로를 담아 로그인으로 이동
  * - 번호가 양의 정수가 아니거나 없는 대화이면 404
- * - 대화의 이전 메시지와 건물 기준, 대화 목록을 페이지에 전달
+ * - 세션과 대화, 한도 소진 여부와 대화 목록은 서로 기다리지 않고 함께 조회해 대화의 이전 메시지와 건물 기준, 대화 목록을 페이지에 전달
  */
 export default async function Page({ params }: PageProps<"/chat/[chatId]">) {
-	const { chatId: rawChatId } = await params;
-	const session = await getSession();
+	const [{ chatId: rawChatId }, session] = await Promise.all([
+		params,
+		getSession(),
+	]);
 
 	if (!session) {
 		redirect(paths.loginWithNext(`${paths.chat}/${rawChatId}`));
@@ -43,14 +45,15 @@ export default async function Page({ params }: PageProps<"/chat/[chatId]">) {
 		notFound();
 	}
 
-	const chat = await getChat(chatId);
+	const [chat, { dailyLimitReached }, chats] = await Promise.all([
+		getChat(chatId),
+		getChatLimit(),
+		getChatList(),
+	]);
 
 	if (chat === null) {
 		notFound();
 	}
-
-	const { dailyLimitReached } = await getChatLimit();
-	const chats = await getChatList();
 
 	return (
 		<ChatPage

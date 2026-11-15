@@ -2,6 +2,7 @@ import { Box, HStack, Text } from "@seed-design/react";
 import Link from "next/link";
 import { chatCopy } from "@/pages/chat/config/chatCopy";
 import { chatScreenStyles } from "@/pages/chat/config/chatScreenStyles";
+import ChatNewChatLink from "@/pages/chat/ui/ChatNewChatLink";
 import { paths } from "@/shared/routes/paths";
 
 /**
@@ -26,9 +27,9 @@ export default function ChatToolbarRow() {
 					</Link>
 				</Box>
 				<Box asChild {...style.button}>
-					<Link href={paths.chat}>
+					<ChatNewChatLink>
 						<Text {...style.buttonText}>{chatCopy.newChat}</Text>
-					</Link>
+					</ChatNewChatLink>
 				</Box>
 			</HStack>
 		</HStack>

@@ -1,9 +1,8 @@
 import IconPlusLine from "@karrotmarket/react-monochrome-icon/IconPlusLine";
 import { Box, Icon, Text } from "@seed-design/react";
-import Link from "next/link";
 import { chatCopy } from "@/pages/chat/config/chatCopy";
 import { chatRailStyles } from "@/pages/chat/config/chatRailStyles";
-import { paths } from "@/shared/routes/paths";
+import ChatNewChatLink from "@/pages/chat/ui/ChatNewChatLink";
 
 interface ChatRailNewChatProps {
 	isCurrent: boolean;
@@ -21,20 +20,20 @@ export default function ChatRailNewChat({ isCurrent }: ChatRailNewChatProps) {
 	if (isCurrent) {
 		return (
 			<Box asChild {...style.newChatCurrent}>
-				<Link href={paths.chat} aria-current="page">
+				<ChatNewChatLink aria-current="page">
 					<Icon svg={<IconPlusLine />} {...style.newChatIcon} />
 					<Text {...style.newChatCurrentText}>{chatCopy.newChat}</Text>
-				</Link>
+				</ChatNewChatLink>
 			</Box>
 		);
 	}
 
 	return (
 		<Box asChild {...style.newChat}>
-			<Link href={paths.chat}>
+			<ChatNewChatLink>
 				<Icon svg={<IconPlusLine />} {...style.newChatIcon} />
 				<Text {...style.newChatText}>{chatCopy.newChat}</Text>
-			</Link>
+			</ChatNewChatLink>
 		</Box>
 	);
 }
