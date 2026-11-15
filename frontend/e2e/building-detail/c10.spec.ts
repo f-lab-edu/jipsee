@@ -27,6 +27,9 @@ import type { Theme } from "../support/buildingDetail/tokens";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
 import { DESKTOP, MOBILE } from "../support/viewports";
+import { waitForAnimations } from "../support/waitForAnimations";
+import { waitForFrames } from "../support/waitForFrames";
+import { waitForHydration } from "../support/waitForHydration";
 
 const THEMES: Theme[] = ["light", "dark"];
 const LAYOUTS = [
@@ -141,7 +144,7 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 			t,
 		}) => {
 			for (const id of C10_FILTER_IDS) {
-				await t.goto(`/buildings/${id}`, 400);
+				await t.goto(`/buildings/${id}`);
 				const m = await nearbyMeasure(t);
 				const has = C10_AREA_IDS.includes(id);
 				t.eq(`id ${id} 면적 고정 줄`, !!m.area, has);
@@ -189,7 +192,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		t,
 	}) => {
 		for (const id of [1, 2, 3, 5]) {
-			await t.goto(`/buildings/${id}`, 400);
+			await t.goto(`/buildings/${id}`);
 			const m = await nearbyMeasure(t);
 			t.eq(`id ${id} note 개수`, m.noteCount, 0);
 			t.eq(`id ${id} 위치 정보 없음 문구`, m.bodyHasNotice, false);
@@ -207,7 +210,7 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 			t,
 		}) => {
 			for (const id of [1, 3, 4]) {
-				await t.goto(`/buildings/${id}`, 400);
+				await t.goto(`/buildings/${id}`);
 				const m = await nearbyMeasure(t);
 				t.eq(`id ${id} 문서 안 중복 id`, m.dupIds, []);
 				t.eq(`id ${id} 제목 DOM 개수와 id`, m.titleIdsDom, [
@@ -291,7 +294,7 @@ test.describe("1280x900 light", () => {
 		t,
 	}) => {
 		for (const id of [1, 3, 4]) {
-			await t.goto(`/buildings/${id}`, 400);
+			await t.goto(`/buildings/${id}`);
 			const m = await nearbyMeasure(t);
 			t.ok(
 				`id ${id} 가로 스크롤 없음`,
@@ -309,7 +312,7 @@ test.describe("320x700 light", () => {
 		t,
 	}) => {
 		for (const id of [1, 3, 4]) {
-			await t.goto(`/buildings/${id}`, 400);
+			await t.goto(`/buildings/${id}`);
 			const m = await nearbyMeasure(t);
 			t.ok(
 				`id ${id} 가로 스크롤 없음`,
@@ -356,7 +359,7 @@ for (const [layoutIndex, [name, viewport]] of LAYOUTS.entries()) {
 			for (const [label, q, change] of C10_QUERY_CASES) {
 				const cond = { ...C10_DEFAULT, ...change };
 				t.issues.length = 0;
-				const status = await t.goto(`/buildings/1${q}`, 500);
+				const status = await t.goto(`/buildings/1${q}`);
 				t.eq(`${label} 상태 코드`, status, 200);
 				const m = await nearbyMeasure(t);
 				c10CheckFilterContent(t, m, cond, label);
@@ -387,7 +390,7 @@ for (const [layoutIndex, [name, viewport]] of LAYOUTS.entries()) {
 			for (const [name2, group, text, value] of steps) {
 				const trigger = t.page.getByRole("combobox", { name: group });
 				await trigger.scrollIntoViewIfNeeded();
-				await t.page.waitForTimeout(150);
+				await waitForFrames(t.page);
 				const before = await t.page.evaluate(() => window.scrollY);
 				t.ok(
 					`${text} 고르기 전 스크롤이 0보다 큼(스크롤 유지를 볼 수 있음)`,
@@ -399,12 +402,12 @@ for (const [layoutIndex, [name, viewport]] of LAYOUTS.entries()) {
 				const url = c10NearbyHref(1, cond);
 				await trigger.click();
 				// 선택지 목록이 자리를 잡기 전에 누르면 Playwright가 화면을 스크롤하므로 기다림
-				await t.page.waitForTimeout(300);
+				await waitForAnimations(t.page);
 				await t.page.getByRole("option", { name: text, exact: true }).click();
 				await t.page
 					.waitForURL((u) => u.pathname + u.search === url, { timeout: 15000 })
 					.catch(() => undefined);
-				await t.page.waitForTimeout(600);
+				await waitForFrames(t.page);
 				const now = await t.page.evaluate(
 					() => location.pathname + location.search,
 				);
@@ -433,7 +436,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			"직접 진입",
 		);
 		await t.page.reload({ waitUntil: "load" });
-		await t.page.waitForTimeout(500);
+		await waitForHydration(t.page);
 		m = await nearbyMeasure(t);
 		c10CheckFilterContent(
 			t,

@@ -130,7 +130,7 @@ test.describe("320x700 light", () => {
 		t,
 	}) => {
 		for (const id of [1, 4]) {
-			await t.goto(`/buildings/${id}`, 400);
+			await t.goto(`/buildings/${id}`);
 			const m = await t.page.evaluate(measureDeals, "current" as const);
 			t.ok(
 				`id ${id} 가로 스크롤`,
@@ -256,7 +256,7 @@ for (const [index, [name, viewport, layout]] of (
 			t,
 		}) => {
 			for (const id of [1, 3]) {
-				await t.goto(`/buildings/${id}`, 400);
+				await t.goto(`/buildings/${id}`);
 				const m = await t.page.evaluate(measureDeals, "current" as const);
 				t.eq(`id ${id} 문서 안 중복 id`, m.dupIds, []);
 				for (const l of ["mobile", "desktop"]) {
