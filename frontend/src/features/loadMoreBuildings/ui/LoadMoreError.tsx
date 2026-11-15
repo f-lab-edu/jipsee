@@ -1,7 +1,7 @@
+import IconExclamationmarkCircleLine from "@karrotmarket/react-monochrome-icon/IconExclamationmarkCircleLine";
 import { Box, Flex, Icon, Text } from "@seed-design/react";
 import { loadMoreCopy } from "@/features/loadMoreBuildings/config/loadMoreCopy";
 import type { LoadMoreStyle } from "@/features/loadMoreBuildings/model/loadMoreStyle";
-import LoadMoreErrorIcon from "@/features/loadMoreBuildings/ui/LoadMoreErrorIcon";
 
 interface LoadMoreErrorProps {
 	style: LoadMoreStyle;
@@ -19,7 +19,7 @@ export default function LoadMoreError({ style, onRetry }: LoadMoreErrorProps) {
 	return (
 		<Flex role="alert" data-area="search-more-error" {...style.error}>
 			<Flex {...style.errorRow}>
-				<Icon svg={<LoadMoreErrorIcon />} {...style.errorIcon} />
+				<Icon svg={<IconExclamationmarkCircleLine />} {...style.errorIcon} />
 				<Text {...style.errorText}>{loadMoreCopy.error}</Text>
 			</Flex>
 			<Box asChild {...style.retryButton}>

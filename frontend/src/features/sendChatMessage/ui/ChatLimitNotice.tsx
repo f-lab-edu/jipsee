@@ -1,7 +1,7 @@
+import IconExclamationmarkTriangleLine from "@karrotmarket/react-monochrome-icon/IconExclamationmarkTriangleLine";
 import { Box, HStack, Icon, Text, VStack } from "@seed-design/react";
 import { composerCopy } from "@/features/sendChatMessage/config/composerCopy";
 import { composerStyles } from "@/features/sendChatMessage/config/composerStyles";
-import LimitWarningIcon from "@/features/sendChatMessage/ui/LimitWarningIcon";
 
 /**
  * 채팅 > 일일 한도 안내
@@ -22,7 +22,10 @@ export default function ChatLimitNotice() {
 		>
 			<HStack {...style.limitBox}>
 				<Box {...style.limitIconCell}>
-					<Icon svg={<LimitWarningIcon />} {...style.limitIcon} />
+					<Icon
+						svg={<IconExclamationmarkTriangleLine />}
+						{...style.limitIcon}
+					/>
 				</Box>
 				<VStack {...style.limitText}>
 					<Text {...style.limitTitle}>{composerCopy.limitTitle}</Text>

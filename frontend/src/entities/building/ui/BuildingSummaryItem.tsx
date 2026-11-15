@@ -4,8 +4,8 @@ import { buildingSummaryItemStyles } from "@/entities/building/config/buildingSu
 import { toBuildingSummaryDetail } from "@/entities/building/lib/toBuildingSummaryDetail";
 import type { BuildingSummary } from "@/entities/building/model/buildingSummary";
 import BuildingAddress from "@/entities/building/ui/BuildingAddress";
-import BuildingChevronIcon from "@/entities/building/ui/BuildingChevronIcon";
 import { paths } from "@/shared/routes/paths";
+import ChevronRightIcon from "@/shared/ui/ChevronRightIcon";
 
 interface BuildingSummaryItemProps {
 	building: BuildingSummary;
@@ -33,7 +33,7 @@ export default function BuildingSummaryItem({
 					</Box>
 				</VStack>
 				<Box {...style.chevronCell}>
-					<Icon svg={<BuildingChevronIcon />} {...style.chevron} />
+					<Icon svg={<ChevronRightIcon />} {...style.chevron} />
 				</Box>
 			</Flex>
 		</Link>

@@ -4,9 +4,9 @@ import { buildingTableRowCopy } from "@/entities/building/config/buildingTableRo
 import { buildingTableRowStyles } from "@/entities/building/config/buildingTableRowStyles";
 import type { BuildingSummary } from "@/entities/building/model/buildingSummary";
 import BuildingAddress from "@/entities/building/ui/BuildingAddress";
-import BuildingChevronIcon from "@/entities/building/ui/BuildingChevronIcon";
 import BuildingTableLatestJeonse from "@/entities/building/ui/BuildingTableLatestJeonse";
 import { paths } from "@/shared/routes/paths";
+import ChevronRightIcon from "@/shared/ui/ChevronRightIcon";
 
 interface BuildingTableRowProps {
 	building: BuildingSummary;
@@ -54,7 +54,7 @@ export default function BuildingTableRow({
 						href={paths.building(building.id)}
 						aria-label={`${title} ${buildingTableRowCopy.detail}`}
 					>
-						<Icon svg={<BuildingChevronIcon />} {...style.chevron} />
+						<Icon svg={<ChevronRightIcon />} {...style.chevron} />
 					</Link>
 				</Box>
 			</Box>
