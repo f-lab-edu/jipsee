@@ -514,6 +514,23 @@ a {
 	}
 }
 
+/* 더 보기 불러오는 중 회전 아이콘. Seed에 키프레임이 없음 */
+@keyframes spin-icon-rotate {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+:root .spin-icon {
+	animation: spin-icon-rotate 0.9s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:root .spin-icon {
+		animation: none;
+	}
+}
+
 /* 집사 카드. 1280 이상에서만 흰 카드로 보이고 그 아래에서는 열 그대로임. clip은 고정 입력 바가 카드 안에서 움직이게 두면서 모서리만 자름. Seed bg, border, borderRadius, overflow가 반응형 값을 받지 않음 */
 @media (min-width: 1280px) {
 	:root .chat-card {
