@@ -139,6 +139,21 @@ class BldRgstHubClientTest {
     }
 
     @Test
+    @DisplayName("정상이 아닌 resultCode 000은 건축HUB에서는 코드를 담은 RtmsApiException으로 실패함")
+    void 정상이_아닌_resultCode_000은_건축HUB에서는_코드를_담은_RtmsApiException으로_실패함() {
+        // given
+        String body = pageBody(REAL_ITEM).replace("\"resultCode\":\"00\"", "\"resultCode\":\"000\"");
+        server.expect(request -> {}).andRespond(withSuccess(body, MediaType.APPLICATION_JSON));
+
+        // when
+        Throwable thrown = catchThrowable(() -> client.fetch(KEY, 1));
+
+        // then
+        assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("000");
+        server.verify();
+    }
+
+    @Test
     @DisplayName("응답 한 건을 컬럼에 맞는 행으로 바꿈")
     void 응답_한_건을_컬럼에_맞는_행으로_바꿈() {
         // given

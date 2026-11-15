@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import kr.jipsee.collect.exception.RtmsApiException;
@@ -27,7 +26,6 @@ import tools.jackson.databind.json.JsonMapper;
 public abstract class PublicDataApiClient {
     private static final String RESPONSE = "response";
     private static final String SERVICE_KEY = "serviceKey";
-    private static final Set<String> SUCCESS_CODES = Set.of("00", "000"); // 거래 API는 000, 건축HUB는 00
     private static final Pattern XML_REASON_CODE =
             Pattern.compile("<returnReasonCode>\\s*(\\d+)\\s*</returnReasonCode>");
 
@@ -59,6 +57,9 @@ public abstract class PublicDataApiClient {
                 .includes(RtmsApiTransientException.class)
                 .build());
     }
+
+    /** resultCode가 이 API의 정상 응답이면 true */
+    protected abstract boolean isSuccess(String resultCode);
 
     /** params 순서대로 쿼리를 붙여 API를 호출하고 한 페이지로 변환. {@link RtmsApiTransientException}이면 재시도 */
     protected final RtmsPage<RtmsItem> call(String path, Map<String, Object> params, String requestInfo) {
@@ -157,8 +158,8 @@ public abstract class PublicDataApiClient {
     /** exchange 내부에서 읽은 상태 코드와 본문 */
     private record Response(HttpStatusCode status, String body) {}
 
-    /** 게이트웨이 오류 코드를 먼저 확인하고, 없으면 정상(00, 000)이 아닌 resultCode 반환 */
-    private static String findErrorCode(JsonNode root) {
+    /** 게이트웨이 오류 코드를 먼저 확인하고, 없으면 정상이 아닌 resultCode 반환 */
+    private String findErrorCode(JsonNode root) {
         JsonNode reasonCode =
                 root.path("OpenAPI_ServiceResponse").path("cmmMsgHeader").path("returnReasonCode");
 
@@ -168,7 +169,7 @@ public abstract class PublicDataApiClient {
 
         JsonNode resultCode = root.path(RESPONSE).path("header").path("resultCode");
 
-        if (!resultCode.isMissingNode() && !SUCCESS_CODES.contains(resultCode.asString())) {
+        if (!resultCode.isMissingNode() && !isSuccess(resultCode.asString())) {
             return resultCode.asString();
         }
 

@@ -41,6 +41,12 @@ public class BldRgstHubClient extends PublicDataApiClient {
         return call(PATH, params, requestInfo).map(BldRgstHubClient::toRow);
     }
 
+    /** 건축HUB의 정상 응답 코드는 00 */
+    @Override
+    protected boolean isSuccess(String resultCode) {
+        return "00".equals(resultCode);
+    }
+
     /** 응답 표제부 1건을 building_register 행으로 변환 */
     static BuildingRegisterRow toRow(RtmsItem item) {
         ParcelKey parcelKey = new ParcelKey(

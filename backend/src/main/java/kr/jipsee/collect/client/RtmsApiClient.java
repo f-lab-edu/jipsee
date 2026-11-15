@@ -49,6 +49,12 @@ public abstract class RtmsApiClient<T> extends PublicDataApiClient {
         return page.map(toRow);
     }
 
+    /** 거래 API의 정상 응답 코드는 000 */
+    @Override
+    protected boolean isSuccess(String resultCode) {
+        return "000".equals(resultCode);
+    }
+
     /** 응답 거래의 계약 연, 월, 일을 계약일로 병합 */
     protected static LocalDate dealDate(RtmsItem item) {
         return LocalDate.of(item.requiredInt("dealYear"), item.requiredInt("dealMonth"), item.requiredInt("dealDay"));
