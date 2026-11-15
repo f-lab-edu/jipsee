@@ -1,4 +1,5 @@
 import type { ComposerStyle } from "@/features/sendChatMessage/model/composerStyle";
+import { columnWidth } from "@/shared/config/columnWidth";
 import { typography } from "@/shared/config/typography";
 
 const sendButtonShared = {
@@ -26,7 +27,7 @@ const barShared = {
 export const composerStyles: ComposerStyle = {
 	bar: barShared,
 	limitBar: { ...barShared, className: "chat-bar chat-limit-bar" },
-	form: { width: "full", maxWidth: "720px", mx: "auto" },
+	form: { width: "full", maxWidth: columnWidth.wide, mx: "auto" },
 	field: { className: "chat-bar-input" },
 	sendButton: {
 		...sendButtonShared,

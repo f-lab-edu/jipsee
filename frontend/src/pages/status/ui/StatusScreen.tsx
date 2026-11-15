@@ -4,6 +4,7 @@ import { statusScreenStyles } from "@/pages/status/config/statusScreenStyles";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import type { StatusKind } from "@/shared/model/statusKind";
 import { paths } from "@/shared/routes/paths";
+import PageColumn from "@/shared/ui/PageColumn";
 import StatusPanel from "@/shared/ui/StatusPanel";
 import BottomNav from "@/widgets/bottomNav/ui/BottomNav";
 import Footer from "@/widgets/footer/ui/Footer";
@@ -33,19 +34,17 @@ export default function StatusScreen({
 	const style = statusScreenStyles;
 
 	return (
-		<VStack {...style.page}>
-			<VStack data-area="page-column" {...style.column}>
-				<Header
-					session={session}
-					currentPath={paths.home}
-					mobileBack={<HeaderBackButton />}
-				/>
-				<VStack as="main" data-area="main" {...style.main}>
-					<StatusPanel kind={kind} reset={reset} />
-				</VStack>
-				<Footer />
-				<BottomNav session={session} />
+		<PageColumn>
+			<Header
+				session={session}
+				currentPath={paths.home}
+				mobileBack={<HeaderBackButton />}
+			/>
+			<VStack as="main" data-area="main" {...style.main}>
+				<StatusPanel kind={kind} reset={reset} />
 			</VStack>
-		</VStack>
+			<Footer />
+			<BottomNav session={session} />
+		</PageColumn>
 	);
 }

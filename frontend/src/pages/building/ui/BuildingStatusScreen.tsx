@@ -6,6 +6,7 @@ import { buildingStatusStyles } from "@/pages/building/config/buildingStatusStyl
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import { paths } from "@/shared/routes/paths";
 import ContentContainer from "@/shared/ui/ContentContainer";
+import PageColumn from "@/shared/ui/PageColumn";
 import PartialStatusPanel from "@/shared/ui/PartialStatusPanel";
 import BottomNav from "@/widgets/bottomNav/ui/BottomNav";
 import Footer from "@/widgets/footer/ui/Footer";
@@ -28,23 +29,21 @@ export default function BuildingStatusScreen({
 	const style = buildingScreenStyles;
 
 	return (
-		<VStack {...style.page}>
-			<VStack data-area="page-column" {...style.column}>
-				<BuildingHeader
-					session={session}
-					currentPath={paths.building(buildingId)}
-				/>
-				<VStack as="main" data-area="main" {...style.main}>
-					<ContentContainer>
-						<VStack {...buildingStatusStyles.body}>
-							<PartialStatusPanel kind="rateLimited" />
-						</VStack>
-					</ContentContainer>
-				</VStack>
-				<AskBuildingBar buildingId={buildingId} session={session} />
-				<Footer />
-				<BottomNav session={session} />
+		<PageColumn>
+			<BuildingHeader
+				session={session}
+				currentPath={paths.building(buildingId)}
+			/>
+			<VStack as="main" data-area="main" {...style.main}>
+				<ContentContainer>
+					<VStack {...buildingStatusStyles.body}>
+						<PartialStatusPanel kind="rateLimited" />
+					</VStack>
+				</ContentContainer>
 			</VStack>
-		</VStack>
+			<AskBuildingBar buildingId={buildingId} session={session} />
+			<Footer />
+			<BottomNav session={session} />
+		</PageColumn>
 	);
 }

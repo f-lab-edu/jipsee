@@ -1,4 +1,5 @@
 import { bottomNavTabHeight } from "@/shared/config/bottomNavHeight";
+import { columnWidth } from "@/shared/config/columnWidth";
 import { typography } from "@/shared/config/typography";
 import type { BottomNavStyle } from "@/widgets/bottomNav/model/bottomNavStyle";
 
@@ -14,7 +15,7 @@ export const bottomNavStyles: BottomNavStyle = {
 		borderTopWidth: 1,
 		borderColor: "stroke.neutralMuted",
 	},
-	list: { width: "full", maxWidth: "720px", mx: "auto", m: 0, p: 0 },
+	list: { width: "full", maxWidth: columnWidth.wide, mx: "auto", m: 0, p: 0 },
 	item: { flexGrow: 1, width: "0px", minWidth: "0px" },
 	link: {
 		display: "flex",

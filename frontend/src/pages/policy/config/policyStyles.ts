@@ -2,6 +2,7 @@ import type {
 	PolicyContentStyle,
 	PolicyScreenStyle,
 } from "@/pages/policy/model/policyStyle";
+import { columnWidth } from "@/shared/config/columnWidth";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
 
@@ -26,7 +27,7 @@ export const policyScreenStyles: PolicyScreenStyle = {
 		px: "x6",
 		pb: "80px",
 	},
-	desktopColumn: { width: "720px", gap: "x4" },
+	desktopColumn: { width: columnWidth.wide, gap: "x4" },
 	desktopTitle: {
 		...typography.size26,
 		fontWeight: "bold",
