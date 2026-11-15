@@ -1,11 +1,11 @@
 import { chatMockBuildings } from "@/entities/chat/api/chatMock";
+import type { ChatMockAnswer } from "@/entities/chat/api/chatMockAnswer";
 import { chatMockStore } from "@/entities/chat/api/chatMockStore";
 import { createChatMockChats } from "@/entities/chat/api/createChatMockChats";
+import { toKstIso } from "@/entities/chat/api/toKstIso";
 import { toChatTitle } from "@/entities/chat/lib/toChatTitle";
-import { toKstIso } from "@/entities/chat/lib/toKstIso";
 import type { Chat } from "@/entities/chat/model/chat";
 import type { ChatMessage } from "@/entities/chat/model/chatMessage";
-import type { ChatMockAnswer } from "@/entities/chat/model/chatMockAnswer";
 import type { ChatSendRequest } from "@/entities/chat/model/chatSendRequest";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 

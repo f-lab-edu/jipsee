@@ -1,5 +1,5 @@
 import { chatMockAnswers } from "@/entities/chat/api/chatMock";
-import type { ChatMockAnswer } from "@/entities/chat/model/chatMockAnswer";
+import type { ChatMockAnswer } from "@/entities/chat/api/chatMockAnswer";
 
 /**
  * 채팅 > 목업 답변 고르기

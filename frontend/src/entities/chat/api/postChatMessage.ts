@@ -1,5 +1,5 @@
-import { chatMockScenario } from "@/entities/chat/api/chatMock";
 import { createChatMockStream } from "@/entities/chat/api/createChatMockStream";
+import { readChatMockScenario } from "@/entities/chat/api/readChatMockScenario";
 import { resolveChatMockIdentifier } from "@/entities/chat/api/resolveChatMockIdentifier";
 import type { ChatSendRequest } from "@/entities/chat/model/chatSendRequest";
 
@@ -12,11 +12,13 @@ import type { ChatSendRequest } from "@/entities/chat/model/chatSendRequest";
  * - 백엔드가 없어 목업이 응답을 대신함
  */
 export async function postChatMessage(request: Request): Promise<Response> {
-	if (chatMockScenario === "dailyLimit") {
+	const scenario = await readChatMockScenario();
+
+	if (scenario === "dailyLimit") {
 		return Response.json({ code: "CHAT_DAILY_LIMIT" }, { status: 429 });
 	}
 
-	if (chatMockScenario === "rateLimit") {
+	if (scenario === "rateLimit") {
 		return Response.json({ code: "TOO_MANY_REQUESTS" }, { status: 429 });
 	}
 
@@ -31,5 +33,7 @@ export async function postChatMessage(request: Request): Promise<Response> {
 		headers.append("set-cookie", setCookie);
 	}
 
-	return new Response(createChatMockStream(identifier, body), { headers });
+	return new Response(createChatMockStream(identifier, body, scenario), {
+		headers,
+	});
 }

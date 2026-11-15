@@ -1,12 +1,10 @@
-import {
-	chatMockScenario,
-	chatMockStreamDelayMs,
-} from "@/entities/chat/api/chatMock";
+import { chatMockStreamDelayMs } from "@/entities/chat/api/chatMock";
+import type { ChatMockScenario } from "@/entities/chat/api/chatMockScenario";
 import { nextChatMockChatId } from "@/entities/chat/api/nextChatMockChatId";
 import { pickChatMockAnswer } from "@/entities/chat/api/pickChatMockAnswer";
 import { saveChatMockExchange } from "@/entities/chat/api/saveChatMockExchange";
+import { waitMilliseconds } from "@/entities/chat/api/waitMilliseconds";
 import { toChatTitle } from "@/entities/chat/lib/toChatTitle";
-import { waitMilliseconds } from "@/entities/chat/lib/waitMilliseconds";
 import type { ChatSendRequest } from "@/entities/chat/model/chatSendRequest";
 import type { ChatStreamEvent } from "@/entities/chat/model/chatStreamEvent";
 
@@ -23,6 +21,7 @@ import type { ChatStreamEvent } from "@/entities/chat/model/chatStreamEvent";
 export function createChatMockStream(
 	identifier: string,
 	request: ChatSendRequest,
+	scenario: ChatMockScenario,
 ): ReadableStream<Uint8Array> {
 	const encoder = new TextEncoder();
 	const answer = pickChatMockAnswer(request.content);
@@ -56,7 +55,7 @@ export function createChatMockStream(
 
 				send({ type: "delta", text: index === 0 ? line : `\n${line}` });
 
-				if (chatMockScenario === "serverError") {
+				if (scenario === "serverError") {
 					if (await pause()) {
 						return;
 					}
