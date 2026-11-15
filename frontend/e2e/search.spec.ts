@@ -199,7 +199,7 @@ const MORE_LAYOUTS = [
 const SEARCH_API = "**/api/buildings/search*";
 
 for (const [index, { label, viewport, layout }] of MORE_LAYOUTS.entries()) {
-	const start = 1 + index * 12;
+	const start = 1 + index * 14;
 	test.describe(`${label} ${viewport.width}x${viewport.height} light 더 보기`, () => {
 		test.use({ viewport, colorScheme: "light" });
 
@@ -385,7 +385,15 @@ for (const [index, { label, viewport, layout }] of MORE_LAYOUTS.entries()) {
 			expect
 				.soft(roadBox?.y ?? 0, "도로명 줄이 지번 줄 아래")
 				.toBeGreaterThan(lotBox?.y ?? 0);
-			expect.soft(roadBox?.x, "두 표시의 시작 위치가 같음").toBe(lotBox?.x);
+			const lotText = await item
+				.getByText("마포구 망원동 12-3", { exact: true })
+				.boundingBox();
+			const roadText = await item
+				.getByText("마포구 월드컵로25길 12", { exact: true })
+				.boundingBox();
+			expect.soft(roadText?.x, "두 주소의 시작 위치가 같음").toBe(lotText?.x);
+			const labelBox = await road.locator("..").boundingBox();
+			expect.soft(labelBox?.width, "표시 상자 폭 44").toBe(44);
 		});
 
 		test(`${caseId("S1P", start + 10)} ${label} 도로명 주소가 null이면 지번 줄만 있음`, async ({
@@ -418,6 +426,76 @@ for (const [index, { label, viewport, layout }] of MORE_LAYOUTS.entries()) {
 			).toHaveCount(1);
 			await expect(bare.getByText("지번", { exact: true })).toHaveCount(0);
 			await expect(bare.getByText("도로명", { exact: true })).toHaveCount(0);
+		});
+
+		test(`${caseId("S1P", start + 12)} ${label} 더 보기 버튼은 높이 48, 모서리 12, 글자 15 굵기 700이고 ${layout === "mobile" ? "폭이 열을 꽉 채움" : "폭 240으로 가운데에 놓임"}`, async ({
+			page,
+		}) => {
+			await gotoAndSettle(page, SEARCH_PATH);
+			const { root, moreButton } = searchResult(page, layout);
+			const box = await moreButton.boundingBox();
+			const rootBox = await root.boundingBox();
+			const style = await moreButton.evaluate((element) => {
+				const computed = getComputedStyle(element);
+				const text = getComputedStyle(element.querySelector("span") ?? element);
+				return {
+					radius: computed.borderTopLeftRadius,
+					border: computed.borderTopWidth,
+					fontSize: text.fontSize,
+					fontWeight: text.fontWeight,
+				};
+			});
+			expect.soft(box?.height).toBe(48);
+			expect.soft(style).toEqual({
+				radius: "12px",
+				border: "1px",
+				fontSize: "15px",
+				fontWeight: "700",
+			});
+			if (layout === "mobile") {
+				expect.soft(box?.width, "열 폭 390에서 좌우 16").toBe(358);
+				expect.soft(box?.x).toBe(16);
+				return;
+			}
+			expect.soft(box?.width).toBe(240);
+			const buttonCenter = (box?.x ?? 0) + (box?.width ?? 0) / 2;
+			const rootCenter = (rootBox?.x ?? 0) + (rootBox?.width ?? 0) / 2;
+			expect.soft(Math.abs(buttonCenter - rootCenter)).toBeLessThanOrEqual(1);
+		});
+
+		test(`${caseId("S1P", start + 13)} ${label} 오류 띠는 모서리 14에 오류 배경이고 ${layout === "mobile" ? "글자와 버튼이 위아래로 쌓임" : "글자와 버튼이 한 줄에 있음"}`, async ({
+			page,
+		}) => {
+			await gotoAndSettle(page, SEARCH_PATH);
+			await page.route(SEARCH_API, (route) =>
+				route.fulfill({ status: 500, body: "x" }),
+			);
+			const { moreButton, errorBand, retryButton } = searchResult(page, layout);
+			await moreButton.click();
+			await expect(errorBand).toBeVisible();
+			const band = await errorBand.evaluate((element) => {
+				const computed = getComputedStyle(element);
+				return {
+					radius: computed.borderTopLeftRadius,
+					direction: computed.flexDirection,
+				};
+			});
+			expect.soft(band.radius).toBe("14px");
+			expect.soft(band.direction).toBe(layout === "mobile" ? "column" : "row");
+			const textBox = await errorBand
+				.getByText("일시적인 오류가 발생했어요")
+				.boundingBox();
+			const buttonBox = await retryButton.boundingBox();
+			expect.soft(buttonBox?.height).toBe(44);
+			if (layout === "mobile") {
+				expect
+					.soft(buttonBox?.y ?? 0)
+					.toBeGreaterThan((textBox?.y ?? 0) + (textBox?.height ?? 0));
+				return;
+			}
+			expect
+				.soft(buttonBox?.x ?? 0)
+				.toBeGreaterThan((textBox?.x ?? 0) + (textBox?.width ?? 0));
 		});
 	});
 }
