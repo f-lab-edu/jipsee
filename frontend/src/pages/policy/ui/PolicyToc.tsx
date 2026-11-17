@@ -15,7 +15,7 @@ interface PolicyTocProps {
  *
  * - 번호 붙은 조항 제목을 같은 문서 안 조항으로 가는 앵커 링크 목록으로 출력
  * - 번호는 스크린 리더가 읽지 않음
- * - 데스크톱은 두 열로 위에서 아래 순서로 채움
+ * - 데스크톱은 두 열로 위에서 아래 순서로 채우기
  */
 export default function PolicyToc({ layout, clauses }: PolicyTocProps) {
 	const style = policyContentStyles[layout];

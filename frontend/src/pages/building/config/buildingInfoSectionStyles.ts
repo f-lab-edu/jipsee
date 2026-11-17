@@ -1,6 +1,14 @@
-import type { BuildingInfoSectionStyle } from "@/pages/building/model/buildingInfoSectionStyle";
+import type { TextProps, VStackProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface BuildingInfoSectionStyle {
+	section: VStackProps;
+	heading: VStackProps;
+	title: TextProps;
+	address: TextProps;
+	baseMonth: TextProps;
+}
 
 const shared: Omit<BuildingInfoSectionStyle, "section"> = {
 	heading: { gap: "x0_5" },

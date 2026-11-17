@@ -28,7 +28,7 @@ export type T = {
 		expected: string | null | undefined,
 	) => void;
 	ok: (label: string, cond: boolean, actual: unknown, expected: string) => void;
-	goto: (path: string, settleMs?: number) => Promise<number>;
+	goto: (path: string) => Promise<number>;
 	measure: () => Promise<BuildingMeasure>;
 	measureInfo: () => Promise<InfoMeasure>;
 };
@@ -73,7 +73,7 @@ export function makeT(page: Page, theme: Theme): T {
 				.soft(cond, `${label}: actual=${fmt(actual)} expected=${expected}`)
 				.toBe(true);
 		},
-		goto: (path, settleMs) => gotoAndSettle(page, path, settleMs),
+		goto: (path) => gotoAndSettle(page, path),
 		measure: () => page.evaluate(measure),
 		measureInfo: () => page.evaluate(measureInfo),
 	};

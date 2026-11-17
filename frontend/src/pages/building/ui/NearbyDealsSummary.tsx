@@ -17,7 +17,7 @@ interface NearbyDealsSummaryProps {
  * - 왼쪽에 "조건에 맞는 거래", 굵은 건수, "을 찾았어요", 오른쪽에 실거래 기준 월 출력
  * - 양끝 정렬에 기준선 정렬을 적용
  *
- * @param layout 글자 크기와 위쪽 여백을 정함
+ * @param layout 글자 크기와 위쪽 여백 결정
  * @param baseMonth 실거래 기준 월
  */
 export default function NearbyDealsSummary({

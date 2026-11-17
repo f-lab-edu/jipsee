@@ -30,7 +30,7 @@ export default function AssistantMessage({ message }: AssistantMessageProps) {
 			</VisuallyHidden>
 			<VStack {...style.assistantBubble}>
 				{message.content.split("\n").map((line, index) => (
-					// biome-ignore lint/suspicious/noArrayIndexKey: 줄은 바뀌지 않는 본문을 나눈 값임
+					// biome-ignore lint/suspicious/noArrayIndexKey: 줄은 바뀌지 않는 본문을 나눈 값
 					<Text key={index} as="p" {...style.assistantLine}>
 						{line}
 					</Text>

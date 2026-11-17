@@ -1,14 +1,37 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getBuildingDetail } from "@/entities/building/api/getBuildingDetail";
 
-describe("getBuildingDetail", () => {
-	it("목업에 있는 id를 조회하면 그 id의 상세를 반환함", async () => {
-		const detail = await getBuildingDetail(3);
+const failure = vi.hoisted(() => ({ value: "none" }));
 
-		expect(detail?.id).toBe(3);
+vi.mock("@/entities/building/api/readBuildingMockFailure", () => ({
+	readBuildingMockFailure: async () => failure.value,
+}));
+
+describe("getBuildingDetail", () => {
+	beforeEach(() => {
+		failure.value = "none";
 	});
 
-	it("목업에 없는 id를 조회하면 null을 반환함", async () => {
-		expect(await getBuildingDetail(999)).toBeNull();
+	it("목업에 있는 id를 조회하면 found와 그 id의 상세를 반환함", async () => {
+		const result = await getBuildingDetail(3);
+
+		expect(result.kind).toBe("found");
+		expect(result.kind === "found" && result.detail.id).toBe(3);
+	});
+
+	it("목업에 없는 id를 조회하면 notFound를 반환함", async () => {
+		expect(await getBuildingDetail(999)).toEqual({ kind: "notFound" });
+	});
+
+	it("요청 제한 목업이면 rateLimited를 반환함", async () => {
+		failure.value = "buildingRateLimited";
+
+		expect(await getBuildingDetail(1)).toEqual({ kind: "rateLimited" });
+	});
+
+	it("호출 실패 목업이면 오류를 던짐", async () => {
+		failure.value = "buildingFailed";
+
+		await expect(getBuildingDetail(2)).rejects.toThrow();
 	});
 });

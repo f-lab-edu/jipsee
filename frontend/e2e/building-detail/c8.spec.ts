@@ -1,10 +1,11 @@
 // S2 건물 상세 C8 거래 이력: 점 그래프
 // 기대값 출처: 설계 5절, 캔버스 보드 S2(Mobile|Desktop)(Default|NoLoc|Few)와 DarkS2... 보드의 점, 축 계산식과 측정값
-// 캔버스 계산식: 끝 연도 2026, 시작 연도 min(2023, 거래 연도), 가로 비율 ((연 - 시작) * 12 + 월 - 1) / ((끝 - 시작 + 1) * 12 - 1), 세로는 금액 최솟값 - 1000과 최댓값 + 1000을 2000 단위로 내림, 올림
+// 캔버스 계산식: 끝 연도는 실거래 기준 월의 연도(목업 기준 월 2026.09), 시작 연도는 점 중 가장 이른 연도(설계 12절 8번), 가로 비율 ((연 - 시작) * 12 + 월 - 1) / ((끝 - 시작 + 1) * 12 - 1), 세로는 금액 최솟값 - 1000과 최댓값 + 1000을 2000 단위로 내림, 올림
 // 마커 종류, 범례, 이전 건물 영역은 C9 케이스에서 봄(커밋 9 반영: 점 측정을 마커 단위로 바꿈). 월세만 있는 건물은 목업에 없어 시험하지 않음
 // 캔버스 점 상자는 border-bottom 1px 때문에 161/221이고 앱은 160/220임. x축 선 0.5px 차이와 데스크톱 카드 border 때문에 안쪽 폭이 2px 좁은 것은 결정이라 기대값에 반영함
 
 import {
+	C8_BASE_YEAR,
 	C8_COLORS,
 	C8_DEALS,
 	C8_ID_LIST,
@@ -59,8 +60,8 @@ function dealsOf(id: number): ChartDeal[] {
 }
 
 function c8Expect(deals: ChartDeal[]) {
-	const endYear = 2026;
-	const startYear = Math.min(2023, ...deals.map((d) => d.y));
+	const endYear = C8_BASE_YEAR;
+	const startYear = Math.min(...deals.map((d) => d.y));
 	const total = (endYear - startYear + 1) * 12 - 1;
 	const pct = (y: number, m: number) =>
 		(((y - startYear) * 12 + m - 1) / total) * 100;
@@ -275,7 +276,7 @@ for (const [layoutIndex, [name, vp]] of LAYOUTS.entries()) {
 			t,
 		}) => {
 			for (const id of [1, 2, 3, 4, 5]) {
-				await t.goto(`/buildings/${id}`, 400);
+				await t.goto(`/buildings/${id}`);
 				const m = await t.page.evaluate(measureChart);
 				t.eq(`id ${id} aria-label`, m.aria, c8Expect(dealsOf(id)).label);
 				t.eq(`id ${id} 점 개수`, m.points?.length, dealsOf(id).length);
@@ -341,7 +342,7 @@ for (const [index, [name, vp, dy]] of (
 				[4, dy, "2026.03"],
 				[3, 22, "이전 건물 거래"],
 			] as const) {
-				await t.goto(`/buildings/${id}`, 400);
+				await t.goto(`/buildings/${id}`);
 				const m = await t.page.evaluate(measureChart);
 				t.eq(`id ${id} 다음 글자`, m.firstAfter?.text, text);
 				t.near(`id ${id} 간격`, m.firstAfter?.dy, expectDy, 1);
@@ -372,7 +373,7 @@ test.describe("320x700 light", () => {
 			[3, 1],
 			[4, 3],
 		] as const) {
-			await t.goto(`/buildings/${id}`, 400);
+			await t.goto(`/buildings/${id}`);
 			const m = await t.page.evaluate(measureChart);
 			t.ok(
 				`id ${id} 가로 스크롤 없음`,

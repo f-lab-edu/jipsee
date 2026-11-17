@@ -20,7 +20,7 @@ interface SearchHeaderProps {
  * - 모바일 둘째 줄에 검색어가 채워진 검색창 출력
  *
  * @param currentPath 로그인 링크가 돌아올 현재 경로(쿼리 포함)
- * @param keyword 모바일 검색창의 초기 검색어. 바뀌면 검색창을 새로 만듦
+ * @param keyword 모바일 검색창의 초기 검색어. 바뀌면 검색창 재생성
  * @param invalid 검색어가 2자 미만인지 여부. 모바일 검색창의 오류 줄 출력 여부
  */
 export default function SearchHeader({

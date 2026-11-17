@@ -13,7 +13,7 @@ interface LoginIntroProps {
  *
  * - 로고 심볼, 서비스 이름 제목, 안내 문구 순서로 출력
  *
- * @param titleId 제목의 id. 모바일과 데스크톱이 함께 렌더링되므로 레이아웃마다 다르게 넘김
+ * @param titleId 제목의 id. 모바일과 데스크톱이 함께 렌더링되므로 레이아웃마다 다른 값 전달
  */
 export default function LoginIntro({ titleId }: LoginIntroProps) {
 	const style = loginStyles;

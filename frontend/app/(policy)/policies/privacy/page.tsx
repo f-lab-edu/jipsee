@@ -20,7 +20,7 @@ export async function generateMetadata(
 /**
  * 개인정보처리방침 > 페이지
  *
- * - 로그인 여부와 상관없이 열림
+ * - 로그인 여부와 상관없이 접근 가능
  */
 export default async function Page() {
 	const session = await getSession();

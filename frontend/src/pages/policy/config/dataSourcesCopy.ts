@@ -1,9 +1,12 @@
+import { commonCopy } from "@/shared/config/commonCopy";
+import { pageTitleCopy } from "@/shared/config/pageTitleCopy";
+
 export const dataSourcesCopy = {
-	title: "데이터 출처",
+	title: pageTitleCopy.dataSources,
 	noticeLabel: "데이터 한계 안내",
 	draftNotice: "임시로 적은 안내예요. 정식 안내가 나오면 내용이 바뀔 수 있어요",
 	noticeLines: [
-		"확정일자를 기준으로 수집한 거래예요. 최근 1~2개월 거래는 일부 빠져 있을 수 있어요",
+		commonCopy.confirmedDateNotice,
 		"거래가 공개되기까지 시간이 걸려 늦게 나타나는 거래도 있어요",
 	],
 	priceNotice: {

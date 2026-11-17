@@ -1,4 +1,5 @@
 import { padTwoDigits } from "@/entities/chat/lib/padTwoDigits";
+import { parseKstIso } from "@/entities/chat/lib/parseKstIso";
 import { toKstParts } from "@/entities/chat/lib/toKstParts";
 
 const dayMs = 24 * 60 * 60 * 1000;
@@ -11,9 +12,10 @@ const dayMs = 24 * 60 * 60 * 1000;
  * - 같은 해이면 M.D 반환
  * - 다른 해이면 yyyy.M.D 반환
  * - 날짜는 한국 시간 기준으로 비교
+ * - 오프셋이 없는 iso는 한국 시간으로 해석
  */
 export function toChatTimeLabel(iso: string, now: Date): string {
-	const target = toKstParts(new Date(iso));
+	const target = toKstParts(parseKstIso(iso));
 	const today = toKstParts(now);
 	const yesterday = toKstParts(new Date(now.getTime() - dayMs));
 

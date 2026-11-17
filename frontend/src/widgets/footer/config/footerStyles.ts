@@ -1,7 +1,14 @@
+import type { BoxProps, HStackProps, TextProps } from "@seed-design/react";
 import { footerMobileHeight } from "@/shared/config/bottomNavHeight";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
-import type { FooterStyle } from "@/widgets/footer/model/footerStyle";
+
+export interface FooterStyle {
+	container: BoxProps;
+	linksRow: HStackProps;
+	linkText: TextProps;
+	emphasizedLinkText: TextProps;
+}
 
 export const footerStyles = defineResponsiveStyles<FooterStyle>({
 	mobile: {

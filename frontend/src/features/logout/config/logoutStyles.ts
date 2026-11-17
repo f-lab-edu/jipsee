@@ -1,5 +1,10 @@
-import type { LogoutStyle } from "@/features/logout/model/logoutStyle";
+import type { BoxProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface LogoutStyle {
+	button: BoxProps;
+	text: TextProps;
+}
 
 export const logoutStyles: LogoutStyle = {
 	button: {

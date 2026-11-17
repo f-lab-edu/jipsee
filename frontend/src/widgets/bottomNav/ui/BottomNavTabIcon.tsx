@@ -16,7 +16,7 @@ interface BottomNavTabIconProps extends SVGProps<SVGSVGElement> {
  *
  * - Seed Icon이 넘기는 크기와 색 속성을 아이콘에 전달
  *
- * @param strokeWidth 선 굵기. 활성 탭이 더 굵음
+ * @param strokeWidth 선 굵기. 활성 탭은 더 굵은 선
  */
 export default function BottomNavTabIcon({
 	id,

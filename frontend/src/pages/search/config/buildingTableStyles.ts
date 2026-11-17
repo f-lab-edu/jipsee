@@ -1,5 +1,14 @@
-import type { BuildingTableStyle } from "@/pages/search/model/buildingTableStyle";
+import type { BoxProps, GridProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface BuildingTableStyle {
+	panel: BoxProps;
+	headerRow: GridProps;
+	buildingHeaderCell: BoxProps;
+	headerCell: BoxProps;
+	detailHeaderCell: BoxProps;
+	headerText: TextProps;
+}
 
 export const buildingTableStyles: BuildingTableStyle = {
 	panel: {

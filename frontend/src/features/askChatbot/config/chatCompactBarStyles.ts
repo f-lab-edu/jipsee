@@ -1,6 +1,25 @@
-import type { ChatCompactBarStyle } from "@/features/askChatbot/model/chatCompactBarStyle";
+import type {
+	BoxProps,
+	IconProps,
+	TextFieldRootProps,
+	VStackProps,
+} from "@seed-design/react";
+import type { ChatLoginLinkStyle } from "@/features/askChatbot/model/chatLoginLinkStyle";
 import { bottomBarOffset } from "@/shared/config/bottomNavHeight";
 import { typography } from "@/shared/config/typography";
+
+export interface ChatHistoryIconLinkStyle {
+	box: BoxProps;
+	icon: Omit<IconProps, "svg">;
+}
+
+export interface ChatCompactBarStyle {
+	root: BoxProps;
+	loggedOut: VStackProps;
+	field: TextFieldRootProps;
+	historyLink: ChatHistoryIconLinkStyle;
+	loginLink: ChatLoginLinkStyle;
+}
 
 export const chatCompactBarStyles: ChatCompactBarStyle = {
 	root: {

@@ -19,7 +19,7 @@ interface SearchPanelProps {
  * - 제목 줄 오른쪽에 기준 월 안내를 아래쪽 끝에 맞춰 출력
  * - 모바일은 검색창이 헤더에 있어 패널과 검색창 없이 기준 월 안내만 출력
  *
- * @param keyword 검색창의 초기 검색어. 바뀌면 검색창을 새로 만듦
+ * @param keyword 검색창의 초기 검색어. 바뀌면 검색창 재생성
  * @param showsNoticeOnMobile 모바일에서 기준 월 안내를 출력할지 여부. 데스크톱은 항상 출력
  * @param invalid 검색어가 2자 미만인지 여부. 데스크톱 검색창의 오류 줄 출력 여부
  */

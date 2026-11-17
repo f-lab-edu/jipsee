@@ -1,6 +1,6 @@
 // S2 건물 상세 C13: 질문하기 버튼, 카드, 하단 바
 // 기대값: 설계 2절(로그인 표), 3절(문구), 6절(반응형), 7절(색), 12절 20번(이동 경로)과 캔버스 보드 S2Mobile/Desktop(Dark) Default
-// 로그인 상태는 앱의 sessionMock이 정함. 기본 실행은 로그아웃 케이스만, TC_SESSION=in 이면 로그인 케이스만 실행함(sessionMock을 { provider: "GOOGLE" }로 바꾼 상태에서만 의미가 있음)
+// 로그인 상태는 TC_SESSION=in일 때 쿠키로 정함(e2e/support/mockStorageState.ts). 기본 실행은 로그아웃 케이스만, TC_SESSION=in 이면 로그인 케이스만 실행함
 // 2026-11-13: 질문하기 바는 푸터(높이 44) 바로 위에 붙고, 푸터는 하단 내비게이션(위 테두리 1과 탭 56) 바로 위에 붙음
 // 케이스 번호는 모드와 상관없이 올려서 id가 실행 방식에 따라 바뀌지 않게 하고, 실행하지 않는 모드는 skip함
 
@@ -30,6 +30,7 @@ import {
 	FOOTER_MOBILE_HEIGHT,
 	MOBILE,
 } from "../support/viewports";
+import { waitForFrames } from "../support/waitForFrames";
 
 const SESSION_IN = process.env.TC_SESSION === "in";
 // 바 아래 끝은 푸터와 하단 내비게이션 위에 있음
@@ -58,7 +59,7 @@ async function scrollAsk(t: T, ratio: number) {
 			),
 		ratio,
 	);
-	await t.page.waitForTimeout(250);
+	await waitForFrames(t.page);
 	return askMeasure(t);
 }
 
@@ -73,7 +74,7 @@ for (const [modeIndex, mode] of MODES.entries()) {
 		}) => {
 			skipUnlessMode(mode);
 			for (const id of ASK_IDS) {
-				await t.goto(`/buildings/${id}`, 400);
+				await t.goto(`/buildings/${id}`);
 				const m = await askMeasure(t);
 				t.eq(`id ${id} 보이는 질문하기 영역 개수`, m.visibleCount, 1);
 				t.eq(`id ${id} 보이는 질문하기 링크 개수`, m.visibleLinks, 1);
@@ -96,7 +97,7 @@ for (const [modeIndex, mode] of MODES.entries()) {
 				t,
 			}) => {
 				skipUnlessMode(mode);
-				await t.goto("/buildings/1", 500);
+				await t.goto("/buildings/1");
 				const m = await scrollAsk(t, 0);
 				const s = m.sec;
 				t.ok("바가 있음", !!s, s, "있음");
@@ -149,7 +150,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		t,
 	}) => {
 		skipUnlessMode("out");
-		await t.goto("/buildings/1", 500);
+		await t.goto("/buildings/1");
 		for (const [name, r] of [
 			["맨 위", 0],
 			["가운데", 0.5],
@@ -197,7 +198,7 @@ test.describe(`390x1800 light`, () => {
 		t,
 	}) => {
 		skipUnlessMode("out");
-		await t.goto("/buildings/4", 500);
+		await t.goto("/buildings/4");
 		const m = await askMeasure(t);
 		t.ok(
 			"세로 스크롤 없음",
@@ -225,7 +226,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			"/buildings/1?type=wolse",
 			"/buildings/3?type=wolse",
 		]) {
-			await t.goto(u, 400);
+			await t.goto(u);
 			const m = await scrollAsk(t, 1);
 			t.near(`${u} 바 높이`, m.sec?.h, BAR_H);
 			t.near(`${u} 바 아래 끝`, m.sec?.b, m.vh - BAR_BOTTOM_GAP);
@@ -245,7 +246,7 @@ for (const [modeIndex, mode] of MODES.entries()) {
 		}) => {
 			skipUnlessMode(mode);
 			for (const id of ASK_IDS) {
-				await t.goto(`/buildings/${id}`, 400);
+				await t.goto(`/buildings/${id}`);
 				const m = await askMeasure(t);
 				t.eq(`id ${id} 보이는 질문하기 영역 개수`, m.visibleCount, 1);
 				t.eq(`id ${id} 보이는 질문하기 링크 개수`, m.visibleLinks, 1);
@@ -272,7 +273,7 @@ for (const [modeIndex, mode] of MODES.entries()) {
 			}) => {
 				skipUnlessMode(mode);
 				for (const id of ASK_IDS) {
-					await t.goto(`/buildings/${id}`, 400);
+					await t.goto(`/buildings/${id}`);
 					const m = await scrollAsk(t, 0);
 					const s = m.sec;
 					t.ok(`id ${id} 카드가 있음`, !!s, s, "있음");
@@ -306,7 +307,7 @@ for (const [modeIndex, mode] of MODES.entries()) {
 						283,
 					);
 				}
-				await t.goto("/buildings/1", 400);
+				await t.goto("/buildings/1");
 				const m1 = await askMeasure(t);
 				c13CheckAskInner(t, m1, "카드", {
 					...CARD_GEOM,
@@ -324,7 +325,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 		t,
 	}) => {
 		skipUnlessMode("out");
-		await t.goto("/buildings/1", 500);
+		await t.goto("/buildings/1");
 		const m0 = await askMeasure(t);
 		// 카드 106 + 간격 16 + 건물 정보가 뷰포트 900 - 헤더 65 - 48보다 길어 aside 안에서 스크롤됨
 		t.eq("aside overflow-y", m0.asideScroll?.oy, "auto");
@@ -345,7 +346,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 			if (prev instanceof HTMLElement) prev.style.minHeight = "2400px";
 		});
 		await t.page.evaluate(() => window.scrollTo(0, 700));
-		await t.page.waitForTimeout(250);
+		await waitForFrames(t.page);
 		const m1 = await askMeasure(t);
 		t.near("700 스크롤 뒤 aside 위쪽이 헤더 65 + 24에 붙음", m1.aside?.y, 89);
 		t.near("700 스크롤 뒤 카드 위쪽도 89", m1.sec?.y, 89);
@@ -353,7 +354,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 			const a = document.querySelector("aside");
 			if (a) a.scrollTop = a.scrollHeight;
 		});
-		await t.page.waitForTimeout(200);
+		await waitForFrames(t.page);
 		const m2 = await askMeasure(t);
 		t.ok(
 			"aside를 끝까지 스크롤하면 건물 정보 아래 끝이 aside 안에 들어옴",
@@ -371,14 +372,14 @@ test.describe(`1279x900 light`, () => {
 		t,
 	}) => {
 		skipUnlessMode("out");
-		await t.goto("/buildings/1", 400);
+		await t.goto("/buildings/1");
 		for (const [w, desktop] of [
 			[1279, false],
 			[1280, true],
 			[1279, false],
 		] as const) {
 			await t.page.setViewportSize({ width: w, height: 900 });
-			await t.page.waitForTimeout(250);
+			await waitForFrames(t.page);
 			const m = await askMeasure(t);
 			t.eq(`${w}px 보이는 질문하기 영역 개수`, m.visibleCount, 1);
 			t.eq(`${w}px 보이는 aside 개수`, m.aside ? 1 : 0, desktop ? 1 : 0);
@@ -405,7 +406,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		const loginHref = (id: number) =>
 			`/login?next=${encodeURIComponent(`/chat?buildingId=${id}`)}`;
 		for (const id of ASK_IDS) {
-			await t.goto(`/buildings/${id}`, 300);
+			await t.goto(`/buildings/${id}`);
 			t.eq(
 				`모바일 id ${id} href`,
 				(await askMeasure(t)).btn?.href,
@@ -414,7 +415,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		}
 		await t.page.setViewportSize({ width: 1440, height: 900 });
 		for (const id of ASK_IDS) {
-			await t.goto(`/buildings/${id}`, 300);
+			await t.goto(`/buildings/${id}`);
 			t.eq(
 				`데스크톱 id ${id} href`,
 				(await askMeasure(t)).btn?.href,
@@ -422,7 +423,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			);
 		}
 		// 이동 확인
-		await t.goto("/buildings/1", 300);
+		await t.goto("/buildings/1");
 		await t.page
 			.locator("a", { hasText: ASK_TEXT })
 			.locator("visible=true")
@@ -444,7 +445,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	}) => {
 		skipUnlessMode("in");
 		for (const id of ASK_IDS) {
-			await t.goto(`/buildings/${id}`, 300);
+			await t.goto(`/buildings/${id}`);
 			t.eq(
 				`모바일 id ${id} href`,
 				(await askMeasure(t)).btn?.href,
@@ -453,7 +454,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		}
 		await t.page.setViewportSize({ width: 1440, height: 900 });
 		for (const id of ASK_IDS) {
-			await t.goto(`/buildings/${id}`, 300);
+			await t.goto(`/buildings/${id}`);
 			const m = await askMeasure(t);
 			t.eq(`데스크톱 id ${id} href`, m.btn?.href, `/chat?buildingId=${id}`);
 			t.eq(
@@ -462,7 +463,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 				1,
 			);
 		}
-		await t.goto("/buildings/2", 300);
+		await t.goto("/buildings/2");
 		await t.page
 			.locator("a", { hasText: ASK_TEXT })
 			.locator("visible=true")
@@ -487,7 +488,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			[1440, 900],
 		]) {
 			await t.page.setViewportSize({ width: w, height: h });
-			await t.goto("/buildings/1", 300);
+			await t.goto("/buildings/1");
 			const m = await askMeasure(t);
 			t.eq(`${w}px 안내 문구를 가진 요소 개수`, m.guideCount, 0);
 			t.eq(`${w}px 질문하기 영역 안 잠금 svg 개수`, m.lockCount, 0);
@@ -512,7 +513,7 @@ test.describe(`320x700 light`, () => {
 	}) => {
 		skipUnlessMode("out");
 		for (const id of ASK_IDS) {
-			await t.goto(`/buildings/${id}`, 300);
+			await t.goto(`/buildings/${id}`);
 			const m = await askMeasure(t);
 			const nan = Number.NaN;
 			t.ok(
@@ -548,7 +549,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		]) {
 			await t.page.setViewportSize({ width: w, height: h });
 			for (const id of ASK_IDS) {
-				await t.goto(`/buildings/${id}`, 300);
+				await t.goto(`/buildings/${id}`);
 				t.eq(`${w}px id ${id} 중복 id`, (await askMeasure(t)).dupIds, []);
 			}
 		}

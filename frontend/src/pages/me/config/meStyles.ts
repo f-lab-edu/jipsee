@@ -1,7 +1,40 @@
+import type {
+	BoxProps,
+	HStackProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { providerColors } from "@/entities/session/config/providerColors";
-import type { MeSectionStyle, MeStyle } from "@/pages/me/model/meStyle";
+import type { Provider } from "@/entities/session/model/session";
+import { columnWidth } from "@/shared/config/columnWidth";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface MeSectionStyle {
+	section: VStackProps;
+	title: TextProps;
+	provider: HStackProps;
+	providerName: TextProps;
+	withdraw: BoxProps;
+	withdrawBody: VStackProps;
+	withdrawDescription: TextProps;
+}
+
+export interface MeStyle {
+	main: VStackProps;
+	mobileBody: VStackProps;
+	mobileNotice: BoxProps;
+	mobileTitleBox: BoxProps;
+	mobileTitle: TextProps;
+	mobileDivider: BoxProps;
+	mobileSpacer: BoxProps;
+	desktopBody: VStackProps;
+	desktopColumn: VStackProps;
+	desktopTitleBox: BoxProps;
+	desktopTitle: TextProps;
+	providerIcon: Record<Provider, BoxProps>;
+	providerIconSize: Record<Provider, number>;
+}
 
 const iconShared = {
 	display: "flex",
@@ -16,6 +49,7 @@ const iconShared = {
 export const meStyles: MeStyle = {
 	main: { flexGrow: 1 },
 	mobileBody: { flexGrow: 1, bg: "bg.layerDefault" },
+	mobileNotice: { pt: "x4", px: "spacingX.globalGutter" },
 	mobileTitleBox: { pt: "x5", px: "spacingX.globalGutter" },
 	mobileTitle: {
 		...typography.size18LineHeight24,
@@ -26,7 +60,7 @@ export const meStyles: MeStyle = {
 	mobileDivider: { height: "8px", bg: "bg.layerBasement" },
 	mobileSpacer: { flexGrow: 1 },
 	desktopBody: { flexGrow: 1, alignItems: "center", px: "x6", py: "x10" },
-	desktopColumn: { width: "480px", gap: "x4" },
+	desktopColumn: { width: columnWidth.narrow, gap: "x4" },
 	desktopTitleBox: { pb: "x2" },
 	desktopTitle: {
 		...typography.size26,
@@ -49,10 +83,7 @@ export const meStyles: MeStyle = {
 	providerIconSize: { GOOGLE: 20, KAKAO: 20, NAVER: 16 },
 };
 
-const sectionShared: Omit<
-	MeSectionStyle,
-	"section" | "policySection" | "withdraw"
-> = {
+const sectionShared: Omit<MeSectionStyle, "section" | "withdraw"> = {
 	title: { ...typography.size16, fontWeight: "bold", color: "fg.neutral" },
 	provider: {
 		alignItems: "center",
@@ -67,18 +98,6 @@ const sectionShared: Omit<
 		fontWeight: "bold",
 		color: "fg.neutral",
 	},
-	// Box가 content-box이므로 행 높이 56에서 아래 구분선 1을 뺌
-	policyRow: {
-		alignItems: "center",
-		justifyContent: "space-between",
-		minHeight: "55px",
-		px: "x1",
-		borderBottomWidth: 1,
-		borderColor: "stroke.neutralMuted",
-	},
-	policyLabel: { ...typography.size16, color: "fg.neutral" },
-	policyArrowCell: { display: "flex", flexShrink: 0 },
-	policyArrow: { size: "18px", color: "fg.neutralSubtle" },
 	withdrawBody: { alignItems: "flex-start", gap: "x0_5" },
 	withdrawDescription: {
 		...typography.size12LineHeight16,
@@ -96,13 +115,6 @@ export const meSectionStyles = defineResponsiveStyles<MeSectionStyle>({
 			pb: "x6",
 			bg: "bg.layerDefault",
 		},
-		policySection: {
-			gap: "x1",
-			pt: "x5",
-			px: "spacingX.globalGutter",
-			pb: "x2",
-			bg: "bg.layerDefault",
-		},
 		withdraw: {
 			pt: "x4",
 			px: "spacingX.globalGutter",
@@ -115,16 +127,6 @@ export const meSectionStyles = defineResponsiveStyles<MeSectionStyle>({
 		section: {
 			gap: "x3",
 			p: "x6",
-			bg: "bg.layerDefault",
-			borderRadius: "r5",
-			borderWidth: 1,
-			borderColor: "stroke.neutralMuted",
-		},
-		policySection: {
-			gap: "x1",
-			pt: "x6",
-			px: "x6",
-			pb: "x2",
 			bg: "bg.layerDefault",
 			borderRadius: "r5",
 			borderWidth: 1,

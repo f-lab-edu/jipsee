@@ -14,9 +14,9 @@ interface DongInfoCardProps {
  * 건물 > 동 정보 카드
  *
  * - 동 이름이 있을 때만 제목 출력
- * - 항목을 두 열 목록으로 출력하고, 두 열을 차지하는 항목은 한 줄 전체를 씀
+ * - 항목을 두 열 목록으로 출력하고, 두 열을 차지하는 항목은 한 줄 전체 사용
  *
- * @param layout 동 이름 글자 크기가 모바일 16, 데스크톱 15로 다름
+ * @param layout 동 이름 글자 크기가 모바일 16과 데스크톱 15의 차이
  */
 export default function DongInfoCard({
 	dong,

@@ -1,4 +1,9 @@
-import type { SearchPageStyle } from "@/pages/search/model/searchPageStyle";
+import type { BoxProps, VStackProps } from "@seed-design/react";
+
+export interface SearchPageStyle {
+	panelGroup: VStackProps;
+	guideCell: BoxProps;
+}
 
 export const searchPageStyles: SearchPageStyle = {
 	panelGroup: { gap: { base: 0, lg: "x3" } },

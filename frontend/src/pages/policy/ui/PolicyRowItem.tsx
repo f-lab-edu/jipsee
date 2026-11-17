@@ -14,7 +14,7 @@ interface PolicyRowItemProps {
  *
  * - 모바일은 라벨 아래에 값, 데스크톱은 라벨 열 옆에 값 출력
  *
- * @param rowStyle 줄 모양. 첫 줄과 구분선이 있는 나머지 줄을 호출한 쪽이 나눠 넘김
+ * @param rowStyle 줄 모양. 첫 줄과 구분선이 있는 나머지 줄을 호출한 쪽이 나눠 전달
  */
 export default function PolicyRowItem({
 	layout,

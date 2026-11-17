@@ -8,6 +8,9 @@ export type ChartDeal = {
 	prev?: boolean;
 };
 
+// 점 그래프 끝 연도. 실거래 기준 월의 연도이며 목업 기준 월은 2026.09임
+export const C8_BASE_YEAR = 2026;
+
 export const C8_COLORS = {
 	light: {
 		jeonse: "rgb(33, 124, 249)",

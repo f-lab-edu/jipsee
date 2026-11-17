@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/entities/session/api/getSession";
 import { toSafeNext } from "@/pages/login/lib/toSafeNext";
 import LoginPage from "@/pages/login/ui/LoginPage";
+import { pageTitleCopy } from "@/shared/config/pageTitleCopy";
 import { toPageMetadata } from "@/shared/lib/metadata/toPageMetadata";
 import { paths } from "@/shared/routes/paths";
 
@@ -15,7 +16,7 @@ export async function generateMetadata(
 	_props: PageProps<"/login">,
 	parent: ResolvingMetadata,
 ): Promise<Metadata> {
-	return toPageMetadata("로그인", parent);
+	return toPageMetadata(pageTitleCopy.login, parent);
 }
 
 /**

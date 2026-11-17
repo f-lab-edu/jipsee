@@ -42,7 +42,7 @@ export default function AssistantDraft({ text }: AssistantDraftProps) {
 			{text !== "" && (
 				<VStack {...style.assistantBubble}>
 					{lines.map((line, index) => (
-						// biome-ignore lint/suspicious/noArrayIndexKey: 줄은 앞에서부터 이어 붙기만 함
+						// biome-ignore lint/suspicious/noArrayIndexKey: 줄은 앞에서부터 이어 붙기만 하는 값
 						<Text key={index} as="p" {...style.assistantLine}>
 							{line}
 							{index === lines.length - 1 && (

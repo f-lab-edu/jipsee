@@ -16,9 +16,9 @@ interface PolicyClauseProps {
  * 정책 > 조항
  *
  * - 번호 붙은 제목과 본문 블록 출력
- * - 목차 앵커가 가리키는 id를 조항에 붙임
+ * - 목차 앵커가 가리키는 id를 조항에 부여
  *
- * @param order 1부터 시작하는 조항 순번. 제목 번호와 id에 씀
+ * @param order 1부터 시작하는 조항 순번. 제목 번호와 id에 사용
  */
 export default function PolicyClause({
 	layout,

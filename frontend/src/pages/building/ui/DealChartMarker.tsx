@@ -1,6 +1,6 @@
+import type { DealChartStyle } from "@/pages/building/config/dealChartStyles";
 import { dealChartStyles } from "@/pages/building/config/dealChartStyles";
 import type { ChartPoint } from "@/pages/building/model/chartPoint";
-import type { DealChartStyle } from "@/pages/building/model/dealChartStyle";
 import DealChartMarkerShape from "@/pages/building/ui/DealChartMarkerShape";
 import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
 

@@ -4,6 +4,7 @@ import { getChatList } from "@/entities/chat/api/getChatList";
 import { getSession } from "@/entities/session/api/getSession";
 import { chatCopy } from "@/pages/chat/config/chatCopy";
 import ChatHistoryPage from "@/pages/chat/ui/ChatHistoryPage";
+import { toFormError } from "@/shared/lib/formError/toFormError";
 import { toPageMetadata } from "@/shared/lib/metadata/toPageMetadata";
 import { paths } from "@/shared/routes/paths";
 
@@ -24,8 +25,11 @@ export async function generateMetadata(
  *
  * - 로그인하지 않은 상태면 돌아올 경로를 담아 로그인으로 이동
  * - 대화 목록을 조회해 페이지에 전달
+ * - error 쿼리가 대화 삭제 실패 코드이면 실패 안내용으로 전달
  */
-export default async function Page() {
+export default async function Page({
+	searchParams,
+}: PageProps<"/chat/history">) {
 	const session = await getSession();
 
 	if (!session) {
@@ -33,6 +37,14 @@ export default async function Page() {
 	}
 
 	const chats = await getChatList();
+	const { error } = await searchParams;
 
-	return <ChatHistoryPage session={session} chats={chats} now={new Date()} />;
+	return (
+		<ChatHistoryPage
+			session={session}
+			chats={chats}
+			now={new Date()}
+			formError={toFormError(error, ["chat-delete-failed"])}
+		/>
+	);
 }

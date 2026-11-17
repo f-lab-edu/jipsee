@@ -1,5 +1,13 @@
-import type { NearbyDealListStyle } from "@/pages/building/model/nearbyDealListStyle";
+import type { BoxProps, GridProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface NearbyDealListStyle {
+	list: BoxProps;
+	headerRow: GridProps;
+	headerCell: BoxProps;
+	amountHeaderCell: BoxProps;
+	headerText: TextProps;
+}
 
 export const nearbyDealListStyles: NearbyDealListStyle = {
 	list: { m: 0, p: 0 },

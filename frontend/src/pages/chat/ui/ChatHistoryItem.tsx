@@ -33,7 +33,7 @@ export default function ChatHistoryItem({ chat, now }: ChatHistoryItemProps) {
 					</Text>
 				</Link>
 			</VStack>
-			<DeleteChatButton chatId={chat.id} title={chat.title} />
+			<DeleteChatButton chatId={chat.id} title={chat.title} variant="list" />
 		</HStack>
 	);
 }

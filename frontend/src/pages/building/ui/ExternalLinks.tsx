@@ -11,10 +11,10 @@ interface ExternalLinksProps {
 /**
  * 건물 상세 > 외부 링크 영역
  *
- * - 링크는 새 탭에서 열림
+ * - 링크는 새 탭에서 열기
  * - 모바일은 2열, 데스크톱은 세로 1열로 출력
  *
- * @param layout 열 수와 링크 안쪽 여백을 정함
+ * @param layout 열 수와 링크 안쪽 여백 결정
  */
 export default function ExternalLinks({ layout }: ExternalLinksProps) {
 	const style = externalLinksStyles[layout];

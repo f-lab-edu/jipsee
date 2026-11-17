@@ -1,6 +1,11 @@
-import type { NearbyDealsSectionStyle } from "@/pages/building/model/nearbyDealsSectionStyle";
+import type { TextProps, VStackProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface NearbyDealsSectionStyle {
+	section: VStackProps;
+	title: TextProps;
+}
 
 export const nearbyDealsSectionStyles =
 	defineResponsiveStyles<NearbyDealsSectionStyle>({

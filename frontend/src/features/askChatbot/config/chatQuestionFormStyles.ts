@@ -1,4 +1,9 @@
-import type { ChatQuestionFormStyle } from "@/features/askChatbot/model/chatQuestionFormStyle";
+import type { BoxProps, IconProps } from "@seed-design/react";
+
+export interface ChatQuestionFormStyle {
+	sendButton: BoxProps;
+	sendIcon: Omit<IconProps, "svg">;
+}
 
 export const chatQuestionFormStyles: ChatQuestionFormStyle = {
 	sendButton: {
