@@ -16,6 +16,10 @@ services:
       DB_USERNAME: ${DB_USERNAME:?DB_USERNAME is required}
       DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
       DATA_GO_KR_KEY: ${DATA_GO_KR_KEY:?DATA_GO_KR_KEY is required}
+      LOGGING_FILE_NAME: /app/logs/jipsee.log
+      LOGGING_LOGBACK_ROLLINGPOLICY_MAX_HISTORY: "7"
+    volumes:
+      - /var/log/jipsee/app:/app/logs
     networks:
       - db
     ports:
