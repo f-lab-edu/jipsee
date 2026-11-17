@@ -8,8 +8,7 @@ x-logging: &logging
 
 services:
   app:
-    image: jipsee-backend:latest
-    pull_policy: never
+    image: ghcr.io/f-lab-edu/jipsee-backend:${IMAGE_TAG:?IMAGE_TAG is required}
     environment:
       SPRING_PROFILES_ACTIVE: prod
       DB_URL: jdbc:mysql://mysql:3306/jipsee
