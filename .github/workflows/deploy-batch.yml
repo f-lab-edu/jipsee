@@ -61,7 +61,7 @@ jobs:
           ssh_status=${PIPESTATUS[1]}
           set -e
 
-          result=$(grep '^RESULT ' "$output_file" | tail -n 1)
+          result=$(grep '^RESULT ' "$output_file" | tail -n 1 || true)
           if [ -n "$result" ]; then
             echo "$result" >> "$GITHUB_STEP_SUMMARY"
           fi
