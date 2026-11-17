@@ -32,7 +32,7 @@ interface SearchFormProps {
  * - 검색어가 있으면 제출 시 검색 페이지로 keyword 쿼리 전달
  * - invalid일 때만 검색창 아래에 오류 줄 출력
  *
- * @param variant 검색창 모양. 모양별 스타일 값을 고름
+ * @param variant 검색창 모양. 모양별 스타일 값 선택
  * @param invalid 검색어가 2자 미만인지 여부
  */
 export default function SearchForm({

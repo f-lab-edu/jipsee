@@ -1,6 +1,14 @@
-import type { NearbyDealsFilterStyle } from "@/features/filterNearbyDeals/model/nearbyDealsFilterStyle";
+import type { BoxProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface NearbyDealsFilterStyle {
+	container: BoxProps;
+	group: BoxProps;
+	labelCell: BoxProps;
+	groupLabel: TextProps;
+	select: BoxProps;
+}
 
 const shared: Omit<NearbyDealsFilterStyle, "container"> = {
 	group: { display: "flex", alignItems: "center", gap: "x2" },

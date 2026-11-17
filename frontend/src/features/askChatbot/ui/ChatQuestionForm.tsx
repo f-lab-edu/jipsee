@@ -23,17 +23,17 @@ interface ChatQuestionFormProps {
  * - 공백만 있으면 이동하지 않음
  * - 값이 있으면 앞뒤 공백을 지운 질문을 보관하고 채팅 경로로 이동
  *
- * @param variant 입력 모양. placeholder와 입력 모양 클래스를 고름
+ * @param variant 입력 모양. placeholder와 입력 모양 클래스 선택
  * @param children 입력 앞에 출력하는 요소
  */
 export default function ChatQuestionForm({
 	variant,
 	children,
 }: ChatQuestionFormProps) {
-	const style = chatQuestionFormStyles;
-	const setting = chatQuestionFormSettings[variant];
 	const router = useRouter();
 	const [question, setQuestion] = useState("");
+	const style = chatQuestionFormStyles;
+	const setting = chatQuestionFormSettings[variant];
 
 	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();

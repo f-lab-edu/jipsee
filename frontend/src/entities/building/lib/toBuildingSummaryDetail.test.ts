@@ -5,7 +5,8 @@ import type { BuildingSummary } from "@/entities/building/model/buildingSummary"
 const building: BuildingSummary = {
 	id: 1,
 	name: "망원빌라",
-	address: "마포구 망원동 12-3",
+	lotAddress: "마포구 망원동 12-3",
+	roadAddress: null,
 	useApprovalYear: 2016,
 	latestNewJeonseMonth: { year: 2026, month: 6 },
 };

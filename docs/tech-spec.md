@@ -43,14 +43,13 @@ Oct 18, 2026 / @윤상준
 
 | 영역          | 선택                                                                           |
 | ------------- | ------------------------------------------------------------------------------ |
-| 서버          | Oracle A1 (2 OCPU, 12GB, 오사카), Ubuntu                                       |
+| 서버          | Oracle A1 (4 OCPU, 24GB, 오사카), Ubuntu                                       |
 | 실행          | Docker Compose                                                                 |
 | 리버스 프록시 | nginx + certbot                                                                |
 | CI/CD         | GitHub Actions                                                                 |
 | 로그          | 앱 로그 파일                                                                   |
 | 배포          | blue/green (nginx upstream을 전환함)                                           |
 | 요청 제한     | nginx limit_req (화면 API, IP 단위)                                            |
-| 모니터링      | Prometheus, Grafana                                                            |
 | 백업          | mysqldump로 매일 1회 백업해 Oracle Object Storage에 저장하고 최근 7개만 보관함 |
 
 ## 3. 2단계 추가 스택
@@ -76,6 +75,7 @@ Oct 18, 2026 / @윤상준
 | --------- | ---------------- |
 | CDN       | Cloudflare       |
 | 로그 수집 | fluent-bit, Loki |
+| 모니터링  | Prometheus, Grafana |
 | 에러 추적 | Sentry           |
 
 ## 4. 데이터 매칭

@@ -4,8 +4,8 @@ import { buildingSummaryItemStyles } from "@/entities/building/config/buildingSu
 import { toBuildingSummaryDetail } from "@/entities/building/lib/toBuildingSummaryDetail";
 import type { BuildingSummary } from "@/entities/building/model/buildingSummary";
 import BuildingAddress from "@/entities/building/ui/BuildingAddress";
-import BuildingChevronIcon from "@/entities/building/ui/BuildingChevronIcon";
 import { paths } from "@/shared/routes/paths";
+import ChevronRightIcon from "@/shared/ui/ChevronRightIcon";
 
 interface BuildingSummaryItemProps {
 	building: BuildingSummary;
@@ -15,7 +15,7 @@ interface BuildingSummaryItemProps {
  * 건물 > 요약 링크
  *
  * - 건물명, 주소, 상세 정보와 오른쪽 화살표 출력
- * - 건물명이 없으면 주소로 대체
+ * - 건물명이 없으면 지번 주소로 대체
  */
 export default function BuildingSummaryItem({
 	building,
@@ -26,14 +26,14 @@ export default function BuildingSummaryItem({
 		<Link href={paths.building(building.id)}>
 			<Flex {...style.row}>
 				<VStack {...style.body}>
-					<Text {...style.name}>{building.name ?? building.address}</Text>
-					<BuildingAddress building={building} />
+					<Text {...style.name}>{building.name ?? building.lotAddress}</Text>
+					<BuildingAddress building={building} variant="mobile" />
 					<Box {...style.detailCell}>
 						<Text {...style.detail}>{toBuildingSummaryDetail(building)}</Text>
 					</Box>
 				</VStack>
 				<Box {...style.chevronCell}>
-					<Icon svg={<BuildingChevronIcon />} {...style.chevron} />
+					<Icon svg={<ChevronRightIcon />} {...style.chevron} />
 				</Box>
 			</Flex>
 		</Link>

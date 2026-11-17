@@ -1,6 +1,15 @@
-import type { NoResultNoticeStyle } from "@/pages/search/model/noResultNoticeStyle";
+import type { BoxProps, IconProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface NoResultNoticeStyle {
+	root: BoxProps;
+	circle: BoxProps;
+	icon: Omit<IconProps, "svg">;
+	textBlock: BoxProps;
+	title: TextProps;
+	description: TextProps;
+}
 
 export const noResultNoticeStyles = defineResponsiveStyles<NoResultNoticeStyle>(
 	{

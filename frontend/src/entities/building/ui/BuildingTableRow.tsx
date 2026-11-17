@@ -4,9 +4,9 @@ import { buildingTableRowCopy } from "@/entities/building/config/buildingTableRo
 import { buildingTableRowStyles } from "@/entities/building/config/buildingTableRowStyles";
 import type { BuildingSummary } from "@/entities/building/model/buildingSummary";
 import BuildingAddress from "@/entities/building/ui/BuildingAddress";
-import BuildingChevronIcon from "@/entities/building/ui/BuildingChevronIcon";
 import BuildingTableLatestJeonse from "@/entities/building/ui/BuildingTableLatestJeonse";
 import { paths } from "@/shared/routes/paths";
+import ChevronRightIcon from "@/shared/ui/ChevronRightIcon";
 
 interface BuildingTableRowProps {
 	building: BuildingSummary;
@@ -16,10 +16,10 @@ interface BuildingTableRowProps {
 /**
  * 건물 > 표 행
  *
- * - 건물 칸에 건물 상세 링크 출력, 건물명이 없으면 주소로 대체
- * - 사용승인 연도가 없으면 사용승인 칸을 비워 둠
+ * - 건물 칸에 건물 상세 링크 출력, 건물명이 없으면 지번 주소로 대체
+ * - 사용승인 연도가 없으면 사용승인 칸은 빈 상태 유지
  * - 건물 칸 링크의 누르는 영역을 행 전체로 넓힘
- * - 화살표 링크 이름은 건물명 뒤에 상세를 붙임
+ * - 화살표 링크 이름은 건물명 뒤에 상세 추가
  *
  * @param columns 머리 행과 같은 열 정의
  */
@@ -28,7 +28,7 @@ export default function BuildingTableRow({
 	columns,
 }: BuildingTableRowProps) {
 	const style = buildingTableRowStyles;
-	const title = building.name ?? building.address;
+	const title = building.name ?? building.lotAddress;
 
 	return (
 		<Grid role="row" columns={columns} {...style.row}>
@@ -36,7 +36,7 @@ export default function BuildingTableRow({
 				<VStack asChild {...style.link}>
 					<Link href={paths.building(building.id)}>
 						<Text {...style.name}>{title}</Text>
-						<BuildingAddress building={building} />
+						<BuildingAddress building={building} variant="desktop" />
 					</Link>
 				</VStack>
 			</Box>
@@ -54,7 +54,7 @@ export default function BuildingTableRow({
 						href={paths.building(building.id)}
 						aria-label={`${title} ${buildingTableRowCopy.detail}`}
 					>
-						<Icon svg={<BuildingChevronIcon />} {...style.chevron} />
+						<Icon svg={<ChevronRightIcon />} {...style.chevron} />
 					</Link>
 				</Box>
 			</Box>

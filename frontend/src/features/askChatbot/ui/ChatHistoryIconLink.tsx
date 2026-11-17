@@ -1,7 +1,7 @@
 import { Box, Icon } from "@seed-design/react";
 import Link from "next/link";
+import type { ChatHistoryIconLinkStyle } from "@/features/askChatbot/config/chatCompactBarStyles";
 import { chatPanelCopy } from "@/features/askChatbot/config/chatPanelCopy";
-import type { ChatHistoryIconLinkStyle } from "@/features/askChatbot/model/chatHistoryIconLinkStyle";
 import ChatHistoryIcon from "@/features/askChatbot/ui/ChatHistoryIcon";
 import { paths } from "@/shared/routes/paths";
 

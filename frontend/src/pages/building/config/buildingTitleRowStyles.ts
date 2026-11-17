@@ -1,5 +1,20 @@
-import type { BuildingTitleRowStyle } from "@/pages/building/model/buildingTitleRowStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	IconProps,
+	TextProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface BuildingTitleRowStyle {
+	row: HStackProps;
+	backButton: BoxProps;
+	backIcon: Omit<IconProps, "svg">;
+	titleGroup: HStackProps;
+	title: TextProps;
+	addressCell: BoxProps;
+	address: TextProps;
+}
 
 export const buildingTitleRowStyles: BuildingTitleRowStyle = {
 	row: { gap: "x3", alignItems: "center" },

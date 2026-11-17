@@ -21,10 +21,10 @@ interface ChatComposerProps {
  * - 한도를 모두 사용했으면 입력 대신 한도 안내 출력
  * - 질문 입력과 오른쪽 보내기 버튼 출력
  * - 공백만 있으면 보내지 않음
- * - 값이 있으면 앞뒤 공백을 지운 질문을 보내고 입력을 비움
+ * - 값이 있으면 앞뒤 공백을 지운 질문을 보내고 입력 초기화
  * - 전송 중에는 보내기 버튼만 비활성화하고 입력은 계속 쓸 수 있음
  *
- * @param onSend 앞뒤 공백을 지운 질문을 받음
+ * @param onSend 앞뒤 공백을 지운 질문 수신 함수
  */
 export default function ChatComposer({
 	question,
@@ -58,20 +58,22 @@ export default function ChatComposer({
 			data-area="chat-composer"
 			{...style.bar}
 		>
-			<form onSubmit={handleSubmit}>
-				<TextFieldRoot
-					value={question}
-					onValueChange={onQuestionChange}
-					{...style.field}
-				>
-					<TextFieldInput
-						aria-label={composerCopy.questionLabel}
-						placeholder={composerCopy.questionPlaceholder}
-						enterKeyHint="send"
-					/>
-					<SendButton isDisabled={isSending} />
-				</TextFieldRoot>
-			</form>
+			<Box asChild {...style.form}>
+				<form onSubmit={handleSubmit}>
+					<TextFieldRoot
+						value={question}
+						onValueChange={onQuestionChange}
+						{...style.field}
+					>
+						<TextFieldInput
+							aria-label={composerCopy.questionLabel}
+							placeholder={composerCopy.questionPlaceholder}
+							enterKeyHint="send"
+						/>
+						<SendButton isDisabled={isSending} />
+					</TextFieldRoot>
+				</form>
+			</Box>
 		</Box>
 	);
 }

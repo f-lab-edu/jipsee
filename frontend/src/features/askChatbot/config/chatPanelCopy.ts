@@ -1,14 +1,17 @@
+import { chatInputCopy } from "@/entities/chat/config/chatInputCopy";
+import { pageTitleCopy } from "@/shared/config/pageTitleCopy";
+
 export const chatPanelCopy = {
-	title: "집사에게 궁금한 점을 물어보세요",
+	title: chatInputCopy.prompt,
 	exampleQuestions: [
 		"예: ○○빌라 주변 전세 거래 알려줘",
 		"예: 계약갱신요구권은 언제 쓰나요?",
 	],
 	login: "로그인하고 이용하기",
-	compactPlaceholder: "집사에게 궁금한 점을 물어보세요",
-	compactLabel: "집사",
-	questionLabel: "집사에게 질문",
-	questionPlaceholder: "질문을 입력하세요",
-	send: "보내기",
-	history: "지난 대화",
+	compactPlaceholder: chatInputCopy.prompt,
+	compactLabel: pageTitleCopy.chat,
+	questionLabel: chatInputCopy.questionLabel,
+	questionPlaceholder: chatInputCopy.questionPlaceholder,
+	send: chatInputCopy.send,
+	history: chatInputCopy.history,
 } as const;

@@ -22,7 +22,7 @@ interface HeaderProps {
  * - 스크롤해도 화면 위에 고정(sticky)
  * - 모바일 배경은 흰색(`bg.layerDefault`). 고정 헤더라 본문이 비치지 않음
  *
- * @param currentPath 데스크톱 로그인 링크가 돌아올 현재 경로(쿼리 포함). 없으면 데스크톱 계정 링크를 숨김
+ * @param currentPath 데스크톱 로그인 링크가 돌아올 현재 경로(쿼리 포함). 없으면 데스크톱 계정 링크 숨김 처리
  * @param mobileBack 모바일 로고 왼쪽에 둘 뒤로 가기 요소
  * @param mobileBottom 모바일 로고 줄 아래에 둘 둘째 줄
  */

@@ -3,8 +3,8 @@ import Link from "next/link";
 import { chatMessageCopy } from "@/entities/chat/config/chatMessageCopy";
 import { chatMessageStyles } from "@/entities/chat/config/chatMessageStyles";
 import type { ChatBuildingLink } from "@/entities/chat/model/chatBuildingLink";
-import BuildingLinkArrowIcon from "@/entities/chat/ui/BuildingLinkArrowIcon";
 import { paths } from "@/shared/routes/paths";
+import ChevronRightIcon from "@/shared/ui/ChevronRightIcon";
 
 interface MessageBuildingLinkProps {
 	building: ChatBuildingLink;
@@ -22,7 +22,10 @@ export default function MessageBuildingLink({
 				<Text {...style.buildingLinkText}>
 					{`${building.name} ${chatMessageCopy.buildingDetail}`}
 				</Text>
-				<Icon svg={<BuildingLinkArrowIcon />} {...style.buildingLinkIcon} />
+				<Icon
+					svg={<ChevronRightIcon strokeWidth={2.2} />}
+					{...style.buildingLinkIcon}
+				/>
 			</Link>
 		</Box>
 	);

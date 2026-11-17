@@ -1,7 +1,7 @@
+import IconExclamationmarkCircleLine from "@karrotmarket/react-monochrome-icon/IconExclamationmarkCircleLine";
 import { Box, FieldErrorMessage, HStack, Icon, Text } from "@seed-design/react";
 import { searchFormCopy } from "@/features/searchBuildings/config/searchFormCopy";
 import { searchFormErrorStyles } from "@/features/searchBuildings/config/searchFormErrorStyles";
-import WarningIcon from "@/features/searchBuildings/ui/WarningIcon";
 
 /**
  * 검색 > 검색어 오류 줄
@@ -16,7 +16,7 @@ export default function SearchFormErrorMessage() {
 	return (
 		<FieldErrorMessage>
 			<HStack {...style.line}>
-				<Icon svg={<WarningIcon />} {...style.icon} />
+				<Icon svg={<IconExclamationmarkCircleLine />} {...style.icon} />
 				<Box {...style.mobileCell}>
 					<Text {...style.mobileText}>{searchFormCopy.queryTooShort}</Text>
 				</Box>

@@ -1,6 +1,29 @@
+import type {
+	BoxProps,
+	FlexProps,
+	GridProps,
+	IconProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
-import type { SearchGuideLayoutStyle } from "@/widgets/searchGuide/model/searchGuideLayoutStyle";
+
+type IconStyle = Omit<IconProps, "svg">;
+
+export interface SearchGuideLayoutStyle {
+	root: VStackProps;
+	panel: VStackProps;
+	title: TextProps;
+	items: GridProps;
+	item: FlexProps;
+	iconCell: BoxProps;
+	checkIcon: IconStyle;
+	slashIcon: IconStyle;
+	clockIcon: IconStyle;
+	text: TextProps;
+	highlight: TextProps;
+}
 
 export const searchGuideStyles = defineResponsiveStyles<SearchGuideLayoutStyle>(
 	{

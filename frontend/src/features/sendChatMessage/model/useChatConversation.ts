@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { streamChatAnswer } from "@/entities/chat/api/streamChatAnswer";
+import type { ChatErrorCode } from "@/entities/chat/model/chatErrorCode";
 import type { ChatMessage } from "@/entities/chat/model/chatMessage";
 import type { ChatConversationState } from "@/features/sendChatMessage/model/chatConversationState";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
@@ -19,14 +20,17 @@ interface UseChatConversationOptions {
 /**
  * 채팅 > 대화 상태
  *
- * - 질문을 보내면 사용자 말풍선을 붙이고 waiting, 첫 글자가 오면 streaming, 끝나면 idle로 바꿈
- * - 첫 질문이 있으면 처음 그릴 때 바로 보냄
- * - 새 대화의 스트림이 끝나면 /chat/{id}로 바꿈
- * - CHAT_DAILY_LIMIT이면 방금 붙인 질문 말풍선을 지우고 limit으로 바꿈
- * - TOO_MANY_REQUESTS, SERVER_ERROR, 스트림 중간 끊김, 연결 실패이면 받은 글자를 지우고 error로 바꿈
+ * - 질문을 보내면 사용자 말풍선을 붙이고 waiting, 첫 글자가 오면 streaming, 끝나면 idle로 변경
+ * - 첫 질문이 있으면 처음 그릴 때 바로 전송
+ * - 새 대화의 스트림이 끝나면 /chat/{id}로 바꾸고, 지난 대화의 스트림이 끝나면 화면을 새로 고쳐 대화 목록 레일을 갱신
+ * - CHAT_DAILY_LIMIT이면 방금 붙인 질문 말풍선을 지우고 limit으로 변경
+ * - TOO_MANY_REQUESTS이면 받은 글자를 지우고 error로 변경
+ * - SERVER_ERROR, 알 수 없는 오류 코드, 스트림 중간 끊김, 연결 실패이면 받은 글자를 지우고 error로 바꾸고 오류 코드는 SERVER_ERROR로 설정
  * - UNAUTHORIZED이면 돌아올 경로를 담아 로그인으로 이동
- * - 취소하면 질문을 보내기 전 상태로 되돌림
- * - 다시 시도는 실패한 질문 말풍선을 지우고 같은 질문을 새 요청으로 보냄
+ * - 실패하거나 한도에 걸리면 이벤트로 받은 저장 전 대화 번호를 요청 전 값으로 되돌려, 새 대화의 다시 시도가 새 대화로 이동
+ * - 취소하면 질문을 보내기 전 상태로 복원
+ * - 새 요청을 시작하면 이전 요청을 취소하고, 현재 요청이 아닌 요청의 결과는 화면에 반영하지 않음
+ * - 다시 시도는 실패한 질문 말풍선을 지우고 같은 질문을 새 요청으로 전송
  *
  * @param firstQuestion 처음 그릴 때 바로 보낼 질문
  */
@@ -48,10 +52,10 @@ export function useChatConversation({
 	const stateRef = useRef(state);
 	const abortRef = useRef<Nullable<AbortController>>(null);
 	const localIdRef = useRef(0);
-	stateRef.current = state;
 
 	const start = useCallback(
 		async (baseMessages: ChatMessage[], question: string) => {
+			abortRef.current?.abort();
 			const controller = new AbortController();
 			abortRef.current = controller;
 			localIdRef.current -= 1;
@@ -63,7 +67,8 @@ export function useChatConversation({
 				buildings: [],
 				createdAt: new Date().toISOString(),
 			};
-			const isNewChat = stateRef.current.chatId === null;
+			const previousChatId = stateRef.current.chatId;
+			const isNewChat = previousChatId === null;
 			let createdChatId: Nullable<number> = null;
 			let isDone = false;
 
@@ -75,9 +80,10 @@ export function useChatConversation({
 				errorCode: null,
 			}));
 
-			const fail = (code: "TOO_MANY_REQUESTS" | "SERVER_ERROR") =>
+			const fail = (code: ChatErrorCode) =>
 				setState((previous) => ({
 					...previous,
+					chatId: previousChatId,
 					draft: "",
 					phase: "error",
 					errorCode: code,
@@ -86,12 +92,16 @@ export function useChatConversation({
 			try {
 				for await (const event of streamChatAnswer(
 					{
-						chatId: stateRef.current.chatId,
+						chatId: previousChatId,
 						buildingId,
 						content: question,
 					},
 					controller.signal,
 				)) {
+					if (abortRef.current !== controller) {
+						return;
+					}
+
 					if (event.type === "chat") {
 						createdChatId = event.chatId;
 						setState((previous) => ({ ...previous, chatId: event.chatId }));
@@ -119,16 +129,22 @@ export function useChatConversation({
 								scroll: false,
 							});
 						}
+
+						if (!isNewChat) {
+							router.refresh();
+						}
 					}
 
 					if (event.type === "error") {
 						if (event.code === "CHAT_DAILY_LIMIT") {
 							setState((previous) => ({
 								...previous,
+								chatId: previousChatId,
 								messages: baseMessages,
 								draft: "",
 								phase: "limit",
 							}));
+							return;
 						}
 
 						if (event.code === "UNAUTHORIZED") {
@@ -137,26 +153,31 @@ export function useChatConversation({
 									`${window.location.pathname}${window.location.search}`,
 								),
 							);
+							return;
 						}
 
-						if (
-							event.code === "TOO_MANY_REQUESTS" ||
-							event.code === "SERVER_ERROR"
-						) {
+						if (event.code === "TOO_MANY_REQUESTS") {
 							fail(event.code);
+							return;
 						}
 
+						fail("SERVER_ERROR");
 						return;
 					}
 				}
 
-				if (!isDone) {
+				if (abortRef.current === controller && !isDone) {
 					fail("SERVER_ERROR");
 				}
 			} catch {
+				if (abortRef.current !== controller) {
+					return;
+				}
+
 				if (controller.signal.aborted) {
 					setState((previous) => ({
 						...previous,
+						chatId: previousChatId,
 						messages: baseMessages,
 						draft: "",
 						phase: "idle",
@@ -171,7 +192,6 @@ export function useChatConversation({
 	);
 
 	const startRef = useRef(start);
-	startRef.current = start;
 
 	const send = useCallback(
 		(question: string) => {
@@ -196,6 +216,11 @@ export function useChatConversation({
 
 		start(messages.slice(0, -1), failedQuestion.content);
 	}, [start]);
+
+	useEffect(() => {
+		stateRef.current = state;
+		startRef.current = start;
+	});
 
 	useEffect(() => {
 		if (firstQuestion !== null) {

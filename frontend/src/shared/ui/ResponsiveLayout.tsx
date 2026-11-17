@@ -13,9 +13,9 @@ interface ResponsiveLayoutProps {
  *
  * - lg 미만에서는 모바일 레이아웃만 출력
  * - lg 이상에서는 데스크톱 레이아웃만 출력
- * - fillsHeight이면 각 래퍼를 flex 열로 만들어 부모의 남는 높이를 채움
+ * - fillsHeight이면 각 래퍼를 flex 열로 만들어 부모의 남는 높이 채우기
  *
- * @param testId 각 레이아웃의 data-testid와 data-area 접두사. -mobile, -desktop을 붙임
+ * @param testId 각 레이아웃의 data-testid와 data-area 접두사. 뒤에 -mobile, -desktop 추가
  * @param fillsHeight 래퍼가 flex 부모 안에서 남는 높이를 채울지 여부
  */
 export default function ResponsiveLayout({

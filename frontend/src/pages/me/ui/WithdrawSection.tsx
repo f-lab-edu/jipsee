@@ -13,7 +13,7 @@ interface WithdrawSectionProps {
  *
  * - 확인 창을 여는 글자 버튼과 설명 출력
  *
- * @param layout 영역 여백을 정함
+ * @param layout 영역 여백 결정
  */
 export default function WithdrawSection({ layout }: WithdrawSectionProps) {
 	const style = meSectionStyles[layout];

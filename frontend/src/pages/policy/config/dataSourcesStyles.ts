@@ -1,6 +1,15 @@
-import type { DataSourcesStyle } from "@/pages/policy/model/dataSourcesStyle";
+import type { BoxProps, TextProps, VStackProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface DataSourcesStyle {
+	cardList: VStackProps;
+	notice: VStackProps;
+	noticeList: VStackProps;
+	noticeItem: BoxProps;
+	noticeText: TextProps;
+	noticeLink: TextProps;
+}
 
 // 링크 글자 굵기 600은 Seed fontWeight에 없어 bold로 쓰고, 밑줄 간격(3px)은 Seed에 속성이 없어 기본값으로 둠
 export const dataSourcesStyles = defineResponsiveStyles<DataSourcesStyle>({

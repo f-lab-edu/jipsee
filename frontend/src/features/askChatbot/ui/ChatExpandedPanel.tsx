@@ -23,8 +23,8 @@ interface ChatExpandedPanelProps {
  * - 비로그인 시 로그인 유도 버튼 출력
  */
 export default function ChatExpandedPanel({ session }: ChatExpandedPanelProps) {
-	const style = chatExpandedPanelStyles;
 	const titleId = useId();
+	const style = chatExpandedPanelStyles;
 
 	return (
 		<VStack

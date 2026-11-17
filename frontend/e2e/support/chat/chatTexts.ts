@@ -39,7 +39,6 @@ export const CHAT_TEXT = {
 		"이 건물 최근 2년 전세 거래 알려줘",
 		"보증금을 얼마까지 올릴 수 있어?",
 	],
-	historyTimes: ["오늘 14:20", "어제", "10.21", "10.18", "10.15"],
 } as const;
 
 // 사용자 말풍선은 팔레트 값(라이트 blue800, 다크 blue500), 답변 말풍선은 bg.neutralWeak, 흰색은 palette.staticWhite
@@ -48,12 +47,23 @@ export const CHAT_COLORS = {
 		userBubble: "rgb(19, 95, 205)",
 		neutralWeak: "rgb(243, 244, 245)",
 		layerDefault: "rgb(255, 255, 255)",
+		strokeWeak: "rgb(220, 222, 227)",
+		strokeMuted: "rgba(0, 0, 0, 0.063)",
+		brandWeak: "rgb(239, 246, 255)",
+		brandStroke: "rgb(33, 124, 249)",
+		brandFg: "rgb(19, 95, 205)",
 	},
 	dark: {
 		userBubble: "rgb(25, 100, 216)",
 		neutralWeak: "rgb(43, 46, 53)",
 		layerDefault: "rgb(22, 23, 27)",
 		layerFloating: "rgb(29, 32, 37)",
+		strokeWeak: "rgb(57, 61, 70)",
+		strokeMuted: "rgba(255, 255, 255, 0.09)",
+		brandWeak: "rgb(32, 39, 66)",
+		brandStroke: "rgb(30, 130, 235)",
+		brandFg: "rgb(65, 162, 249)",
 	},
+	transparent: "rgba(0, 0, 0, 0)",
 	white: "rgb(255, 255, 255)",
 } as const;

@@ -1,6 +1,13 @@
-import type { PreviousBuildingDealsStyle } from "@/pages/building/model/previousBuildingDealsStyle";
+import type { TextProps, VStackProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface PreviousBuildingDealsStyle {
+	block: VStackProps;
+	heading: VStackProps;
+	title: TextProps;
+	description: TextProps;
+}
 
 export const previousBuildingDealsStyles =
 	defineResponsiveStyles<PreviousBuildingDealsStyle>({

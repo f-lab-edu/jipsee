@@ -33,7 +33,7 @@ interface NearbyDealsSectionProps {
  * - 건수가 0이어도 건수 줄과 확정일자 안내는 출력하고 목록만 출력하지 않음
  * - 모바일은 흰 영역, 데스크톱은 테두리가 있는 카드로 출력
  *
- * @param layout 섹션 모양과 `id` 접미사를 정함
+ * @param layout 섹션 모양과 `id` 접미사 결정
  * @param rentDealBaseMonth 건수 줄에 표시할 실거래 기준 월
  */
 export default function NearbyDealsSection({
