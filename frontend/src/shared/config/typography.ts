@@ -1,4 +1,6 @@
-import type { TextStyle } from "@/shared/model/textStyle";
+import type { TextProps } from "@seed-design/react";
+
+export type TextStyle = Pick<TextProps, "fontSize" | "lineHeight">;
 
 export const typography = {
 	size11: { fontSize: "t1", lineHeight: "14px" },

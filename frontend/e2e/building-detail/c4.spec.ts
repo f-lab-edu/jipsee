@@ -23,6 +23,7 @@ import {
 	MOBILE_COLUMN,
 	MOBILE_TITLE_HEIGHT,
 } from "../support/viewports";
+import { waitForFrames } from "../support/waitForFrames";
 
 const THEMES: Theme[] = ["light", "dark"];
 
@@ -268,7 +269,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		t,
 	}) => {
 		for (const id of OK_IDS) {
-			await t.goto(`/buildings/${id}`, 400);
+			await t.goto(`/buildings/${id}`);
 			const m = await t.measureInfo();
 			const md = await t.measure();
 			t.eq(`id ${id} 중복 id`, md.dupIds, []);
@@ -319,7 +320,7 @@ test.describe(`320x700 light`, () => {
 		t,
 	}) => {
 		for (const id of OK_IDS) {
-			await t.goto(`/buildings/${id}`, 400);
+			await t.goto(`/buildings/${id}`);
 			const m = await t.measureInfo();
 			t.ok(
 				`id ${id} 가로 스크롤 없음`,
@@ -580,13 +581,13 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 			if (cell instanceof HTMLElement) cell.style.minHeight = "2400px";
 		});
 		await t.page.evaluate(() => window.scrollTo(0, 700));
-		await t.page.waitForTimeout(250);
+		await waitForFrames(t.page);
 		const top = await t.page.evaluate(
 			() => document.querySelector("aside")?.getBoundingClientRect().top,
 		);
 		t.near("700 스크롤 뒤 aside 위쪽이 89에 붙음", top, 89);
 		await t.page.evaluate(() => window.scrollTo(0, 0));
-		await t.page.waitForTimeout(250);
+		await waitForFrames(t.page);
 		const top0 = await t.page.evaluate(
 			() => document.querySelector("aside")?.getBoundingClientRect().top,
 		);
@@ -603,7 +604,7 @@ test.describe(`1279x900 light`, () => {
 		await t.goto("/buildings/1");
 		const step = async (label: string, w: number, desktop: boolean) => {
 			await t.page.setViewportSize({ width: w, height: 900 });
-			await t.page.waitForTimeout(250);
+			await waitForFrames(t.page);
 			const m = await t.measureInfo();
 			t.eq(`${label} 보이는 건물 정보 제목 개수`, m.visibleInfoTitles, 1);
 			t.eq(`${label} 보이는 aside 개수`, m.asideVisible, desktop ? 1 : 0);
@@ -626,7 +627,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 		t,
 	}) => {
 		for (const id of OK_IDS) {
-			await t.goto(`/buildings/${id}`, 400);
+			await t.goto(`/buildings/${id}`);
 			const md = await t.measure();
 			const m = await t.measureInfo();
 			t.eq(`id ${id} 중복 id`, md.dupIds, []);
@@ -641,7 +642,7 @@ test.describe(`1280x900 light`, () => {
 		t,
 	}) => {
 		for (const id of OK_IDS) {
-			await t.goto(`/buildings/${id}`, 400);
+			await t.goto(`/buildings/${id}`);
 			const m = await t.measureInfo();
 			t.ok(
 				`id ${id} 가로 스크롤 없음`,

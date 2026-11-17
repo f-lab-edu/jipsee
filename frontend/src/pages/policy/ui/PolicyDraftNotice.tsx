@@ -14,7 +14,7 @@ interface PolicyDraftNoticeProps {
  *
  * - 법률 검토 전 임시 본문이라는 안내를 정보 아이콘과 함께 `role="note"` 상자로 출력
  *
- * @param area `data-area` 접두사. 문서와 데이터 출처 화면이 따로 씀
+ * @param area `data-area` 접두사. 문서와 데이터 출처 화면이 따로 사용
  */
 export default function PolicyDraftNotice({
 	area,

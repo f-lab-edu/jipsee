@@ -15,7 +15,7 @@ interface NearbyDealContractChipProps {
  * - 신규는 "신규", 갱신은 "갱신" 출력
  * - 계약 구분이 없으면 출력하지 않음
  *
- * @param layout 글자 크기와 안쪽 여백, 둥글기를 정함
+ * @param layout 글자 크기와 안쪽 여백, 둥글기 결정
  */
 export default function NearbyDealContractChip({
 	contract,

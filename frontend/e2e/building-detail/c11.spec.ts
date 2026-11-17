@@ -27,6 +27,7 @@ import type { Theme } from "../support/buildingDetail/tokens";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
 import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
+import { waitForFrames } from "../support/waitForFrames";
 
 const THEMES: Theme[] = ["light", "dark"];
 const LAYOUTS = [
@@ -45,7 +46,7 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 		}) => {
 			for (const s of C11_STATES) {
 				t.issues.length = 0;
-				const status = await t.goto(`/buildings/${s.id}${s.q}`, 500);
+				const status = await t.goto(`/buildings/${s.id}${s.q}`);
 				const l = `${name} ${s.label}`;
 				t.eq(`${l} 상태 코드`, status, 200);
 				const m = await c11Measure(t);
@@ -352,7 +353,7 @@ test.describe("320x700 light", () => {
 			[3, ""],
 			[3, "?type=wolse"],
 		] as const) {
-			await t.goto(`/buildings/${id}${q}`, 400);
+			await t.goto(`/buildings/${id}${q}`);
 			const m = await c11Measure(t);
 			const l = `id ${id}${q ? " 월세" : ""}`;
 			t.ok(
@@ -423,7 +424,7 @@ test.describe("1279x900 light", () => {
 		await t.goto("/buildings/1");
 		const step = async (label: string, w: number, desktop: boolean) => {
 			await t.page.setViewportSize({ width: w, height: 900 });
-			await t.page.waitForTimeout(250);
+			await waitForFrames(t.page);
 			const m = await c11Measure(t);
 			t.eq(`${label} 보이는 ul 개수`, m.ul, desktop ? 0 : 1);
 			t.eq(`${label} 보이는 table 개수`, m.tables, desktop ? 1 : 0);
@@ -460,7 +461,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			[5, ""],
 		] as const) {
 			t.issues.length = 0;
-			await t.goto(`/buildings/${id}${q}`, 500);
+			await t.goto(`/buildings/${id}${q}`);
 			const m = await c11Measure(t);
 			t.eq(`id ${id}${q ? " 월세" : ""} 중복 id`, m.dupIds, []);
 			for (const i of t.issues) t.fail(`id ${id}${q ? " 월세" : ""}: ${i}`);
@@ -477,7 +478,7 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 			test(`${caseId("C11", 26 + layoutIndex * C11_LONG_NAMES.length + nameIndex)} ${name} 목록의 건물명이 ${label}이면 한 줄로 말줄임되고 옆 칸과 페이지 폭을 넘지 않음`, async ({
 				t,
 			}) => {
-				await t.goto("/buildings/1", 500);
+				await t.goto("/buildings/1");
 				const m = await c11MeasureLongName(t, layout, longName);
 				t.eq("첫 행을 찾음", m.found, true);
 				if (!m.found) return;

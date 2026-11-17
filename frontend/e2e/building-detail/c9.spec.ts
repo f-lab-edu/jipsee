@@ -91,7 +91,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		t,
 	}) => {
 		for (const id of [2, 5]) {
-			await t.goto(`/buildings/${id}`, 400);
+			await t.goto(`/buildings/${id}`);
 			const m = await t.page.evaluate(measureChart);
 			t.eq(`id ${id} 점 개수`, m.points?.length, 6);
 			(C8_DEALS.default ?? []).forEach((p, i) => {
@@ -257,7 +257,7 @@ for (const [layoutIndex, [name, vp, layout]] of LAYOUTS.entries()) {
 			t,
 		}) => {
 			for (const id of [1, 4]) {
-				await t.goto(`/buildings/${id}`, 400);
+				await t.goto(`/buildings/${id}`);
 				const m = await t.page.evaluate(measureChart);
 				t.eq(`id ${id} 이전 건물 영역`, m.band, null);
 				t.eq(`id ${id} 알약`, m.pill, null);
@@ -295,7 +295,7 @@ test.describe("320x700 light", () => {
 		t,
 	}) => {
 		for (const id of [1, 3, 4]) {
-			await t.goto(`/buildings/${id}`, 400);
+			await t.goto(`/buildings/${id}`);
 			const m = await t.page.evaluate(measureChart);
 			t.ok(
 				`id ${id} 가로 스크롤 없음`,

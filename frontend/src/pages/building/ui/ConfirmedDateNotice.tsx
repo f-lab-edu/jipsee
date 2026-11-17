@@ -14,7 +14,7 @@ interface ConfirmedDateNoticeProps {
  * - 확정일자 기준 거래라 최근 거래가 빠질 수 있다는 안내를 `role="note"` 상자로 출력
  * - 모바일은 위쪽 정렬에 작은 아이콘, 데스크톱은 세로 가운데 정렬에 큰 아이콘
  *
- * @param layout 안쪽 여백과 정렬, 아이콘 크기를 정함
+ * @param layout 안쪽 여백과 정렬, 아이콘 크기 결정
  */
 export default function ConfirmedDateNotice({
 	layout,

@@ -1,4 +1,4 @@
-import { chatMockScenario } from "@/entities/chat/api/chatMock";
+import { readChatMockScenario } from "@/entities/chat/api/readChatMockScenario";
 import type { ChatLimit } from "@/entities/chat/model/chatLimit";
 
 /**
@@ -8,5 +8,7 @@ import type { ChatLimit } from "@/entities/chat/model/chatLimit";
  * - 백엔드가 없어 목업이 조회를 대신함
  */
 export async function getChatLimit(): Promise<ChatLimit> {
-	return { dailyLimitReached: chatMockScenario === "dailyLimit" };
+	const scenario = await readChatMockScenario();
+
+	return { dailyLimitReached: scenario === "dailyLimit" };
 }

@@ -15,7 +15,7 @@ interface AreaFixedRowProps {
  * - 필터 그룹 줄 아래 한 줄을 모두 차지
  * - 모바일은 라벨 칸 폭을 36으로 정하고, 데스크톱은 폭을 정하지 않음
  *
- * @param layout 라벨 칸 폭을 정함
+ * @param layout 라벨 칸 폭 결정
  */
 export default function AreaFixedRow({ layout }: AreaFixedRowProps) {
 	const style = areaFixedRowStyles[layout];

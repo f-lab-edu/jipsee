@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
+import type { TextStyle } from "@/shared/config/typography";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
-import type { TextStyle } from "@/shared/model/textStyle";
 
 describe("defineResponsiveStyles", () => {
 	it("받은 스타일 객체를 그대로 반환함", () => {

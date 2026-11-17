@@ -16,7 +16,7 @@ interface ChatEmptyProps {
  * - 말풍선 아이콘과 제목 출력
  * - 예시 질문이 있으면 버튼으로 출력하고 누르면 입력에 채울 질문을 전달
  *
- * @param showsExamples 예시 질문 출력 여부. 질문할 수 없으면 숨김
+ * @param showsExamples 예시 질문 출력 여부. 질문할 수 없으면 숨김 처리
  * @param onSelect 예시 질문을 누르면 호출. 전송하지 않음
  */
 export default function ChatEmpty({
@@ -24,8 +24,8 @@ export default function ChatEmpty({
 	showsExamples,
 	onSelect,
 }: ChatEmptyProps) {
-	const style = chatThreadStyles;
 	const titleId = useId();
+	const style = chatThreadStyles;
 
 	return (
 		<VStack

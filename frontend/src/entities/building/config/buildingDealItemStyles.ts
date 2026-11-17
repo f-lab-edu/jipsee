@@ -1,5 +1,20 @@
-import type { BuildingDealItemStyle } from "@/entities/building/model/buildingDealItemStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface BuildingDealItemStyle {
+	item: HStackProps;
+	body: VStackProps;
+	meta: HStackProps;
+	metaText: TextProps;
+	amountBox: BoxProps;
+	amount: TextProps;
+	cancelledAmount: TextProps;
+}
 
 export const buildingDealItemStyles: BuildingDealItemStyle = {
 	item: {

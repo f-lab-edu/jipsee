@@ -1,3 +1,4 @@
+import { pageTitleCopy } from "@/shared/config/pageTitleCopy";
 import { paths } from "@/shared/routes/paths";
 import type { BottomNavTab } from "@/widgets/bottomNav/model/bottomNavTab";
 
@@ -11,16 +12,16 @@ export const bottomNavTabs: readonly BottomNavTab[] = [
 	},
 	{
 		id: "chat",
-		label: "집사",
+		label: pageTitleCopy.chat,
 		path: paths.chat,
 		relatedPaths: [],
 		relatedPrefixes: [`${paths.chat}/`],
 	},
 	{
 		id: "me",
-		label: "내 정보",
+		label: pageTitleCopy.me,
 		path: paths.me,
-		loggedOutLabel: "로그인",
+		loggedOutLabel: pageTitleCopy.login,
 		loggedOutPath: paths.loginWithNext(paths.me),
 		relatedPaths: [],
 		relatedPrefixes: [],

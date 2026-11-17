@@ -1,6 +1,6 @@
 import { Box, Flex, Text } from "@seed-design/react";
 import type { ReactNode } from "react";
-import type { SearchGuideLayoutStyle } from "@/widgets/searchGuide/model/searchGuideLayoutStyle";
+import type { SearchGuideLayoutStyle } from "@/widgets/searchGuide/config/searchGuideStyles";
 
 interface SearchGuideItemProps {
 	style: SearchGuideLayoutStyle;

@@ -1,14 +1,22 @@
 // S4 로그인, S5 내 정보 UI TC
 // 기대값: 설계 문서(2026-11-08-s4-s5-account-design.md) 5절의 로그인 링크 표와 캔버스 S4, S5 보드. 2026-11-09 피드백이 설계 문서와 다르면 피드백을 따름
-// 로그인한 상태의 TC는 앱의 sessionMock이 { provider: "GOOGLE" } 같은 값일 때만 의미가 있어 TC_SESSION=in일 때만 돌림. 기본 실행은 로그아웃 TC만 돎
-// S5 TC는 sessionMock의 제공자를 TC_PROVIDER(google, kakao, naver. 기본 kakao)로 알려 줘야 함. 제공자별 TC는 그 값과 맞을 때만 돎
+// 로그인 상태는 TC_SESSION=in일 때 쿠키로 정함(e2e/support/mockStorageState.ts). 앱 소스는 고치지 않음. 기본 실행은 로그아웃 TC만 돎
+// S5 TC는 로그인 제공자를 TC_PROVIDER(google, kakao, naver. 기본 kakao)로 정함. 제공자별 TC는 그 값과 맞을 때만 돎
 import { expect, type Page } from "@playwright/test";
 import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
 import { caseId } from "./support/caseId";
+import { isDimmedAt } from "./support/dialog/isDimmedAt";
 import { gotoAndSettle } from "./support/gotoAndSettle";
+import {
+	STUB_DELETED_SESSION,
+	STUB_ON,
+	STUB_SKIP_REASON,
+	setStubMode,
+} from "./support/stubBackend";
 import { test } from "./support/test";
-import { DESKTOP, MOBILE } from "./support/viewports";
+import { BOTTOM_NAV_HEIGHT, DESKTOP, MOBILE } from "./support/viewports";
+import { waitForAnimations } from "./support/waitForAnimations";
 
 const SCREENS = [
 	{ label: "모바일", viewport: MOBILE },
@@ -43,7 +51,7 @@ const HEADER_LOGIN_CASES = [
 const CHAT_LOGIN_HREF = "/login?next=%2Fchat";
 const ASK_LOGIN_HREF = "/login?next=%2Fchat%3FbuildingId%3D3";
 
-for (const [screenIndex, { label, viewport }] of SCREENS.entries()) {
+for (const { label, viewport } of SCREENS) {
 	const isMobile = viewport === MOBILE;
 	test.describe(`${label} ${viewport.width}x${viewport.height} light`, () => {
 		test.use({ viewport, colorScheme: "light" });
@@ -52,10 +60,8 @@ for (const [screenIndex, { label, viewport }] of SCREENS.entries()) {
 			"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
 		);
 
-		const base = screenIndex * (HEADER_LOGIN_CASES.length + 2);
-
 		for (const [index, { what, path, href }] of HEADER_LOGIN_CASES.entries()) {
-			test(`${caseId("A1", base + index + 1)} ${label} ${what} 헤더 로그인 링크가 ${isMobile ? "없음(하단 내비게이션 내 정보 탭이 대신함)" : href}임`, async ({
+			test(`${caseId("A1", index + 1)} ${label} ${what} 헤더 로그인 링크가 ${isMobile ? "없음(하단 내비게이션 내 정보 탭이 대신함)" : href}임`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, path);
@@ -74,7 +80,7 @@ for (const [screenIndex, { label, viewport }] of SCREENS.entries()) {
 			});
 		}
 
-		test(`${caseId("A1", base + HEADER_LOGIN_CASES.length + 1)} ${label} 홈 챗봇 패널의 로그인하고 이용하기 링크가 ${CHAT_LOGIN_HREF}임`, async ({
+		test(`${caseId("A1", HEADER_LOGIN_CASES.length + 1)} ${label} 홈 챗봇 패널의 로그인하고 이용하기 링크가 ${CHAT_LOGIN_HREF}임`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/");
@@ -83,7 +89,7 @@ for (const [screenIndex, { label, viewport }] of SCREENS.entries()) {
 			).toHaveAttribute("href", CHAT_LOGIN_HREF);
 		});
 
-		test(`${caseId("A1", base + HEADER_LOGIN_CASES.length + 2)} ${label} 건물 상세 질문하기 링크가 ${ASK_LOGIN_HREF}임`, async ({
+		test(`${caseId("A1", HEADER_LOGIN_CASES.length + 2)} ${label} 건물 상세 질문하기 링크가 ${ASK_LOGIN_HREF}임`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/buildings/3");
@@ -114,7 +120,6 @@ const LOGIN_TEXT = {
 	description: "로그인하고 챗봇을 이용해 보세요",
 };
 
-let a2Number = 1;
 for (const { label, viewport } of SCREENS) {
 	const isMobile = viewport === MOBILE;
 
@@ -127,38 +132,42 @@ for (const { label, viewport } of SCREENS) {
 			);
 			const token = TOKENS[theme];
 
-			test(`${caseId("A2", a2Number++)} ${label} ${theme} /login은 200이고 문서 제목이 로그인 | 집씨임`, async ({
-				page,
-			}) => {
-				expect(await gotoAndSettle(page, "/login")).toBe(200);
-				await expect(page).toHaveTitle("로그인 | 집씨");
-			});
-
-			test(`${caseId("A2", a2Number++)} ${label} ${theme} 보이는 h1은 집씨 하나이고 28/36 800, 자간 -0.03em임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/login");
-				const title = page.locator("h1:visible");
-				await expect(title).toHaveCount(1);
-				await expect(title).toHaveText(LOGIN_TEXT.title);
-				const style = await title.evaluate((element) => {
-					const computed = getComputedStyle(element);
-					return {
-						fontSize: computed.fontSize,
-						lineHeight: computed.lineHeight,
-						fontWeight: computed.fontWeight,
-						letterSpacing: computed.letterSpacing,
-						color: computed.color,
-					};
+			if (theme === "light") {
+				test(`${caseId("A2", 1)} ${label} /login은 200이고 문서 제목이 로그인 | 집씨임`, async ({
+					page,
+				}) => {
+					expect(await gotoAndSettle(page, "/login")).toBe(200);
+					await expect(page).toHaveTitle("로그인 | 집씨");
 				});
-				expect(style.fontSize).toBe("28px");
-				expect(style.lineHeight).toBe("36px");
-				expect(style.fontWeight).toBe("800");
-				expect(style.letterSpacing).toBe("-0.84px");
-				expect(sameColor(style.color, token.fgNeutral)).toBe(true);
-			});
+			}
 
-			test(`${caseId("A2", a2Number++)} ${label} ${theme} 안내 문구가 15/22 fg.neutralMuted임`, async ({
+			if (theme === "light") {
+				test(`${caseId("A2", 2)} ${label} 보이는 h1은 집씨 하나이고 28/36 800, 자간 -0.03em임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/login");
+					const title = page.locator("h1:visible");
+					await expect(title).toHaveCount(1);
+					await expect(title).toHaveText(LOGIN_TEXT.title);
+					const style = await title.evaluate((element) => {
+						const computed = getComputedStyle(element);
+						return {
+							fontSize: computed.fontSize,
+							lineHeight: computed.lineHeight,
+							fontWeight: computed.fontWeight,
+							letterSpacing: computed.letterSpacing,
+							color: computed.color,
+						};
+					});
+					expect(style.fontSize).toBe("28px");
+					expect(style.lineHeight).toBe("36px");
+					expect(style.fontWeight).toBe("800");
+					expect(style.letterSpacing).toBe("-0.84px");
+					expect(sameColor(style.color, token.fgNeutral)).toBe(true);
+				});
+			}
+
+			test(`${caseId("A2", 3)} ${label} ${theme} 안내 문구가 15/22 fg.neutralMuted임`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/login");
@@ -179,41 +188,45 @@ for (const { label, viewport } of SCREENS) {
 				expect(sameColor(style.color, token.fgMuted)).toBe(true);
 			});
 
-			test(`${caseId("A2", a2Number++)} ${label} ${theme} 헤더에 로그인 링크가 없고 홈 링크는 있음`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/login");
-				const header = page.getByTestId(
-					isMobile ? "header-mobile" : "header-desktop",
-				);
-				await expect(
-					header.getByRole("link", { name: "로그인", exact: true }),
-				).toHaveCount(0);
-				await expect(
-					header.getByRole("link", { name: "집씨 홈" }),
-				).toBeVisible();
-			});
-
-			if (isMobile) {
-				test(`${caseId("A2", a2Number++)} 모바일 ${theme} 헤더 뒤로 가기 버튼이 44x44이고 로고 왼쪽에 있음`, async ({
+			if (theme === "light") {
+				test(`${caseId("A2", 4)} ${label} 헤더에 로그인 링크가 없고 홈 링크는 있음`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, "/login");
-					const header = page.getByTestId("header-mobile");
-					const back = await header
-						.getByRole("button", { name: "뒤로 가기" })
-						.boundingBox();
-					const logo = await header
-						.getByRole("link", { name: "집씨 홈" })
-						.boundingBox();
-					expect(back?.width).toBe(44);
-					expect(back?.height).toBe(44);
-					expect((back?.x ?? 0) + (back?.width ?? 0)).toBeLessThanOrEqual(
-						logo?.x ?? 0,
+					const header = page.getByTestId(
+						isMobile ? "header-mobile" : "header-desktop",
 					);
+					await expect(
+						header.getByRole("link", { name: "로그인", exact: true }),
+					).toHaveCount(0);
+					await expect(
+						header.getByRole("link", { name: "집씨 홈" }),
+					).toBeVisible();
 				});
+			}
 
-				test(`${caseId("A2", a2Number++)} 모바일 ${theme} 로고 묶음이 가운데에 있고 본문 배경이 bg.layerDefault임`, async ({
+			if (isMobile) {
+				if (theme === "light") {
+					test(`${caseId("A2", 5)} 모바일 헤더 뒤로 가기 버튼이 44x44이고 로고 왼쪽에 있음`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, "/login");
+						const header = page.getByTestId("header-mobile");
+						const back = await header
+							.getByRole("button", { name: "뒤로 가기" })
+							.boundingBox();
+						const logo = await header
+							.getByRole("link", { name: "집씨 홈" })
+							.boundingBox();
+						expect(back?.width).toBe(44);
+						expect(back?.height).toBe(44);
+						expect((back?.x ?? 0) + (back?.width ?? 0)).toBeLessThanOrEqual(
+							logo?.x ?? 0,
+						);
+					});
+				}
+
+				test(`${caseId("A2", 6)} 모바일 ${theme} 로고 묶음이 가운데에 있고 본문 배경이 bg.layerDefault임`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, "/login");
@@ -246,82 +259,88 @@ for (const { label, viewport } of SCREENS) {
 				return;
 			}
 
-			test(`${caseId("A2", a2Number++)} 데스크톱 ${theme} 카드가 폭 440, 모서리 20, 테두리 1이고 section이 h1을 가리킴`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/login");
-				const card = page.locator('[data-area="login-card"]');
-				const box = await card.boundingBox();
-				expect(box?.width).toBe(440);
-				const style = await card.evaluate((element) => {
-					const computed = getComputedStyle(element);
-					return {
-						tag: element.tagName,
-						labelledBy: element.getAttribute("aria-labelledby"),
-						radius: computed.borderTopLeftRadius,
-						border: computed.borderTopWidth,
-						borderColor: computed.borderTopColor,
-						background: computed.backgroundColor,
-						padding: computed.paddingTop,
-					};
+			if (theme === "light") {
+				test(`${caseId("A2", 7)} 데스크톱 카드가 폭 440, 모서리 20, 테두리 1이고 section이 h1을 가리킴`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/login");
+					const card = page.locator('[data-area="login-card"]');
+					const box = await card.boundingBox();
+					expect(box?.width).toBe(440);
+					const style = await card.evaluate((element) => {
+						const computed = getComputedStyle(element);
+						return {
+							tag: element.tagName,
+							labelledBy: element.getAttribute("aria-labelledby"),
+							radius: computed.borderTopLeftRadius,
+							border: computed.borderTopWidth,
+							borderColor: computed.borderTopColor,
+							background: computed.backgroundColor,
+							padding: computed.paddingTop,
+						};
+					});
+					expect(style.tag).toBe("SECTION");
+					expect(style.radius).toBe("20px");
+					expect(style.border).toBe("1px");
+					expect(style.padding).toBe("40px");
+					expect(sameColor(style.borderColor, token.strokeMuted)).toBe(true);
+					expect(sameColor(style.background, token.layerDefault)).toBe(true);
+					const titleId = await page.locator("h1:visible").getAttribute("id");
+					expect(style.labelledBy).toBe(titleId);
 				});
-				expect(style.tag).toBe("SECTION");
-				expect(style.radius).toBe("20px");
-				expect(style.border).toBe("1px");
-				expect(style.padding).toBe("40px");
-				expect(sameColor(style.borderColor, token.strokeMuted)).toBe(true);
-				expect(sameColor(style.background, token.layerDefault)).toBe(true);
-				const titleId = await page.locator("h1:visible").getAttribute("id");
-				expect(style.labelledBy).toBe(titleId);
-			});
+			}
 
-			test(`${caseId("A2", a2Number++)} 데스크톱 ${theme} 카드가 본문 영역 가운데에 있고 로고 묶음이 카드 안 위 41에서 시작함`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/login");
-				const main = await page.locator('[data-area="main"]').boundingBox();
-				const card = await page
-					.locator('[data-area="login-card"]')
-					.boundingBox();
-				const logo = await page
-					.getByTestId("login-body-desktop")
-					.locator("svg")
-					.first()
-					.boundingBox();
-				const cardCenterX = (card?.x ?? 0) + (card?.width ?? 0) / 2;
-				const cardCenterY = (card?.y ?? 0) + (card?.height ?? 0) / 2;
-				expect(Math.abs(cardCenterX - viewport.width / 2)).toBeLessThanOrEqual(
-					1,
-				);
-				expect(
-					Math.abs(cardCenterY - ((main?.y ?? 0) + (main?.height ?? 0) / 2)),
-				).toBeLessThanOrEqual(1);
-				expect(logo?.width).toBe(LOGO_SIZE);
-				expect(logo?.height).toBe(LOGO_SIZE);
-				expect(
-					Math.abs((logo?.x ?? 0) + LOGO_SIZE / 2 - cardCenterX),
-				).toBeLessThanOrEqual(1);
-				expect(
-					Math.abs((logo?.y ?? 0) - ((card?.y ?? 0) + 41)),
-				).toBeLessThanOrEqual(1);
-			});
+			if (theme === "light") {
+				test(`${caseId("A2", 8)} 데스크톱 카드가 본문 영역 가운데에 있고 로고 묶음이 카드 안 위 41에서 시작함`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/login");
+					const main = await page.locator('[data-area="main"]').boundingBox();
+					const card = await page
+						.locator('[data-area="login-card"]')
+						.boundingBox();
+					const logo = await page
+						.getByTestId("login-body-desktop")
+						.locator("svg")
+						.first()
+						.boundingBox();
+					const cardCenterX = (card?.x ?? 0) + (card?.width ?? 0) / 2;
+					const cardCenterY = (card?.y ?? 0) + (card?.height ?? 0) / 2;
+					expect(
+						Math.abs(cardCenterX - viewport.width / 2),
+					).toBeLessThanOrEqual(1);
+					expect(
+						Math.abs(cardCenterY - ((main?.y ?? 0) + (main?.height ?? 0) / 2)),
+					).toBeLessThanOrEqual(1);
+					expect(logo?.width).toBe(LOGO_SIZE);
+					expect(logo?.height).toBe(LOGO_SIZE);
+					expect(
+						Math.abs((logo?.x ?? 0) + LOGO_SIZE / 2 - cardCenterX),
+					).toBeLessThanOrEqual(1);
+					expect(
+						Math.abs((logo?.y ?? 0) - ((card?.y ?? 0) + 41)),
+					).toBeLessThanOrEqual(1);
+				});
+			}
 
-			test(`${caseId("A2", a2Number++)} 데스크톱 ${theme} 로고, 제목, 안내 사이 간격이 12이고 묶음 높이가 146임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/login");
-				const body = page.getByTestId("login-body-desktop");
-				const logo = await body.locator("svg").first().boundingBox();
-				const title = await body.locator("h1").boundingBox();
-				const description = await body
-					.getByText(LOGIN_TEXT.description)
-					.boundingBox();
-				expect(title?.y).toBeCloseTo((logo?.y ?? 0) + LOGO_SIZE + 12, 0);
-				expect(description?.y).toBeCloseTo((title?.y ?? 0) + 36 + 12, 0);
-				expect(
-					(description?.y ?? 0) + (description?.height ?? 0) - (logo?.y ?? 0),
-				).toBeCloseTo(INTRO_HEIGHT, 0);
-			});
+			if (theme === "light") {
+				test(`${caseId("A2", 9)} 데스크톱 로고, 제목, 안내 사이 간격이 12이고 묶음 높이가 146임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/login");
+					const body = page.getByTestId("login-body-desktop");
+					const logo = await body.locator("svg").first().boundingBox();
+					const title = await body.locator("h1").boundingBox();
+					const description = await body
+						.getByText(LOGIN_TEXT.description)
+						.boundingBox();
+					expect(title?.y).toBeCloseTo((logo?.y ?? 0) + LOGO_SIZE + 12, 0);
+					expect(description?.y).toBeCloseTo((title?.y ?? 0) + 36 + 12, 0);
+					expect(
+						(description?.y ?? 0) + (description?.height ?? 0) - (logo?.y ?? 0),
+					).toBeCloseTo(INTRO_HEIGHT, 0);
+				});
+			}
 		});
 	}
 }
@@ -410,7 +429,6 @@ const AUTHORIZATION_NEXT_CASES = [
 	{ what: "두 번(/a, /b)", path: "/login?next=%2Fa&next=%2Fb", query: "" },
 ];
 
-let a3Number = 1;
 for (const { label, viewport } of SCREENS) {
 	const isMobile = viewport === MOBILE;
 	const bodyId = isMobile ? "login-body-mobile" : "login-body-desktop";
@@ -423,35 +441,37 @@ for (const { label, viewport } of SCREENS) {
 				"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
 			);
 
-			test(`${caseId("A3", a3Number++)} ${label} ${theme} 버튼이 구글, 카카오, 네이버 순서이고 높이 52, 모서리 12, 간격 10임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/login");
-				const links = page
-					.getByTestId(bodyId)
-					.getByRole("link", { name: /로 계속하기$/ });
-				await expect(links).toHaveCount(PROVIDER_BUTTONS.length);
-				let previousBottom: number | null = null;
-				for (const [index, { name }] of PROVIDER_BUTTONS.entries()) {
-					const link = links.nth(index);
-					await expect(link).toHaveText(name);
-					const box = await link.boundingBox();
-					expect(box?.height).toBe(52);
-					// 모바일은 열 폭 390에서 좌우 여백 32를 뺀 값, 데스크톱은 카드 안쪽 폭
-					expect(box?.width).toBe(358);
-					expect(
-						await link.evaluate(
-							(element) => getComputedStyle(element).borderTopLeftRadius,
-						),
-					).toBe("12px");
-					if (previousBottom !== null) {
-						expect((box?.y ?? 0) - previousBottom).toBeCloseTo(10, 0);
+			if (theme === "light") {
+				test(`${caseId("A3", 1)} ${label} 버튼이 구글, 카카오, 네이버 순서이고 높이 52, 모서리 12, 간격 10임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/login");
+					const links = page
+						.getByTestId(bodyId)
+						.getByRole("link", { name: /로 계속하기$/ });
+					await expect(links).toHaveCount(PROVIDER_BUTTONS.length);
+					let previousBottom: number | null = null;
+					for (const [index, { name }] of PROVIDER_BUTTONS.entries()) {
+						const link = links.nth(index);
+						await expect(link).toHaveText(name);
+						const box = await link.boundingBox();
+						expect(box?.height).toBe(52);
+						// 모바일은 열 폭 390에서 좌우 여백 32를 뺀 값, 데스크톱은 카드 안쪽 폭
+						expect(box?.width).toBe(358);
+						expect(
+							await link.evaluate(
+								(element) => getComputedStyle(element).borderTopLeftRadius,
+							),
+						).toBe("12px");
+						if (previousBottom !== null) {
+							expect((box?.y ?? 0) - previousBottom).toBeCloseTo(10, 0);
+						}
+						previousBottom = (box?.y ?? 0) + (box?.height ?? 0);
 					}
-					previousBottom = (box?.y ?? 0) + (box?.height ?? 0);
-				}
-			});
+				});
+			}
 
-			test(`${caseId("A3", a3Number++)} ${label} ${theme} 버튼 배경, 테두리, 글자 색이 제공자 가이드 값임`, async ({
+			test(`${caseId("A3", 2)} ${label} ${theme} 버튼 배경, 테두리, 글자 색이 제공자 가이드 값임`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/login");
@@ -479,68 +499,72 @@ for (const { label, viewport } of SCREENS) {
 				}
 			});
 
-			test(`${caseId("A3", a3Number++)} ${label} ${theme} 글자가 16/22이고 가운데이며 아이콘이 왼쪽 16에 있음`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/login");
-				for (const { name, iconSize, border } of PROVIDER_BUTTONS) {
-					const link = page.getByTestId(bodyId).getByRole("link", { name });
-					const box = await link.boundingBox();
-					const text = link.getByText(name);
-					const textBox = await text.boundingBox();
-					const style = await text.evaluate((element) => {
-						const computed = getComputedStyle(element);
-						return {
-							fontSize: computed.fontSize,
-							lineHeight: computed.lineHeight,
-						};
-					});
-					expect(style.fontSize).toBe("16px");
-					expect(style.lineHeight).toBe("22px");
-					expect(textBox?.height).toBe(22);
-					expect(
-						Math.abs(
-							(textBox?.x ?? 0) +
-								(textBox?.width ?? 0) / 2 -
-								((box?.x ?? 0) + (box?.width ?? 0) / 2),
-						),
-					).toBeLessThanOrEqual(1);
-					// 아이콘 상자 24가 테두리 안쪽 왼쪽 16에 있고 심볼이 그 안 가운데에 있음
-					const icon = await link.locator("svg").boundingBox();
-					expect(icon?.width).toBe(iconSize);
-					expect(icon?.height).toBe(iconSize);
-					expect(
-						Math.abs(
-							(icon?.x ?? 0) -
-								((box?.x ?? 0) + border + 16 + (24 - iconSize) / 2),
-						),
-					).toBeLessThanOrEqual(1);
-					expect(
-						Math.abs(
-							(icon?.y ?? 0) +
-								(icon?.height ?? 0) / 2 -
-								((box?.y ?? 0) + (box?.height ?? 0) / 2),
-						),
-					).toBeLessThanOrEqual(1);
-				}
-			});
+			if (theme === "light") {
+				test(`${caseId("A3", 3)} ${label} 글자가 16/22이고 가운데이며 아이콘이 왼쪽 16에 있음`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/login");
+					for (const { name, iconSize, border } of PROVIDER_BUTTONS) {
+						const link = page.getByTestId(bodyId).getByRole("link", { name });
+						const box = await link.boundingBox();
+						const text = link.getByText(name);
+						const textBox = await text.boundingBox();
+						const style = await text.evaluate((element) => {
+							const computed = getComputedStyle(element);
+							return {
+								fontSize: computed.fontSize,
+								lineHeight: computed.lineHeight,
+							};
+						});
+						expect(style.fontSize).toBe("16px");
+						expect(style.lineHeight).toBe("22px");
+						expect(textBox?.height).toBe(22);
+						expect(
+							Math.abs(
+								(textBox?.x ?? 0) +
+									(textBox?.width ?? 0) / 2 -
+									((box?.x ?? 0) + (box?.width ?? 0) / 2),
+							),
+						).toBeLessThanOrEqual(1);
+						// 아이콘 상자 24가 테두리 안쪽 왼쪽 16에 있고 심볼이 그 안 가운데에 있음
+						const icon = await link.locator("svg").boundingBox();
+						expect(icon?.width).toBe(iconSize);
+						expect(icon?.height).toBe(iconSize);
+						expect(
+							Math.abs(
+								(icon?.x ?? 0) -
+									((box?.x ?? 0) + border + 16 + (24 - iconSize) / 2),
+							),
+						).toBeLessThanOrEqual(1);
+						expect(
+							Math.abs(
+								(icon?.y ?? 0) +
+									(icon?.height ?? 0) / 2 -
+									((box?.y ?? 0) + (box?.height ?? 0) / 2),
+							),
+						).toBeLessThanOrEqual(1);
+					}
+				});
+			}
 
 			if (theme !== "light") return;
 
-			for (const { what, path, query } of AUTHORIZATION_NEXT_CASES) {
-				test(`${caseId("A3", a3Number++)} ${label} ${path}에서 버튼 href가 시작 경로에 ${query || "next 없음"}을 붙임(${what})`, async ({
-					page,
-				}) => {
-					await gotoAndSettle(page, path);
-					for (const { name, segment } of PROVIDER_BUTTONS) {
-						await expect(
-							page.getByTestId(bodyId).getByRole("link", { name }),
-						).toHaveAttribute(
-							"href",
-							`${AUTHORIZATION_BASE}/${segment}${query}`,
-						);
-					}
-				});
+			if (theme === "light") {
+				for (const { what, path, query } of AUTHORIZATION_NEXT_CASES) {
+					test(`${caseId("A3", 4)} ${label} ${path}에서 버튼 href가 시작 경로에 ${query || "next 없음"}을 붙임(${what})`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, path);
+						for (const { name, segment } of PROVIDER_BUTTONS) {
+							await expect(
+								page.getByTestId(bodyId).getByRole("link", { name }),
+							).toHaveAttribute(
+								"href",
+								`${AUTHORIZATION_BASE}/${segment}${query}`,
+							);
+						}
+					});
+				}
 			}
 		});
 	}
@@ -553,7 +577,7 @@ test.describe("모바일 320x640 light 제공자 버튼", () => {
 		"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
 	);
 
-	test(`${caseId("A3", a3Number++)} 모바일 320 버튼 글자가 한 줄이고 가로 스크롤이 없음`, async ({
+	test(`${caseId("A3", 5)} 모바일 320 버튼 글자가 한 줄이고 가로 스크롤이 없음`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/login");
@@ -592,7 +616,6 @@ const ERROR_PATHS = [
 	{ what: "/login?error=a&error=b", path: "/login?error=a&error=b" },
 ];
 
-let a4Number = 1;
 for (const { label, viewport } of SCREENS) {
 	const isMobile = viewport === MOBILE;
 	const bodyId = isMobile ? "login-body-mobile" : "login-body-desktop";
@@ -606,51 +629,57 @@ for (const { label, viewport } of SCREENS) {
 			);
 			const colors = A4_COLORS[theme];
 
-			test(`${caseId("A4", a4Number++)} ${label} ${theme} 동의 문구와 정책 링크가 없고 버튼 묶음이 로그인 본문의 마지막 요소임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/login");
-				const body = page.getByTestId(bodyId);
-				await expect(body.getByText(CONSENT_TEXT)).toHaveCount(0);
-				await expect(body.getByText("동의하게 돼요")).toHaveCount(0);
-				await expect(body.getByRole("link", { name: "이용약관" })).toHaveCount(
-					0,
-				);
-				await expect(
-					body.getByRole("link", { name: "개인정보처리방침" }),
-				).toHaveCount(0);
-				await expect(body.getByRole("link")).toHaveText([
-					"구글로 계속하기",
-					"카카오로 계속하기",
-					"네이버로 계속하기",
-				]);
-			});
-
-			test(`${caseId("A4", a4Number++)} ${label} ${theme} /login에는 실패 안내가 없음`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/login");
-				await expect(page.getByTestId(bodyId).getByRole("alert")).toHaveCount(
-					0,
-				);
-				await expect(page.getByText(ERROR_TEXT)).toHaveCount(0);
-			});
-
-			for (const { what, path } of ERROR_PATHS) {
-				test(`${caseId("A4", a4Number++)} ${label} ${theme} ${what}에서 실패 안내가 보이는 것으로 하나임`, async ({
+			if (theme === "light") {
+				test(`${caseId("A4", 1)} ${label} 동의 문구와 정책 링크가 없고 버튼 묶음이 로그인 본문의 마지막 요소임`, async ({
 					page,
 				}) => {
-					await gotoAndSettle(page, path);
-					const alerts = page
-						.getByTestId(bodyId)
-						.getByRole("alert")
-						.locator("visible=true");
-					await expect(alerts).toHaveCount(1);
-					await expect(alerts).toHaveText(ERROR_TEXT);
+					await gotoAndSettle(page, "/login");
+					const body = page.getByTestId(bodyId);
+					await expect(body.getByText(CONSENT_TEXT)).toHaveCount(0);
+					await expect(body.getByText("동의하게 돼요")).toHaveCount(0);
+					await expect(
+						body.getByRole("link", { name: "이용약관" }),
+					).toHaveCount(0);
+					await expect(
+						body.getByRole("link", { name: "개인정보처리방침" }),
+					).toHaveCount(0);
+					await expect(body.getByRole("link")).toHaveText([
+						"구글로 계속하기",
+						"카카오로 계속하기",
+						"네이버로 계속하기",
+					]);
 				});
 			}
 
-			test(`${caseId("A4", a4Number++)} ${label} ${theme} 실패 안내가 높이 50, 패딩 14 16, 모서리 12, 배경 bg.criticalWeak, 글자 14/20 500 fg.criticalContrast이고 아이콘 18, 간격 10임`, async ({
+			if (theme === "light") {
+				test(`${caseId("A4", 2)} ${label} /login에는 실패 안내가 없음`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/login");
+					await expect(page.getByTestId(bodyId).getByRole("alert")).toHaveCount(
+						0,
+					);
+					await expect(page.getByText(ERROR_TEXT)).toHaveCount(0);
+				});
+			}
+
+			if (theme === "light") {
+				for (const { what, path } of ERROR_PATHS) {
+					test(`${caseId("A4", 3)} ${label} ${what}에서 실패 안내가 보이는 것으로 하나임`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, path);
+						const alerts = page
+							.getByTestId(bodyId)
+							.getByRole("alert")
+							.locator("visible=true");
+						await expect(alerts).toHaveCount(1);
+						await expect(alerts).toHaveText(ERROR_TEXT);
+					});
+				}
+			}
+
+			test(`${caseId("A4", 4)} ${label} ${theme} 실패 안내가 높이 50, 패딩 14 16, 모서리 12, 배경 bg.criticalWeak, 글자 14/20 500 fg.criticalContrast이고 아이콘 18, 간격 10임`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/login?error");
@@ -694,37 +723,41 @@ for (const { label, viewport } of SCREENS) {
 				expect((textBox?.x ?? 0) - ((icon?.x ?? 0) + 18)).toBeCloseTo(10, 0);
 			});
 
-			test(`${caseId("A4", a4Number++)} ${label} ${theme} 실패 안내와 첫 버튼 사이가 16임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/login?error");
-				const body = page.getByTestId(bodyId);
-				const alert = await body
-					.getByRole("alert")
-					.locator("visible=true")
-					.boundingBox();
-				const first = await body
-					.getByRole("link", { name: "구글로 계속하기" })
-					.boundingBox();
-				expect(
-					(first?.y ?? 0) - ((alert?.y ?? 0) + (alert?.height ?? 0)),
-				).toBeCloseTo(16, 0);
-			});
+			if (theme === "light") {
+				test(`${caseId("A4", 5)} ${label} 실패 안내와 첫 버튼 사이가 16임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/login?error");
+					const body = page.getByTestId(bodyId);
+					const alert = await body
+						.getByRole("alert")
+						.locator("visible=true")
+						.boundingBox();
+					const first = await body
+						.getByRole("link", { name: "구글로 계속하기" })
+						.boundingBox();
+					expect(
+						(first?.y ?? 0) - ((alert?.y ?? 0) + (alert?.height ?? 0)),
+					).toBeCloseTo(16, 0);
+				});
+			}
 
 			if (theme !== "light") return;
 
-			test(`${caseId("A4", a4Number++)} ${label} /login?error&next=/me에서 안내가 있고 버튼 href에 ?next=%2Fme가 붙음`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/login?error&next=/me");
-				const body = page.getByTestId(bodyId);
-				await expect(
-					body.getByRole("alert").locator("visible=true"),
-				).toHaveCount(1);
-				await expect(
-					body.getByRole("link", { name: "구글로 계속하기" }),
-				).toHaveAttribute("href", "/oauth2/authorization/google?next=%2Fme");
-			});
+			if (theme === "light") {
+				test(`${caseId("A4", 6)} ${label} /login?error&next=/me에서 안내가 있고 버튼 href에 ?next=%2Fme가 붙음`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/login?error&next=/me");
+					const body = page.getByTestId(bodyId);
+					await expect(
+						body.getByRole("alert").locator("visible=true"),
+					).toHaveCount(1);
+					await expect(
+						body.getByRole("link", { name: "구글로 계속하기" }),
+					).toHaveAttribute("href", "/oauth2/authorization/google?next=%2Fme");
+				});
+			}
 		});
 	}
 }
@@ -738,7 +771,7 @@ for (const { label, viewport } of SCREENS) {
 			"로그인 TC는 TC_SESSION=in일 때만 돌림",
 		);
 
-		test(`${caseId("A2", a2Number++)} ${label} 로그인한 상태로 /login?next=/me에 들어오면 홈으로 감`, async ({
+		test(`${caseId("A2", 10)} ${label} 로그인한 상태로 /login?next=/me에 들어오면 홈으로 감`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/login?next=/me");
@@ -796,15 +829,13 @@ const SECTION_HEIGHT = 20 + 22 + 12 + 74 + 12 + 48 + 24;
 // 데스크톱 카드는 패딩 24 두 번과 테두리 2가 더해짐
 const CARD_HEIGHT = 24 + 22 + 12 + 74 + 12 + 48 + 24 + 2;
 
-let a5Number = 1;
-
 test.describe("로그아웃 /me", () => {
 	test.skip(
 		process.env.TC_SESSION === "in",
 		"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
 	);
 
-	test(`${caseId("A5", a5Number++)} 로그인하지 않은 /me가 화면을 그리기 전에 /login?next=%2Fme로 보냄`, async ({
+	test(`${caseId("A5", 1)} 로그인하지 않은 /me가 화면을 그리기 전에 /login?next=%2Fme로 보냄`, async ({
 		page,
 	}) => {
 		const response = await page.request.get("/me", { maxRedirects: 0 });
@@ -813,7 +844,7 @@ test.describe("로그아웃 /me", () => {
 		expect(location.pathname + location.search).toBe("/login?next=%2Fme");
 	});
 
-	test(`${caseId("A5", a5Number++)} 로그인하지 않은 /me를 열면 로그인 화면에 닿고 제공자 버튼에 ?next=%2Fme가 붙음`, async ({
+	test(`${caseId("A5", 2)} 로그인하지 않은 /me를 열면 로그인 화면에 닿고 제공자 버튼에 ?next=%2Fme가 붙음`, async ({
 		page,
 	}) => {
 		await gotoAndSettle(page, "/me");
@@ -843,14 +874,16 @@ for (const { label, viewport } of SCREENS) {
 			const provider = ME_PROVIDERS[CURRENT_PROVIDER];
 			const section = `[data-area="provider-section-${layout}"]`;
 
-			test(`${caseId("A5", a5Number++)} ${label} ${theme} /me는 200이고 문서 제목이 내 정보 | 집씨임`, async ({
-				page,
-			}) => {
-				expect(await gotoAndSettle(page, "/me")).toBe(200);
-				await expect(page).toHaveTitle("내 정보 | 집씨");
-			});
+			if (theme === "light") {
+				test(`${caseId("A5", 3)} ${label} /me는 200이고 문서 제목이 내 정보 | 집씨임`, async ({
+					page,
+				}) => {
+					expect(await gotoAndSettle(page, "/me")).toBe(200);
+					await expect(page).toHaveTitle("내 정보 | 집씨");
+				});
+			}
 
-			test(`${caseId("A5", a5Number++)} ${label} ${theme} 보이는 h1은 내 정보 하나이고 ${isMobile ? "18/24" : "26/35"} 700 fg.neutral임`, async ({
+			test(`${caseId("A5", 4)} ${label} ${theme} 보이는 h1은 내 정보 하나이고 ${isMobile ? "18/24" : "26/35"} 700 fg.neutral임`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/me");
@@ -872,60 +905,66 @@ for (const { label, viewport } of SCREENS) {
 				expect(sameColor(style.color, token.fgNeutral)).toBe(true);
 			});
 
-			test(`${caseId("A5", a5Number++)} ${label} ${theme} 내 정보 링크(데스크톱은 헤더, 모바일은 하단 내비게이션 탭)에 aria-current=page가 있고 /me로 감`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/me");
-				// 모바일 헤더에는 계정 링크가 없고 하단 내비게이션 내 정보 탭이 대신함(2026-11-12 결정 3)
-				const link = isMobile
-					? page.locator('[data-area="bottom-nav-me"]')
-					: page
-							.getByTestId(`header-${layout}`)
-							.getByRole("link", { name: ME_TEXT.title });
-				await expect(link).toHaveAttribute("aria-current", "page");
-				await expect(link).toHaveAttribute("href", "/me");
-			});
+			if (theme === "light") {
+				test(`${caseId("A5", 5)} ${label} 내 정보 링크(데스크톱은 헤더, 모바일은 하단 내비게이션 탭)에 aria-current=page가 있고 /me로 감`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, "/me");
+					// 모바일 헤더에는 계정 링크가 없고 하단 내비게이션 내 정보 탭이 대신함(2026-11-12 결정 3)
+					const link = isMobile
+						? page.locator('[data-area="bottom-nav-me"]')
+						: page
+								.getByTestId(`header-${layout}`)
+								.getByRole("link", { name: ME_TEXT.title });
+					await expect(link).toHaveAttribute("aria-current", "page");
+					await expect(link).toHaveAttribute("href", "/me");
+				});
+			}
 
 			if (isMobile) {
-				test(`${caseId("A5", a5Number++)} 모바일 ${theme} 헤더에 제목과 내 정보 링크가 없고 뒤로 가기 44x44가 로고 왼쪽에 있음`, async ({
-					page,
-				}) => {
-					await gotoAndSettle(page, "/me");
-					const header = page.getByTestId("header-mobile");
-					await expect(header.locator("h1")).toHaveCount(0);
-					const back = await header
-						.getByRole("button", { name: "뒤로 가기" })
-						.boundingBox();
-					const logo = await header
-						.getByRole("link", { name: "집씨 홈" })
-						.boundingBox();
-					expect(back?.width).toBe(44);
-					expect(back?.height).toBe(44);
-					expect((back?.x ?? 0) + (back?.width ?? 0)).toBeLessThanOrEqual(
-						logo?.x ?? 0,
-					);
-					await expect(
-						header.getByRole("link", { name: ME_TEXT.title }),
-					).toHaveCount(0);
-				});
+				if (theme === "light") {
+					test(`${caseId("A5", 6)} 모바일 헤더에 제목과 내 정보 링크가 없고 뒤로 가기 44x44가 로고 왼쪽에 있음`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, "/me");
+						const header = page.getByTestId("header-mobile");
+						await expect(header.locator("h1")).toHaveCount(0);
+						const back = await header
+							.getByRole("button", { name: "뒤로 가기" })
+							.boundingBox();
+						const logo = await header
+							.getByRole("link", { name: "집씨 홈" })
+							.boundingBox();
+						expect(back?.width).toBe(44);
+						expect(back?.height).toBe(44);
+						expect((back?.x ?? 0) + (back?.width ?? 0)).toBeLessThanOrEqual(
+							logo?.x ?? 0,
+						);
+						await expect(
+							header.getByRole("link", { name: ME_TEXT.title }),
+						).toHaveCount(0);
+					});
+				}
 
-				test(`${caseId("A5", a5Number++)} 모바일 ${theme} 제목 줄이 본문 맨 위 패딩 20 아래에 있고 로그인 수단 섹션이 그 아래에 붙으며 섹션 높이가 ${SECTION_HEIGHT}임`, async ({
-					page,
-				}) => {
-					await gotoAndSettle(page, "/me");
-					const main = await page.locator('[data-area="main"]').boundingBox();
-					const title = await page.locator("h1:visible").boundingBox();
-					const box = await page.locator(section).boundingBox();
-					expect(title?.y).toBeCloseTo((main?.y ?? 0) + CARD_BORDER + 20, 0);
-					expect(title?.x).toBe(CARD_INNER_X + 16);
-					expect(title?.height).toBe(24);
-					expect(box?.x).toBe(CARD_INNER_X);
-					expect(box?.width).toBe(CARD_INNER_WIDTH);
-					expect(box?.y).toBeCloseTo((main?.y ?? 0) + CARD_BORDER + 44, 0);
-					expect(box?.height).toBeCloseTo(SECTION_HEIGHT, 0);
-				});
+				if (theme === "light") {
+					test(`${caseId("A5", 7)} 모바일 제목 줄이 본문 맨 위 패딩 20 아래에 있고 로그인 수단 섹션이 그 아래에 붙으며 섹션 높이가 ${SECTION_HEIGHT}임`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, "/me");
+						const main = await page.locator('[data-area="main"]').boundingBox();
+						const title = await page.locator("h1:visible").boundingBox();
+						const box = await page.locator(section).boundingBox();
+						expect(title?.y).toBeCloseTo((main?.y ?? 0) + CARD_BORDER + 20, 0);
+						expect(title?.x).toBe(CARD_INNER_X + 16);
+						expect(title?.height).toBe(24);
+						expect(box?.x).toBe(CARD_INNER_X);
+						expect(box?.width).toBe(CARD_INNER_WIDTH);
+						expect(box?.y).toBeCloseTo((main?.y ?? 0) + CARD_BORDER + 44, 0);
+						expect(box?.height).toBeCloseTo(SECTION_HEIGHT, 0);
+					});
+				}
 
-				test(`${caseId("A5", a5Number++)} 모바일 ${theme} 섹션이 패딩 20 16 24이고 테두리와 모서리가 없으며 배경이 bg.layerDefault임`, async ({
+				test(`${caseId("A5", 8)} 모바일 ${theme} 섹션이 패딩 20 16 24이고 테두리와 모서리가 없으며 배경이 bg.layerDefault임`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, "/me");
@@ -950,59 +989,63 @@ for (const { label, viewport } of SCREENS) {
 					expect(sameColor(style.background, token.layerDefault)).toBe(true);
 				});
 			} else {
-				test(`${caseId("A5", a5Number++)} 데스크톱 ${theme} 열이 폭 480으로 가운데에 있고 h1이 본문 맨 위 40 아래에 있음`, async ({
-					page,
-				}) => {
-					await gotoAndSettle(page, "/me");
-					const main = await page.locator('[data-area="main"]').boundingBox();
-					const column = await page
-						.locator('[data-area="me-column"]')
-						.boundingBox();
-					const title = await page.locator("h1:visible").boundingBox();
-					expect(column?.width).toBe(480);
-					expect(
-						Math.abs((column?.x ?? 0) + 240 - viewport.width / 2),
-					).toBeLessThanOrEqual(1);
-					expect(column?.y).toBeCloseTo((main?.y ?? 0) + 40, 0);
-					expect(title?.y).toBeCloseTo(column?.y ?? 0, 0);
-					expect(title?.height).toBe(35);
-				});
-
-				test(`${caseId("A5", a5Number++)} 데스크톱 ${theme} 카드가 h1 아래 24(여백 8 + 간격 16)에 폭 480, 모서리 20, 테두리 1, 패딩 24이고 높이가 ${CARD_HEIGHT}임`, async ({
-					page,
-				}) => {
-					await gotoAndSettle(page, "/me");
-					const title = await page.locator("h1:visible").boundingBox();
-					const card = page.locator(section);
-					const box = await card.boundingBox();
-					expect(box?.width).toBe(480);
-					expect(box?.y).toBeCloseTo(
-						(title?.y ?? 0) + (title?.height ?? 0) + 8 + 16,
-						0,
-					);
-					expect(box?.height).toBeCloseTo(CARD_HEIGHT, 0);
-					const style = await card.evaluate((element) => {
-						const computed = getComputedStyle(element);
-						return {
-							tag: element.tagName,
-							labelledBy: element.getAttribute("aria-labelledby"),
-							radius: computed.borderTopLeftRadius,
-							border: computed.borderTopWidth,
-							borderColor: computed.borderTopColor,
-							padding: computed.paddingTop,
-							background: computed.backgroundColor,
-						};
+				if (theme === "light") {
+					test(`${caseId("A5", 9)} 데스크톱 열이 폭 480으로 가운데에 있고 h1이 본문 맨 위 40 아래에 있음`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, "/me");
+						const main = await page.locator('[data-area="main"]').boundingBox();
+						const column = await page
+							.locator('[data-area="me-column"]')
+							.boundingBox();
+						const title = await page.locator("h1:visible").boundingBox();
+						expect(column?.width).toBe(480);
+						expect(
+							Math.abs((column?.x ?? 0) + 240 - viewport.width / 2),
+						).toBeLessThanOrEqual(1);
+						expect(column?.y).toBeCloseTo((main?.y ?? 0) + 40, 0);
+						expect(title?.y).toBeCloseTo(column?.y ?? 0, 0);
+						expect(title?.height).toBe(35);
 					});
-					expect(style.tag).toBe("SECTION");
-					expect(style.radius).toBe("20px");
-					expect(style.border).toBe("1px");
-					expect(style.padding).toBe("24px");
-					expect(sameColor(style.borderColor, token.strokeMuted)).toBe(true);
-					expect(sameColor(style.background, token.layerDefault)).toBe(true);
-				});
+				}
+
+				if (theme === "light") {
+					test(`${caseId("A5", 10)} 데스크톱 카드가 h1 아래 24(여백 8 + 간격 16)에 폭 480, 모서리 20, 테두리 1, 패딩 24이고 높이가 ${CARD_HEIGHT}임`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, "/me");
+						const title = await page.locator("h1:visible").boundingBox();
+						const card = page.locator(section);
+						const box = await card.boundingBox();
+						expect(box?.width).toBe(480);
+						expect(box?.y).toBeCloseTo(
+							(title?.y ?? 0) + (title?.height ?? 0) + 8 + 16,
+							0,
+						);
+						expect(box?.height).toBeCloseTo(CARD_HEIGHT, 0);
+						const style = await card.evaluate((element) => {
+							const computed = getComputedStyle(element);
+							return {
+								tag: element.tagName,
+								labelledBy: element.getAttribute("aria-labelledby"),
+								radius: computed.borderTopLeftRadius,
+								border: computed.borderTopWidth,
+								borderColor: computed.borderTopColor,
+								padding: computed.paddingTop,
+								background: computed.backgroundColor,
+							};
+						});
+						expect(style.tag).toBe("SECTION");
+						expect(style.radius).toBe("20px");
+						expect(style.border).toBe("1px");
+						expect(style.padding).toBe("24px");
+						expect(sameColor(style.borderColor, token.strokeMuted)).toBe(true);
+						expect(sameColor(style.background, token.layerDefault)).toBe(true);
+					});
+				}
 			}
 
-			test(`${caseId("A5", a5Number++)} ${label} ${theme} 섹션이 로그인 수단 h2를 가리키고 h2가 16/22 700 fg.neutral임`, async ({
+			test(`${caseId("A5", 11)} ${label} ${theme} 섹션이 로그인 수단 h2를 가리키고 h2가 16/22 700 fg.neutral임`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/me");
@@ -1027,7 +1070,7 @@ for (const { label, viewport } of SCREENS) {
 				expect(sameColor(style.color, token.fgNeutral)).toBe(true);
 			});
 
-			test(`${caseId("A5", a5Number++)} ${label} ${theme} 제공자 표시가 테두리 1 stroke.neutralWeak, 모서리 14, 패딩 16, 높이 74이고 이름이 ${provider.name} 16/22 700임`, async ({
+			test(`${caseId("A5", 12)} ${label} ${theme} 제공자 표시가 테두리 1 stroke.neutralWeak, 모서리 14, 패딩 16, 높이 74이고 이름이 ${provider.name} 16/22 700임`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/me");
@@ -1076,12 +1119,12 @@ for (const { label, viewport } of SCREENS) {
 				const expected = ME_PROVIDERS[key];
 				const colors = expected.colors[theme];
 
-				test(`${caseId("A5", a5Number++)} ${label} ${theme} ${key} 아이콘 원이 40이고 배경 ${colors.background}, 테두리 ${colors.border ?? "없음"}이며 심볼 ${expected.iconSize}가 가운데에 있음`, async ({
+				test(`${caseId("A5", 13)} ${label} ${theme} ${key} 아이콘 원이 40이고 배경 ${colors.background}, 테두리 ${colors.border ?? "없음"}이며 심볼 ${expected.iconSize}가 가운데에 있음`, async ({
 					page,
 				}) => {
 					test.skip(
 						CURRENT_PROVIDER !== key,
-						"sessionMock의 제공자가 다르면 돌리지 않음",
+						"TC_PROVIDER의 제공자가 다르면 돌리지 않음",
 					);
 					await gotoAndSettle(page, "/me");
 					const name = page.locator(section).getByText(expected.name);
@@ -1128,7 +1171,7 @@ for (const { label, viewport } of SCREENS) {
 				});
 			}
 
-			test(`${caseId("A5", a5Number++)} ${label} ${theme} 로그아웃 버튼이 제공자 표시 아래 12에 높이 48, 모서리 12, bg.neutralWeak이고 글자가 15 700 fg.neutral임`, async ({
+			test(`${caseId("A5", 14)} ${label} ${theme} 로그아웃 버튼이 제공자 표시 아래 12에 높이 48, 모서리 12, bg.neutralWeak이고 글자가 15 700 fg.neutral임`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/me");
@@ -1167,220 +1210,72 @@ for (const { label, viewport } of SCREENS) {
 	}
 }
 
-// 커밋 6: 약관과 정책 목록, 회원 탈퇴 영역 (A6)
-// 기대값: 설계 문서 3절 S5 표(약관과 정책 섹션, 정책 행, 회원 탈퇴), 4절 문구, 5절 S5 동작, 캔버스 S5MeMobile과 S5MeDesktop(Dark 포함)
-// 정책 행은 최소 높이 56(구분선 포함), 패딩 0 4, 16/22, 오른쪽 화살표 18 fg.neutralSubtle임. 목적지는 설계 문서 5절의 paths 값(캔버스 링크는 #terms 같은 자리표시자)
-// 모바일 섹션 높이는 패딩 20, 제목 22, 간격 4, 행 56 셋, 패딩 8이고 데스크톱 카드는 패딩 24 위, 테두리 2가 더해짐
-// 탈퇴 영역: 버튼 min-height 44, 13/18 밑줄 fg.neutralMuted, 설명 12/16 fg.neutralMuted, 간격 2. 모바일은 패딩 16 16 24로 푸터 바로 위, 데스크톱은 정책 카드 아래 24에 버튼 상자(좌우 4)가 옴
-// 피드백 7번에 따라 모바일 헤더에 제목이 없어도 정책 영역에는 영향이 없음
-const POLICY_ROWS = [
-	{ label: "이용약관", href: "/policies/terms" },
-	{ label: "개인정보처리방침", href: "/policies/privacy" },
-	{ label: "데이터 출처", href: "/policies/data-sources" },
-];
-const POLICY_TEXT = {
-	title: "약관과 정책",
+// 커밋 6: 회원 탈퇴 영역 (A6)
+// 기대값: 설계 문서 3절 S5 표(회원 탈퇴), 4절 문구, 5절 S5 동작, 2026-11-14 사용자 요청(약관과 정책 줄 삭제)
+// 약관과 정책 줄은 푸터에 같은 링크가 있어 2026-11-14에 삭제함. 그래서 이 영역은 캔버스 S5MeMobile과 S5MeDesktop 보드와 다름(보드에는 아직 줄이 있음)
+// 탈퇴 영역: 버튼 min-height 44, 13/18 밑줄 fg.neutralMuted, 설명 12/16 fg.neutralMuted, 간격 2. 모바일은 패딩 16 16 24로 푸터 바로 위, 데스크톱은 로그인 수단 카드 아래 24에 버튼 상자(좌우 4)가 옴
+const WITHDRAW_TEXT = {
 	withdraw: "회원 탈퇴",
 	description: "탈퇴하면 계정과 대화 기록이 삭제돼요",
 };
-const POLICY_ROW_HEIGHT = 56;
-const POLICY_LIST_HEIGHT = POLICY_ROW_HEIGHT * POLICY_ROWS.length;
-const POLICY_SECTION_HEIGHT = 20 + 22 + 4 + POLICY_LIST_HEIGHT + 8;
-const POLICY_CARD_HEIGHT = 24 + 22 + 4 + POLICY_LIST_HEIGHT + 8 + 2;
+const REMOVED_POLICY_LABELS = ["이용약관", "개인정보처리방침", "데이터 출처"];
 const WITHDRAW_BUTTON_HEIGHT = 44;
 const WITHDRAW_AREA_HEIGHT = 16 + WITHDRAW_BUTTON_HEIGHT + 2 + 16 + 24;
 const LAYER_BASEMENT = { light: "rgb(243, 244, 245)", dark: "rgb(0, 0, 0)" };
-
-let a6Number = 1;
 
 for (const { label, viewport } of SCREENS) {
 	const isMobile = viewport === MOBILE;
 	const layout = isMobile ? "mobile" : "desktop";
 
+	test.describe(`${label} ${viewport.width}x${viewport.height} 약관과 정책 줄 없음`, () => {
+		test.use({ viewport, colorScheme: "light" });
+		test.skip(
+			process.env.TC_SESSION !== "in",
+			"로그인 TC는 TC_SESSION=in일 때만 돌림",
+		);
+
+		test(`${caseId("A6", 1)} ${label} 내 정보에 약관과 정책 섹션과 제목이 없고 정책 링크는 푸터에만 하나씩 있음`, async ({
+			page,
+		}) => {
+			await gotoAndSettle(page, "/me");
+			await expect(page.locator('[data-area^="policy-section"]')).toHaveCount(
+				0,
+			);
+			await expect(
+				page.getByRole("heading", { name: "약관과 정책" }),
+			).toHaveCount(0);
+			for (const name of REMOVED_POLICY_LABELS) {
+				const links = page
+					.getByRole("link", { name, exact: true })
+					.locator("visible=true");
+				await expect(links, name).toHaveCount(1);
+				await expect(
+					page
+						.locator("footer:visible")
+						.getByRole("link", { name, exact: true }),
+					name,
+				).toHaveCount(1);
+			}
+		});
+	});
+
 	for (const theme of THEMES) {
-		test.describe(`${label} ${viewport.width}x${viewport.height} ${theme} 약관과 정책, 회원 탈퇴`, () => {
+		test.describe(`${label} ${viewport.width}x${viewport.height} ${theme} 회원 탈퇴`, () => {
 			test.use({ viewport, colorScheme: theme });
 			test.skip(
 				process.env.TC_SESSION !== "in",
 				"로그인 TC는 TC_SESSION=in일 때만 돌림",
 			);
 			const token = TOKENS[theme];
-			const policy = `[data-area="policy-section-${layout}"]`;
+			const provider = `[data-area="provider-section-${layout}"]`;
 			const withdraw = `[data-area="withdraw-section-${layout}"]`;
 
-			test(`${caseId("A6", a6Number++)} ${label} ${theme} 섹션이 약관과 정책 h2를 가리키고 h2가 16/22 700 fg.neutral임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/me");
-				const labelledBy = await page
-					.locator(policy)
-					.getAttribute("aria-labelledby");
-				const heading = page.locator(`h2[id="${labelledBy}"]`);
-				await expect(heading).toHaveText(POLICY_TEXT.title);
-				expect(await heading.locator("visible=true").count()).toBe(1);
-				const style = await heading.evaluate((element) => {
-					const computed = getComputedStyle(element);
-					return {
-						fontSize: computed.fontSize,
-						lineHeight: computed.lineHeight,
-						fontWeight: computed.fontWeight,
-						color: computed.color,
-					};
-				});
-				expect(style.fontSize).toBe("16px");
-				expect(style.lineHeight).toBe("22px");
-				expect(style.fontWeight).toBe("700");
-				expect(sameColor(style.color, token.fgNeutral)).toBe(true);
-			});
-
-			test(`${caseId("A6", a6Number++)} ${label} ${theme} 목록이 ul이고 행 문구와 순서가 ${POLICY_ROWS.map((row) => row.label).join(", ")}이며 목적지가 정책 경로임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/me");
-				const items = page.locator(`${policy} ul > li`);
-				await expect(items).toHaveCount(POLICY_ROWS.length);
-				for (const [index, row] of POLICY_ROWS.entries()) {
-					const link = items.nth(index).getByRole("link");
-					await expect(link).toHaveText(row.label);
-					await expect(link).toHaveAttribute("href", row.href);
-				}
-			});
-
-			test(`${caseId("A6", a6Number++)} ${label} ${theme} 정책 행이 높이 ${POLICY_ROW_HEIGHT}에 패딩 0 4이고 글자가 16/22 fg.neutral이며 아래 구분선 1 stroke.neutralMuted임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/me");
-				const items = page.locator(`${policy} ul > li`);
-				const sectionBox = await page.locator(policy).boundingBox();
-				const rowWidth = isMobile ? MOBILE_CONTENT_WIDTH : 480 - 2 - 48;
-				for (const [index, row] of POLICY_ROWS.entries()) {
-					const link = items.nth(index).getByRole("link");
-					const box = await link.locator("> div").boundingBox();
-					expect(box?.height).toBe(POLICY_ROW_HEIGHT);
-					expect(box?.width).toBeCloseTo(rowWidth, 0);
-					expect(box?.y).toBeCloseTo(
-						(sectionBox?.y ?? 0) +
-							(isMobile ? 20 : 1 + 24) +
-							22 +
-							4 +
-							index * POLICY_ROW_HEIGHT,
-						0,
-					);
-					const style = await link.locator("> div").evaluate((element) => {
-						const computed = getComputedStyle(element);
-						const text = getComputedStyle(element.firstElementChild as Element);
-						return {
-							left: computed.paddingLeft,
-							right: computed.paddingRight,
-							top: computed.paddingTop,
-							border: computed.borderBottomWidth,
-							borderColor: computed.borderBottomColor,
-							fontSize: text.fontSize,
-							lineHeight: text.lineHeight,
-							fontWeight: text.fontWeight,
-							color: text.color,
-						};
-					});
-					expect(style.left).toBe("4px");
-					expect(style.right).toBe("4px");
-					expect(style.top).toBe("0px");
-					expect(style.border).toBe("1px");
-					expect(sameColor(style.borderColor, token.strokeMuted)).toBe(true);
-					expect(style.fontSize, row.label).toBe("16px");
-					expect(style.lineHeight).toBe("22px");
-					expect(style.fontWeight).toBe("400");
-					expect(sameColor(style.color, token.fgNeutral)).toBe(true);
-				}
-			});
-
-			test(`${caseId("A6", a6Number++)} ${label} ${theme} 정책 행 화살표가 18x18 fg.neutralSubtle이고 행 오른쪽 끝에서 4 안쪽에 세로 가운데임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/me");
-				const items = page.locator(`${policy} ul > li`);
-				for (let index = 0; index < POLICY_ROWS.length; index++) {
-					const link = items.nth(index).getByRole("link");
-					const row = await link.locator("> div").boundingBox();
-					const arrow = link.locator("svg");
-					await expect(arrow).toHaveCount(1);
-					const box = await arrow.boundingBox();
-					expect(box?.width).toBe(18);
-					expect(box?.height).toBe(18);
-					expect((box?.x ?? 0) + (box?.width ?? 0)).toBeCloseTo(
-						(row?.x ?? 0) + (row?.width ?? 0) - 4,
-						0,
-					);
-					// 행 높이 56에 아래 테두리 1이 들어 있어 안쪽 가운데는 27.5임
-					expect(
-						Math.abs(
-							(box?.y ?? 0) + 9 - ((row?.y ?? 0) + (row?.height ?? 0) / 2),
-						),
-					).toBeLessThanOrEqual(0.5);
-					const colors = await arrow.evaluate((element) => {
-						const probe = document.createElement("span");
-						probe.style.color = "var(--seed-color-fg-neutral-subtle)";
-						document.body.append(probe);
-						const expected = getComputedStyle(probe).color;
-						probe.remove();
-						return { actual: getComputedStyle(element).color, expected };
-					});
-					expect(sameColor(colors.actual, colors.expected)).toBe(true);
-				}
-			});
-
-			test(`${caseId("A6", a6Number++)} ${label} ${theme} 약관과 정책 ${isMobile ? `섹션이 패딩 20 16 8이고 높이 ${POLICY_SECTION_HEIGHT}` : `카드가 모서리 20, 테두리 1, 패딩 24 24 8이고 높이 ${POLICY_CARD_HEIGHT}`}임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, "/me");
-				const box = await page.locator(policy).boundingBox();
-				const style = await page.locator(policy).evaluate((element) => {
-					const computed = getComputedStyle(element);
-					return {
-						top: computed.paddingTop,
-						right: computed.paddingRight,
-						bottom: computed.paddingBottom,
-						left: computed.paddingLeft,
-						border: computed.borderTopWidth,
-						radius: computed.borderTopLeftRadius,
-						borderColor: computed.borderTopColor,
-						background: computed.backgroundColor,
-					};
-				});
-				expect(sameColor(style.background, token.layerDefault)).toBe(true);
-				expect(style.bottom).toBe("8px");
-				if (isMobile) {
-					expect(box?.x).toBe(CARD_INNER_X);
-					expect(box?.width).toBe(CARD_INNER_WIDTH);
-					expect(box?.height).toBeCloseTo(POLICY_SECTION_HEIGHT, 0);
-					expect(style.top).toBe("20px");
-					expect(style.left).toBe("16px");
-					expect(style.right).toBe("16px");
-					expect(style.border).toBe("0px");
-					expect(style.radius).toBe("0px");
-					return;
-				}
-				expect(box?.width).toBe(480);
-				expect(box?.height).toBeCloseTo(POLICY_CARD_HEIGHT, 0);
-				expect(style.top).toBe("24px");
-				expect(style.left).toBe("24px");
-				expect(style.right).toBe("24px");
-				expect(style.border).toBe("1px");
-				expect(style.radius).toBe("20px");
-				expect(sameColor(style.borderColor, token.strokeMuted)).toBe(true);
-			});
-
 			if (isMobile) {
-				test(`${caseId("A6", a6Number++)} 모바일 ${theme} 로그인 수단 섹션과 약관과 정책 섹션 사이에 8px bg.layerBasement 띠가 있음`, async ({
+				test(`${caseId("A6", 2)} 모바일 ${theme} 로그인 수단 섹션 바로 아래에 8px bg.layerBasement 띠가 있음`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, "/me");
-					const provider = await page
-						.locator('[data-area="provider-section-mobile"]')
-						.boundingBox();
-					const box = await page.locator(policy).boundingBox();
-					const gap =
-						(box?.y ?? 0) - ((provider?.y ?? 0) + (provider?.height ?? 0));
-					expect(gap).toBeCloseTo(8, 0);
+					const box = await page.locator(provider).boundingBox();
 					const band = await page.evaluate(
 						({ x, y }) => {
 							const element = document.elementFromPoint(x, y);
@@ -1388,20 +1283,20 @@ for (const { label, viewport } of SCREENS) {
 						},
 						{
 							x: viewport.width / 2,
-							y: (provider?.y ?? 0) + (provider?.height ?? 0) + 4,
+							y: (box?.y ?? 0) + (box?.height ?? 0) + 4,
 						},
 					);
 					expect(sameColor(band, LAYER_BASEMENT[theme])).toBe(true);
 				});
 			}
 
-			test(`${caseId("A6", a6Number++)} ${label} ${theme} 회원 탈퇴 버튼이 높이 ${WITHDRAW_BUTTON_HEIGHT} 이상이고 글자가 13/18 밑줄 fg.neutralMuted이며 설명이 12/16 fg.neutralMuted로 아래 2에 있음`, async ({
+			test(`${caseId("A6", 3)} ${label} ${theme} 회원 탈퇴 버튼이 높이 ${WITHDRAW_BUTTON_HEIGHT} 이상이고 글자가 13/18 밑줄 fg.neutralMuted이며 설명이 12/16 fg.neutralMuted로 아래 2에 있음`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, "/me");
 				const button = page
 					.locator(withdraw)
-					.getByRole("button", { name: POLICY_TEXT.withdraw });
+					.getByRole("button", { name: WITHDRAW_TEXT.withdraw });
 				await expect(button).toHaveCount(1);
 				const box = await button.boundingBox();
 				expect(box?.height).toBe(WITHDRAW_BUTTON_HEIGHT);
@@ -1420,7 +1315,7 @@ for (const { label, viewport } of SCREENS) {
 				expect(sameColor(style.color, token.fgMuted)).toBe(true);
 				const description = page
 					.locator(withdraw)
-					.getByText(POLICY_TEXT.description, { exact: true });
+					.getByText(WITHDRAW_TEXT.description, { exact: true });
 				await expect(description).toHaveCount(1);
 				const descriptionBox = await description.boundingBox();
 				expect(descriptionBox?.x).toBeCloseTo(box?.x ?? 0, 0);
@@ -1443,55 +1338,57 @@ for (const { label, viewport } of SCREENS) {
 			});
 
 			if (isMobile) {
-				test(`${caseId("A6", a6Number++)} 모바일 ${theme} 탈퇴 영역이 카드 맨 아래이고 푸터 바로 위에 있고 높이 ${WITHDRAW_AREA_HEIGHT}에 패딩 16 16 24임`, async ({
-					page,
-				}) => {
-					await gotoAndSettle(page, "/me");
-					const area = await page.locator(withdraw).boundingBox();
-					const footer = await page.locator("footer:visible").boundingBox();
-					// 카드 아래 border 1을 건너 푸터가 바로 이어짐
-					expect(
-						(area?.y ?? 0) + (area?.height ?? 0) + CARD_BORDER,
-					).toBeCloseTo(footer?.y ?? 0, 0);
-					expect(area?.height).toBeCloseTo(WITHDRAW_AREA_HEIGHT, 0);
-					expect(area?.width).toBe(CARD_INNER_WIDTH);
-					const button = await page
-						.locator(withdraw)
-						.getByRole("button", { name: POLICY_TEXT.withdraw })
-						.boundingBox();
-					expect(button?.x).toBe(CARD_INNER_X + 16);
-					expect(button?.y).toBeCloseTo((area?.y ?? 0) + 16, 0);
-				});
+				if (theme === "light") {
+					test(`${caseId("A6", 4)} 모바일 탈퇴 영역이 카드 맨 아래이고 푸터 바로 위에 있고 높이 ${WITHDRAW_AREA_HEIGHT}에 패딩 16 16 24임`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, "/me");
+						const area = await page.locator(withdraw).boundingBox();
+						const footer = await page.locator("footer:visible").boundingBox();
+						// 카드 아래 border 1을 건너 푸터가 바로 이어짐
+						expect(
+							(area?.y ?? 0) + (area?.height ?? 0) + CARD_BORDER,
+						).toBeCloseTo(footer?.y ?? 0, 0);
+						expect(area?.height).toBeCloseTo(WITHDRAW_AREA_HEIGHT, 0);
+						expect(area?.width).toBe(CARD_INNER_WIDTH);
+						const button = await page
+							.locator(withdraw)
+							.getByRole("button", { name: WITHDRAW_TEXT.withdraw })
+							.boundingBox();
+						expect(button?.x).toBe(CARD_INNER_X + 16);
+						expect(button?.y).toBeCloseTo((area?.y ?? 0) + 16, 0);
+					});
+				}
 			} else {
-				test(`${caseId("A6", a6Number++)} 데스크톱 ${theme} 정책 카드 아래 끝과 회원 탈퇴 버튼 상자 사이가 24이고 버튼이 열 왼쪽에서 4 안쪽에 있음`, async ({
-					page,
-				}) => {
-					await gotoAndSettle(page, "/me");
-					const card = await page.locator(policy).boundingBox();
-					const column = await page
-						.locator('[data-area="me-column"]')
-						.boundingBox();
-					const button = await page
-						.locator(withdraw)
-						.getByRole("button", { name: POLICY_TEXT.withdraw })
-						.boundingBox();
-					expect(button?.y).toBeCloseTo(
-						(card?.y ?? 0) + (card?.height ?? 0) + 24,
-						0,
-					);
-					expect(button?.x).toBeCloseTo((column?.x ?? 0) + 4, 0);
-				});
+				if (theme === "light") {
+					test(`${caseId("A6", 5)} 데스크톱 로그인 수단 카드 아래 끝과 회원 탈퇴 버튼 상자 사이가 24이고 버튼이 열 왼쪽에서 4 안쪽에 있음`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, "/me");
+						const card = await page.locator(provider).boundingBox();
+						const column = await page
+							.locator('[data-area="me-column"]')
+							.boundingBox();
+						const button = await page
+							.locator(withdraw)
+							.getByRole("button", { name: WITHDRAW_TEXT.withdraw })
+							.boundingBox();
+						expect(button?.y).toBeCloseTo(
+							(card?.y ?? 0) + (card?.height ?? 0) + 24,
+							0,
+						);
+						expect(button?.x).toBeCloseTo((column?.x ?? 0) + 4, 0);
+					});
+				}
 			}
 		});
 	}
 }
 
 // 커밋 7: 로그아웃 (A7)
-// 기대값: 설계 문서 5절 S5(로그아웃은 /api/auth/logout에 POST하는 폼의 제출 버튼)와 Route Handler 표. 버튼 모양은 A5와 같음
-// 개발 환경에 백엔드(API_URL)가 없으므로 제출하면 502가 나는 것까지만 확인함. Origin이 없는 직접 POST는 403임
+// 기대값: 설계 문서 5절 S5(로그아웃은 /api/auth/logout에 POST하는 폼의 제출 버튼)와 Route Handler 표, relayToBackend 규칙(성공이면 백엔드 Set-Cookie를 옮기고 홈으로 303, 401과 403이면 로그인으로 303, 그 밖의 실패는 /me?error=logout-failed로 303)
+// 백엔드 응답은 가짜 백엔드(support/stubBackend.ts)가 TC마다 쿠키로 정함. 가짜 백엔드를 띄우지 못하면 이 응답에 기대는 TC는 건너뜀. 실패 안내 띠는 error.spec.ts가 확인함
 const LOGOUT_ACTION = "/api/auth/logout";
-
-let a7Number = 1;
 
 for (const { label, viewport } of SCREENS) {
 	const layout = viewport === MOBILE ? "mobile" : "desktop";
@@ -1504,7 +1401,20 @@ for (const { label, viewport } of SCREENS) {
 		);
 		const section = `[data-area="provider-section-${layout}"]`;
 
-		test(`${caseId("A7", a7Number++)} ${label} 로그아웃 버튼이 ${LOGOUT_ACTION}에 POST하는 폼의 제출 버튼임`, async ({
+		async function submitLogout(page: Page) {
+			const responsePromise = page.waitForResponse(
+				(response) =>
+					new URL(response.url()).pathname === LOGOUT_ACTION &&
+					response.request().method() === "POST",
+			);
+			await page
+				.locator(section)
+				.getByRole("button", { name: ME_TEXT.logout })
+				.click();
+			return responsePromise;
+		}
+
+		test(`${caseId("A7", 1)} ${label} 로그아웃 버튼이 ${LOGOUT_ACTION}에 POST하는 폼의 제출 버튼임`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/me");
@@ -1517,29 +1427,45 @@ for (const { label, viewport } of SCREENS) {
 			await expect(button).toHaveAttribute("type", "submit");
 		});
 
-		test(`${caseId("A7", a7Number++)} ${label} 백엔드가 없을 때 로그아웃 폼을 제출하면 ${LOGOUT_ACTION}가 502를 반환함`, async ({
+		test(`${caseId("A7", 2)} ${label} 백엔드가 서버 오류를 주면 ${LOGOUT_ACTION}가 /me?error=logout-failed로 303을 반환함`, async ({
 			page,
+			context,
 		}) => {
+			test.skip(!STUB_ON(), STUB_SKIP_REASON);
+			await setStubMode(context, "serverError");
 			await gotoAndSettle(page, "/me");
-			const responsePromise = page.waitForResponse(
-				(response) =>
-					new URL(response.url()).pathname === LOGOUT_ACTION &&
-					response.request().method() === "POST",
-			);
-			await page
-				.locator(section)
-				.getByRole("button", { name: ME_TEXT.logout })
-				.click();
-			expect((await responsePromise).status()).toBe(502);
+			const response = await submitLogout(page);
+			expect(response.status()).toBe(303);
+			expect(response.headers().location).toBe("/me?error=logout-failed");
 		});
 
-		test(`${caseId("A7", a7Number++)} ${label} Origin이 없는 직접 POST는 ${LOGOUT_ACTION}가 403을 반환함`, async ({
+		test(`${caseId("A7", 3)} ${label} 백엔드가 성공하면 ${LOGOUT_ACTION}가 세션 쿠키 삭제를 옮겨 담아 홈으로 303을 반환하고 화면이 홈으로 이동함`, async ({
 			page,
+			context,
 		}) => {
-			const response = await page.request.post(LOGOUT_ACTION, {
-				maxRedirects: 0,
-			});
-			expect(response.status()).toBe(403);
+			test.skip(!STUB_ON(), STUB_SKIP_REASON);
+			await setStubMode(context, "ok");
+			await gotoAndSettle(page, "/me");
+			const response = await submitLogout(page);
+			expect(response.status()).toBe(303);
+			expect(response.headers().location).toBe("/");
+			// 브라우저가 감추는 Set-Cookie까지 읽으려면 allHeaders를 씀
+			expect((await response.allHeaders())["set-cookie"]).toContain(
+				STUB_DELETED_SESSION,
+			);
+			await expect(page).toHaveURL("/");
+		});
+
+		test(`${caseId("A7", 4)} ${label} 백엔드가 401이면 ${LOGOUT_ACTION}가 로그인 화면(/login?next=%2Fme)으로 303을 반환함`, async ({
+			page,
+			context,
+		}) => {
+			test.skip(!STUB_ON(), STUB_SKIP_REASON);
+			await setStubMode(context, "unauthorized");
+			await gotoAndSettle(page, "/me");
+			const response = await submitLogout(page);
+			expect(response.status()).toBe(303);
+			expect(response.headers().location).toBe("/login?next=%2Fme");
 		});
 	});
 }
@@ -1561,8 +1487,6 @@ const WITHDRAW_CONFIRM_BACKGROUND = {
 };
 const WITHDRAW_BUTTON_ROW_HEIGHT = 52;
 
-let a8Number = 1;
-
 for (const { label, viewport } of SCREENS) {
 	const isMobile = viewport === MOBILE;
 	const layout = isMobile ? "mobile" : "desktop";
@@ -1581,63 +1505,67 @@ for (const { label, viewport } of SCREENS) {
 				await gotoAndSettle(page, "/me");
 				await page
 					.locator(trigger)
-					.getByRole("button", { name: POLICY_TEXT.withdraw })
+					.getByRole("button", { name: WITHDRAW_TEXT.withdraw })
 					.click();
 				const dialog = page.getByRole("dialog");
 				await expect(dialog).toHaveCount(1);
-				await page.waitForTimeout(700);
+				await waitForAnimations(page);
 				return dialog;
 			}
 
-			test(`${caseId("A8", a8Number++)} ${label} ${theme} 회원 탈퇴를 누르면 ${isMobile ? "화면 아래에 붙은 바텀시트" : "화면 가운데 대화상자"}가 role=dialog, aria-modal로 열림`, async ({
-				page,
-			}) => {
-				const dialog = await openDialog(page);
-				await expect(dialog).toBeVisible();
-				await expect(dialog).toHaveAttribute("aria-modal", "true");
-				const box = await dialog.boundingBox();
-				if (isMobile) {
-					expect((box?.y ?? 0) + (box?.height ?? 0)).toBeCloseTo(
-						viewport.height,
-						0,
-					);
-					expect(box?.width).toBe(viewport.width);
-				} else {
-					expect(box?.width).toBe(480);
-					expect((box?.x ?? 0) + (box?.width ?? 0) / 2).toBeCloseTo(
-						viewport.width / 2,
-						0,
-					);
-					expect((box?.y ?? 0) + (box?.height ?? 0) / 2).toBeCloseTo(
-						viewport.height / 2,
-						0,
-					);
-				}
-			});
-
-			if (isMobile) {
-				test(`${caseId("A8", a8Number++)} ${label} ${theme} 바텀시트가 하단 내비게이션 위에 뜸`, async ({
+			if (theme === "light") {
+				test(`${caseId("A8", 1)} ${label} 회원 탈퇴를 누르면 ${isMobile ? "화면 아래에 붙은 바텀시트" : "화면 가운데 대화상자"}가 role=dialog, aria-modal로 열림`, async ({
 					page,
 				}) => {
-					await openDialog(page);
-					const nav = await page
-						.locator('[data-area="bottom-nav"]')
-						.boundingBox();
-					const hitsNav = await page.evaluate(
-						({ x, y }) =>
-							!!document
-								.elementFromPoint(x, y)
-								?.closest('[data-area="bottom-nav"]'),
-						{
-							x: viewport.width / 2,
-							y: (nav?.y ?? 0) + (nav?.height ?? 0) / 2,
-						},
-					);
-					expect(hitsNav).toBe(false);
+					const dialog = await openDialog(page);
+					await expect(dialog).toBeVisible();
+					await expect(dialog).toHaveAttribute("aria-modal", "true");
+					const box = await dialog.boundingBox();
+					if (isMobile) {
+						expect((box?.y ?? 0) + (box?.height ?? 0)).toBeCloseTo(
+							viewport.height,
+							0,
+						);
+						expect(box?.width).toBe(viewport.width);
+					} else {
+						expect(box?.width).toBe(480);
+						expect((box?.x ?? 0) + (box?.width ?? 0) / 2).toBeCloseTo(
+							viewport.width / 2,
+							0,
+						);
+						expect((box?.y ?? 0) + (box?.height ?? 0) / 2).toBeCloseTo(
+							viewport.height / 2,
+							0,
+						);
+					}
 				});
 			}
 
-			test(`${caseId("A8", a8Number++)} ${label} ${theme} 제목이 20/27 700 fg.neutral이고 설명이 15/22 fg.neutralMuted로 제목 아래 8에 있으며 줄바꿈이 keep-all임`, async ({
+			if (isMobile) {
+				if (theme === "light") {
+					test(`${caseId("A8", 2)} ${label} 바텀시트가 하단 내비게이션 위에 뜸`, async ({
+						page,
+					}) => {
+						await openDialog(page);
+						const nav = await page
+							.locator('[data-area="bottom-nav"]')
+							.boundingBox();
+						const hitsNav = await page.evaluate(
+							({ x, y }) =>
+								!!document
+									.elementFromPoint(x, y)
+									?.closest('[data-area="bottom-nav"]'),
+							{
+								x: viewport.width / 2,
+								y: (nav?.y ?? 0) + (nav?.height ?? 0) / 2,
+							},
+						);
+						expect(hitsNav).toBe(false);
+					});
+				}
+			}
+
+			test(`${caseId("A8", 3)} ${label} ${theme} 제목이 20/27 700 fg.neutral이고 설명이 15/22 fg.neutralMuted로 제목 아래 8에 있으며 줄바꿈이 keep-all임`, async ({
 				page,
 			}) => {
 				const dialog = await openDialog(page);
@@ -1686,48 +1614,50 @@ for (const { label, viewport } of SCREENS) {
 				expect(wordBreak).toBe("keep-all");
 			});
 
-			test(`${caseId("A8", a8Number++)} ${label} ${theme} 버튼이 2열 간격 8, 높이 ${WITHDRAW_BUTTON_ROW_HEIGHT}, 모서리 12이고 설명 아래 ${isMobile ? 24 : 28}에 있음`, async ({
-				page,
-			}) => {
-				const dialog = await openDialog(page);
-				const cancel = dialog.getByRole("button", {
-					name: WITHDRAW_DIALOG_TEXT.cancel,
-					exact: true,
-				});
-				const confirm = dialog.getByRole("button", {
-					name: WITHDRAW_DIALOG_TEXT.confirm,
-					exact: true,
-				});
-				await expect(cancel).toHaveCount(1);
-				await expect(confirm).toHaveCount(1);
-				const cancelBox = await cancel.boundingBox();
-				const confirmBox = await confirm.boundingBox();
-				expect(cancelBox?.height).toBe(WITHDRAW_BUTTON_ROW_HEIGHT);
-				expect(confirmBox?.height).toBe(WITHDRAW_BUTTON_ROW_HEIGHT);
-				expect(cancelBox?.width).toBeCloseTo(confirmBox?.width ?? 0, 0);
-				expect(confirmBox?.x).toBeCloseTo(
-					(cancelBox?.x ?? 0) + (cancelBox?.width ?? 0) + 8,
-					0,
-				);
-				expect(confirmBox?.y).toBeCloseTo(cancelBox?.y ?? 0, 0);
-				for (const button of [cancel, confirm]) {
-					const radius = await button.evaluate(
-						(element) => getComputedStyle(element).borderTopLeftRadius,
+			if (theme === "light") {
+				test(`${caseId("A8", 4)} ${label} 버튼이 2열 간격 8, 높이 ${WITHDRAW_BUTTON_ROW_HEIGHT}, 모서리 12이고 설명 아래 ${isMobile ? 24 : 28}에 있음`, async ({
+					page,
+				}) => {
+					const dialog = await openDialog(page);
+					const cancel = dialog.getByRole("button", {
+						name: WITHDRAW_DIALOG_TEXT.cancel,
+						exact: true,
+					});
+					const confirm = dialog.getByRole("button", {
+						name: WITHDRAW_DIALOG_TEXT.confirm,
+						exact: true,
+					});
+					await expect(cancel).toHaveCount(1);
+					await expect(confirm).toHaveCount(1);
+					const cancelBox = await cancel.boundingBox();
+					const confirmBox = await confirm.boundingBox();
+					expect(cancelBox?.height).toBe(WITHDRAW_BUTTON_ROW_HEIGHT);
+					expect(confirmBox?.height).toBe(WITHDRAW_BUTTON_ROW_HEIGHT);
+					expect(cancelBox?.width).toBeCloseTo(confirmBox?.width ?? 0, 0);
+					expect(confirmBox?.x).toBeCloseTo(
+						(cancelBox?.x ?? 0) + (cancelBox?.width ?? 0) + 8,
+						0,
 					);
-					expect(radius).toBe("12px");
-				}
-				const description = await dialog
-					.getByText(WITHDRAW_DIALOG_TEXT.description, { exact: true })
-					.boundingBox();
-				expect(cancelBox?.y).toBeCloseTo(
-					(description?.y ?? 0) +
-						(description?.height ?? 0) +
-						(isMobile ? 24 : 28),
-					0,
-				);
-			});
+					expect(confirmBox?.y).toBeCloseTo(cancelBox?.y ?? 0, 0);
+					for (const button of [cancel, confirm]) {
+						const radius = await button.evaluate(
+							(element) => getComputedStyle(element).borderTopLeftRadius,
+						);
+						expect(radius).toBe("12px");
+					}
+					const description = await dialog
+						.getByText(WITHDRAW_DIALOG_TEXT.description, { exact: true })
+						.boundingBox();
+					expect(cancelBox?.y).toBeCloseTo(
+						(description?.y ?? 0) +
+							(description?.height ?? 0) +
+							(isMobile ? 24 : 28),
+						0,
+					);
+				});
+			}
 
-			test(`${caseId("A8", a8Number++)} ${label} ${theme} 취소는 bg.neutralWeak에 fg.neutral, 탈퇴하기는 ${theme === "light" ? "palette.red800" : "palette.red500"}에 흰 글자이고 둘 다 16 700임`, async ({
+			test(`${caseId("A8", 5)} ${label} ${theme} 취소는 bg.neutralWeak에 fg.neutral, 탈퇴하기는 ${theme === "light" ? "palette.red800" : "palette.red500"}에 흰 글자이고 둘 다 16 700임`, async ({
 				page,
 			}) => {
 				const dialog = await openDialog(page);
@@ -1767,42 +1697,48 @@ for (const { label, viewport } of SCREENS) {
 				}
 			});
 
-			test(`${caseId("A8", a8Number++)} ${label} ${theme} 취소를 누르면 창이 닫힘`, async ({
-				page,
-			}) => {
-				const dialog = await openDialog(page);
-				await dialog
-					.getByRole("button", {
-						name: WITHDRAW_DIALOG_TEXT.cancel,
-						exact: true,
-					})
-					.click();
-				await expect(page.getByRole("dialog")).toHaveCount(0);
-			});
-
-			test(`${caseId("A8", a8Number++)} ${label} ${theme} Esc를 누르면 창이 닫힘(Seed 기본 동작)`, async ({
-				page,
-			}) => {
-				await openDialog(page);
-				await page.keyboard.press("Escape");
-				await expect(page.getByRole("dialog")).toHaveCount(0);
-			});
-
-			test(`${caseId("A8", a8Number++)} ${label} ${theme} 탈퇴하기가 ${WITHDRAW_ACTION}에 POST하는 폼 안의 제출 버튼임`, async ({
-				page,
-			}) => {
-				const dialog = await openDialog(page);
-				const form = dialog.locator("form");
-				await expect(form).toHaveCount(1);
-				await expect(form).toHaveAttribute("method", "post");
-				await expect(form).toHaveAttribute("action", WITHDRAW_ACTION);
-				const confirm = form.getByRole("button", {
-					name: WITHDRAW_DIALOG_TEXT.confirm,
-					exact: true,
+			if (theme === "light") {
+				test(`${caseId("A8", 6)} ${label} 취소를 누르면 창이 닫힘`, async ({
+					page,
+				}) => {
+					const dialog = await openDialog(page);
+					await dialog
+						.getByRole("button", {
+							name: WITHDRAW_DIALOG_TEXT.cancel,
+							exact: true,
+						})
+						.click();
+					await expect(page.getByRole("dialog")).toHaveCount(0);
 				});
-				await expect(confirm).toHaveCount(1);
-				await expect(confirm).toHaveAttribute("type", "submit");
-			});
+			}
+
+			if (theme === "light") {
+				test(`${caseId("A8", 7)} ${label} Esc를 누르면 창이 닫힘(Seed 기본 동작)`, async ({
+					page,
+				}) => {
+					await openDialog(page);
+					await page.keyboard.press("Escape");
+					await expect(page.getByRole("dialog")).toHaveCount(0);
+				});
+			}
+
+			if (theme === "light") {
+				test(`${caseId("A8", 8)} ${label} 탈퇴하기가 ${WITHDRAW_ACTION}에 POST하는 폼 안의 제출 버튼임`, async ({
+					page,
+				}) => {
+					const dialog = await openDialog(page);
+					const form = dialog.locator("form");
+					await expect(form).toHaveCount(1);
+					await expect(form).toHaveAttribute("method", "post");
+					await expect(form).toHaveAttribute("action", WITHDRAW_ACTION);
+					const confirm = form.getByRole("button", {
+						name: WITHDRAW_DIALOG_TEXT.confirm,
+						exact: true,
+					});
+					await expect(confirm).toHaveCount(1);
+					await expect(confirm).toHaveAttribute("type", "submit");
+				});
+			}
 		});
 	}
 }
@@ -1814,13 +1750,11 @@ test.describe("탈퇴 확인 창 요청", () => {
 		"로그인 TC는 TC_SESSION=in일 때만 돌림",
 	);
 
-	test(`${caseId("A8", a8Number++)} 백엔드가 없을 때 탈퇴하기를 누르면 ${WITHDRAW_ACTION}가 502를 반환함`, async ({
-		page,
-	}) => {
+	async function submitWithdraw(page: Page) {
 		await gotoAndSettle(page, "/me");
 		await page
 			.locator('[data-area="withdraw-section-mobile"]')
-			.getByRole("button", { name: POLICY_TEXT.withdraw })
+			.getByRole("button", { name: WITHDRAW_TEXT.withdraw })
 			.click();
 		const responsePromise = page.waitForResponse(
 			(response) =>
@@ -1831,24 +1765,55 @@ test.describe("탈퇴 확인 창 요청", () => {
 			.getByRole("dialog")
 			.getByRole("button", { name: WITHDRAW_DIALOG_TEXT.confirm, exact: true })
 			.click();
-		expect((await responsePromise).status()).toBe(502);
+		return responsePromise;
+	}
+
+	test(`${caseId("A8", 9)} 백엔드가 서버 오류를 주면 탈퇴하기가 ${WITHDRAW_ACTION}에서 /me?error=withdraw-failed로 303을 반환함`, async ({
+		page,
+		context,
+	}) => {
+		test.skip(!STUB_ON(), STUB_SKIP_REASON);
+		await setStubMode(context, "serverError");
+		const response = await submitWithdraw(page);
+		expect(response.status()).toBe(303);
+		expect(response.headers().location).toBe("/me?error=withdraw-failed");
 	});
 
-	test(`${caseId("A8", a8Number++)} Origin이 없는 직접 POST는 ${WITHDRAW_ACTION}가 403을 반환함`, async ({
+	test(`${caseId("A8", 10)} 백엔드가 성공하면 탈퇴하기가 ${WITHDRAW_ACTION}에서 세션 쿠키 삭제를 옮겨 담아 홈으로 303을 반환하고 화면이 홈으로 이동함`, async ({
 		page,
+		context,
 	}) => {
-		const response = await page.request.post(WITHDRAW_ACTION, {
-			maxRedirects: 0,
-		});
-		expect(response.status()).toBe(403);
+		test.skip(!STUB_ON(), STUB_SKIP_REASON);
+		await setStubMode(context, "ok");
+		const response = await submitWithdraw(page);
+		expect(response.status()).toBe(303);
+		expect(response.headers().location).toBe("/");
+		// 브라우저가 감추는 Set-Cookie까지 읽으려면 allHeaders를 씀
+		expect((await response.allHeaders())["set-cookie"]).toContain(
+			STUB_DELETED_SESSION,
+		);
+		await expect(page).toHaveURL("/");
+	});
+
+	test(`${caseId("A8", 11)} 백엔드가 401이면 탈퇴하기가 ${WITHDRAW_ACTION}에서 로그인 화면(/login?next=%2Fme)으로 303을 반환함`, async ({
+		page,
+		context,
+	}) => {
+		test.skip(!STUB_ON(), STUB_SKIP_REASON);
+		await setStubMode(context, "unauthorized");
+		const response = await submitWithdraw(page);
+		expect(response.status()).toBe(303);
+		expect(response.headers().location).toBe("/login?next=%2Fme");
 	});
 });
 
 // 커밋 9: 화면 폭이 lg(1280) 경계를 넘으면 열려 있던 확인 창이 닫히고, 다시 열면 넘은 쪽 모양으로 열림 (A8)
+// 테마와 상관없는 동작이라 라이트 한 벌만 돌림
+const LIGHT_ONLY = ["light"] as const;
 const LG_BELOW = { width: 1279, height: 900 };
 const LG_ABOVE = { width: 1280, height: 900 };
 
-for (const theme of THEMES) {
+for (const theme of LIGHT_ONLY) {
 	test.describe(`${theme} 탈퇴 확인 창 lg 경계`, () => {
 		test.use({ viewport: LG_BELOW, colorScheme: theme });
 		test.skip(
@@ -1858,15 +1823,15 @@ for (const theme of THEMES) {
 
 		async function clickWithdraw(page: Page) {
 			await page
-				.getByRole("button", { name: POLICY_TEXT.withdraw, exact: true })
+				.getByRole("button", { name: WITHDRAW_TEXT.withdraw, exact: true })
 				.click();
 			const dialog = page.getByRole("dialog");
 			await expect(dialog).toHaveCount(1);
-			await page.waitForTimeout(700);
+			await waitForAnimations(page);
 			return dialog;
 		}
 
-		test(`${caseId("A8", a8Number++)} ${theme} 1279에서 연 바텀시트가 1280으로 넘으면 닫히고, 다시 열면 가운데 대화상자임`, async ({
+		test(`${caseId("A8", 12)} ${theme} 1279에서 연 바텀시트가 1280으로 넘으면 닫히고, 다시 열면 가운데 대화상자임`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, "/me");
@@ -1892,7 +1857,7 @@ for (const theme of THEMES) {
 			);
 		});
 
-		test(`${caseId("A8", a8Number++)} ${theme} 1280에서 연 대화상자가 1279로 넘으면 닫히고, 다시 열면 화면 아래 바텀시트임`, async ({
+		test(`${caseId("A8", 13)} ${theme} 1280에서 연 대화상자가 1279로 넘으면 닫히고, 다시 열면 화면 아래 바텀시트임`, async ({
 			page,
 		}) => {
 			await page.setViewportSize(LG_ABOVE);
@@ -1914,4 +1879,46 @@ for (const theme of THEMES) {
 			);
 		});
 	});
+}
+
+// 탈퇴 확인 창의 딤은 sticky 헤더, 푸터, 하단 내비게이션, 양옆 하늘빛 배경까지 덮어야 함
+for (const viewport of [MOBILE, { width: 768, height: 1024 }, DESKTOP]) {
+	for (const theme of LIGHT_ONLY) {
+		test.describe(`${viewport.width}x${viewport.height} ${theme} 탈퇴 확인 창 딤`, () => {
+			test.use({ viewport, colorScheme: theme });
+			test.skip(
+				process.env.TC_SESSION !== "in",
+				"로그인 TC는 TC_SESSION=in일 때만 돌림",
+			);
+
+			test(`${caseId("A8", 14)} ${viewport.width} ${theme} 확인 창이 열리면 딤이 헤더와 ${viewport === DESKTOP ? "양옆 하늘빛 배경" : "푸터와 하단 내비게이션"}까지 덮음`, async ({
+				page,
+			}) => {
+				await gotoAndSettle(page, "/me");
+				await page
+					.getByRole("button", { name: WITHDRAW_TEXT.withdraw, exact: true })
+					.click();
+				await expect(page.getByRole("dialog")).toHaveCount(1);
+				await waitForAnimations(page);
+				expect(await isDimmedAt(page, viewport.width / 2, 10)).toBe(true);
+				expect(await isDimmedAt(page, 5, 10)).toBe(true);
+				if (viewport === DESKTOP) {
+					expect(await isDimmedAt(page, 5, viewport.height / 2)).toBe(true);
+					return;
+				}
+				// 폭 768에서 x 5는 흰 열 바깥(하늘빛 배경)이라 열 가운데 x로 확인함
+				const columnCenter = viewport.width / 2;
+				expect(await isDimmedAt(page, columnCenter, viewport.height - 10)).toBe(
+					true,
+				);
+				expect(
+					await isDimmedAt(
+						page,
+						columnCenter,
+						viewport.height - BOTTOM_NAV_HEIGHT - 10,
+					),
+				).toBe(true);
+			});
+		});
+	}
 }

@@ -23,8 +23,8 @@ interface DealHistorySectionProps {
  * - 이전 건물 거래가 있으면 현재 건물 목록 아래에 이전 건물 목록 출력
  * - 모바일은 흰 영역, 데스크톱은 테두리가 있는 카드로 출력
  *
- * @param layout 섹션 모양과 `id` 접미사를 정함
- * @param rentDealBaseMonth 그래프 가로축의 끝 연도를 정함
+ * @param layout 섹션 모양과 `id` 접미사 결정
+ * @param rentDealBaseMonth 그래프 가로축의 끝 연도 결정
  */
 export default function DealHistorySection({
 	layout,

@@ -1,6 +1,13 @@
-import type { ConfirmedDateNoticeStyle } from "@/pages/building/model/confirmedDateNoticeStyle";
+import type { BoxProps, IconProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface ConfirmedDateNoticeStyle {
+	notice: BoxProps;
+	iconCell: BoxProps;
+	icon: Omit<IconProps, "svg">;
+	text: TextProps;
+}
 
 export const confirmedDateNoticeStyles =
 	defineResponsiveStyles<ConfirmedDateNoticeStyle>({

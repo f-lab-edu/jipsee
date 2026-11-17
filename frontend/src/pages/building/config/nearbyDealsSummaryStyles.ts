@@ -1,6 +1,13 @@
-import type { NearbyDealsSummaryStyle } from "@/pages/building/model/nearbyDealsSummaryStyle";
+import type { HStackProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface NearbyDealsSummaryStyle {
+	summary: HStackProps;
+	count: TextProps;
+	countValue: TextProps;
+	baseMonth: TextProps;
+}
 
 export const nearbyDealsSummaryStyles =
 	defineResponsiveStyles<NearbyDealsSummaryStyle>({

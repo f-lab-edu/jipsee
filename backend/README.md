@@ -27,3 +27,5 @@ Spring Boot 4, Java 25, MySQL 8.4
 Docker를 실행한 상태에서 `cd backend && ./gradlew build`
 
 테스트는 Testcontainers MySQL에 `backend/schema`의 SQL을 Flyway로 적용한 뒤 실행함. 다른 폴더를 쓰려면 `SCHEMA_DIR=<스키마 폴더 절대 경로>`를 지정함
+
+운영 실행은 `infra/README.md`를 따름

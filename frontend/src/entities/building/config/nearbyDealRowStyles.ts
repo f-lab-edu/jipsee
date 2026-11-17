@@ -1,5 +1,15 @@
-import type { NearbyDealRowStyle } from "@/entities/building/model/nearbyDealRowStyle";
+import type { BoxProps, GridProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface NearbyDealRowStyle {
+	row: GridProps;
+	cell: BoxProps;
+	amountCell: BoxProps;
+	name: TextProps;
+	date: TextProps;
+	area: TextProps;
+	amount: TextProps;
+}
 
 export const nearbyDealRowStyles: NearbyDealRowStyle = {
 	row: {

@@ -1,6 +1,23 @@
-import type { IntroLayoutStyle } from "@/pages/home/model/introLayoutStyle";
+import type {
+	BoxProps,
+	FlexProps,
+	TextProps,
+	VStackProps,
+} from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+
+export interface IntroLayoutStyle {
+	background: BoxProps;
+	titleRow?: FlexProps;
+	titleBlock: VStackProps;
+	illustrationCell?: FlexProps;
+	title: TextProps;
+	description: TextProps;
+	chips: FlexProps;
+	chip: BoxProps;
+	chipLabel: TextProps;
+}
 
 export const introLayoutStyles = defineResponsiveStyles<IntroLayoutStyle>({
 	mobile: {

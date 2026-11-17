@@ -3,8 +3,11 @@
 // S6 치수와 색(P6)은 캔버스 S6 보드 6장과 다크 짝(S6TermsMobile 등, 캔버스 https://claude.ai/artifact/CqbqcKedWvYUEwqB77ZKj6 "S6 정책")에서 가져옴. 보드가 설계 문서와 다르면 보드를 따름
 // 본문 글자는 config 데이터와 화면의 개수와 일치만 확인함(정식 본문으로 바뀌면 config만 바꿈)
 // Seed fontWeight에 600이 없어 보드의 글자 굵기 600은 700으로 확인함
-// 로그인 상태 TC는 sessionMock이 { provider: "KAKAO" }일 때만 의미가 있어 TC_SESSION=in일 때만 돌림. 로그아웃 전제 TC는 TC_SESSION=in이면 건너뜀
+// 로그인 상태 TC는 TC_SESSION=in일 때만 돌림. 로그인 상태는 쿠키로 정함(e2e/support/mockStorageState.ts). 로그아웃 전제 TC는 TC_SESSION=in이면 건너뜀
 import { expect, type Page } from "@playwright/test";
+import { dataSourceBaseMonthsMock } from "../src/entities/dataSource/api/dataSourceBaseMonthsMock";
+import { dataSourceInfos } from "../src/entities/dataSource/config/dataSourceInfos";
+import { dataSourcesCopy } from "../src/pages/policy/config/dataSourcesCopy";
 import { privacyDocument } from "../src/pages/policy/config/privacyDocument";
 import { termsDocument } from "../src/pages/policy/config/termsDocument";
 import { parseColor } from "./support/buildingDetail/parseColor";
@@ -17,6 +20,8 @@ import { readBox } from "./support/policy/readBox";
 import { readStyle } from "./support/policy/readStyle";
 import { test } from "./support/test";
 import { DESKTOP, MOBILE } from "./support/viewports";
+import { waitForHydration } from "./support/waitForHydration";
+import { waitForScrollEnd } from "./support/waitForScrollEnd";
 
 const SCREENS = [
 	{ label: "모바일", viewport: MOBILE, layout: "mobile" },
@@ -30,31 +35,18 @@ const PRIVACY = { path: "/policies/privacy", title: "개인정보처리방침" }
 const DATA_SOURCES = { path: "/policies/data-sources", title: "데이터 출처" };
 const ALL_PAGES = [TERMS, PRIVACY, DATA_SOURCES];
 
-// 와이어프레임 처리방침 목차 10개와 기획서 이용약관 항목명 7개
-const PRIVACY_TOC = [
-	"처리 목적",
-	"처리 항목",
-	"보유 기간, 파기",
-	"처리 위탁",
-	"국외 이전",
-	"쿠키",
-	"정보주체 권리",
-	"안전성 확보 조치",
-	"보호책임자",
-	"변경",
-];
-const TERMS_TOC = [
-	"서비스 내용",
-	"회원",
-	"이용 제한",
-	"데이터 한계",
-	"챗봇",
-	"책임",
-	"변경, 분쟁",
-];
+// 목차 항목명은 본문 데이터의 조항 제목임. 기획서와 와이어프레임의 항목명과 같은지는 단위 테스트(policyDocuments.test.ts)가 확인함
 const DOCUMENTS = [
-	{ ...TERMS, toc: TERMS_TOC, data: termsDocument },
-	{ ...PRIVACY, toc: PRIVACY_TOC, data: privacyDocument },
+	{
+		...TERMS,
+		data: termsDocument,
+		toc: termsDocument.clauses.map((clause) => clause.title),
+	},
+	{
+		...PRIVACY,
+		data: privacyDocument,
+		toc: privacyDocument.clauses.map((clause) => clause.title),
+	},
 ];
 
 const DRAFT_NOTICE =
@@ -62,32 +54,34 @@ const DRAFT_NOTICE =
 const DATA_SOURCES_DRAFT_NOTICE =
 	"임시로 적은 안내예요. 정식 안내가 나오면 내용이 바뀔 수 있어요";
 
-// 본문 문서 3.2절 표(1단계 카드 세 장)
-const CARDS = [
-	{
-		name: "연립다세대 전월세 실거래",
-		provider: "국토교통부, 공공데이터포털",
-		update: "매일 갱신, 2026.09 기준",
-		href: "https://www.data.go.kr/data/15126473/openapi.do",
-	},
-	{
-		name: "연립다세대 매매 실거래",
-		provider: "국토교통부, 공공데이터포털",
-		update: "매일 갱신, 2026.09 기준",
-		href: "https://www.data.go.kr/data/15126467/openapi.do",
-	},
-	{
-		name: "건축물대장 표제부",
-		provider: "국토교통부 건축HUB",
-		update: "매월 갱신, 2026.09 기준",
-		href: "https://www.data.go.kr/data/15134735/openapi.do",
-	},
-];
-// 본문 문서 3.1절. 첫 줄은 S2 확정일자 안내 문장과 같음
+// 카드 세 장의 데이터명, 제공 기관, 원본 링크는 고정 값 설정(dataSourceInfos)에서, 기준 월은 목업 기준 월에서 가져옴. 문구가 본문 문서 3.2절 표와 같은지는 단위 테스트(dataSourceInfos.test.ts)가 확인함
+const BASE_MONTHS = new Map(
+	dataSourceBaseMonthsMock.map((row) => [row.source, row.baseMonth]),
+);
+const CARDS = dataSourceInfos
+	.filter((info) => !info.hidden)
+	.map((info) => {
+		const base = BASE_MONTHS.get(info.source);
+		const baseText = base
+			? `, ${base.year}.${String(base.month).padStart(2, "0")} 기준`
+			: "";
+		return {
+			name: info.name,
+			provider: info.provider,
+			update: `${info.updateCycle} 갱신${baseText}`,
+			href: info.originalUrl,
+		};
+	});
+// 한계 안내 세 줄은 본문 문서 3.1절. 단위 테스트(dataSourcesCopy.test.ts)가 문구를 확인함
+const {
+	prefix,
+	linkLabel,
+	suffix,
+	href: PRICE_HREF,
+} = dataSourcesCopy.priceNotice;
 const LIMIT_LINES = [
-	"확정일자를 기준으로 수집한 거래예요. 최근 1~2개월 거래는 일부 빠져 있을 수 있어요",
-	"거래가 공개되기까지 시간이 걸려 늦게 나타나는 거래도 있어요",
-	"공시가격은 직접 보여 주지 않아요. 부동산공시가격 알리미에서 확인해 주세요",
+	...dataSourcesCopy.noticeLines,
+	`${prefix}${linkLabel}${suffix}`,
 ];
 
 async function expectVisibleHeading(page: Page, title: string) {
@@ -104,324 +98,300 @@ for (const { label, viewport, layout } of SCREENS) {
 			test.use({ viewport, colorScheme: theme });
 			const token = TOKENS[theme];
 
-			// P1 라우트와 메타데이터
-			for (const { path, title } of ALL_PAGES) {
-				test(`${caseId("P1", 1)} ${label} ${theme} ${path}는 200이고 콘솔 오류가 없음`, async ({
-					page,
-				}) => {
-					expect(await gotoAndSettle(page, path)).toBe(200);
-				});
-
-				test(`${caseId("P1", 3)} ${label} ${theme} ${path}의 보이는 h1은 ${title} 하나임`, async ({
-					page,
-				}) => {
-					await gotoAndSettle(page, path);
-					await expectVisibleHeading(page, title);
-				});
-
-				test(`${caseId("P1", 5)} ${label} ${theme} ${path}에 id 중복이 없음`, async ({
-					page,
-				}) => {
-					await gotoAndSettle(page, path);
-					const duplicates = await page.evaluate(() => {
-						const ids = [...document.querySelectorAll("[id]")].map(
-							(element) => element.id,
-						);
-						return ids.filter((id, index) => ids.indexOf(id) !== index);
-					});
-					expect(duplicates).toEqual([]);
-				});
-			}
-
-			if (isMobile && theme === "light") {
+			// 테마와 상관없는 구조, 문구, 동작 TC는 라이트 한 벌만 돌림. 색을 확인하는 P5, P6-01은 두 테마로 돌림
+			if (theme === "light") {
+				// P1 라우트와 메타데이터
 				for (const { path, title } of ALL_PAGES) {
-					test(`${caseId("P1", 2)} 모바일 ${path}의 문서 제목이 ${title} | 집씨임`, async ({
+					test(`${caseId("P1", 1)} ${label} ${path}는 200이고 콘솔 오류가 없음`, async ({
+						page,
+					}) => {
+						expect(await gotoAndSettle(page, path)).toBe(200);
+					});
+
+					test(`${caseId("P1", 3)} ${label} ${path}의 보이는 h1은 ${title} 하나임`, async ({
 						page,
 					}) => {
 						await gotoAndSettle(page, path);
-						await expect(page).toHaveTitle(`${title} | 집씨`);
+						await expectVisibleHeading(page, title);
 					});
 
-					test(`${caseId("P1", 6)} 모바일 ${path}는 390과 320 폭에서 가로 스크롤이 없음`, async ({
+					test(`${caseId("P1", 5)} ${label} ${path}에 id 중복이 없음`, async ({
 						page,
 					}) => {
-						for (const width of [390, 320]) {
-							await page.setViewportSize({ width, height: 844 });
-							await gotoAndSettle(page, path);
-							const scrollWidth = await page.evaluate(
-								() => document.documentElement.scrollWidth,
+						await gotoAndSettle(page, path);
+						const duplicates = await page.evaluate(() => {
+							const ids = [...document.querySelectorAll("[id]")].map(
+								(element) => element.id,
 							);
-							expect(scrollWidth).toBeLessThanOrEqual(width);
-						}
+							return ids.filter((id, index) => ids.indexOf(id) !== index);
+						});
+						expect(duplicates).toEqual([]);
 					});
 				}
 
-				test(`${caseId("P1", 4)} 모바일 /policies/unknown은 404임`, async ({
-					page,
-				}) => {
-					expect(await gotoAndSettle(page, "/policies/unknown")).toBe(404);
-				});
-			}
+				if (isMobile && theme === "light") {
+					for (const { path, title } of ALL_PAGES) {
+						test(`${caseId("P1", 2)} 모바일 ${path}의 문서 제목이 ${title} | 집씨임`, async ({
+							page,
+						}) => {
+							await gotoAndSettle(page, path);
+							await expect(page).toHaveTitle(`${title} | 집씨`);
+						});
 
-			// P1-03 모바일은 본문 첫 줄 h1, 데스크톱은 열 맨 위 h1
-			for (const { path, title } of ALL_PAGES) {
-				test(`${caseId("P1", 3)} ${label} ${theme} ${path}의 h1이 ${isMobile ? "본문 첫 줄" : "열 맨 위"}에 있음`, async ({
+						test(`${caseId("P1", 6)} 모바일 ${path}는 390과 320 폭에서 가로 스크롤이 없음`, async ({
+							page,
+						}) => {
+							for (const width of [390, 320]) {
+								await page.setViewportSize({ width, height: 844 });
+								await gotoAndSettle(page, path);
+								const scrollWidth = await page.evaluate(
+									() => document.documentElement.scrollWidth,
+								);
+								expect(scrollWidth).toBeLessThanOrEqual(width);
+							}
+						});
+					}
+
+					test(`${caseId("P1", 4)} 모바일 /policies/unknown은 404임`, async ({
+						page,
+					}) => {
+						expect(await gotoAndSettle(page, "/policies/unknown")).toBe(404);
+					});
+				}
+
+				// P1-07 모바일은 본문 첫 줄 h1, 데스크톱은 열 맨 위 h1
+				for (const { path, title } of ALL_PAGES) {
+					test(`${caseId("P1", 7)} ${label} ${path}의 h1이 ${isMobile ? "본문 첫 줄" : "열 맨 위"}에 있음`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, path);
+						const heading = page.locator("h1:visible");
+						await expect(heading).toHaveText(title);
+						const main = await page.locator('[data-area="main"]').boundingBox();
+						const box = await heading.boundingBox();
+						expect(box?.y ?? 0).toBeGreaterThanOrEqual(main?.y ?? 0);
+						// 제목 위에는 위 여백 20(모바일) 또는 40(데스크톱)만 있음
+						expect((box?.y ?? 0) - (main?.y ?? 0)).toBeLessThanOrEqual(
+							isMobile ? 24 : 48,
+						);
+					});
+				}
+
+				// P2 링크 연결
+				test(`${caseId("P2", 1)} ${label} 푸터 링크가 세 경로로 이동하고 h1이 맞음`, async ({
 					page,
 				}) => {
-					await gotoAndSettle(page, path);
-					const heading = page.locator("h1:visible");
-					await expect(heading).toHaveText(title);
-					const main = await page.locator('[data-area="main"]').boundingBox();
-					const box = await heading.boundingBox();
-					expect(box?.y ?? 0).toBeGreaterThanOrEqual(main?.y ?? 0);
-					// 제목 위에는 위 여백 20(모바일) 또는 40(데스크톱)만 있음
-					expect((box?.y ?? 0) - (main?.y ?? 0)).toBeLessThanOrEqual(
-						isMobile ? 24 : 48,
+					for (const { path, title } of ALL_PAGES) {
+						await gotoAndSettle(page, "/");
+						await page
+							.getByTestId(`footer-${layout}`)
+							.getByRole("link", { name: title, exact: true })
+							.click();
+						await expect(page).toHaveURL(path);
+						await expectVisibleHeading(page, title);
+					}
+				});
+
+				// P3 문서 화면
+				for (const { path, title, toc, data } of DOCUMENTS) {
+					const body = (page: Page) =>
+						page.getByTestId(`policy-body-${layout}`);
+					const tocNav = (page: Page) =>
+						body(page).getByRole("navigation", { name: "목차" });
+
+					test(`${caseId("P3", 1)} ${label} ${title} 시행일 줄이 시행일 2026.11.12이고 이전 버전 링크가 없음`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, path);
+						await expect(
+							page.locator(`[data-area="policy-effective-date-${layout}"]`),
+						).toHaveText("시행일 2026.11.12");
+						await expect(
+							page.getByRole("link", { name: /이전 버전/ }),
+						).toHaveCount(0);
+					});
+
+					test(`${caseId("P3", toc.length === 10 ? 2 : 3)} ${label} ${title} 목차가 nav 안 ol이고 항목 ${toc.length}개의 순서와 문구가 맞음`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, path);
+						const items = tocNav(page).locator("ol > li");
+						await expect(items).toHaveCount(toc.length);
+						await expect(items).toHaveText(
+							toc.map((name, index) => `${index + 1}.${name}`),
+						);
+					});
+
+					test(`${caseId("P3", 4)} ${label} ${title} 목차 항목과 조항 h2가 개수와 문구가 같음`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, path);
+						const headings = body(page).locator("h2");
+						await expect(headings).toHaveCount(toc.length);
+						await expect(headings).toHaveText(
+							toc.map((name, index) => `${index + 1}. ${name}`),
+						);
+					});
+
+					test(`${caseId("P3", 5)} ${label} ${title} 목차 항목을 누르면 해시가 조항 id가 되고 제목이 고정 헤더에 가리지 않음`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, path);
+						for (const order of [3, toc.length]) {
+							await tocNav(page)
+								.getByRole("link", { name: toc[order - 1], exact: true })
+								.click();
+							await expect(page).toHaveURL(
+								new RegExp(`#clause-${order}-${layout}$`),
+							);
+							await waitForScrollEnd(page);
+							const heading = await page
+								.locator(`#clause-${order}-${layout}-title`)
+								.boundingBox();
+							const header = await page.locator("header").boundingBox();
+							expect(heading?.y ?? 0).toBeGreaterThanOrEqual(
+								(header?.y ?? 0) + (header?.height ?? 0),
+							);
+							expect(
+								(heading?.y ?? 0) + (heading?.height ?? 0),
+							).toBeLessThanOrEqual(viewport.height);
+						}
+					});
+
+					test(`${caseId("P3", 8)} ${label} ${title} 로그인하지 않아도 열리고 로그인 화면으로 보내지 않음`, async ({
+						page,
+					}) => {
+						test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
+						await gotoAndSettle(page, path);
+						expect(new URL(page.url()).pathname).toBe(path);
+					});
+
+					test(`${caseId("P3", 9)} ${label} ${title} 조항별 문단 수가 본문 데이터와 같음`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, path);
+						for (const [index, clause] of data.clauses.entries()) {
+							const paragraphCount = clause.blocks.filter(
+								(block) => block.kind === "paragraph",
+							).length;
+							await expect(
+								page.locator(
+									`[data-area="policy-clause-${layout}-${index + 1}"] p`,
+								),
+							).toHaveCount(paragraphCount);
+						}
+					});
+
+					test(`${caseId("P3", 10)} ${label} ${title} 시행일 줄 위에 임시 초안 안내가 보임`, async ({
+						page,
+					}) => {
+						await gotoAndSettle(page, path);
+						const notice = page.locator(
+							`[data-area="policy-draft-notice-${layout}"]`,
+						);
+						await expect(notice).toHaveText(DRAFT_NOTICE);
+						const noticeBox = await notice.boundingBox();
+						const dateBox = await page
+							.locator(`[data-area="policy-effective-date-${layout}"]`)
+							.boundingBox();
+						expect(
+							(noticeBox?.y ?? 0) + (noticeBox?.height ?? 0),
+						).toBeLessThanOrEqual(dateBox?.y ?? 0);
+					});
+				}
+
+				// P4 데이터 출처 화면
+				const cards = (page: Page) =>
+					page.locator(`[data-area^="data-source-card-${layout}-"]`);
+
+				test(`${caseId("P4", 1)} ${label} 카드가 전월세, 매매, 표제부 순서로 세 장이고 다른 출처 카드는 없음`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, DATA_SOURCES.path);
+					await expect(cards(page)).toHaveCount(3);
+					await expect(cards(page).locator("h2")).toHaveText(
+						CARDS.map((card) => card.name),
 					);
-				});
-			}
-
-			// P2 링크 연결
-			test(`${caseId("P2", 1)} ${label} ${theme} 푸터 링크가 세 경로로 이동하고 h1이 맞음`, async ({
-				page,
-			}) => {
-				for (const { path, title } of ALL_PAGES) {
-					await gotoAndSettle(page, "/");
-					await page
-						.getByTestId(`footer-${layout}`)
-						.getByRole("link", { name: title, exact: true })
-						.click();
-					await expect(page).toHaveURL(path);
-					await expectVisibleHeading(page, title);
-				}
-			});
-
-			test(`${caseId("P2", 3)} ${label} ${theme} 내 정보의 정책 목록 링크가 세 경로로 이동하고 h1이 맞음`, async ({
-				page,
-			}) => {
-				test.skip(!LOGGED_IN, "로그인 상태 TC는 TC_SESSION=in일 때만 돌림");
-				for (const { path, title } of ALL_PAGES) {
-					await gotoAndSettle(page, "/me");
-					await page
-						.locator(`[data-area="policy-section-${layout}"]`)
-						.getByRole("link", { name: title, exact: true })
-						.click();
-					await expect(page).toHaveURL(path);
-					await expectVisibleHeading(page, title);
-				}
-			});
-
-			// P3 문서 화면
-			for (const { path, title, toc, data } of DOCUMENTS) {
-				const body = (page: Page) => page.getByTestId(`policy-body-${layout}`);
-				const tocNav = (page: Page) =>
-					body(page).getByRole("navigation", { name: "목차" });
-
-				test(`${caseId("P3", 1)} ${label} ${theme} ${title} 시행일 줄이 시행일 2026.11.12이고 이전 버전 링크가 없음`, async ({
-					page,
-				}) => {
-					await gotoAndSettle(page, path);
 					await expect(
-						page.locator(`[data-area="policy-effective-date-${layout}"]`),
-					).toHaveText("시행일 2026.11.12");
-					await expect(
-						page.getByRole("link", { name: /이전 버전/ }),
+						page
+							.getByTestId(`data-sources-body-${layout}`)
+							.getByText(/법령|좌표/),
 					).toHaveCount(0);
 				});
 
-				test(`${caseId("P3", toc.length === 10 ? 2 : 3)} ${label} ${theme} ${title} 목차가 nav 안 ol이고 항목 ${toc.length}개의 순서와 문구가 맞음`, async ({
+				test(`${caseId("P4", 2)} ${label} 카드의 데이터명과 제공 기관이 본문 문서 표와 같음`, async ({
 					page,
 				}) => {
-					await gotoAndSettle(page, path);
-					const items = tocNav(page).locator("ol > li");
-					await expect(items).toHaveCount(toc.length);
-					await expect(items).toHaveText(
-						toc.map((name, index) => `${index + 1}.${name}`),
-					);
-				});
-
-				test(`${caseId("P3", 4)} ${label} ${theme} ${title} 목차 항목과 조항 h2가 개수와 문구가 같음`, async ({
-					page,
-				}) => {
-					await gotoAndSettle(page, path);
-					const headings = body(page).locator("h2");
-					await expect(headings).toHaveCount(toc.length);
-					await expect(headings).toHaveText(
-						toc.map((name, index) => `${index + 1}. ${name}`),
-					);
-				});
-
-				test(`${caseId("P3", 5)} ${label} ${theme} ${title} 목차 항목을 누르면 해시가 조항 id가 되고 제목이 고정 헤더에 가리지 않음`, async ({
-					page,
-				}) => {
-					await gotoAndSettle(page, path);
-					for (const order of [3, toc.length]) {
-						await tocNav(page)
-							.getByRole("link", { name: toc[order - 1], exact: true })
-							.click();
-						await expect(page).toHaveURL(
-							new RegExp(`#clause-${order}-${layout}$`),
+					await gotoAndSettle(page, DATA_SOURCES.path);
+					for (const [index, card] of CARDS.entries()) {
+						const item = page.locator(
+							`[data-area="data-source-card-${layout}-${index + 1}"]`,
 						);
-						await page.waitForTimeout(300);
-						const heading = await page
-							.locator(`#clause-${order}-${layout}-title`)
-							.boundingBox();
-						const header = await page.locator("header").boundingBox();
-						expect(heading?.y ?? 0).toBeGreaterThanOrEqual(
-							(header?.y ?? 0) + (header?.height ?? 0),
-						);
-						expect(
-							(heading?.y ?? 0) + (heading?.height ?? 0),
-						).toBeLessThanOrEqual(viewport.height);
+						await expect(item).toContainText(card.name);
+						await expect(item).toContainText(card.provider);
 					}
 				});
 
-				test(`${caseId("P3", 8)} ${label} ${theme} ${title} 로그인하지 않아도 열리고 로그인 화면으로 보내지 않음`, async ({
+				test(`${caseId("P4", 3)} ${label} 카드에 갱신 주기와 기준 월 줄이 나옴`, async ({
 					page,
 				}) => {
-					test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
-					await gotoAndSettle(page, path);
-					expect(new URL(page.url()).pathname).toBe(path);
-				});
-
-				test(`${caseId("P3", 9)} ${label} ${theme} ${title} 조항별 문단 수가 본문 데이터와 같음`, async ({
-					page,
-				}) => {
-					await gotoAndSettle(page, path);
-					for (const [index, clause] of data.clauses.entries()) {
-						const paragraphCount = clause.blocks.filter(
-							(block) => block.kind === "paragraph",
-						).length;
+					await gotoAndSettle(page, DATA_SOURCES.path);
+					for (const [index, card] of CARDS.entries()) {
 						await expect(
 							page.locator(
-								`[data-area="policy-clause-${layout}-${index + 1}"] p`,
+								`[data-area="data-source-card-${layout}-${index + 1}"]`,
 							),
-						).toHaveCount(paragraphCount);
+						).toContainText(card.update);
 					}
 				});
 
-				test(`${caseId("P3", 10)} ${label} ${theme} ${title} 시행일 줄 위에 임시 초안 안내가 보임`, async ({
+				test(`${caseId("P4", 4)} ${label} 임시 초안 안내가 한계 안내 위에 보임`, async ({
 					page,
 				}) => {
-					await gotoAndSettle(page, path);
+					await gotoAndSettle(page, DATA_SOURCES.path);
 					const notice = page.locator(
-						`[data-area="policy-draft-notice-${layout}"]`,
+						`[data-area="data-sources-draft-notice-${layout}"]`,
 					);
-					await expect(notice).toHaveText(DRAFT_NOTICE);
+					await expect(notice).toHaveText(DATA_SOURCES_DRAFT_NOTICE);
 					const noticeBox = await notice.boundingBox();
-					const dateBox = await page
-						.locator(`[data-area="policy-effective-date-${layout}"]`)
+					const limitBox = await page
+						.locator(`[data-area="data-sources-notice-${layout}"]`)
 						.boundingBox();
 					expect(
 						(noticeBox?.y ?? 0) + (noticeBox?.height ?? 0),
-					).toBeLessThanOrEqual(dateBox?.y ?? 0);
+					).toBeLessThanOrEqual(limitBox?.y ?? 0);
+				});
+
+				test(`${caseId("P4", 5)} ${label} 카드마다 원본 링크가 새 탭 속성과 본문 문서의 주소로 걸림`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, DATA_SOURCES.path);
+					for (const [index, card] of CARDS.entries()) {
+						const link = page
+							.locator(`[data-area="data-source-card-${layout}-${index + 1}"]`)
+							.getByRole("link", { name: /원본/ });
+						await expect(link).toHaveAttribute("href", card.href);
+						await expect(link).toHaveAttribute("target", "_blank");
+						await expect(link).toHaveAttribute("rel", /noopener/);
+						await expect(link).toHaveAttribute("rel", /noreferrer/);
+					}
+				});
+
+				test(`${caseId("P4", 6)} ${label} 한계 안내 세 줄이 본문 문서와 같고 공시가격 링크가 realtyprice.kr임`, async ({
+					page,
+				}) => {
+					await gotoAndSettle(page, DATA_SOURCES.path);
+					const notice = page.locator(
+						`[data-area="data-sources-notice-${layout}"]`,
+					);
+					await expect(notice.locator("li")).toHaveText(LIMIT_LINES);
+					const link = notice.getByRole("link", {
+						name: linkLabel,
+					});
+					await expect(link).toHaveAttribute("href", PRICE_HREF);
+					await expect(link).toHaveAttribute("target", "_blank");
 				});
 			}
-
-			test(`${caseId("P3", 9)} ${label} ${theme} 개인정보처리방침 조항 5에 이전받는 자 네 곳이 나옴`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, PRIVACY.path);
-				const clause = page.locator(`[data-area="policy-clause-${layout}-5"]`);
-				for (const name of ["Oracle", "Anthropic", "Cloudflare", "Sentry"]) {
-					await expect(clause).toContainText(name);
-				}
-			});
-
-			// P4 데이터 출처 화면
-			const cards = (page: Page) =>
-				page.locator(`[data-area^="data-source-card-${layout}-"]`);
-
-			test(`${caseId("P4", 1)} ${label} ${theme} 카드가 전월세, 매매, 표제부 순서로 세 장이고 다른 출처 카드는 없음`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, DATA_SOURCES.path);
-				await expect(cards(page)).toHaveCount(3);
-				await expect(cards(page).locator("h2")).toHaveText(
-					CARDS.map((card) => card.name),
-				);
-				await expect(
-					page
-						.getByTestId(`data-sources-body-${layout}`)
-						.getByText(/법령|좌표/),
-				).toHaveCount(0);
-			});
-
-			test(`${caseId("P4", 2)} ${label} ${theme} 카드의 데이터명과 제공 기관이 본문 문서 표와 같음`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, DATA_SOURCES.path);
-				for (const [index, card] of CARDS.entries()) {
-					const item = page.locator(
-						`[data-area="data-source-card-${layout}-${index + 1}"]`,
-					);
-					await expect(item).toContainText(card.name);
-					await expect(item).toContainText(card.provider);
-				}
-			});
-
-			test(`${caseId("P4", 3)} ${label} ${theme} 카드에 갱신 주기와 기준 월 줄이 나옴`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, DATA_SOURCES.path);
-				for (const [index, card] of CARDS.entries()) {
-					await expect(
-						page.locator(
-							`[data-area="data-source-card-${layout}-${index + 1}"]`,
-						),
-					).toContainText(card.update);
-				}
-			});
-
-			test(`${caseId("P4", 4)} ${label} ${theme} 임시 초안 안내가 한계 안내 위에 보임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, DATA_SOURCES.path);
-				const notice = page.locator(
-					`[data-area="data-sources-draft-notice-${layout}"]`,
-				);
-				await expect(notice).toHaveText(DATA_SOURCES_DRAFT_NOTICE);
-				const noticeBox = await notice.boundingBox();
-				const limitBox = await page
-					.locator(`[data-area="data-sources-notice-${layout}"]`)
-					.boundingBox();
-				expect(
-					(noticeBox?.y ?? 0) + (noticeBox?.height ?? 0),
-				).toBeLessThanOrEqual(limitBox?.y ?? 0);
-			});
-
-			test(`${caseId("P4", 5)} ${label} ${theme} 카드마다 원본 링크가 새 탭 속성과 본문 문서의 주소로 걸림`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, DATA_SOURCES.path);
-				for (const [index, card] of CARDS.entries()) {
-					const link = page
-						.locator(`[data-area="data-source-card-${layout}-${index + 1}"]`)
-						.getByRole("link", { name: /원본/ });
-					await expect(link).toHaveAttribute("href", card.href);
-					await expect(link).toHaveAttribute("target", "_blank");
-					await expect(link).toHaveAttribute("rel", /noopener/);
-					await expect(link).toHaveAttribute("rel", /noreferrer/);
-				}
-			});
-
-			test(`${caseId("P4", 6)} ${label} ${theme} 한계 안내 세 줄이 본문 문서와 같고 공시가격 링크가 realtyprice.kr임`, async ({
-				page,
-			}) => {
-				await gotoAndSettle(page, DATA_SOURCES.path);
-				const notice = page.locator(
-					`[data-area="data-sources-notice-${layout}"]`,
-				);
-				await expect(notice.locator("li")).toHaveText(LIMIT_LINES);
-				const link = notice.getByRole("link", {
-					name: "부동산공시가격 알리미",
-				});
-				await expect(link).toHaveAttribute(
-					"href",
-					"https://www.realtyprice.kr",
-				);
-				await expect(link).toHaveAttribute("target", "_blank");
-			});
 
 			// P6 S6 캔버스 보드 치수와 색. 치수는 라이트 한 벌만 확인함
 			const size = isMobile
@@ -494,7 +464,7 @@ for (const { label, viewport, layout } of SCREENS) {
 			});
 
 			if (theme === "light") {
-				test(`${caseId("P6", 2)} ${label} ${theme} 제목 글자와 제목 아래 안내 간격이 보드와 같음`, async ({
+				test(`${caseId("P6", 2)} ${label} 제목 글자와 제목 아래 안내 간격이 보드와 같음`, async ({
 					page,
 				}) => {
 					for (const { path } of ALL_PAGES) {
@@ -517,7 +487,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					}
 				});
 
-				test(`${caseId("P6", 3)} ${label} ${theme} 문서 화면 바깥 치수가 보드와 같음`, async ({
+				test(`${caseId("P6", 3)} ${label} 문서 화면 바깥 치수가 보드와 같음`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, TERMS.path);
@@ -563,7 +533,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				});
 
 				for (const { path, title, toc } of DOCUMENTS) {
-					test(`${caseId("P6", 4)} ${label} ${theme} ${title} 목차가 보드의 ${isMobile ? "한 열" : "두 열"} 44px 행임`, async ({
+					test(`${caseId("P6", 4)} ${label} ${title} 목차가 보드의 ${isMobile ? "한 열" : "두 열"} 44px 행임`, async ({
 						page,
 					}) => {
 						await gotoAndSettle(page, path);
@@ -608,7 +578,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					});
 				}
 
-				test(`${caseId("P6", 5)} ${label} ${theme} 조항 구분선, 제목, 본문 글자가 보드와 같음`, async ({
+				test(`${caseId("P6", 5)} ${label} 조항 구분선, 제목, 본문 글자가 보드와 같음`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, TERMS.path);
@@ -648,7 +618,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					expect(sameColor(paragraph.color, token.fgNeutral)).toBe(true);
 				});
 
-				test(`${caseId("P6", 6)} ${label} ${theme} 본문 목록이 글머리 기호 목록이고 부칙이 14px임`, async ({
+				test(`${caseId("P6", 6)} ${label} 본문 목록이 글머리 기호 목록이고 부칙이 14px임`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, TERMS.path);
@@ -673,7 +643,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					]);
 				});
 
-				test(`${caseId("P6", 7)} ${label} ${theme} 처리 항목이 라벨 값 카드이고 ${isMobile ? "라벨 아래에 값이" : "160px 라벨 열 옆에 값이"} 나옴`, async ({
+				test(`${caseId("P6", 7)} ${label} 처리 항목이 라벨 값 카드이고 ${isMobile ? "라벨 아래에 값이" : "160px 라벨 열 옆에 값이"} 나옴`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, PRIVACY.path);
@@ -731,7 +701,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					expect(valueBox.x - labelBox.x).toBe(176);
 				});
 
-				test(`${caseId("P6", 8)} ${label} ${theme} 처리 위탁이 ${isMobile ? "수탁자별 카드" : "수탁자 표"}이고 국외 이전은 이전받는 자별 카드임`, async ({
+				test(`${caseId("P6", 8)} ${label} 처리 위탁이 ${isMobile ? "수탁자별 카드" : "수탁자 표"}이고 국외 이전은 이전받는 자별 카드임`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, PRIVACY.path);
@@ -805,7 +775,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					]).toEqual(["15px", "22px", "700"]);
 				});
 
-				test(`${caseId("P6", 9)} ${label} ${theme} 출처 카드 치수와 원본 링크가 보드와 같음`, async ({
+				test(`${caseId("P6", 9)} ${label} 출처 카드 치수와 원본 링크가 보드와 같음`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, DATA_SOURCES.path);
@@ -872,7 +842,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					);
 				});
 
-				test(`${caseId("P6", 10)} ${label} ${theme} 한계 안내가 테두리 상자 안 글머리 기호 목록이고 링크가 브랜드 색임`, async ({
+				test(`${caseId("P6", 10)} ${label} 한계 안내가 테두리 상자 안 글머리 기호 목록이고 링크가 브랜드 색임`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, DATA_SOURCES.path);
@@ -981,7 +951,7 @@ test.describe("모바일 390x844 light 문서 화면 동작", () => {
 				.last()
 				.getByRole("link")
 				.click();
-			await page.waitForTimeout(300);
+			await waitForScrollEnd(page);
 			const lastId = (await page.evaluate(() => location.hash)).slice(1);
 			const heading = await page.locator(`#${lastId}-title`).boundingBox();
 			const header = await page.locator("header").boundingBox();
@@ -1017,7 +987,7 @@ test.describe("모바일 390x844 light 문서 화면 동작", () => {
 			.getByRole("link", { name: "이용약관", exact: true })
 			.click();
 		await expect(page).toHaveURL(TERMS.path);
-		await page.waitForTimeout(500);
+		await waitForHydration(page);
 		await page
 			.getByTestId("header-mobile")
 			.getByRole("button", { name: "뒤로 가기" })
@@ -1039,3 +1009,53 @@ test.describe("모바일 390x844 light 문서 화면 동작", () => {
 		}
 	});
 });
+
+// 푸터 링크는 현재 문서일 때만 굵음. 현재 문서가 없는 화면에서는 모두 보통 굵기임
+const FOOTER_BOLD_CASES = [
+	{ path: "/", bold: null, loginOnly: false, logoutOnly: false },
+	{ path: "/login", bold: null, loginOnly: false, logoutOnly: true },
+	{ path: "/me", bold: null, loginOnly: true, logoutOnly: false },
+	{ path: TERMS.path, bold: TERMS.title, loginOnly: false, logoutOnly: false },
+	{
+		path: PRIVACY.path,
+		bold: PRIVACY.title,
+		loginOnly: false,
+		logoutOnly: false,
+	},
+	{
+		path: DATA_SOURCES.path,
+		bold: DATA_SOURCES.title,
+		loginOnly: false,
+		logoutOnly: false,
+	},
+] as const;
+
+for (const { label, viewport, layout } of SCREENS) {
+	test.describe(`${label} light 푸터 현재 문서 굵게`, () => {
+		test.use({ viewport, colorScheme: "light" });
+
+		for (const { path, bold, loginOnly, logoutOnly } of FOOTER_BOLD_CASES) {
+			test(`${caseId("P7", 1)} ${label} ${path}에서 푸터 링크는 ${bold ?? "없음"}만 굵음`, async ({
+				page,
+			}) => {
+				test.skip(
+					loginOnly && !LOGGED_IN,
+					"로그인 TC는 TC_SESSION=in일 때만 돌림",
+				);
+				test.skip(
+					logoutOnly && LOGGED_IN,
+					"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
+				);
+				await gotoAndSettle(page, path);
+				for (const { title } of ALL_PAGES) {
+					const weight = await page
+						.getByTestId(`footer-${layout}`)
+						.getByRole("link", { name: title, exact: true })
+						.locator("span")
+						.evaluate((element) => getComputedStyle(element).fontWeight);
+					expect(weight, `${title} 굵기`).toBe(title === bold ? "700" : "400");
+				}
+			});
+		}
+	});
+}

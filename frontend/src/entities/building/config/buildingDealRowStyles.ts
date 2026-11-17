@@ -1,5 +1,15 @@
-import type { BuildingDealRowStyle } from "@/entities/building/model/buildingDealRowStyle";
+import type { BoxProps, GridProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
+
+export interface BuildingDealRowStyle {
+	row: GridProps;
+	cell: BoxProps;
+	amountCell: BoxProps;
+	date: TextProps;
+	area: TextProps;
+	amount: TextProps;
+	cancelledAmount: TextProps;
+}
 
 export const buildingDealRowStyles: BuildingDealRowStyle = {
 	row: {

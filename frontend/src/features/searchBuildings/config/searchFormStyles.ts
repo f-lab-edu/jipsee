@@ -1,6 +1,26 @@
-import type { SearchFormStyle } from "@/features/searchBuildings/model/searchFormStyle";
+import type {
+	BoxProps,
+	HStackProps,
+	IconProps,
+	TextFieldInputProps,
+	TextFieldRootProps,
+	TextProps,
+} from "@seed-design/react";
 import type { SearchFormVariant } from "@/features/searchBuildings/model/searchFormVariant";
 import { typography } from "@/shared/config/typography";
+
+export interface SearchFormStyle {
+	row: HStackProps;
+	fieldCell: BoxProps;
+	field: TextFieldRootProps;
+	input: TextFieldInputProps;
+	leading: BoxProps;
+	leadingIcon: Omit<IconProps, "svg">;
+	iconButton: BoxProps;
+	iconButtonIcon: Omit<IconProps, "svg">;
+	textButton: BoxProps;
+	textButtonLabel: TextProps;
+}
 
 export const searchFormStyles: Record<SearchFormVariant, SearchFormStyle> = {
 	intro: {

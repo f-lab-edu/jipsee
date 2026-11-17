@@ -93,7 +93,7 @@ for (const [index, id] of [2, 3, 5].entries()) {
 		test(`${caseId("C5", 7 + index)} 모바일에서 id ${id}도 외부 링크 두 개를 같은 순서와 href로 보여줌`, async ({
 			t,
 		}) => {
-			await t.goto(`/buildings/${id}`, 400);
+			await t.goto(`/buildings/${id}`);
 			const m = await t.page.evaluate(c5MeasureLinks);
 			c5CheckLinkCommon(t, m, `id ${id}`);
 		});

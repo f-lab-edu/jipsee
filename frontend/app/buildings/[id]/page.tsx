@@ -2,16 +2,16 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { getBuildingDetail } from "@/entities/building/api/getBuildingDetail";
 import { getSession } from "@/entities/session/api/getSession";
-import { toBuildingId } from "@/pages/building/lib/toBuildingId";
 import { toBuildingTitle } from "@/pages/building/lib/toBuildingTitle";
 import { toNearbyCondition } from "@/pages/building/lib/toNearbyCondition";
 import BuildingPage from "@/pages/building/ui/BuildingPage";
+import { toPositiveId } from "@/shared/lib/ids/toPositiveId";
 import { toPageMetadata } from "@/shared/lib/metadata/toPageMetadata";
 
 /**
  * 건물 상세 > 메타데이터
  *
- * - id가 양의 정수가 아니거나 건물이 없으면 빈 메타데이터 반환
+ * - id가 양의 정수가 아니거나 건물이 없거나 요청 제한이면 빈 메타데이터 반환
  * - 있으면 건물 이름 또는 주소로 제목 생성
  */
 export async function generateMetadata(
@@ -19,19 +19,19 @@ export async function generateMetadata(
 	parent: ResolvingMetadata,
 ): Promise<Metadata> {
 	const { id } = await params;
-	const buildingId = toBuildingId(id);
+	const buildingId = toPositiveId(id);
 
 	if (buildingId === null) {
 		return {};
 	}
 
-	const detail = await getBuildingDetail(buildingId);
+	const result = await getBuildingDetail(buildingId);
 
-	if (detail === null) {
+	if (result.kind !== "found") {
 		return {};
 	}
 
-	return toPageMetadata(toBuildingTitle(detail), parent);
+	return toPageMetadata(toBuildingTitle(result.detail), parent);
 }
 
 /**
@@ -47,7 +47,7 @@ export default async function Page({
 	searchParams,
 }: PageProps<"/buildings/[id]">) {
 	const { id } = await params;
-	const buildingId = toBuildingId(id);
+	const buildingId = toPositiveId(id);
 
 	if (buildingId === null) {
 		notFound();
