@@ -2,7 +2,7 @@ package kr.jipsee.collect.config;
 
 import java.time.Clock;
 import java.time.Duration;
-import kr.jipsee.collect.client.RtmsApiClient;
+import kr.jipsee.collect.client.PublicDataApiClient;
 import kr.jipsee.global.common.TimeZones;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -31,13 +31,13 @@ public class CollectConfig {
         factory.setConnectTimeout(Duration.ofSeconds(5));
         factory.setReadTimeout(Duration.ofSeconds(30));
 
-        return RtmsApiClient.restClient(
+        return PublicDataApiClient.restClient(
                 RestClient.builder().requestFactory(factory), properties.api().baseUrl());
     }
 
     /** 재시도는 2초에서부터 시작 */
     @Bean
     RetryTemplate rtmsRetryTemplate() {
-        return RtmsApiClient.retryTemplate(Duration.ofSeconds(2));
+        return PublicDataApiClient.retryTemplate(Duration.ofSeconds(2));
     }
 }

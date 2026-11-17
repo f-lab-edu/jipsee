@@ -32,8 +32,8 @@ class RtmsRhRentClientTest {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();
         client = new RtmsRhRentClient(
-                RtmsApiClient.restClient(builder, "http://localhost/1613000"),
-                RtmsApiClient.retryTemplate(Duration.ofMillis(1)),
+                PublicDataApiClient.restClient(builder, "http://localhost/1613000"),
+                PublicDataApiClient.retryTemplate(Duration.ofMillis(1)),
                 JSON,
                 new CollectProperties(new CollectProperties.Api("http://localhost/1613000", "test-key"), null));
     }
