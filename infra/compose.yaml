@@ -28,6 +28,20 @@ services:
     restart: unless-stopped
     logging: *logging
 
+  fluent-bit:
+    image: fluent/fluent-bit:5.2.0
+    environment:
+      AWS_ACCESS_KEY_ID: ${LOGS_S3_ACCESS_KEY_ID:?LOGS_S3_ACCESS_KEY_ID is required}
+      AWS_SECRET_ACCESS_KEY: ${LOGS_S3_SECRET_ACCESS_KEY:?LOGS_S3_SECRET_ACCESS_KEY is required}
+      LOGS_S3_ENDPOINT: ${LOGS_S3_ENDPOINT:?LOGS_S3_ENDPOINT is required}
+    volumes:
+      - ./fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - /var/log/jipsee/app:/logs:ro
+      - /var/lib/jipsee/fluent-bit:/state
+    mem_limit: 64m
+    restart: unless-stopped
+    logging: *logging
+
 networks:
   db:
     external: true
