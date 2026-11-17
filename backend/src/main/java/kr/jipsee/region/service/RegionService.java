@@ -1,8 +1,10 @@
 package kr.jipsee.region.service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import kr.jipsee.region.dto.LegalDongKey;
 import kr.jipsee.region.dto.LegalDongRow;
 import kr.jipsee.region.repository.LegalDongCsvRepository;
 import org.springframework.stereotype.Service;
@@ -11,13 +13,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class RegionService {
     private final List<String> sigunguCodes;
+    private final List<LegalDongKey> legalDongKeys;
 
     public RegionService(LegalDongCsvRepository repository) {
-        Map<String, String> candidates = readCandidates(repository.findAll());
+        List<LegalDongRow> rows = repository.findAll();
+        Map<String, String> candidates = readCandidates(rows);
         this.sigunguCodes = candidates.keySet().stream()
                 .filter(code -> !hasChildDistrict(code, candidates))
                 .sorted()
                 .toList();
+        this.legalDongKeys = readLegalDongKeys(rows);
     }
 
     // 시군구 단위 행만 골라서 코드 5자리와 시군구명을 반환함
@@ -44,8 +49,23 @@ public class RegionService {
                         && other.getValue().startsWith(name));
     }
 
+    /** 뒤 5자리가 00000이 아닌 읍면동과 리 행을 앞의 5자리와 뒤의 5자리로 분리 */
+    private static List<LegalDongKey> readLegalDongKeys(List<LegalDongRow> rows) {
+        return rows.stream()
+                .map(LegalDongRow::code)
+                .filter(code -> !code.endsWith("00000"))
+                .map(code -> new LegalDongKey(code.substring(0, 5), code.substring(5)))
+                .sorted(Comparator.comparing(LegalDongKey::code))
+                .toList();
+    }
+
     /** 하위 구가 있는 시를 뺀 시군구 코드 5자리를 오름차순으로 반환 */
     public List<String> sigunguCodes() {
         return sigunguCodes;
+    }
+
+    /** 읍면동과 리의 법정동 키를 코드 오름차순으로 반환 */
+    public List<LegalDongKey> legalDongKeys() {
+        return legalDongKeys;
     }
 }
