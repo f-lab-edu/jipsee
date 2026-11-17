@@ -723,7 +723,7 @@ for (const { label, viewport, layout } of SCREENS) {
 						await expect(outsourcing.locator("tbody tr")).toHaveCount(4);
 						await expect(outsourcing.locator("tbody th[scope=row]")).toHaveText(
 							[
-								"Oracle [임시 계약 법인명 확인 필요]",
+								"Oracle",
 								"Anthropic, PBC",
 								"Cloudflare, Inc. [2단계 확정 전]",
 								"Functional Software, Inc.(Sentry) [2단계 확정 전]",
