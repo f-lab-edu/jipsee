@@ -25,7 +25,7 @@ public class RegionService {
         this.legalDongKeys = readLegalDongKeys(rows);
     }
 
-    // 시군구 단위 행만 골라서 코드 5자리와 시군구명을 반환함
+    /** 시군구 단위 행만 골라서 코드 5자리와 시군구명을 반환함 */
     private static Map<String, String> readCandidates(List<LegalDongRow> rows) {
         return rows.stream()
                 .filter(row -> isSigungu(row.code()))
