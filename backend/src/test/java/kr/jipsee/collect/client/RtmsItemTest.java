@@ -130,6 +130,44 @@ class RtmsItemTest {
         }
     }
 
+    @Nested
+    @DisplayName("공백을 지우는 읽기")
+    class Stripped {
+
+        @Test
+        @DisplayName("optionalStrippedText는 앞뒤 공백을 지우고 비면 null임")
+        void optionalStrippedText는_앞뒤_공백을_지우고_비면_null임() {
+            assertThat(item("{\"a\":\"  가 \"}").optionalStrippedText("a")).isEqualTo("가");
+            assertThat(item("{\"a\":\"\"}").optionalStrippedText("a")).isNull();
+            assertThat(item("{\"a\":\" \"}").optionalStrippedText("a")).isNull();
+            assertThat(item("{}").optionalStrippedText("a")).isNull();
+        }
+
+        @Test
+        @DisplayName("requiredStrippedText는 비면 RtmsApiException임")
+        void requiredStrippedText는_비면_RtmsApiException임() {
+            Throwable thrown = catchThrowable(() -> item("{\"a\":\" \"}").requiredStrippedText("a"));
+
+            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("a");
+        }
+
+        @Test
+        @DisplayName("optionalDecimal은 소수와 0을 읽고 없으면 null임")
+        void optionalDecimal은_소수와_0을_읽고_없으면_null임() {
+            assertThat(item("{\"a\":176783.0394}").optionalDecimal("a")).isEqualTo(new BigDecimal("176783.0394"));
+            assertThat(item("{\"a\":0}").optionalDecimal("a")).isEqualByComparingTo(BigDecimal.ZERO);
+            assertThat(item("{}").optionalDecimal("a")).isNull();
+        }
+
+        @Test
+        @DisplayName("optionalDecimal은 숫자가 아닌 값이면 RtmsApiException임")
+        void optionalDecimal은_숫자가_아닌_값이면_RtmsApiException임() {
+            Throwable thrown = catchThrowable(() -> item("{\"a\":\"abc\"}").optionalDecimal("a"));
+
+            assertThat(thrown).isInstanceOf(RtmsApiException.class).hasMessageContaining("a");
+        }
+    }
+
     @Test
     @DisplayName("해제일 YY.MM.DD를 20YY-MM-DD로 바꿈")
     void 해제일_YY_MM_DD를_20YY_MM_DD로_바꿈() {

@@ -46,6 +46,44 @@ public final class RtmsItem {
         return text;
     }
 
+    /** 앞뒤 공백을 지운 텍스트 반환. 없거나 비면 null */
+    public String optionalStrippedText(String field) {
+        String text = optionalText(field);
+
+        if (text == null) {
+            return null;
+        }
+
+        String stripped = text.strip();
+        return stripped.isEmpty() ? null : stripped;
+    }
+
+    /** 앞뒤 공백을 지운 텍스트 반환. 없거나 비면 RtmsApiException */
+    public String requiredStrippedText(String field) {
+        String text = optionalStrippedText(field);
+
+        if (text == null) {
+            throw new RtmsApiException("필수 값이 없음: " + field);
+        }
+
+        return text;
+    }
+
+    /** BigDecimal 반환. 값이 없으면 null */
+    public BigDecimal optionalDecimal(String field) {
+        String text = optionalText(field);
+
+        if (text == null) {
+            return null;
+        }
+
+        try {
+            return new BigDecimal(text);
+        } catch (NumberFormatException e) {
+            throw new RtmsApiException("숫자로 읽을 수 없음: " + field + "=" + text);
+        }
+    }
+
     /** 콤마를 없앤 정수 반환. 값이 없으면 null */
     public Integer optionalInt(String field) {
         String text = optionalText(field);

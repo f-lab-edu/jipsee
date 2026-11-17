@@ -72,8 +72,8 @@ class RtmsApiClientTest {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();
         client = new TestClient(
-                RtmsApiClient.restClient(builder, "http://localhost/1613000"),
-                RtmsApiClient.retryTemplate(Duration.ofMillis(1)));
+                PublicDataApiClient.restClient(builder, "http://localhost/1613000"),
+                PublicDataApiClient.retryTemplate(Duration.ofMillis(1)));
     }
 
     private RtmsPage<RtmsItem> call() {
@@ -170,6 +170,37 @@ class RtmsApiClientTest {
             RtmsPage<RtmsItem> page = call();
 
             assertThat(page.items()).hasSize(2);
+            server.verify();
+        }
+
+        @Test
+        @DisplayName("본문이 빈 200이 한 번 오고 이후 성공하면 결과를 반환함")
+        void 본문이_빈_200이_한_번_오고_이후_성공하면_결과를_반환함() {
+            // given
+            server.expect(request -> {}).andRespond(withSuccess("", MediaType.APPLICATION_JSON));
+            server.expect(request -> {}).andRespond(withSuccess(TWO_ITEMS_BODY, MediaType.APPLICATION_JSON));
+
+            // when
+            RtmsPage<RtmsItem> page = call();
+
+            // then
+            assertThat(page.items()).hasSize(2);
+            server.verify();
+        }
+
+        @Test
+        @DisplayName("본문이 빈 200이 계속되면 처음 한 번과 재시도 세 번 뒤에 RtmsApiTransientException으로 실패함")
+        void 본문이_빈_200이_계속되면_처음_한_번과_재시도_세_번_뒤에_RtmsApiTransientException으로_실패함() {
+            // given
+            server.expect(ExpectedCount.times(4), request -> {})
+                    .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
+
+            // when
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
+
+            // then
+            assertThat(thrown).isInstanceOf(RtmsApiTransientException.class).hasMessageContaining("빈 응답(HTTP 200)");
+            assertThat(thrown.getMessage()).doesNotContain("abc");
             server.verify();
         }
 
@@ -342,6 +373,24 @@ class RtmsApiClientTest {
                     .isInstanceOf(RtmsApiException.class)
                     .isNotInstanceOf(RtmsApiTransientException.class)
                     .hasMessageContaining("99");
+            server.verify();
+        }
+
+        @Test
+        @DisplayName("정상이 아닌 resultCode 00은 거래 API에서는 코드를 담은 RtmsApiException으로 실패함")
+        void 정상이_아닌_resultCode_00은_거래_API에서는_코드를_담은_RtmsApiException으로_실패함() {
+            // given
+            server.expect(request -> {})
+                    .andRespond(withSuccess(EMPTY_BODY.replace("\"000\"", "\"00\""), MediaType.APPLICATION_JSON));
+
+            // when
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
+
+            // then
+            assertThat(thrown)
+                    .isInstanceOf(RtmsApiException.class)
+                    .isNotInstanceOf(RtmsApiTransientException.class)
+                    .hasMessageContaining("00");
             server.verify();
         }
 
