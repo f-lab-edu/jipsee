@@ -22,9 +22,9 @@ fail() {
   finish FAILED 1
 }
 
-# IMAGE_TAG를 비워 .env.deploy의 값만 쓰게 함
+# IMAGE_TAG를 비워 DEPLOY_ENV 파일의 값만 쓰게 함, 기본은 .env.deploy
 compose() {
-  env -u IMAGE_TAG docker compose --env-file .env --env-file .env.deploy "$@" </dev/null
+  env -u IMAGE_TAG docker compose --env-file .env --env-file "${DEPLOY_ENV:-.env.deploy}" "$@" </dev/null
 }
 
 wait_healthy() {
@@ -98,10 +98,11 @@ if [ -f .env.deploy ]; then
 else
   rm -f .env.deploy.prev
 fi
-printf 'IMAGE_TAG=%s\n' "$tag" >.env.deploy.new || fail ".env.deploy를 쓰지 못함"
-mv .env.deploy.new .env.deploy || fail ".env.deploy를 쓰지 못함"
+printf 'IMAGE_TAG=%s\n' "$tag" >.env.deploy.next || fail ".env.deploy.next를 쓰지 못함"
 
-if deploy_app; then
+# 새 태그는 .env.deploy.next로 띄우고, 헬스 체크를 통과한 뒤에만 .env.deploy로 바꿈
+if DEPLOY_ENV=.env.deploy.next deploy_app; then
+  mv .env.deploy.next .env.deploy || fail ".env.deploy를 쓰지 못함"
   remove_old_images
   echo "배포 완료: $tag"
   finish DEPLOYED 0
@@ -109,10 +110,11 @@ fi
 
 # 5. 실패하면 로그를 저장하고 이전 태그로 되돌림
 failed_log=$LOG_DIR/deploy-failed-${tag:0:7}.log
-compose logs --no-color app >"$failed_log" 2>&1
+DEPLOY_ENV=.env.deploy.next compose logs --no-color app >"$failed_log" 2>&1
 echo "--- 앱 로그 마지막 30줄"
 tail -n 30 "$failed_log"
 if [ -f .env.deploy.prev ]; then
+  rm -f .env.deploy.next
   cp .env.deploy.prev .env.deploy || finish ROLLBACK_FAILED 1
   if deploy_app; then
     finish ROLLED_BACK 1
@@ -121,6 +123,6 @@ if [ -f .env.deploy.prev ]; then
 fi
 
 # 최초 배포라 되돌릴 대상이 없으면 앱을 멈춤
-compose stop app >/dev/null 2>&1
-rm -f .env.deploy
+DEPLOY_ENV=.env.deploy.next compose stop app >/dev/null 2>&1
+rm -f .env.deploy.next
 finish FAILED 1
