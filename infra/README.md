@@ -48,7 +48,7 @@
 
 ### 흐름
 
-1. `main`에 `backend/**`나 `.github/workflows/deploy-batch.yml` 변경사항이 반영되면 `deploy-batch` 워크플로 실행. Actions 탭에서 `main`을 골라 수동으로도 실행할 수 있음
+1. `main`에 `backend/**`나 `.github/workflows/deploy-backend.yml` 변경사항이 반영되면 `deploy-backend` 워크플로 실행. Actions 탭에서 `main`을 골라 수동으로도 실행할 수 있음
 2. ARM 러너에서 `backend/Dockerfile`로 빌드해 `ghcr.io/f-lab-edu/jipsee-backend:<커밋 해시>`로 업로드
 3. 서버에 ssh로 접속해 커밋 해시, 사용자 이름, `GITHUB_TOKEN`을 표준 입력으로 전달
 4. 서버의 `bin/remote-deploy.sh`가 이미지를 받고 앱 컨테이너 교체. `/actuator/health`가 60초 안에 `UP`이 되지 않으면 직전 태그로 되돌리고 실패 처리 후 종료
@@ -119,7 +119,7 @@ restrict,command="/opt/jipsee/bin/remote-deploy.sh" ssh-ed25519 AAAA... jipsee-d
 5. `.env`에 로그 업로드 변수 3개 추가
 6. DB 실행: `docker compose -f db/compose.yaml --env-file .env up -d mysql`. 앱이 붙는 네트워크 `jipsee-db`도 이때 생성
 7. 스키마 적용: `docker compose -f db/compose.yaml --env-file .env --profile schema run --rm flyway`
-8. Actions에서 `deploy-batch`를 `main`으로 수동 실행해 앱 실행
+8. Actions에서 `deploy-backend`를 `main`으로 수동 실행해 앱 실행
 9. 로그 전송 실행: `docker compose --env-file .env --env-file .env.deploy up -d --no-deps fluent-bit`. `.env.deploy`가 있어야 해서 첫 배포 뒤에 실행
 
 ## 서버 운영 명령

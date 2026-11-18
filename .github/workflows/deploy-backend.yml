@@ -1,4 +1,4 @@
-name: deploy-batch
+name: deploy-backend
 
 on:
   push:
@@ -6,11 +6,11 @@ on:
       - main
     paths:
       - "backend/**"
-      - ".github/workflows/deploy-batch.yml"
+      - ".github/workflows/deploy-backend.yml"
   workflow_dispatch:
 
 concurrency:
-  group: deploy-batch
+  group: deploy-backend
   cancel-in-progress: false
 
 permissions: {}
