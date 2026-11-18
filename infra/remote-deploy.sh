@@ -115,7 +115,6 @@ echo "--- 앱 로그 마지막 30줄"
 tail -n 30 "$failed_log"
 if [ -f .env.deploy.prev ]; then
   rm -f .env.deploy.next
-  cp .env.deploy.prev .env.deploy || finish ROLLBACK_FAILED 1
   if deploy_app; then
     finish ROLLED_BACK 1
   fi
