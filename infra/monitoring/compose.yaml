@@ -1,0 +1,121 @@
+name: jipsee-monitoring
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "3"
+
+services:
+  prometheus:
+    image: prom/prometheus:v3.16.0
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 1g
+    networks: [db]
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --storage.tsdb.retention.size=5GB
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+
+  node-exporter:
+    image: prom/node-exporter:v1.12.1
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 64m
+    networks: [db]
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --path.rootfs=/host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host:ro,rslave
+
+  cadvisor:
+    image: ghcr.io/google/cadvisor:v0.60.6
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 256m
+    networks: [db]
+    command:
+      - --docker_only=true
+      - --housekeeping_interval=30s
+      - --disable_metrics=advtcp,cpu_topology,disk,hugetlb,memory_numa,percpu,process,referenced_memory,resctrl,sched,tcp,udp
+    devices:
+      - /dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+
+  mysqld-exporter:
+    image: prom/mysqld-exporter:v0.21.0
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 64m
+    user: "65534:65534"
+    networks: [db]
+    command:
+      - --config.my-cnf=/etc/mysqld-exporter/.my.cnf
+      - --mysqld.address=mysql:3306
+    volumes:
+      - ./exporter.my.cnf:/etc/mysqld-exporter/.my.cnf:ro
+
+  loki:
+    image: grafana/loki:3.3.2
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 512m
+    networks: [db]
+    command:
+      - -config.file=/etc/loki/loki-config.yml
+      - -config.expand-env=true
+    environment:
+      LOKI_S3_ENDPOINT: ${LOKI_S3_ENDPOINT:?LOKI_S3_ENDPOINT is required}
+      LOKI_S3_ACCESS_KEY: ${LOKI_S3_ACCESS_KEY:?LOKI_S3_ACCESS_KEY is required}
+      LOKI_S3_SECRET_KEY: ${LOKI_S3_SECRET_KEY:?LOKI_S3_SECRET_KEY is required}
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki-data:/loki
+
+  grafana:
+    image: grafana/grafana:13.3.1
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 256m
+    networks: [db]
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:?GRAFANA_ADMIN_USER is required}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_USERS_DEFAULT_LANGUAGE: ko-KR
+      ALERT_CONTACT_TYPE: ${ALERT_CONTACT_TYPE:-webhook}
+      ALERT_CONTACT_URL: ${ALERT_CONTACT_URL:-http://127.0.0.1:9/}
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/provisioning/alerting:/etc/grafana/provisioning/alerting:ro
+      - grafana-data:/var/lib/grafana
+
+networks:
+  db:
+    name: jipsee-db
+    external: true
+
+volumes:
+  prometheus-data:
+  loki-data:
+  grafana-data:

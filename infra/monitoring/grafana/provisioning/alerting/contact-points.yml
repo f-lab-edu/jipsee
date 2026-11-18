@@ -1,0 +1,12 @@
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: jipsee-alerts
+    receivers:
+      - uid: jipsee-alerts
+        # webhook, slack, discord 모두 settings.url 사용
+        # 값은 compose.yaml의 ALERT_CONTACT_TYPE, ALERT_CONTACT_URL에서 주입, 기본값은 닫힌 포트 임시 수신처
+        type: ${ALERT_CONTACT_TYPE}
+        settings:
+          url: ${ALERT_CONTACT_URL}
