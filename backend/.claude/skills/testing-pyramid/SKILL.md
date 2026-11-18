@@ -16,10 +16,11 @@ Slice Tests        — partial Spring context (@WebMvcTest, @DataJpaTest) (20%)
 Integration Tests  — full context + real MySQL via Testcontainers  (10%)
 ```
 
-Test packages mirror main packages: `src/main/java/kr/jipsee/<domain>/service/OrderService.java`
-is tested by `src/test/java/kr/jipsee/<domain>/service/OrderServiceTest.java`. Batch code lives under the
-top-level `batch` package: `src/main/java/kr/jipsee/batch/<job>/DealKeyReader.java` is tested by
-`src/test/java/kr/jipsee/batch/<job>/DealKeyReaderTest.java`.
+Test packages mirror main packages inside each module: `core/src/main/java/kr/jipsee/<domain>/service/OrderService.java`
+is tested by `core/src/test/java/kr/jipsee/<domain>/service/OrderServiceTest.java`. Batch code lives in the
+`batch` module under the top-level `batch` package: `batch/src/main/java/kr/jipsee/batch/<job>/DealKeyReader.java` is tested by
+`batch/src/test/java/kr/jipsee/batch/<job>/DealKeyReaderTest.java`. Shared integration test setup (Testcontainers MySQL,
+Flyway) comes from `testFixtures(project(":core"))`.
 
 ## Conventions (all test levels)
 

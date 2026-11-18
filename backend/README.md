@@ -6,10 +6,10 @@ Spring Boot 4, Java 25, MySQL 8.4
 
 명령은 저장소 루트에서 실행함
 
-1. DB 실행: `docker compose -f backend/compose.yaml up -d mysql`
-2. 스키마 적용: `docker compose -f backend/compose.yaml -f backend/compose.schema.yaml run --rm flyway`
-3. 로컬 설정 파일 생성: `cp backend/src/main/resources/application-local.yml.example backend/src/main/resources/application-local.yml`
-4. 앱 실행: `cd backend && DATA_GO_KR_KEY=<공공데이터포털 인코딩 키> ./gradlew bootRun`
+- API: `./backend/local.sh api`
+- 배치: `DATA_GO_KR_KEY=<공공데이터포털 인코딩 키> ./backend/local.sh batch <Job 이름>`
+
+스크립트가 DB 실행, 스키마 적용, `application-local.yml` 생성(없을 때만 example 복사), 실행을 차례로 함
 
 프로필을 지정하지 않으면 `local`로 실행함. `dev`, `prod`는 `SPRING_PROFILES_ACTIVE`와 `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`가 필요함
 

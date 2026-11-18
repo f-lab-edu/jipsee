@@ -1,0 +1,11 @@
+spring:
+  config:
+    import: classpath:jipsee-core.yml
+  flyway:
+    locations: filesystem:${SCHEMA_DIR:schema}
+    fail-on-missing-locations: true
+
+jipsee:
+  public-data:
+    api:
+      service-key: test-service-key
