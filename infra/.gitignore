@@ -1,2 +1,5 @@
 .env
 schema/
+test/
+job.env
+jenkins/known_hosts
