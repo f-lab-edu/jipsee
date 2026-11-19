@@ -32,7 +32,7 @@ public class RtmsRhRentClient extends RtmsApiClient<RentDealRow> {
         return new RentDealRow(
                 item.requiredText("sggCd"),
                 item.requiredText("umdNm"),
-                item.requiredText("jibun"),
+                item.optionalText("jibun"),
                 item.optionalText("mhouseNm"),
                 item.optionalInt("buildYear"),
                 item.requiredDecimal("excluUseAr"),
