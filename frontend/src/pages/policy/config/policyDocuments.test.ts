@@ -37,9 +37,9 @@ function findBlocks<Kind extends PolicyBlock["kind"]>(
 }
 
 describe("정책 문서 데이터", () => {
-	it("두 문서의 시행일이 2026.11.12임", () => {
-		expect(termsDocument.effectiveDate).toBe("2026.11.12");
-		expect(privacyDocument.effectiveDate).toBe("2026.11.12");
+	it("두 문서의 시행일이 2026.11.17임", () => {
+		expect(termsDocument.effectiveDate).toBe("2026.11.17");
+		expect(privacyDocument.effectiveDate).toBe("2026.11.17");
 	});
 
 	it("이용약관 조항 제목이 기획서 항목명 7개와 순서까지 같음", () => {
@@ -74,7 +74,7 @@ describe("정책 문서 데이터", () => {
 
 		expect(table.headingLabel).toBe("수탁자");
 		expect(table.groups.map((group) => group.heading)).toEqual([
-			"Oracle [임시 계약 법인명 확인 필요]",
+			"Oracle",
 			"Anthropic, PBC",
 			"Cloudflare, Inc. [2단계 확정 전]",
 			"Functional Software, Inc.(Sentry) [2단계 확정 전]",
