@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import kr.jipsee.building.client.BldRgstHubClient;
 import kr.jipsee.building.dto.BuildingRegisterReplaceItem;
 import kr.jipsee.building.dto.BuildingRegisterRow;
@@ -56,7 +57,11 @@ public class BuildingRegisterProcessor implements ItemProcessor<LegalDongKey, Bu
             return null;
         }
 
-        return new BuildingRegisterReplaceItem(key, completeRows);
+        Set<String> incompleteRegisterKeys = rows.stream()
+                .filter(row -> !row.parcelKey().isComplete())
+                .map(BuildingRegisterRow::managementRegisterKey)
+                .collect(Collectors.toSet());
+        return new BuildingRegisterReplaceItem(key, completeRows, incompleteRegisterKeys);
     }
 
     // managementRegisterKey 중복 검사. 중복 키는 한 행만 저장되므로 PublicDataApiException throw

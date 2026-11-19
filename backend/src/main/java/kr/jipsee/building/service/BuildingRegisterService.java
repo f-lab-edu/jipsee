@@ -24,9 +24,9 @@ public class BuildingRegisterService {
 
     private final BuildingRegisterRepository repository;
 
-    /** 법정동의 응답 전체에서 대상 필지의 동을 저장하고, 응답에 없는 동을 삭제하고, 필지 이름을 다시 정함 */
+    /** 법정동의 응답 전체에서 대상 필지의 동을 저장하고, 응답에 없는 동을 삭제하고, 필지 이름을 다시 정함. keepRegisterKeys의 동은 삭제하지 않음 */
     @Transactional
-    public void replaceByLegalDong(LegalDongKey key, List<BuildingRegisterRow> rows) {
+    public void replaceByLegalDong(LegalDongKey key, List<BuildingRegisterRow> rows, Set<String> keepRegisterKeys) {
         Map<ParcelKey, Long> storedParcelIds = repository.findParcelIds(key);
         List<BuildingRegisterRow> targetRows = selectTargetRows(rows, storedParcelIds.keySet());
 
@@ -44,6 +44,7 @@ public class BuildingRegisterService {
 
         Set<String> staleKeys = new HashSet<>(repository.findRegisterKeys(key));
         targetRows.forEach(row -> staleKeys.remove(row.managementRegisterKey()));
+        staleKeys.removeAll(keepRegisterKeys);
         repository.deleteRegisters(staleKeys);
 
         repository.refreshParcelNames(key);

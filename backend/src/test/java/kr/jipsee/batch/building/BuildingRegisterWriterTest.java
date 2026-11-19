@@ -3,6 +3,7 @@ package kr.jipsee.batch.building;
 import static org.mockito.BDDMockito.then;
 
 import java.util.List;
+import java.util.Set;
 import kr.jipsee.building.dto.BuildingRegisterReplaceItem;
 import kr.jipsee.building.dto.BuildingRegisterRow;
 import kr.jipsee.building.service.BuildingRegisterService;
@@ -32,15 +33,17 @@ class BuildingRegisterWriterTest {
         LegalDongKey second = new LegalDongKey("11350", "10500");
         List<BuildingRegisterRow> firstRows = List.of(emptyRow());
         List<BuildingRegisterRow> secondRows = List.of();
+        Set<String> incompleteKeys = Set.of("K2");
         Chunk<BuildingRegisterReplaceItem> chunk = new Chunk<>(
-                new BuildingRegisterReplaceItem(first, firstRows), new BuildingRegisterReplaceItem(second, secondRows));
+                new BuildingRegisterReplaceItem(first, firstRows, incompleteKeys),
+                new BuildingRegisterReplaceItem(second, secondRows, Set.of()));
 
         // when
         writer.write(chunk);
 
         // then
-        then(service).should().replaceByLegalDong(first, firstRows);
-        then(service).should().replaceByLegalDong(second, secondRows);
+        then(service).should().replaceByLegalDong(first, firstRows, incompleteKeys);
+        then(service).should().replaceByLegalDong(second, secondRows, Set.of());
     }
 
     private static BuildingRegisterRow emptyRow() {

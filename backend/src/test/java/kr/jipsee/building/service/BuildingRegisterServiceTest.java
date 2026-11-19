@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import kr.jipsee.TestcontainersConfiguration;
 import kr.jipsee.building.dto.BuildingRegisterRow;
 import kr.jipsee.building.dto.ParcelKey;
@@ -43,6 +44,10 @@ class BuildingRegisterServiceTest {
         jdbcTemplate.update("delete from rent_deal");
         jdbcTemplate.update("delete from building_register");
         jdbcTemplate.update("delete from building_parcel");
+    }
+
+    private void replace(LegalDongKey key, List<BuildingRegisterRow> rows) {
+        service.replaceByLegalDong(key, rows, Set.of());
     }
 
     private static ParcelKey parcel(String legalDongCode, String mainLotNumber) {
@@ -202,7 +207,7 @@ class BuildingRegisterServiceTest {
         List<BuildingRegisterRow> rows = List.of(row(P1, "K1", "가빌라", "단독주택"), row(P1, "K2", null, null));
 
         // when
-        service.replaceByLegalDong(KEY, rows);
+        replace(KEY, rows);
 
         // then
         assertThat(count("building_parcel")).isZero();
@@ -217,7 +222,7 @@ class BuildingRegisterServiceTest {
                 List.of(row(P1, "K1", "가빌라", "다세대주택"), row(P1, "K2", "가빌라", null), row(P1, "K3", "가빌라", "근린생활시설"));
 
         // when
-        service.replaceByLegalDong(KEY, rows);
+        replace(KEY, rows);
 
         // then
         assertThat(count("building_parcel")).isEqualTo(1);
@@ -232,7 +237,7 @@ class BuildingRegisterServiceTest {
                 List.of(row(P1, "K1", null, "공동주택(다세대주택)"), row(P2, "K2", null, "연립주택"), row(P3, "K3", null, "다세대"));
 
         // when
-        service.replaceByLegalDong(KEY, rows);
+        replace(KEY, rows);
 
         // then
         assertThat(count("building_parcel")).isEqualTo(3);
@@ -243,7 +248,7 @@ class BuildingRegisterServiceTest {
     @DisplayName("같은 법정동을 다시 교체해도 필지 id가 바뀌지 않고 rent_deal의 참조가 유지됨")
     void 같은_법정동을_다시_교체해도_필지_id가_바뀌지_않고_rent_deal의_참조가_유지됨() {
         // given
-        service.replaceByLegalDong(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택")));
+        replace(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택")));
         long parcelId = parcelId(P1);
         jdbcTemplate.update(
                 "insert into rent_deal (sigungu_code, legal_dong_name, lot_number, exclusive_area, deal_date, deposit,"
@@ -252,7 +257,7 @@ class BuildingRegisterServiceTest {
                 parcelId);
 
         // when
-        service.replaceByLegalDong(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택", 20)));
+        replace(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택", 20)));
 
         // then
         assertThat(parcelId(P1)).isEqualTo(parcelId);
@@ -264,11 +269,11 @@ class BuildingRegisterServiceTest {
     @DisplayName("새 동은 삽입하고 바뀐 동은 수정하고 응답에 없는 동은 삭제함")
     void 새_동은_삽입하고_바뀐_동은_수정하고_응답에_없는_동은_삭제함() {
         // given
-        service.replaceByLegalDong(KEY, List.of(row(P1, "A", "가빌라", "다세대주택", 5), row(P1, "B", "가빌라", "다세대주택", 6)));
+        replace(KEY, List.of(row(P1, "A", "가빌라", "다세대주택", 5), row(P1, "B", "가빌라", "다세대주택", 6)));
         Long idOfA = (Long) registerOf("A").get("id");
 
         // when
-        service.replaceByLegalDong(KEY, List.of(row(P1, "A", "가빌라", "다세대주택", 9), row(P1, "C", "가빌라", "다세대주택", 7)));
+        replace(KEY, List.of(row(P1, "A", "가빌라", "다세대주택", 9), row(P1, "C", "가빌라", "다세대주택", 7)));
 
         // then
         assertThat(registerOf("A").get("id")).isEqualTo(idOfA);
@@ -287,8 +292,8 @@ class BuildingRegisterServiceTest {
                 List.of(row(P1, "K1", "가빌라", "다세대주택"), row(P1, "K2", "가빌라", "다세대주택"), row(P2, "K3", null, "연립주택"));
 
         // when
-        service.replaceByLegalDong(KEY, rows);
-        service.replaceByLegalDong(KEY, rows);
+        replace(KEY, rows);
+        replace(KEY, rows);
 
         // then
         assertThat(count("building_parcel")).isEqualTo(2);
@@ -299,10 +304,10 @@ class BuildingRegisterServiceTest {
     @DisplayName("저장된 필지는 키워드가 없어져도 삭제하지 않고 동을 계속 갱신함")
     void 저장된_필지는_키워드가_없어져도_삭제하지_않고_동을_계속_갱신함() {
         // given
-        service.replaceByLegalDong(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택", 10)));
+        replace(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택", 10)));
 
         // when
-        service.replaceByLegalDong(KEY, List.of(row(P1, "K1", "가빌라", "단독주택", 20)));
+        replace(KEY, List.of(row(P1, "K1", "가빌라", "단독주택", 20)));
 
         // then
         assertThat(count("building_parcel")).isEqualTo(1);
@@ -314,10 +319,10 @@ class BuildingRegisterServiceTest {
     @DisplayName("키워드가 없는 새 필지는 같은 교체에서도 저장하지 않음")
     void 키워드가_없는_새_필지는_같은_교체에서도_저장하지_않음() {
         // given
-        service.replaceByLegalDong(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택")));
+        replace(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택")));
 
         // when
-        service.replaceByLegalDong(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택"), row(P2, "K2", null, "단독주택")));
+        replace(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택"), row(P2, "K2", null, "단독주택")));
 
         // then
         assertThat(count("building_parcel")).isEqualTo(1);
@@ -328,11 +333,11 @@ class BuildingRegisterServiceTest {
     @DisplayName("응답에 없는 필지의 동은 삭제하고 필지는 남김")
     void 응답에_없는_필지의_동은_삭제하고_필지는_남김() {
         // given
-        service.replaceByLegalDong(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택"), row(P2, "K2", "나빌라", "다세대주택")));
+        replace(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택"), row(P2, "K2", "나빌라", "다세대주택")));
         assertThat(parcelName(P1)).isEqualTo("가빌라");
 
         // when
-        service.replaceByLegalDong(KEY, List.of(row(P2, "K2", "나빌라", "다세대주택")));
+        replace(KEY, List.of(row(P2, "K2", "나빌라", "다세대주택")));
 
         // then
         assertThat(count("building_parcel")).isEqualTo(2);
@@ -343,15 +348,32 @@ class BuildingRegisterServiceTest {
     }
 
     @Test
+    @DisplayName("유지할 관리 키의 동은 응답에 없어도 삭제하지 않음")
+    void 유지할_관리_키의_동은_응답에_없어도_삭제하지_않음() {
+        // given
+        replace(
+                KEY,
+                List.of(row(P1, "K1", "가빌라", "다세대주택"), row(P1, "K2", "가빌라", "다세대주택"), row(P1, "K3", "가빌라", "다세대주택")));
+
+        // when
+        service.replaceByLegalDong(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택")), Set.of("K2"));
+
+        // then
+        List<String> keys = jdbcTemplate.queryForList(
+                "select management_register_key from building_register order by management_register_key", String.class);
+        assertThat(keys).containsExactly("K1", "K2");
+    }
+
+    @Test
     @DisplayName("다른 법정동의 행은 지우지 않음")
     void 다른_법정동의_행은_지우지_않음() {
         // given
         ParcelKey otherParcel = parcel("10500", "0001");
-        service.replaceByLegalDong(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택")));
-        service.replaceByLegalDong(OTHER_KEY, List.of(row(otherParcel, "K9", "나빌라", "다세대주택")));
+        replace(KEY, List.of(row(P1, "K1", "가빌라", "다세대주택")));
+        replace(OTHER_KEY, List.of(row(otherParcel, "K9", "나빌라", "다세대주택")));
 
         // when
-        service.replaceByLegalDong(KEY, List.of(row(P2, "K2", "다빌라", "다세대주택")));
+        replace(KEY, List.of(row(P2, "K2", "다빌라", "다세대주택")));
 
         // then
         assertThat(registerCountOf(otherParcel)).isEqualTo(1);
@@ -364,9 +386,8 @@ class BuildingRegisterServiceTest {
     void 법정동의_저장된_동_개수를_셈() {
         // given
         assertThat(service.countRegisters(KEY)).isZero();
-        service.replaceByLegalDong(
-                KEY, List.of(row(P1, "K1", null, "다세대주택"), row(P1, "K2", null, "다세대주택"), row(P2, "K3", null, "다세대주택")));
-        service.replaceByLegalDong(OTHER_KEY, List.of(row(parcel("10500", "0001"), "K9", null, "다세대주택")));
+        replace(KEY, List.of(row(P1, "K1", null, "다세대주택"), row(P1, "K2", null, "다세대주택"), row(P2, "K3", null, "다세대주택")));
+        replace(OTHER_KEY, List.of(row(parcel("10500", "0001"), "K9", null, "다세대주택")));
 
         // when
         int count = service.countRegisters(KEY);
@@ -384,7 +405,7 @@ class BuildingRegisterServiceTest {
                 List.of(row(P1, "K1", null, "다세대주택"), row(P1, "K2", "나빌라", "다세대주택"), row(P1, "K3", "가빌라", "다세대주택"));
 
         // when
-        service.replaceByLegalDong(KEY, rows);
+        replace(KEY, rows);
 
         // then
         assertThat(parcelName(P1)).isEqualTo("나빌라");
@@ -394,13 +415,13 @@ class BuildingRegisterServiceTest {
     @DisplayName("건물명이 있는 동이 없으면 name은 null이고 건물명이 바뀌면 갱신함")
     void 건물명이_있는_동이_없으면_name은_null이고_건물명이_바뀌면_갱신함() {
         // given
-        service.replaceByLegalDong(KEY, List.of(row(P1, "K1", null, "다세대주택"), row(P1, "K2", null, "다세대주택")));
+        replace(KEY, List.of(row(P1, "K1", null, "다세대주택"), row(P1, "K2", null, "다세대주택")));
         assertThat(parcelName(P1)).isNull();
 
         // when
-        service.replaceByLegalDong(KEY, List.of(row(P1, "K1", null, "다세대주택"), row(P1, "K2", "가빌라", "다세대주택")));
+        replace(KEY, List.of(row(P1, "K1", null, "다세대주택"), row(P1, "K2", "가빌라", "다세대주택")));
         String named = parcelName(P1);
-        service.replaceByLegalDong(KEY, List.of(row(P1, "K1", null, "다세대주택"), row(P1, "K2", "다빌라", "다세대주택")));
+        replace(KEY, List.of(row(P1, "K1", null, "다세대주택"), row(P1, "K2", "다빌라", "다세대주택")));
 
         // then
         assertThat(named).isEqualTo("가빌라");
@@ -414,7 +435,7 @@ class BuildingRegisterServiceTest {
         BuildingRegisterRow row = fullRow(P1, "K1", 1);
 
         // when
-        service.replaceByLegalDong(KEY, List.of(row));
+        replace(KEY, List.of(row));
 
         // then
         assertRegisterColumns(registerOf("K1"), row, parcelId(P1));
@@ -424,11 +445,11 @@ class BuildingRegisterServiceTest {
     @DisplayName("바뀐 값은 키를 뺀 모든 컬럼에 반영함")
     void 바뀐_값은_키를_뺀_모든_컬럼에_반영함() {
         // given
-        service.replaceByLegalDong(KEY, List.of(fullRow(P1, "K1", 1), fullRow(P2, "K2", 3)));
+        replace(KEY, List.of(fullRow(P1, "K1", 1), fullRow(P2, "K2", 3)));
         BuildingRegisterRow changed = fullRow(P2, "K1", 2);
 
         // when
-        service.replaceByLegalDong(KEY, List.of(changed, fullRow(P2, "K2", 3)));
+        replace(KEY, List.of(changed, fullRow(P2, "K2", 3)));
 
         // then
         assertRegisterColumns(registerOf("K1"), changed, parcelId(P2));
@@ -442,7 +463,7 @@ class BuildingRegisterServiceTest {
         List<BuildingRegisterRow> rows = List.of(unnamedRow(P1, "K1"), unnamedRow(P1, "K2"));
 
         // when
-        service.replaceByLegalDong(KEY, rows);
+        replace(KEY, rows);
 
         // then
         assertThat(count("building_register")).isEqualTo(2);
@@ -452,14 +473,14 @@ class BuildingRegisterServiceTest {
     @DisplayName("삽입이 실패하면 변경 전체를 취소하고 기존 행을 유지함")
     void 삽입이_실패하면_변경_전체를_취소하고_기존_행을_유지함() {
         // given
-        service.replaceByLegalDong(KEY, List.of(row(P1, "A", "가빌라", "다세대주택", 10)));
+        replace(KEY, List.of(row(P1, "A", "가빌라", "다세대주택", 10)));
         // lot_address는 varchar(200)
         BuildingRegisterRow tooLongAddress = rowWithLotAddress(P2, "K3", "다빌라", "다세대주택", 10, "가".repeat(201));
         List<BuildingRegisterRow> rows =
                 List.of(row(P2, "K2", "나빌라", "다세대주택"), row(P1, "A", "가빌라", "다세대주택", 99), tooLongAddress);
 
         // when
-        Throwable thrown = catchThrowable(() -> service.replaceByLegalDong(KEY, rows));
+        Throwable thrown = catchThrowable(() -> replace(KEY, rows));
 
         // then
         assertThat(thrown).isInstanceOf(DataAccessException.class);
@@ -472,9 +493,9 @@ class BuildingRegisterServiceTest {
     @DisplayName("저장된 필지가 있는 법정동만 코드 순으로 반환함")
     void 저장된_필지가_있는_법정동만_코드_순으로_반환함() {
         // given
-        service.replaceByLegalDong(OTHER_KEY, List.of(row(parcel("10500", "0001"), "K9", null, "다세대주택")));
-        service.replaceByLegalDong(KEY, List.of(row(P1, "K1", null, "다세대주택")));
-        service.replaceByLegalDong(new LegalDongKey("11350", "10600"), List.of());
+        replace(OTHER_KEY, List.of(row(parcel("10500", "0001"), "K9", null, "다세대주택")));
+        replace(KEY, List.of(row(P1, "K1", null, "다세대주택")));
+        replace(new LegalDongKey("11350", "10600"), List.of());
 
         // when
         List<LegalDongKey> keys = service.findStoredLegalDongs();

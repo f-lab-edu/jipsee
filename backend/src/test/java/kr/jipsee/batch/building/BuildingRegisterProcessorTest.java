@@ -10,6 +10,7 @@ import static org.mockito.Mockito.never;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import kr.jipsee.building.client.BldRgstHubClient;
 import kr.jipsee.building.dto.BuildingRegisterReplaceItem;
 import kr.jipsee.building.dto.BuildingRegisterRow;
@@ -156,6 +157,7 @@ class BuildingRegisterProcessorTest {
 
             // then
             assertThat(result.rows()).containsExactly(complete);
+            assertThat(result.incompleteRegisterKeys()).containsExactly("K2");
         }
     }
 
@@ -204,7 +206,7 @@ class BuildingRegisterProcessorTest {
             BuildingRegisterReplaceItem result = processor.process(KEY);
 
             // then
-            assertThat(result).isEqualTo(new BuildingRegisterReplaceItem(KEY, List.of()));
+            assertThat(result).isEqualTo(new BuildingRegisterReplaceItem(KEY, List.of(), Set.of("K1")));
         }
     }
 
