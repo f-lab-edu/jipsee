@@ -8,17 +8,17 @@ import org.springframework.batch.core.step.StepContribution;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 
-/** 수집 Step이 끝난 뒤 data_source의 마지막 수집 시각 갱신 */
+/** 수집 Step이 끝난 뒤 collect_status의 마지막 수집 시각 갱신 */
 @RequiredArgsConstructor
-public class DataSourceLoadTasklet implements Tasklet {
-    private final DataSourceRepository dataSourceRepository;
+public class CollectStatusTasklet implements Tasklet {
+    private final CollectStatusRepository collectStatusRepository;
     private final Clock clock;
     private final String source;
 
     /** 출처의 마지막 수집 시각을 현재 시각으로 저장. 실패하면 예외를 던져 Step을 실패시킴 */
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
-        dataSourceRepository.saveLoadedAt(source, LocalDateTime.now(clock));
+        collectStatusRepository.saveLoadedAt(source, LocalDateTime.now(clock));
 
         return RepeatStatus.FINISHED;
     }

@@ -236,10 +236,9 @@ finishes. `start` throws `JobInstanceAlreadyCompleteException`, `JobExecutionAlr
 ## Metadata schema in production
 
 Spring Batch needs its `BATCH_JOB_INSTANCE`, `BATCH_JOB_EXECUTION`, `BATCH_STEP_EXECUTION`, ... tables.
-This repo holds no schema SQL and no migrations for any table, including `BATCH_*`. Their schema SQL
-lives outside the repo (`$SCHEMA_DIR`) and is applied there. In every profile set
-`spring.batch.jdbc.initialize-schema: never` and keep `ddl-auto: validate`. Never add `schema-*.sql`
-files or any `BATCH_*` DDL to this repo.
+The schema SQL for every table, including `BATCH_*`, lives in `backend/schema` and is applied by Flyway
+outside Spring. In every profile set `spring.batch.jdbc.initialize-schema: never` and keep
+`ddl-auto: validate`. Never add `schema-*.sql` files under `src/main/resources`.
 
 ## Listeners: work that must run after the job, not per chunk
 
