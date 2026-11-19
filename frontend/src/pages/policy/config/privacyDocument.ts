@@ -3,7 +3,7 @@ import type { PolicyDocument } from "@/pages/policy/model/policyDocument";
 // 임시 초안. 본문 문서(2026-11-12-s6-policy-content.md) 1절을 그대로 옮김. 처리 위탁과 국외 이전의 수탁자별 표는 수탁자를 소제목으로 둔 줄 묶음으로 옮김
 export const privacyDocument: PolicyDocument = {
 	title: "개인정보처리방침",
-	effectiveDate: "2026.11.12",
+	effectiveDate: "2026.11.17",
 	clauses: [
 		{
 			title: "처리 목적",
@@ -94,7 +94,7 @@ export const privacyDocument: PolicyDocument = {
 							label: "대화 기록",
 							value: "회원이 삭제하거나 탈퇴할 때까지 보관합니다.",
 						},
-						{ label: "접속 기록", value: "[임시 보관 기간 미정]" },
+						{ label: "접속 기록", value: "1년 동안 보관한 뒤 삭제합니다." },
 						{
 							label: "이용 제한 이력",
 							value:
@@ -128,7 +128,7 @@ export const privacyDocument: PolicyDocument = {
 					headingLabel: "수탁자",
 					groups: [
 						{
-							heading: "Oracle [임시 계약 법인명 확인 필요]",
+							heading: "Oracle",
 							rows: [
 								{
 									label: "위탁 업무",
@@ -202,7 +202,8 @@ export const privacyDocument: PolicyDocument = {
 						},
 						{
 							label: "이전받는 자",
-							value: "Oracle [임시 계약 법인명과 연락처 확인 필요]",
+							value:
+								"Oracle Corporation (국내대리인 한국오라클 유한회사, 02-2194-8000, privacy_kr_grp@oracle.com)",
 						},
 						{
 							label: "이전 국가",
@@ -227,11 +228,12 @@ export const privacyDocument: PolicyDocument = {
 						},
 						{
 							label: "이전받는 자",
-							value: "Anthropic, PBC [임시 연락처 확인 필요]",
+							value:
+								"Anthropic, PBC (privacy@anthropic.com, dpo@anthropic.com)",
 						},
 						{
 							label: "이전 국가",
-							value: "미국 [임시 실제 처리 국가 확인 필요]",
+							value: "미국",
 						},
 						{ label: "항목", value: "챗봇에 입력한 질문과 대화 내용" },
 						{
@@ -392,9 +394,8 @@ export const privacyDocument: PolicyDocument = {
 				{
 					kind: "rows",
 					rows: [
-						{ label: "성명", value: "[임시] 운영자" },
-						{ label: "이메일", value: "[임시] privacy@jipsee.kr" },
-						{ label: "연락처", value: "[임시] 연락처" },
+						{ label: "성명", value: "집씨 운영팀" },
+						{ label: "이메일", value: "jipsee.help@gmail.com" },
 					],
 				},
 			],
@@ -404,7 +405,7 @@ export const privacyDocument: PolicyDocument = {
 			blocks: [
 				{
 					kind: "paragraph",
-					text: "이 개인정보처리방침은 2026년 11월 12일부터 시행합니다. [임시 시행일]",
+					text: "이 개인정보처리방침은 2026년 11월 17일부터 시행합니다.",
 				},
 				{
 					kind: "paragraph",
