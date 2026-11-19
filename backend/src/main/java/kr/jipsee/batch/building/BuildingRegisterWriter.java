@@ -15,7 +15,7 @@ public class BuildingRegisterWriter implements ItemWriter<BuildingRegisterReplac
     @Override
     public void write(Chunk<? extends BuildingRegisterReplaceItem> chunk) {
         for (BuildingRegisterReplaceItem item : chunk) {
-            service.replaceByLegalDong(item.key(), item.rows());
+            service.replaceByLegalDong(item.key(), item.rows(), item.incompleteRegisterKeys());
         }
     }
 }
