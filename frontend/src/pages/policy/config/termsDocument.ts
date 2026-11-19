@@ -3,7 +3,7 @@ import type { PolicyDocument } from "@/pages/policy/model/policyDocument";
 // 임시 초안. 본문 문서(2026-11-12-s6-policy-content.md) 2절을 그대로 옮김
 export const termsDocument: PolicyDocument = {
 	title: "이용약관",
-	effectiveDate: "2026.11.12",
+	effectiveDate: "2026.11.17",
 	clauses: [
 		{
 			title: "서비스 내용",
@@ -92,11 +92,11 @@ export const termsDocument: PolicyDocument = {
 				},
 				{
 					kind: "paragraph",
-					text: "이용을 제한하면 제한 사실과 사유를 서비스 화면 등으로 알립니다. [임시 안내 방법과 문구 미정]",
+					text: "이용을 제한하면 제한 사실과 사유를 서비스 화면 등으로 알립니다.",
 				},
 				{
 					kind: "paragraph",
-					text: "제한에 이의가 있는 회원은 [임시] 문의처로 소명할 수 있습니다.",
+					text: "제한에 이의가 있는 회원은 개인정보처리방침 조항 9의 이메일로 소명할 수 있습니다.",
 				},
 				{
 					kind: "paragraph",
@@ -151,7 +151,7 @@ export const termsDocument: PolicyDocument = {
 				},
 				{
 					kind: "paragraph",
-					text: "챗봇에는 일일 사용 한도가 있습니다. 한도를 넘으면 다음 날 이용할 수 있습니다. [임시 한도 수치 미정]",
+					text: "챗봇에는 일일 사용 한도가 있습니다. 한도를 넘으면 다음 날 이용할 수 있습니다.",
 				},
 			],
 		},
@@ -211,5 +211,5 @@ export const termsDocument: PolicyDocument = {
 			],
 		},
 	],
-	addendum: "부칙: 이 약관은 2026년 11월 12일부터 시행합니다. [임시 시행일]",
+	addendum: "부칙: 이 약관은 2026년 11월 17일부터 시행합니다.",
 };
