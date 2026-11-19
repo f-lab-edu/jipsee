@@ -150,4 +150,34 @@ class RentDealServiceTest {
         assertThat((BigDecimal) saved.get("exclusive_area")).isEqualByComparingTo("69.99");
         assertThat(saved.get("deposit")).isEqualTo(31000);
     }
+
+    @Test
+    @DisplayName("지번이 없는 거래도 lot_number를 null로 저장함")
+    void 지번이_없는_거래도_lot_number를_null로_저장함() {
+        // given
+        RentDealRow noLotNumber = new RentDealRow(
+                "11110",
+                "동숭동",
+                null,
+                "광명빌라트",
+                2004,
+                new BigDecimal("69.99"),
+                4,
+                LocalDate.of(2026, 10, 25),
+                31000,
+                0,
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        // when
+        service.replace("11110", OCTOBER, List.of(noLotNumber));
+
+        // then
+        Map<String, Object> saved = jdbcTemplate.queryForMap("select * from rent_deal");
+        assertThat(saved.get("lot_number")).isNull();
+        assertThat(saved.get("house_name")).isEqualTo("광명빌라트");
+    }
 }
