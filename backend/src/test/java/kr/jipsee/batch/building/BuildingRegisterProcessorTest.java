@@ -228,8 +228,8 @@ class BuildingRegisterProcessorTest {
             assertThat(thrown)
                     .isInstanceOf(PublicDataApiException.class)
                     .hasMessageContaining("1135010400")
-                    .hasMessageContaining("2")
-                    .hasMessageContaining("3");
+                    .hasMessageContaining("응답 item 개수 2")
+                    .hasMessageContaining("totalCount 3");
         }
 
         @Test

@@ -118,7 +118,7 @@ class BuildingRegisterServiceTest {
                 null);
     }
 
-    // 컬럼 20개가 서로 다르고 seed가 다르면 모든 컬럼이 다른 값을 가진 행
+    // 컬럼 20개가 서로 다르고 seed가 다르면 모든 컬럼이 다른 값을 가진 행(두 코드 컬럼은 행 안에서 서로 다름)
     private static BuildingRegisterRow fullRow(ParcelKey parcelKey, String managementKey, int seed) {
         return new BuildingRegisterRow(
                 parcelKey,
@@ -134,7 +134,7 @@ class BuildingRegisterServiceTest {
                 seed * 10 + 3,
                 seed * 10 + 4,
                 "구조" + seed,
-                String.valueOf(seed % 2),
+                String.valueOf(1 - seed % 2),
                 new BigDecimal(seed * 1000 + ".1234"),
                 "다세대" + seed,
                 seed * 10 + 5,
