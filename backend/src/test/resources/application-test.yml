@@ -1,9 +1,9 @@
 spring:
   flyway:
-    locations: filesystem:${SCHEMA_DIR}
+    locations: filesystem:${SCHEMA_DIR:schema}
     fail-on-missing-locations: true
 
 jipsee:
-  collect:
+  public-data:
     api:
       service-key: test-service-key

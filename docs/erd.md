@@ -54,7 +54,7 @@ erDiagram
         int article_number PK
         int branch_number PK
     }
-    data_source["data_source (데이터 출처별 마지막 수집 시각)"] {
+    collect_status["collect_status (데이터 출처별 마지막 수집 시각)"] {
         varchar source PK
     }
 ```
@@ -192,7 +192,7 @@ erDiagram
         bigint id PK "거래 ID, auto_increment이며 재수집하면 다시 발급함"
         char sigungu_code "시군구코드 5자리 (sggCd)"
         varchar legal_dong_name "법정동명 (umdNm)"
-        varchar lot_number "지번 원본 값, N, N-M이 아닌 값도 있음 (jibun)"
+        varchar lot_number "지번 원본 값, N, N-M이 아닌 값도 있음, 값이 없으면 null (jibun)"
         varchar house_name "연립다세대명 (mhouseNm), 값이 없으면 NULL"
         smallint build_year "건축연도 (buildYear), 값이 없으면 NULL"
         decimal exclusive_area "전용면적, 단위 ㎡ (excluUseAr)"
@@ -228,7 +228,7 @@ erDiagram
         bigint id PK "거래 ID, auto_increment이며 재수집하면 다시 발급함"
         char sigungu_code "시군구코드 5자리 (sggCd)"
         varchar legal_dong_name "법정동명 (umdNm)"
-        varchar lot_number "지번 원본 값, N, N-M이 아닌 값도 있음 (jibun)"
+        varchar lot_number "지번 원본 값, N, N-M이 아닌 값도 있음, 값이 없으면 null (jibun)"
         varchar house_name "단지명 (mhouseNm), 값이 없으면 NULL"
         smallint build_year "건축연도 (buildYear), 값이 없으면 NULL"
         decimal exclusive_area "전용면적, 단위 ㎡ (excluUseAr)"
@@ -339,13 +339,13 @@ erDiagram
 - 파싱한 조문이 0건이면 교체하지 않고 로그만 남김
 - varchar 길이와 content 최대 길이는 2026-10-27 실측 최댓값 기준이며, varchar 길이를 초과하면 적재에 실패하고 로그를 남김
 
-## data_source
+## collect_status
 
 > 데이터 출처별 마지막 수집 시각
 
 ```mermaid
 erDiagram
-    data_source {
+    collect_status {
         varchar source PK "데이터 출처, 값은 RENT_DEAL, SALE_DEAL, BUILDING_REGISTER, LAW 중 하나"
         datetime loaded_at "마지막 수집 시각, 화면의 기준 월은 이 값의 월로 표시함"
         datetime created_at "행 생성 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"

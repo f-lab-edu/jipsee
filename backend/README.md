@@ -7,7 +7,7 @@ Spring Boot 4, Java 25, MySQL 8.4
 명령은 저장소 루트에서 실행함
 
 1. DB 실행: `docker compose -f backend/compose.yaml up -d mysql`
-2. 스키마 적용: `SCHEMA_DIR=<스키마 폴더> docker compose -f backend/compose.yaml -f backend/compose.schema.yaml run --rm flyway`
+2. 스키마 적용: `docker compose -f backend/compose.yaml -f backend/compose.schema.yaml run --rm flyway`
 3. 로컬 설정 파일 생성: `cp backend/src/main/resources/application-local.yml.example backend/src/main/resources/application-local.yml`
 4. 앱 실행: `cd backend && DATA_GO_KR_KEY=<공공데이터포털 인코딩 키> ./gradlew bootRun`
 
@@ -17,13 +17,15 @@ Spring Boot 4, Java 25, MySQL 8.4
 
 ## 스키마
 
-- 이 저장소에는 SQL과 마이그레이션을 두지 않음. 스키마 SQL은 저장소 밖의 `$SCHEMA_DIR`에 있고, `backend/compose.schema.yaml`의 `flyway` 서비스가 적용함
+- 스키마 SQL은 `backend/schema`에 있고, `backend/compose.schema.yaml`의 `flyway` 서비스가 적용함. `SCHEMA_DIR`을 지정하면 다른 폴더를 씀
+- 이미 적용한 버전 파일은 고치지 않음. 변경은 새 버전 파일(`V<번호>__<이름>.sql`)로 추가함
+- `src/main/resources`에는 SQL을 두지 않음. Spring이 읽지 않게 하기 위함
 - Spring은 마이그레이션을 실행하지 않음. 엔티티는 `ddl-auto: validate`로 검증함
 
 ## 검증
 
-Docker를 실행한 상태에서 `cd backend && SCHEMA_DIR=<스키마 폴더 절대 경로> ./gradlew build`
+Docker를 실행한 상태에서 `cd backend && ./gradlew build`
 
-테스트는 Testcontainers MySQL에 `SCHEMA_DIR`의 SQL을 Flyway로 적용한 뒤 실행함
+테스트는 Testcontainers MySQL에 `backend/schema`의 SQL을 Flyway로 적용한 뒤 실행함. 다른 폴더를 쓰려면 `SCHEMA_DIR=<스키마 폴더 절대 경로>`를 지정함
 
 운영 실행은 `infra/README.md`를 따름

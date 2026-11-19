@@ -10,5 +10,5 @@ services:
       FLYWAY_USER: jipsee
       FLYWAY_PASSWORD: jipsee
     volumes:
-      - ${SCHEMA_DIR:?SCHEMA_DIR must point to the schema folder}:/flyway/sql:ro
+      - ${SCHEMA_DIR:-./schema}:/flyway/sql:ro
     restart: "no"
