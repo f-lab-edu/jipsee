@@ -31,7 +31,7 @@ public class RtmsRhTradeClient extends RtmsApiClient<SaleDealRow> {
         return new SaleDealRow(
                 item.requiredText("sggCd"),
                 item.requiredText("umdNm"),
-                item.requiredText("jibun"),
+                item.optionalText("jibun"),
                 item.optionalText("mhouseNm"),
                 item.optionalInt("buildYear"),
                 item.requiredDecimal("excluUseAr"),
