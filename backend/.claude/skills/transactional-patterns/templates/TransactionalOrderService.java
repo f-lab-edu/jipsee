@@ -1,11 +1,11 @@
-package kr.jipsee.order.application;
+package kr.jipsee.order.service;
 
 import kr.jipsee.global.core.exception.BusinessException;
 import kr.jipsee.global.core.exception.ErrorCode;
-import kr.jipsee.order.dao.AuditLogRepository;
-import kr.jipsee.order.dao.OrderRepository;
-import kr.jipsee.order.domain.AuditLog;
-import kr.jipsee.order.domain.Order;
+import kr.jipsee.order.repository.AuditLogRepository;
+import kr.jipsee.order.repository.OrderRepository;
+import kr.jipsee.order.entity.AuditLog;
+import kr.jipsee.order.entity.Order;
 import kr.jipsee.order.dto.CreateOrderRequest;
 import kr.jipsee.order.dto.OrderResponse;
 import lombok.RequiredArgsConstructor;
