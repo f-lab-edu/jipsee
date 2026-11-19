@@ -15,7 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 
-/** 건축물대장 Job의 파라미터 계산. target은 첫 적재가 끝나기 전에는 initial, 끝난 뒤에는 실행일(KST) 기준 대상 월(yyyyMM) */
+/**
+ * 건축물대장 Job의 파라미터 계산. target은 첫 적재 완료 전에는 initial, 완료 후에는 실행일(KST) 기준 대상 월(yyyyMM)
+ * - 첫 적재 완료 직후 실행에서 해당 기간의 월 갱신이 1회 추가 실행됨
+ */
 @RequiredArgsConstructor
 public class BuildingRegisterJobParametersProvider implements JobParametersProvider {
     /** 대상 월이 바뀌는 날. 25일부터 다음 달 24일까지 같은 대상 월 */
@@ -41,6 +44,6 @@ public class BuildingRegisterJobParametersProvider implements JobParametersProvi
             return INITIAL_TARGET;
         }
 
-        return YearMonth.from(LocalDate.now(clock).minusDays(START_DAY - 1)).format(TARGET_FORMAT);
+        return YearMonth.from(LocalDate.now(clock).minusDays(START_DAY - 1L)).format(TARGET_FORMAT);
     }
 }
