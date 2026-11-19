@@ -141,4 +141,30 @@ class SaleDealServiceTest {
         assertThat(saved.get("building_parcel_id")).isNull();
         assertThat(saved.get("deal_amount")).isEqualTo(4800);
     }
+
+    @Test
+    @DisplayName("지번이 없는 거래도 lot_number를 null로 저장함")
+    void 지번이_없는_거래도_lot_number를_null로_저장함() {
+        // given
+        SaleDealRow noLotNumber = new SaleDealRow(
+                "12170",
+                "이창동",
+                null,
+                "골든빌B",
+                2007,
+                new BigDecimal("74.89"),
+                2,
+                LocalDate.of(2026, 10, 14),
+                4800,
+                null,
+                null);
+
+        // when
+        service.replace("12170", OCTOBER, List.of(noLotNumber));
+
+        // then
+        Map<String, Object> saved = jdbcTemplate.queryForMap("select * from sale_deal");
+        assertThat(saved.get("lot_number")).isNull();
+        assertThat(saved.get("house_name")).isEqualTo("골든빌B");
+    }
 }

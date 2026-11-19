@@ -135,6 +135,22 @@ class RtmsRhRentClientTest {
     }
 
     @Test
+    @DisplayName("지번이 빈 값이면 지번을 null로 담음")
+    void 지번이_빈_값이면_지번을_null로_담음() {
+        // given
+        PublicDataItem blankLot = item("""
+                {"dealDay":3,"dealMonth":10,"dealYear":2025,"deposit":5000,"excluUseAr":64,"jibun":" ",
+                 "monthlyRent":0,"sggCd":11110,"umdNm":"동숭동"}""");
+
+        // when
+        RentDealRow row = RtmsRhRentClient.toRow(blankLot);
+
+        // then
+        assertThat(row.lotNumber()).isNull();
+        assertThat(row.deposit()).isEqualTo(5000);
+    }
+
+    @Test
     @DisplayName("응답 행의 계약 월이 요청과 다르면 PublicDataApiException을 던짐")
     void 응답_행의_계약_월이_요청과_다르면_PublicDataApiException을_던짐() {
         // given

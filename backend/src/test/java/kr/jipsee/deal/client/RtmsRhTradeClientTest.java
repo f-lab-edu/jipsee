@@ -105,6 +105,23 @@ class RtmsRhTradeClientTest {
     }
 
     @Test
+    @DisplayName("지번이 빈 값이면 지번을 null로 담음")
+    void 지번이_빈_값이면_지번을_null로_담음() {
+        // given
+        PublicDataItem blankLot = item("""
+                {"buildYear":2020,"cdealDay":" ","cdealType":" ","dealAmount":"42,500","dealDay":19,"dealMonth":6,
+                 "dealYear":2025,"excluUseAr":50.99,"floor":5,"jibun":" ","mhouseNm":"엘림빌리지(1동)","sggCd":28177,
+                 "umdNm":"문학동"}""");
+
+        // when
+        SaleDealRow row = RtmsRhTradeClient.toRow(blankLot);
+
+        // then
+        assertThat(row.lotNumber()).isNull();
+        assertThat(row.dealAmount()).isEqualTo(42500);
+    }
+
+    @Test
     @DisplayName("응답 행의 계약 월이 요청과 다르면 PublicDataApiException을 던짐")
     void 응답_행의_계약_월이_요청과_다르면_PublicDataApiException을_던짐() {
         // given
