@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import kr.jipsee.TestcontainersConfiguration;
-import kr.jipsee.batch.common.DataSourceRepository;
+import kr.jipsee.batch.common.CollectStatusRepository;
 import kr.jipsee.deal.client.RtmsRhRentClient;
 import kr.jipsee.deal.client.RtmsRhTradeClient;
 import kr.jipsee.deal.dto.RentDealRow;
@@ -80,7 +80,7 @@ class DealJobIntegrationTest {
     RtmsRhTradeClient rtmsRhTradeClient;
 
     @MockitoSpyBean
-    DataSourceRepository dataSourceRepository;
+    CollectStatusRepository collectStatusRepository;
 
     @BeforeEach
     void setUp() {
@@ -95,7 +95,7 @@ class DealJobIntegrationTest {
         }
         jdbcTemplate.update("delete from rent_deal");
         jdbcTemplate.update("delete from sale_deal");
-        jdbcTemplate.update("delete from data_source");
+        jdbcTemplate.update("delete from collect_status");
         given(regionService.sigunguCodes()).willReturn(CODES);
         given(rtmsRhRentClient.fetch(anyString(), any(YearMonth.class), anyInt()))
                 .willAnswer(invocation -> {
@@ -138,7 +138,7 @@ class DealJobIntegrationTest {
     }
 
     private List<String> sources() {
-        return jdbcTemplate.queryForList("select source from data_source", String.class);
+        return jdbcTemplate.queryForList("select source from collect_status", String.class);
     }
 
     private String stepStatus(String stepName) {
@@ -158,8 +158,8 @@ class DealJobIntegrationTest {
     }
 
     @Test
-    @DisplayName("실패한 Job은 data_source를 갱신하지 않고 같은 파라미터로 다시 시작하면 마지막으로 커밋한 키부터 이어감")
-    void 실패한_Job은_data_source를_갱신하지_않고_같은_파라미터로_다시_시작하면_마지막으로_커밋한_키부터_이어감() throws Exception {
+    @DisplayName("실패한 Job은 collect_status를 갱신하지 않고 같은 파라미터로 다시 시작하면 마지막으로 커밋한 키부터 이어감")
+    void 실패한_Job은_collect_status를_갱신하지_않고_같은_파라미터로_다시_시작하면_마지막으로_커밋한_키부터_이어감() throws Exception {
         // given: 매매의 다섯 번째 키(11140, 2011-01)가 첫 호출에서만 실패함
         JobParameters params = endMonth("2011-02");
         given(rtmsRhTradeClient.fetch("11140", YearMonth.of(2011, 1), 1))
@@ -193,7 +193,7 @@ class DealJobIntegrationTest {
         JobParameters params = endMonth("2011-02");
         willThrow(new IllegalStateException("테스트용 실패"))
                 .willCallRealMethod()
-                .given(dataSourceRepository)
+                .given(collectStatusRepository)
                 .saveLoadedAt(anyString(), any(LocalDateTime.class));
 
         // when
@@ -219,8 +219,8 @@ class DealJobIntegrationTest {
     }
 
     @Test
-    @DisplayName("전월세 초기 적재 Job이 실패해도 매매 초기 적재 Job은 완료하고 data_source는 매매만 갱신함")
-    void 전월세_초기_적재_Job이_실패해도_매매_초기_적재_Job은_완료하고_data_source는_매매만_갱신함() throws Exception {
+    @DisplayName("전월세 초기 적재 Job이 실패해도 매매 초기 적재 Job은 완료하고 collect_status는 매매만 갱신함")
+    void 전월세_초기_적재_Job이_실패해도_매매_초기_적재_Job은_완료하고_collect_status는_매매만_갱신함() throws Exception {
         // given
         JobParameters params = endMonth("2011-02");
         given(rtmsRhRentClient.fetch(anyString(), any(YearMonth.class), anyInt()))
@@ -302,8 +302,8 @@ class DealJobIntegrationTest {
     }
 
     @Test
-    @DisplayName("일일 Job은 수집 날짜가 속한 달을 포함해 6개월을 각자의 API만 수집하고 data_source를 갱신함")
-    void 일일_Job은_수집_날짜가_속한_달을_포함해_6개월을_각자의_API만_수집하고_data_source를_갱신함() throws Exception {
+    @DisplayName("일일 Job은 수집 날짜가 속한 달을 포함해 6개월을 각자의 API만 수집하고 collect_status를 갱신함")
+    void 일일_Job은_수집_날짜가_속한_달을_포함해_6개월을_각자의_API만_수집하고_collect_status를_갱신함() throws Exception {
         // given
         JobParameters params = new JobParametersBuilder()
                 .addString("collectDate", LocalDate.of(2026, 11, 4).toString())
