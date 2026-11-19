@@ -89,9 +89,9 @@ public class BldRgstHubClient extends PublicDataApiClient {
                 item.optionalInt("oudrAutoUtcnt"));
     }
 
-    /** 본번과 부번이 비어 있으면 스키마 기준대로 0000 반환 */
+    /** 본번과 부번이 비어 있으면 0000, 아니면 앞을 0으로 채운 4자리 반환 */
     private static String orZeros(String lotNumber) {
-        return lotNumber == null ? NO_LOT_NUMBER : lotNumber;
+        return lotNumber == null ? NO_LOT_NUMBER : "0".repeat(4 - lotNumber.length()) + lotNumber;
     }
 
     /** 사용승인일은 앞 4자가 숫자일 때만 원본 그대로 반환. 아니면 null */

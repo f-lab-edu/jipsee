@@ -370,6 +370,22 @@ class BldRgstHubClientTest {
         assertThat(parcelKey.isComplete()).isTrue();
     }
 
+    @Test
+    @DisplayName("본번과 부번이 4자리보다 짧으면 앞을 0으로 채워 읽음")
+    void 본번과_부번이_4자리보다_짧으면_앞을_0으로_채워_읽음() {
+        // given
+        ObjectNode node = (ObjectNode) JSON.readTree(REAL_ITEM);
+        node.put("bun", "67");
+        node.put("ji", "5");
+
+        // when
+        ParcelKey parcelKey = BldRgstHubClient.toRow(PublicDataItem.of(node)).parcelKey();
+
+        // then
+        assertThat(parcelKey.mainLotNumber()).isEqualTo("0067");
+        assertThat(parcelKey.subLotNumber()).isEqualTo("0005");
+    }
+
     private static String keyValue(ParcelKey parcelKey, String field) {
         return switch (field) {
             case "sigunguCd" -> parcelKey.sigunguCode();
