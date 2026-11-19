@@ -199,13 +199,13 @@ for (const { label, viewport, layout } of SCREENS) {
 					const tocNav = (page: Page) =>
 						body(page).getByRole("navigation", { name: "목차" });
 
-					test(`${caseId("P3", 1)} ${label} ${title} 시행일 줄이 시행일 2026.11.12이고 이전 버전 링크가 없음`, async ({
+					test(`${caseId("P3", 1)} ${label} ${title} 시행일 줄이 시행일 2026.11.17이고 이전 버전 링크가 없음`, async ({
 						page,
 					}) => {
 						await gotoAndSettle(page, path);
 						await expect(
 							page.locator(`[data-area="policy-effective-date-${layout}"]`),
-						).toHaveText("시행일 2026.11.12");
+						).toHaveText("시행일 2026.11.17");
 						await expect(
 							page.getByRole("link", { name: /이전 버전/ }),
 						).toHaveCount(0);
