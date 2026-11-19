@@ -19,10 +19,6 @@ erDiagram
         bigint id PK
         bigint building_parcel_id FK
     }
-    building_parcel ||--o| building_location : "필지 1개에 좌표 0 또는 1개"
-    building_location["building_location (필지 좌표)"] {
-        bigint building_parcel_id PK, FK
-    }
     building_parcel |o--o{ rent_deal : "필지 1개에 거래 N건"
     rent_deal["rent_deal (전월세 거래)"] {
         bigint id PK
@@ -140,7 +136,7 @@ erDiagram
         varchar name "건물명 (bldNm), 값이 없으면 NULL"
         varchar dong_name "건축물 동 명칭 (dongNm), 값이 없으면 NULL"
         char main_annex_type_code "주부속구분, 0은 주건축물, 1은 부속건축물 (mainAtchGbCd)"
-        char use_approval_date "사용승인일, YYYYMMDD 형식의 원본 값 (useAprDay), 값이 없으면 NULL"
+        char use_approval_date "사용승인일, YYYYMMDD 형식의 원본 값 (useAprDay), 연도만 있거나 일이 00인 값도 원본 그대로 들어가며, 값이 없으면 NULL"
         int household_count "세대 수 (hhldCnt), 값이 없으면 NULL"
         int above_ground_floor_count "지상 층수 (grndFlrCnt), 값이 없으면 NULL"
         int underground_floor_count "지하 층수 (ugrndFlrCnt), 값이 없으면 NULL"
@@ -162,24 +158,6 @@ erDiagram
 - FULLTEXT(name, lot_address, road_address) ngram을 건물명, 지번주소, 도로명주소 검색에 사용함
 - 건물명이 없는 필지는 주소로만 검색할 수 있음
 - 동은 합치지 않고 동마다 1행으로 저장함
-
-## building_location
-
-> 필지 좌표
-
-```mermaid
-erDiagram
-    building_parcel ||--o| building_location : "필지 1개에 좌표 0 또는 1개"
-    building_location {
-        bigint building_parcel_id PK, FK "필지 ID"
-        point location "지번주소(building_register.lot_address)를 지오코딩한 좌표, 위도 경도 순서, SRID 4326"
-        datetime created_at "행 생성 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
-        datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
-    }
-```
-
-- SPATIAL INDEX(location)을 반경 검색에 사용함
-- 지오코딩에 성공한 필지에만 행을 만들며, 행이 없는 필지는 표제부를 적재할 때마다 다시 지오코딩함
 
 ## rent_deal
 
@@ -215,7 +193,7 @@ erDiagram
 - CHECK: match_status가 FAILED일 때만 building_parcel_id가 NULL임
 - 유니크 제약을 두지 않음. 원본에 거래 ID가 없고 값이 같은 행이 있기 때문임
 - INDEX(sigungu_code, deal_date)를 재수집할 때 삭제할 행을 찾는 데 사용함
-- INDEX(building_parcel_id, deal_date)를 필지의 거래 이력과 주변 거래 조회에 사용함
+- INDEX(building_parcel_id, deal_date)를 필지의 거래 이력과 같은 법정동의 주변 거래 조회에 사용함
 
 ## sale_deal
 
