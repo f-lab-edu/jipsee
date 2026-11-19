@@ -61,4 +61,19 @@ class CollectStatusRepositoryTest {
         assertThat(dataSource).isZero();
         assertThat(collectStatus).isEqualTo(1);
     }
+
+    @Test
+    @DisplayName("출처 행이 있으면 true이고 없으면 false임")
+    void 출처_행이_있으면_true이고_없으면_false임() {
+        // given
+        boolean before = collectStatusRepository.exists("BUILDING_REGISTER");
+
+        // when
+        collectStatusRepository.saveLoadedAt("BUILDING_REGISTER", LocalDateTime.of(2026, 11, 4, 4, 0));
+        boolean after = collectStatusRepository.exists("BUILDING_REGISTER");
+
+        // then
+        assertThat(before).isFalse();
+        assertThat(after).isTrue();
+    }
 }

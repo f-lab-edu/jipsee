@@ -17,4 +17,12 @@ public class CollectStatusRepository {
                 + " on duplicate key update loaded_at = new.loaded_at";
         jdbcTemplate.update(sql, source, loadedAt);
     }
+
+    /** 출처의 행이 있는지 반환 */
+    public boolean exists(String source) {
+        Boolean exists = jdbcTemplate.queryForObject(
+                "select exists(select 1 from collect_status where source = ?)", Boolean.class, source);
+
+        return Boolean.TRUE.equals(exists);
+    }
 }
