@@ -395,8 +395,7 @@ export const privacyDocument: PolicyDocument = {
 					kind: "rows",
 					rows: [
 						{ label: "성명", value: "집씨 운영팀" },
-						{ label: "이메일", value: "[임시] privacy@jipsee.kr" },
-						{ label: "연락처", value: "[임시] 연락처" },
+						{ label: "이메일", value: "jipsee.help@gmail.com" },
 					],
 				},
 			],
