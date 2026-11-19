@@ -16,8 +16,10 @@ Slice Tests        — partial Spring context (@WebMvcTest, @DataJpaTest) (20%)
 Integration Tests  — full context + real MySQL via Testcontainers  (10%)
 ```
 
-Test packages mirror main packages: `src/main/java/kr/jipsee/<domain>/application/OrderService.java`
-is tested by `src/test/java/kr/jipsee/<domain>/application/OrderServiceTest.java`.
+Test packages mirror main packages: `src/main/java/kr/jipsee/<domain>/service/OrderService.java`
+is tested by `src/test/java/kr/jipsee/<domain>/service/OrderServiceTest.java`. Batch code lives under the
+top-level `batch` package: `src/main/java/kr/jipsee/batch/<job>/DealKeyReader.java` is tested by
+`src/test/java/kr/jipsee/batch/<job>/DealKeyReaderTest.java`.
 
 ## Conventions (all test levels)
 
@@ -232,8 +234,8 @@ class OrderIntegrationTest {
 
 ### Schema in the container
 
-- The repo ships no SQL and no migrations, and Spring does not run any. The schema SQL lives outside the repo (`$SCHEMA_DIR`, applied by the `flyway` service in `backend/compose.schema.yaml`).
-- A fresh Testcontainers MySQL is empty. Apply the externally supplied schema to the container before the Spring context starts, for example by copying the SQL files from `$SCHEMA_DIR` into `/docker-entrypoint-initdb.d`.
+- The schema SQL lives in `backend/schema` (override with `$SCHEMA_DIR`), and Spring does not run migrations. Tests apply it with Flyway (`spring.flyway.locations` in `application-test.yml`); the `flyway` service in `backend/compose.schema.yaml` applies it for local runs.
+- A fresh Testcontainers MySQL is empty. Apply the schema to the container before the Spring context starts. Never edit an applied version file; add a new one.
 - Keep `ddl-auto: validate`. Do not switch to `create` or `create-drop` to make tests pass; validation against the real schema is the point of these tests.
 
 ## Boot 4 Packages
