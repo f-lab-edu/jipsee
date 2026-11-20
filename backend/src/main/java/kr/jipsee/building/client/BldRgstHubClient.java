@@ -51,6 +51,23 @@ public class BldRgstHubClient extends PublicDataApiClient {
         return call(PATH, params, requestInfo).map(BldRgstHubClient::toRow);
     }
 
+    /** 필지 하나의 표제부 한 페이지를 행으로 변환해 반환 */
+    public PublicDataPage<BuildingRegisterRow> fetch(ParcelKey key, int pageNo) {
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("sigunguCd", key.sigunguCode());
+        params.put("bjdongCd", key.legalDongCode());
+        params.put("platGbCd", key.landTypeCode());
+        params.put("bun", key.mainLotNumber());
+        params.put("ji", key.subLotNumber());
+        params.put("pageNo", pageNo);
+        params.put("numOfRows", PAGE_SIZE);
+        String requestInfo = "sigunguCd=" + key.sigunguCode() + ", bjdongCd=" + key.legalDongCode()
+                + ", platGbCd=" + key.landTypeCode() + ", bun=" + key.mainLotNumber()
+                + ", ji=" + key.subLotNumber() + ", pageNo=" + pageNo;
+
+        return call(PATH, params, requestInfo).map(BldRgstHubClient::toRow);
+    }
+
     /** 건축HUB의 정상 응답 코드는 00 */
     @Override
     protected boolean isSuccess(String resultCode) {

@@ -14,6 +14,7 @@ import kr.jipsee.global.publicdata.PublicDataApiException;
 import kr.jipsee.global.publicdata.PublicDataItem;
 import kr.jipsee.global.publicdata.PublicDataPage;
 import kr.jipsee.global.publicdata.PublicDataProperties;
+import kr.jipsee.global.publicdata.PublicDataQuotaExceededException;
 import kr.jipsee.region.dto.LegalDongKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +34,12 @@ class BldRgstHubClientTest {
 
     private static final JsonMapper JSON = JsonMapper.builder().build();
     private static final LegalDongKey KEY = new LegalDongKey("11350", "10400");
+    private static final ParcelKey PARCEL_KEY = new ParcelKey("11350", "10400", "0", "0130", "0069");
+
+    /** 한도 초과(22) 응답. 건축HUB의 실제 형식은 관측하지 못해 실거래 API와 같은 형식으로 추정함 */
+    private static final String JSON_LIMIT_22 = "{\"OpenAPI_ServiceResponse\":{\"cmmMsgHeader\":{"
+            + "\"errMsg\":\"LIMITED_NUMBER_OF_SERVICE_REQUESTS_EXCEEDS_ERROR\","
+            + "\"returnAuthMsg\":\"서비스 요청제한 횟수 초과 에러\",\"returnReasonCode\":\"22\"}}}";
 
     /** 2026-11-15에 11350/10400을 호출해 받은 실제 응답의 item 한 건 (노원구 하계동 67-22 한화그린빌A동) */
     private static final String REAL_ITEM = """
@@ -153,6 +160,70 @@ class BldRgstHubClientTest {
 
         // then
         assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("000");
+        server.verify();
+    }
+
+    @Test
+    @DisplayName("필지 하나의 표제부를 100건 단위 쿼리로 요청함")
+    void 필지_하나의_표제부를_100건_단위_쿼리로_요청함() {
+        // given
+        server.expect(request -> {
+                    assertThat(request.getURI().getRawPath()).isEqualTo("/1613000/BldRgstHubService/getBrTitleInfo");
+                    assertThat(request.getURI().getRawQuery())
+                            .isEqualTo(
+                                    "serviceKey=abc%2Bdef%3D&sigunguCd=11350&bjdongCd=10400&platGbCd=0&bun=0130&ji=0069&pageNo=1&numOfRows=100&_type=json");
+                })
+                .andRespond(withSuccess(pageBody(REAL_ITEM), MediaType.APPLICATION_JSON));
+
+        // when
+        client.fetch(PARCEL_KEY, 1);
+
+        // then
+        server.verify();
+    }
+
+    @Test
+    @DisplayName("필지 응답을 totalCount와 행 목록의 페이지로 반환함")
+    void 필지_응답을_totalCount와_행_목록의_페이지로_반환함() {
+        // given
+        server.expect(request -> {})
+                .andRespond(withSuccess(pageBody(REAL_ITEM, REAL_ITEM), MediaType.APPLICATION_JSON));
+
+        // when
+        PublicDataPage<BuildingRegisterRow> page = client.fetch(PARCEL_KEY, 1);
+
+        // then
+        assertThat(page.totalCount()).isEqualTo(2);
+        assertThat(page.items()).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("필지 응답이 0건이면 빈 목록을 반환함")
+    void 필지_응답이_0건이면_빈_목록을_반환함() {
+        // given
+        String body = "{\"response\":{\"header\":{\"resultCode\":\"00\",\"resultMsg\":\"NORMAL SERVICE\"},"
+                + "\"body\":{\"items\":{\"item\":[]},\"numOfRows\":\"100\",\"pageNo\":\"1\",\"totalCount\":\"0\"}}}";
+        server.expect(request -> {}).andRespond(withSuccess(body, MediaType.APPLICATION_JSON));
+
+        // when
+        PublicDataPage<BuildingRegisterRow> page = client.fetch(PARCEL_KEY, 1);
+
+        // then
+        assertThat(page.totalCount()).isZero();
+        assertThat(page.items()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("한도 초과 응답은 PublicDataQuotaExceededException이고 재시도하지 않음 (추정한 형식)")
+    void 한도_초과_응답은_PublicDataQuotaExceededException이고_재시도하지_않음() {
+        // given
+        server.expect(request -> {}).andRespond(withSuccess(JSON_LIMIT_22, MediaType.APPLICATION_JSON));
+
+        // when
+        Throwable thrown = catchThrowable(() -> client.fetch(PARCEL_KEY, 1));
+
+        // then
+        assertThat(thrown).isInstanceOf(PublicDataQuotaExceededException.class);
         server.verify();
     }
 
