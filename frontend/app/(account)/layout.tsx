@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { getSession } from "@/entities/session/api/getSession";
 import PageColumn from "@/shared/ui/PageColumn";
 import BottomNav from "@/widgets/bottomNav/ui/BottomNav";
@@ -10,6 +11,8 @@ import Footer from "@/widgets/footer/ui/Footer";
  * - 1280 미만에서 열은 흰색이고, 열의 마지막 자식으로 하단 내비게이션 출력
  */
 export default async function AccountLayout({ children }: LayoutProps<"/">) {
+	notFound();
+
 	const session = await getSession();
 
 	return (
