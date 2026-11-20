@@ -15,14 +15,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.ExitCodeGenerator;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 /** 프로세스 하나에서 Job 하나를 실행하고 결과를 종료 코드로 돌려줌. SIGTERM이면 JVM이 143으로 끝나고 다음 실행이 STARTED를 복구해 이어서 처리 */
 @Slf4j
 @Component
-@ConditionalOnProperty(name = "jipsee.batch.run.job")
+@ConditionalOnExpression("#{environment.containsProperty('" + BatchJobRunner.RUN_JOB_PROPERTY + "')}")
 public class BatchJobRunner implements ApplicationRunner, ExitCodeGenerator {
+    /** 실행할 Job 이름을 받는 프로퍼티. 값이 비어 있거나 false여도 키가 있으면 러너를 만듦 */
+    public static final String RUN_JOB_PROPERTY = "jipsee.batch.run.job";
+
     static final int COMPLETED = 0;
     static final int FAILED = 1;
     static final int BAD_ARGS = 2;
@@ -42,7 +45,7 @@ public class BatchJobRunner implements ApplicationRunner, ExitCodeGenerator {
     private int exitCode = FAILED;
 
     public BatchJobRunner(
-            @Value("${jipsee.batch.run.job}") String jobName,
+            @Value("${" + RUN_JOB_PROPERTY + "}") String jobName,
             Collection<Job> jobs,
             Collection<JobParametersProvider> providers,
             JobOperator jobOperator,
