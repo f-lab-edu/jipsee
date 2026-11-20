@@ -159,6 +159,31 @@ erDiagram
 - 건물명이 없는 필지는 주소로만 검색할 수 있음
 - 동은 합치지 않고 동마다 1행으로 저장함
 
+## building_parcel_lookup
+
+> 필지 단건 조회 기록
+
+```mermaid
+erDiagram
+    building_parcel_lookup {
+        bigint id PK "조회 기록 ID"
+        char sigungu_code "시군구코드 5자리 (sigunguCd)"
+        char legal_dong_code "법정동코드 중 뒤 5자리 (bjdongCd)"
+        char land_type_code "대지구분, 0은 대지, 1은 산, 2는 블록 (platGbCd)"
+        char main_lot_number "지번 본번, 앞을 0으로 채운 4자리 (bun)"
+        char sub_lot_number "지번 부번, 앞을 0으로 채운 4자리 (ji)"
+        datetime looked_up_at "마지막으로 조회한 시각"
+        varchar result "조회 결과, 값은 SAVED, EXCLUDED, EMPTY 중 하나"
+        datetime created_at "행 생성 시각, MySQL 기본값 CURRENT_TIMESTAMP로 채움"
+        datetime updated_at "행 수정 시각, MySQL 기본값 CURRENT_TIMESTAMP와 ON UPDATE CURRENT_TIMESTAMP로 채움"
+    }
+```
+
+- UNIQUE(sigungu_code, legal_dong_code, land_type_code, main_lot_number, sub_lot_number)로 조회한 필지를 식별함
+- 필지가 building_parcel에 없을 때 조회하므로 외래 키를 두지 않음
+- result는 SAVED(필지와 동을 저장함), EXCLUDED(연립 또는 다세대가 아니어서 저장하지 않음), EMPTY(응답이 0행)임
+- 같은 필지는 기록의 looked_up_at이 collect_status의 BUILDING_REGISTER loaded_at보다 이전일 때만 다시 조회함
+
 ## rent_deal
 
 > 전월세 거래
