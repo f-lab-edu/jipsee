@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 import kr.jipsee.building.dto.BuildingRegisterRow;
 import kr.jipsee.building.dto.ParcelKey;
+import kr.jipsee.building.dto.ParcelYears;
 import kr.jipsee.region.dto.LegalDongKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -160,5 +161,61 @@ public class BuildingRegisterRepository {
 
         return jdbcTemplate.query(
                 sql, (rs, rowNum) -> new LegalDongKey(rs.getString("sigungu_code"), rs.getString("legal_dong_code")));
+    }
+
+    /** 법정동의 필지를 동 행과 함께 읽어 필지별 동 행 유무와 사용승인 연도 집합으로 묶어 반환 */
+    public Map<ParcelKey, ParcelYears> findParcelYears(LegalDongKey key) {
+        String sql = "select p.id, p.sigungu_code, p.legal_dong_code, p.land_type_code, p.main_lot_number,"
+                + " p.sub_lot_number, r.id as register_id, left(r.use_approval_date, 4) as approval_year"
+                + " from building_parcel p left join building_register r on r.building_parcel_id = p.id"
+                + " where p.sigungu_code = ? and p.legal_dong_code = ?";
+
+        Map<ParcelKey, ParcelYears> result = jdbcTemplate.query(
+                sql,
+                rs -> {
+                    Map<ParcelKey, Long> ids = new HashMap<>();
+                    Set<ParcelKey> withRegisters = new HashSet<>();
+                    Map<ParcelKey, Set<Integer>> years = new HashMap<>();
+
+                    while (rs.next()) {
+                        ParcelKey parcelKey = new ParcelKey(
+                                rs.getString("sigungu_code"),
+                                rs.getString("legal_dong_code"),
+                                rs.getString("land_type_code"),
+                                rs.getString("main_lot_number"),
+                                rs.getString("sub_lot_number"));
+                        ids.put(parcelKey, rs.getLong("id"));
+
+                        if (rs.getObject("register_id") != null) {
+                            withRegisters.add(parcelKey);
+                        }
+
+                        String year = rs.getString("approval_year");
+                        if (year != null) {
+                            years.computeIfAbsent(parcelKey, k -> new HashSet<>())
+                                    .add(Integer.valueOf(year));
+                        }
+                    }
+
+                    Map<ParcelKey, ParcelYears> parcels = new HashMap<>();
+                    ids.forEach((parcelKey, id) -> parcels.put(
+                            parcelKey,
+                            new ParcelYears(
+                                    id, withRegisters.contains(parcelKey), years.getOrDefault(parcelKey, Set.of()))));
+
+                    return parcels;
+                },
+                key.sigunguCode(),
+                key.legalDongCode());
+
+        return Objects.requireNonNull(result);
+    }
+
+    /** 필지 하나의 이름을 건물명이 있는 동 중 ID가 가장 작은 동의 건물명으로 다시 정함. 없으면 null */
+    public void refreshParcelName(long parcelId) {
+        String sql = "update building_parcel p set p.name = (select r.name from building_register r"
+                + " where r.building_parcel_id = p.id and r.name is not null order by r.id limit 1)"
+                + " where p.id = ?";
+        jdbcTemplate.update(sql, parcelId);
     }
 }

@@ -1,5 +1,6 @@
 package kr.jipsee.building.service;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -76,5 +77,10 @@ public class BuildingRegisterService {
     /** 필지가 저장된 법정동을 코드 순으로 반환 */
     public List<LegalDongKey> findStoredLegalDongs() {
         return repository.findLegalDongs();
+    }
+
+    /** 행 중 하나라도 etcPurpose에 연립 또는 다세대가 들어 있으면 true */
+    static boolean hasTargetPurpose(Collection<BuildingRegisterRow> rows) {
+        return rows.stream().anyMatch(BuildingRegisterService::hasTargetKeyword);
     }
 }
