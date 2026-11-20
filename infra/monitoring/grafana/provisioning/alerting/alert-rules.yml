@@ -323,7 +323,7 @@ groups:
               datasource:
                 type: prometheus
                 uid: prometheus
-              expr: 'changes(container_start_time_seconds{container_label_com_docker_compose_project="jipsee"}[15m])'
+              expr: 'count by (name, id) (count_over_time(container_start_time_seconds{container_label_com_docker_compose_project="jipsee"}[15m])) - 1'
               instant: true
               intervalMs: 1000
               maxDataPoints: 43200
