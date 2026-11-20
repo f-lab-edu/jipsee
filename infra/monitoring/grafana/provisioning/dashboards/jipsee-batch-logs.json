@@ -24,7 +24,7 @@
     {
       "id": 1,
       "type": "timeseries",
-      "title": "Job별 실행 시간",
+      "title": "Job별 최근 최대 실행 시간",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -120,7 +120,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (spring_batch_job_name) (increase(spring_batch_job_seconds_count{spring_batch_job_status=\"COMPLETED\"}[$__range]))",
+          "expr": "sum by (spring_batch_job_name) (increase(spring_batch_job_seconds_count{spring_batch_job_status=\"COMPLETED\"}[$__range]) or spring_batch_job_seconds_count{spring_batch_job_status=\"COMPLETED\"} * 0) + sum by (spring_batch_job_name) (clamp_max(spring_batch_job_seconds_count{spring_batch_job_status=\"COMPLETED\"} unless spring_batch_job_seconds_count{spring_batch_job_status=\"COMPLETED\"} offset $__range, 1) or spring_batch_job_seconds_count{spring_batch_job_status=\"COMPLETED\"} * 0)",
           "legendFormat": "{{spring_batch_job_name}}",
           "refId": "A",
           "instant": true,
@@ -181,7 +181,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (spring_batch_job_name) (increase(spring_batch_job_seconds_count{spring_batch_job_status=\"FAILED\"}[$__range]))",
+          "expr": "sum by (spring_batch_job_name) (increase(spring_batch_job_seconds_count{spring_batch_job_status=\"FAILED\"}[$__range]) or spring_batch_job_seconds_count{spring_batch_job_status=\"FAILED\"} * 0) + sum by (spring_batch_job_name) (clamp_max(spring_batch_job_seconds_count{spring_batch_job_status=\"FAILED\"} unless spring_batch_job_seconds_count{spring_batch_job_status=\"FAILED\"} offset $__range, 1) or spring_batch_job_seconds_count{spring_batch_job_status=\"FAILED\"} * 0)",
           "legendFormat": "{{spring_batch_job_name}}",
           "refId": "A",
           "instant": true,
