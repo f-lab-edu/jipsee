@@ -1123,7 +1123,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "description": "스로틀링된 주기 수",
+          "description": "스로틀링된 시간(초/초)",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1215,7 +1215,7 @@
               "refId": "A"
             }
           ],
-          "title": "container_cpu_cfs_throttled_periods_total",
+          "title": "container_cpu_cfs_throttled_seconds_total",
           "type": "timeseries"
         },
         {
@@ -1435,7 +1435,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "description": "누적 메모리 할당 실패 횟수",
+          "description": "페이지 폴트 발생 횟수(pgfault, pgmajfault)",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1520,9 +1520,9 @@
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "max by (name) (rate(container_memory_failures_total{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"}[$__rate_interval]))",
+              "expr": "max by (name, failure_type) (rate(container_memory_failures_total{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"}[$__rate_interval]))",
               "hide": false,
-              "legendFormat": "{{name}}",
+              "legendFormat": "{{name}} {{failure_type}}",
               "range": true,
               "refId": "B"
             }
@@ -3144,213 +3144,6 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "description": "사용 가능한 Inode 수, 전체 Inode 수",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "axisSoftMin": 0,
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 100,
-                "gradientMode": "opacity",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "normal"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 9,
-            "w": 3,
-            "x": 0,
-            "y": 6
-          },
-          "id": 13,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            }
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
-              "editorMode": "code",
-              "expr": "max by (name) (container_fs_inodes_free{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"})",
-              "hide": false,
-              "legendFormat": "{{name}} 여유",
-              "range": true,
-              "refId": "A"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
-              "editorMode": "code",
-              "expr": "max by (name) (container_fs_inodes_total{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"})",
-              "hide": false,
-              "legendFormat": "{{name}}",
-              "range": true,
-              "refId": "B"
-            }
-          ],
-          "title": "container_fs_inodes_free, container_fs_inodes_total",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "description": "컨테이너가 이 파일시스템에서 사용할 수 있는 바이트 수",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 100,
-                "gradientMode": "opacity",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineStyle": {
-                  "fill": "solid"
-                },
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "bytes"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 9,
-            "w": 3,
-            "x": 3,
-            "y": 6
-          },
-          "id": 17,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            }
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
-              "editorMode": "code",
-              "expr": "max by (name) (container_fs_limit_bytes{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"})",
-              "hide": false,
-              "legendFormat": "{{name}}",
-              "range": true,
-              "refId": "D"
-            }
-          ],
-          "title": "container_fs_limit",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
           "description": "https://github.com/google/cadvisor/issues/1403#issuecomment-1752155206",
           "fieldConfig": {
             "defaults": {
@@ -3439,106 +3232,6 @@
             }
           ],
           "title": "container_fs_io_current",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "description": "I/O에 사용한 누적 시간(초), 가중 누적 I/O 시간(초)",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "axisSoftMin": 0,
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 100,
-                "gradientMode": "opacity",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineStyle": {
-                  "fill": "solid"
-                },
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "normal"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "bytes"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 9,
-            "w": 6,
-            "x": 12,
-            "y": 6
-          },
-          "id": 21,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            }
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
-              "editorMode": "code",
-              "expr": "max by (name) (rate(container_fs_usage_bytes{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"}[$__rate_interval]))",
-              "hide": false,
-              "legendFormat": "{{name}}",
-              "range": true,
-              "refId": "H"
-            }
-          ],
-          "title": "container_fs_usage",
           "type": "timeseries"
         },
         {
@@ -3754,7 +3447,7 @@
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "max by (name) (-rate(container_fs_write_seconds_total{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"}[$__rate_interval]))",
+              "expr": "-max by (name) (rate(container_fs_write_seconds_total{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"}[$__rate_interval]))",
               "hide": false,
               "legendFormat": "{{name}} 쓰기",
               "range": true,
@@ -5525,7 +5218,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "description": "스로틀링된 주기 수",
+          "description": "스로틀링된 시간(초/초)",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -5616,7 +5309,7 @@
               "refId": "A"
             }
           ],
-          "title": "container_cpu_cfs_throttled_periods_total",
+          "title": "container_cpu_cfs_throttled_seconds_total",
           "type": "timeseries"
         },
         {
@@ -5777,32 +5470,7 @@
               },
               "unit": "none"
             },
-            "overrides": [
-              {
-                "__systemRef": "hideSeriesFrom",
-                "matcher": {
-                  "id": "byNames",
-                  "options": {
-                    "mode": "exclude",
-                    "names": [
-                      "email-backups-email-backups-dovecot-lubi-uni-bremen-de-1"
-                    ],
-                    "prefix": "All except:",
-                    "readOnly": true
-                  }
-                },
-                "properties": [
-                  {
-                    "id": "custom.hideFrom",
-                    "value": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": true
-                    }
-                  }
-                ]
-              }
-            ]
+            "overrides": []
           },
           "gridPos": {
             "h": 5,
@@ -5845,7 +5513,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "description": "누적 메모리 할당 실패 횟수",
+          "description": "페이지 폴트 발생 횟수(pgfault, pgmajfault)",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -5929,9 +5597,9 @@
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "max by (name) (rate(container_memory_failures_total{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"}[$__rate_interval]))",
+              "expr": "max by (name, failure_type) (rate(container_memory_failures_total{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"}[$__rate_interval]))",
               "hide": false,
-              "legendFormat": "{{name}}",
+              "legendFormat": "{{name}} {{failure_type}}",
               "range": true,
               "refId": "B"
             }
@@ -7500,212 +7168,6 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "description": "사용 가능한 Inode 수, 전체 Inode 수",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 100,
-                "gradientMode": "opacity",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "normal"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 5,
-            "w": 3,
-            "x": 6,
-            "y": 38
-          },
-          "id": 513,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            }
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
-              "editorMode": "code",
-              "expr": "max by (name) (container_fs_inodes_free{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"})",
-              "hide": false,
-              "legendFormat": "{{name}} 여유",
-              "range": true,
-              "refId": "A"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
-              "editorMode": "code",
-              "expr": "max by (name) (container_fs_inodes_total{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"})",
-              "hide": false,
-              "legendFormat": "{{name}}",
-              "range": true,
-              "refId": "B"
-            }
-          ],
-          "title": "container_fs_inodes_free, container_fs_inodes_total",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "description": "컨테이너가 이 파일시스템에서 사용할 수 있는 바이트 수",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 100,
-                "gradientMode": "opacity",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineStyle": {
-                  "fill": "solid"
-                },
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "bytes"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 5,
-            "w": 3,
-            "x": 9,
-            "y": 38
-          },
-          "id": 514,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            }
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
-              "editorMode": "code",
-              "expr": "max by (name) (container_fs_limit_bytes{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"})",
-              "hide": false,
-              "legendFormat": "{{name}}",
-              "range": true,
-              "refId": "D"
-            }
-          ],
-          "title": "container_fs_limit",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
           "description": "https://github.com/google/cadvisor/issues/1403#issuecomment-1752155206",
           "fieldConfig": {
             "defaults": {
@@ -7793,105 +7255,6 @@
             }
           ],
           "title": "container_fs_io_current",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "description": "I/O에 사용한 누적 시간(초), 가중 누적 I/O 시간(초)",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 100,
-                "gradientMode": "opacity",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineStyle": {
-                  "fill": "solid"
-                },
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "normal"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "bytes"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 5,
-            "w": 5,
-            "x": 15,
-            "y": 38
-          },
-          "id": 516,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            }
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
-              "editorMode": "code",
-              "expr": "max by (name) (rate(container_fs_usage_bytes{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"}[$__rate_interval]))",
-              "hide": false,
-              "legendFormat": "{{name}}",
-              "range": true,
-              "refId": "H"
-            }
-          ],
-          "title": "container_fs_usage",
           "type": "timeseries"
         },
         {
@@ -8106,7 +7469,7 @@
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "max by (name) (-rate(container_fs_write_seconds_total{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"}[$__rate_interval]))",
+              "expr": "-max by (name) (rate(container_fs_write_seconds_total{instance=~\"$host_instance\", name=~\"$container_name\", container_label_com_docker_compose_project=~\"$compose_project\"}[$__rate_interval]))",
               "hide": false,
               "legendFormat": "{{name}} 쓰기",
               "range": true,
