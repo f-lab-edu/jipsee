@@ -32,7 +32,7 @@ class BatchJobRunnerConditionTest {
     }
 
     @Nested
-    @SpringBootTest(properties = "jipsee.batch.run.job=noSuchJob")
+    @SpringBootTest(properties = BatchJobRunner.RUN_JOB_PROPERTY + "=noSuchJob")
     @ActiveProfiles("test")
     @Import(TestcontainersConfiguration.class)
     @DisplayName("jipsee.batch.run.job이 있을 때")
@@ -44,6 +44,23 @@ class BatchJobRunnerConditionTest {
         @Test
         @DisplayName("러너 빈을 만들고 컨텍스트가 시작될 때 실행해 없는 Job 이름이면 종료 코드 2를 돌려줌")
         void 러너_빈을_만들고_컨텍스트가_시작될_때_실행해_없는_Job_이름이면_종료_코드_2를_돌려줌() {
+            assertThat(runner.getExitCode()).isEqualTo(BatchJobRunner.BAD_ARGS);
+        }
+    }
+
+    @Nested
+    @SpringBootTest(properties = BatchJobRunner.RUN_JOB_PROPERTY + "=false")
+    @ActiveProfiles("test")
+    @Import(TestcontainersConfiguration.class)
+    @DisplayName("jipsee.batch.run.job이 false일 때")
+    class WithFalseProperty {
+
+        @Autowired
+        BatchJobRunner runner;
+
+        @Test
+        @DisplayName("값과 상관없이 러너 빈을 만들고 없는 Job 이름으로 보아 종료 코드 2를 돌려줌")
+        void 값과_상관없이_러너_빈을_만들고_없는_Job_이름으로_보아_종료_코드_2를_돌려줌() {
             assertThat(runner.getExitCode()).isEqualTo(BatchJobRunner.BAD_ARGS);
         }
     }
