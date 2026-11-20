@@ -7,7 +7,7 @@
           "uid": "prometheus"
         },
         "enable": true,
-        "expr": "sum(changes(prometheus_config_last_reload_success_timestamp_seconds{instance=~\"$instance\"}[10m])) by (instance)",
+        "expr": "sum(changes(prometheus_config_last_reload_success_timestamp_seconds{instance=~\"$instance\"}[10m])) by (instance) > 0",
         "hide": false,
         "iconColor": "rgb(0, 96, 19)",
         "limit": 100,
@@ -1385,7 +1385,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "description": "스크레이프 풀 동기화의 실제 간격",
+          "description": "스크레이프 풀 동기화 1회의 평균 소요 시간",
           "fill": 1,
           "id": 21,
           "legend": {
@@ -1412,7 +1412,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(prometheus_target_sync_length_seconds_sum{job=~\"$job\",instance=~\"$instance\"}[2m])) by (scrape_job) * 1000",
+              "expr": "1000 * sum(rate(prometheus_target_sync_length_seconds_sum{job=~\"$job\",instance=~\"$instance\"}[2m])) by (scrape_job) / sum(rate(prometheus_target_sync_length_seconds_count{job=~\"$job\",instance=~\"$instance\"}[2m])) by (scrape_job)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{scrape_job}}",
@@ -1702,7 +1702,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(http_request_duration_microseconds_count{job=~\"$job\",instance=~\"$instance\"}[1m])) by (handler) > 0",
+              "expr": "sum by (handler) (rate(prometheus_http_request_duration_seconds_sum{job=~\"$job\",instance=~\"$instance\"}[2m])) / sum by (handler) (rate(prometheus_http_request_duration_seconds_count{job=~\"$job\",instance=~\"$instance\"}[2m]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{handler}}",
@@ -1730,7 +1730,7 @@
           "yaxes": [
             {
               "format": "short",
-              "label": "마이크로초",
+              "label": "초",
               "logBase": 1,
               "max": null,
               "min": null,
@@ -2228,7 +2228,7 @@
           ],
           "spaceLength": 10,
           "span": 6,
-          "stack": true,
+          "stack": false,
           "steppedLine": false,
           "targets": [
             {
@@ -2675,24 +2675,9 @@
             "selected": false,
             "text": "7d",
             "value": "7d"
-          },
-          {
-            "selected": false,
-            "text": "30d",
-            "value": "30d"
-          },
-          {
-            "selected": false,
-            "text": "90d",
-            "value": "90d"
-          },
-          {
-            "selected": false,
-            "text": "180d",
-            "value": "180d"
           }
         ],
-        "query": "1h, 3h, 6h, 12h, 1d, 2d, 7d, 30d, 90d, 180d",
+        "query": "1h, 3h, 6h, 12h, 1d, 2d, 7d",
         "type": "custom"
       }
     ]
