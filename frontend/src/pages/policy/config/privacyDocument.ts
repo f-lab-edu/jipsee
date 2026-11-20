@@ -376,7 +376,6 @@ export const privacyDocument: PolicyDocument = {
 						"비밀값 분리: 인증키와 비밀번호 같은 비밀값은 소스 코드와 분리해 보관합니다.",
 					],
 				},
-				{ kind: "paragraph", text: "[임시 실제 운영 구성과 대조 필요]" },
 			],
 		},
 		{
