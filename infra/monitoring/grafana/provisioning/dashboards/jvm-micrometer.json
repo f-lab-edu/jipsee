@@ -366,7 +366,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "sum(jvm_memory_used_bytes{application=\"$application\", instance=\"$instance\", area=\"nonheap\"})*100/sum(jvm_memory_max_bytes{application=\"$application\",instance=\"$instance\", area=\"nonheap\"})",
+              "expr": "sum(jvm_memory_used_bytes{application=\"$application\", instance=\"$instance\", area=\"nonheap\"} and jvm_memory_max_bytes{application=\"$application\", instance=\"$instance\", area=\"nonheap\"} > 0)*100/sum(jvm_memory_max_bytes{application=\"$application\", instance=\"$instance\", area=\"nonheap\"} > 0)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "",
@@ -439,7 +439,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(http_server_requests_seconds_count{application=\"$application\", instance=\"$instance\"}[1m]))",
+              "expr": "sum(rate(http_server_requests_seconds_count{application=\"$application\", instance=\"$instance\"}[$__rate_interval]))",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "HTTP 요청",
@@ -521,7 +521,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(http_server_requests_seconds_count{application=\"$application\", instance=\"$instance\", status=~\"5..\"}[1m]))",
+              "expr": "sum(rate(http_server_requests_seconds_count{application=\"$application\", instance=\"$instance\", status=~\"5..\"}[$__rate_interval]))",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "HTTP 5xx 오류",
@@ -600,7 +600,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(http_server_requests_seconds_sum{application=\"$application\", instance=\"$instance\", status!~\"5..\"}[1m]))/sum(rate(http_server_requests_seconds_count{application=\"$application\", instance=\"$instance\", status!~\"5..\"}[1m]))",
+              "expr": "sum(rate(http_server_requests_seconds_sum{application=\"$application\", instance=\"$instance\", status!~\"5..\"}[$__rate_interval]))/sum(rate(http_server_requests_seconds_count{application=\"$application\", instance=\"$instance\", status!~\"5..\"}[$__rate_interval]))",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 1,
@@ -959,14 +959,6 @@
               "legendFormat": "커밋",
               "refId": "B",
               "step": 2400
-            },
-            {
-              "expr": "sum(jvm_memory_max_bytes{application=\"$application\", instance=\"$instance\", area=\"nonheap\"})",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "최대",
-              "refId": "C",
-              "step": 2400
             }
           ],
           "thresholds": [],
@@ -1073,14 +1065,6 @@
               "legendFormat": "커밋",
               "refId": "B",
               "step": 2400
-            },
-            {
-              "expr": "sum(jvm_memory_max_bytes{application=\"$application\", instance=\"$instance\"})",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "최대",
-              "refId": "C",
-              "step": 2400
             }
           ],
           "thresholds": [],
@@ -1114,125 +1098,6 @@
               "logBase": 1,
               "max": null,
               "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editable": true,
-          "error": false,
-          "fill": 1,
-          "grid": {
-            "leftLogBase": 1,
-            "leftMax": null,
-            "leftMin": null,
-            "rightLogBase": 1,
-            "rightMax": null,
-            "rightMin": null
-          },
-          "id": 86,
-          "legend": {
-            "avg": false,
-            "current": true,
-            "max": true,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "span": 3,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "process_memory_vss_bytes{application=\"$application\", instance=\"$instance\"}",
-              "format": "time_series",
-              "hide": true,
-              "intervalFactor": 2,
-              "legendFormat": "가상 메모리(vss)",
-              "metric": "",
-              "refId": "A",
-              "step": 2400
-            },
-            {
-              "expr": "process_memory_rss_bytes{application=\"$application\", instance=\"$instance\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "상주 메모리(rss)",
-              "refId": "B"
-            },
-            {
-              "expr": "process_memory_swap_bytes{application=\"$application\", instance=\"$instance\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "스왑",
-              "refId": "C"
-            },
-            {
-              "expr": "process_memory_rss_bytes{application=\"$application\", instance=\"$instance\"} + process_memory_swap_bytes{application=\"$application\", instance=\"$instance\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "전체",
-              "refId": "D"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "JVM 프로세스 메모리",
-          "tooltip": {
-            "msResolution": false,
-            "shared": true,
-            "sort": 0,
-            "value_type": "cumulative"
-          },
-          "type": "graph",
-          "x-axis": true,
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "y-axis": true,
-          "y_formats": [
-            "mbytes",
-            "short"
-          ],
-          "yaxes": [
-            {
-              "format": "bytes",
-              "label": "",
-              "logBase": 1,
-              "max": null,
-              "min": "0",
               "show": true
             },
             {
@@ -1546,15 +1411,6 @@
               "legendFormat": "최대치",
               "refId": "C",
               "step": 2400
-            },
-            {
-              "expr": "process_threads{application=\"$application\", instance=\"$instance\"}",
-              "format": "time_series",
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "프로세스",
-              "refId": "D",
-              "step": 2400
             }
           ],
           "thresholds": [],
@@ -1697,7 +1553,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "description": "JVM 프로세스에 할당된 전체 CPU 중 가비지 컬렉션(GC)에 쓴 시간 비율",
+          "description": "전체 시간 중 GC 일시 중지가 차지한 시간 비율",
           "fill": 1,
           "id": 138,
           "legend": {
@@ -1724,17 +1580,17 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(jvm_gc_pause_seconds_sum{application=\"$application\", instance=\"$instance\"}[1m])) by (application, instance) / on(application, instance) system_cpu_count",
+              "expr": "sum(rate(jvm_gc_pause_seconds_sum{application=\"$application\", instance=\"$instance\"}[$__rate_interval])) by (application, instance)",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "GC에 사용한 CPU 시간",
+              "legendFormat": "GC 일시 중지 시간 비율",
               "refId": "A"
             }
           ],
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "GC 부하",
+          "title": "GC 일시 중지 시간 비율",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -1833,7 +1689,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "increase(logback_events_total{application=\"$application\", instance=\"$instance\"}[1m])",
+              "expr": "rate(logback_events_total{application=\"$application\", instance=\"$instance\"}[$__rate_interval]) * 60",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -2318,7 +2174,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(jvm_gc_pause_seconds_count{application=\"$application\", instance=\"$instance\"}[1m])",
+              "expr": "rate(jvm_gc_pause_seconds_count{application=\"$application\", instance=\"$instance\"}[$__rate_interval])",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 1,
@@ -2397,7 +2253,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(jvm_gc_pause_seconds_sum{application=\"$application\", instance=\"$instance\"}[1m])/rate(jvm_gc_pause_seconds_count{application=\"$application\", instance=\"$instance\"}[1m])",
+              "expr": "rate(jvm_gc_pause_seconds_sum{application=\"$application\", instance=\"$instance\"}[$__rate_interval])/rate(jvm_gc_pause_seconds_count{application=\"$application\", instance=\"$instance\"}[$__rate_interval])",
               "format": "time_series",
               "hide": false,
               "instant": false,
@@ -2486,7 +2342,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(jvm_gc_memory_allocated_bytes_total{application=\"$application\", instance=\"$instance\"}[1m])",
+              "expr": "rate(jvm_gc_memory_allocated_bytes_total{application=\"$application\", instance=\"$instance\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2494,7 +2350,7 @@
               "refId": "A"
             },
             {
-              "expr": "rate(jvm_gc_memory_promoted_bytes_total{application=\"$application\", instance=\"$instance\"}[1m])",
+              "expr": "rate(jvm_gc_memory_promoted_bytes_total{application=\"$application\", instance=\"$instance\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
