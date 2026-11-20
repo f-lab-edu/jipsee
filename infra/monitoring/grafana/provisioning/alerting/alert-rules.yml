@@ -354,7 +354,7 @@ groups:
       - uid: jipsee-error-log-spike
         title: ERROR 로그 급증
         condition: C
-        for: 5m
+        for: 0s
         noDataState: OK
         execErrState: Error
         data:
