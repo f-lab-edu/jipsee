@@ -38,7 +38,8 @@
       "panels": [],
       "repeat": null,
       "title": "",
-      "type": "row"
+      "type": "row",
+      "targets": null
     },
     {
       "cacheTimeout": null,
@@ -96,7 +97,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -183,7 +184,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -195,7 +196,7 @@
           "calculatedInterval": "10m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "rate(mysql_global_status_queries{job=~\"$job\", instance=~\"$instance\"}[$__interval])",
+          "expr": "rate(mysql_global_status_queries{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval])",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -311,7 +312,8 @@
       "panels": [],
       "repeat": null,
       "title": "커넥션",
-      "type": "row"
+      "type": "row",
+      "targets": null
     },
     {
       "aliasColors": {},
@@ -639,7 +641,8 @@
       "panels": [],
       "repeat": null,
       "title": "테이블 락",
-      "type": "row"
+      "type": "row",
+      "targets": null
     },
     {
       "aliasColors": {},
@@ -710,7 +713,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "rate(mysql_global_status_questions{job=~\"$job\", instance=~\"$instance\"}[$__interval])",
+          "expr": "rate(mysql_global_status_questions{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval])",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -859,7 +862,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_threads_created{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_threads_created{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -925,7 +928,8 @@
       "panels": [],
       "repeat": null,
       "title": "임시 객체",
-      "type": "row"
+      "type": "row",
+      "targets": null
     },
     {
       "aliasColors": {},
@@ -989,7 +993,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_created_tmp_tables{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_created_tmp_tables{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "interval": "1m",
           "intervalFactor": 1,
           "legendFormat": "생성된 임시 테이블",
@@ -1001,7 +1005,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_created_tmp_disk_tables{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_created_tmp_disk_tables{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "interval": "1m",
           "intervalFactor": 1,
           "legendFormat": "생성된 디스크 임시 테이블",
@@ -1013,7 +1017,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_created_tmp_files{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_created_tmp_files{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "interval": "1m",
           "intervalFactor": 1,
           "legendFormat": "생성된 임시 파일",
@@ -1127,7 +1131,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_select_full_join{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_select_full_join{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1140,7 +1144,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_select_full_range_join{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_select_full_range_join{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1153,7 +1157,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_select_range{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_select_range{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1166,7 +1170,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_select_range_check{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_select_range_check{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1179,7 +1183,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_select_scan{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_select_scan{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1245,7 +1249,8 @@
       "panels": [],
       "repeat": null,
       "title": "정렬",
-      "type": "row"
+      "type": "row",
+      "targets": null
     },
     {
       "aliasColors": {},
@@ -1311,7 +1316,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_sort_rows{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_sort_rows{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1324,7 +1329,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_sort_range{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_sort_range{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1337,7 +1342,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_sort_merge_passes{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_sort_merge_passes{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1350,7 +1355,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_sort_scan{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_sort_scan{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1462,7 +1467,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_slow_queries{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_slow_queries{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1530,7 +1535,8 @@
       "panels": [],
       "repeat": null,
       "title": "중단된 연결",
-      "type": "row"
+      "type": "row",
+      "targets": null
     },
     {
       "aliasColors": {},
@@ -1542,7 +1548,7 @@
         "uid": "prometheus"
       },
       "decimals": 2,
-      "description": "**중단된 연결**\n\n특정 호스트가 MySQL에 연결하다가 중간에 끊기면(예: 잘못된 인증 정보) MySQL은 해당 정보를 시스템 테이블에 기록, 5.6부터 이 테이블은 performance_schema에 노출\n\n연결에 성공하지 못한 실패 요청 수가 max_connect_errors 값에 도달하면 mysqld는 문제가 있다고 판단해 해당 호스트의 추가 연결을 차단\n\n해당 호스트의 연결을 다시 허용하려면 ``FLUSH HOSTS`` 문 실행 필요",
+      "description": "**중단된 연결**\n\n특정 호스트가 MySQL에 연결하다가 중간에 끊기면(예: 잘못된 인증 정보) MySQL은 해당 정보를 시스템 테이블에 기록, 5.6부터 이 테이블은 performance_schema에 노출\n\n연결에 성공하지 못한 실패 요청 수가 max_connect_errors 값에 도달하면 mysqld는 문제가 있다고 판단해 해당 호스트의 추가 연결을 차단\n\n연결 오류의 원인을 먼저 확인한 뒤, 권한이 있는 사용자가 ``TRUNCATE TABLE performance_schema.host_cache`` 문을 실행해 차단 해제 필요",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -1594,7 +1600,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_aborted_connects{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_aborted_connects{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1607,7 +1613,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_aborted_clients{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_aborted_clients{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1723,7 +1729,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_table_locks_immediate{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_table_locks_immediate{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1736,7 +1742,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_table_locks_waited{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_table_locks_waited{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1802,7 +1808,8 @@
       "panels": [],
       "repeat": null,
       "title": "네트워크",
-      "type": "row"
+      "type": "row",
+      "targets": null
     },
     {
       "aliasColors": {},
@@ -1867,7 +1874,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_bytes_received{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_bytes_received{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1880,7 +1887,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "sum(rate(mysql_global_status_bytes_sent{job=~\"$job\", instance=~\"$instance\"}[$__interval]))",
+          "expr": "sum(rate(mysql_global_status_bytes_sent{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -1946,7 +1953,8 @@
       "panels": [],
       "repeat": null,
       "title": "메모리",
-      "type": "row"
+      "type": "row",
+      "targets": null
     },
     {
       "aliasColors": {},
@@ -1958,7 +1966,7 @@
         "uid": "prometheus"
       },
       "decimals": 0,
-      "description": "***시스템 메모리***: 시스템 전체 메모리\\\n***InnoDB 버퍼 풀 데이터***: InnoDB는 데이터와 인덱스를 메모리에 캐시하기 위해 버퍼 풀이라는 저장 영역을 유지\\\n***TokuDB 캐시 크기***: 기능이 InnoDB 버퍼 풀과 비슷하며, TokuDB는 설치된 RAM의 50%를 자체 캐시로 할당\\\n***키 버퍼 크기***: MyISAM 테이블의 인덱스 블록은 버퍼링되며 모든 스레드가 공유, key_buffer_size는 인덱스 블록용 버퍼의 크기\\\n***어댑티브 해시 인덱스 크기***: InnoDB는 일부 인덱스 값에 접근이 매우 잦다고 판단하면 B-Tree 인덱스 위에 메모리 내 해시 인덱스 구성\\\n ***쿼리 캐시 크기***: 쿼리 캐시는 SELECT 문의 텍스트와 클라이언트에 전달된 결과를 함께 저장, 쿼리 캐시는 한 번에 한 스레드만 작업할 수 있어 확장성에 큰 문제가 있음\\\n***InnoDB 딕셔너리 크기***: 데이터 딕셔너리는 InnoDB 내부의 테이블 카탈로그, InnoDB는 데이터 딕셔너리를 디스크에 저장하고 서버 실행 중 항목을 메모리에 로드\\\n***InnoDB 로그 버퍼 크기***: MySQL InnoDB 로그 버퍼 덕분에 트랜잭션이 커밋되기 전에 로그를 디스크에 쓰지 않고도 트랜잭션 실행 가능",
+      "description": "***시스템 메모리***: 시스템 전체 메모리\\\n***InnoDB 버퍼 풀 데이터***: InnoDB는 데이터와 인덱스를 메모리에 캐시하기 위해 버퍼 풀이라는 저장 영역을 유지\\\n***TokuDB 캐시 크기***: 기능이 InnoDB 버퍼 풀과 비슷하며, TokuDB는 설치된 RAM의 50%를 자체 캐시로 할당\\\n***키 버퍼 크기***: MyISAM 테이블의 인덱스 블록은 버퍼링되며 모든 스레드가 공유, key_buffer_size는 인덱스 블록용 버퍼의 크기\\\n***어댑티브 해시 인덱스 크기***: InnoDB는 일부 인덱스 값에 접근이 매우 잦다고 판단하면 B-Tree 인덱스 위에 메모리 내 해시 인덱스 구성\\\n***InnoDB 딕셔너리 크기***: 데이터 딕셔너리는 InnoDB 내부의 테이블 카탈로그, InnoDB는 데이터 딕셔너리를 디스크에 저장하고 서버 실행 중 항목을 메모리에 로드\\\n***InnoDB 로그 버퍼 크기***: MySQL InnoDB 로그 버퍼 덕분에 트랜잭션이 커밋되기 전에 로그를 디스크에 쓰지 않고도 트랜잭션 실행 가능",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -2067,15 +2075,6 @@
           "step": 20
         },
         {
-          "expr": "sum(mysql_global_variables_query_cache_size{job=~\"$job\", instance=~\"$instance\"})",
-          "format": "time_series",
-          "interval": "1m",
-          "intervalFactor": 1,
-          "legendFormat": "쿼리 캐시 크기",
-          "refId": "C",
-          "step": 20
-        },
-        {
           "expr": "sum(mysql_global_status_innodb_mem_adaptive_hash{job=~\"$job\", instance=~\"$instance\"})",
           "format": "time_series",
           "interval": "1m",
@@ -2151,8 +2150,9 @@
       "id": 390,
       "panels": [],
       "repeat": null,
-      "title": "명령, 핸들러, 프로세스",
-      "type": "row"
+      "title": "명령, 핸들러",
+      "type": "row",
+      "targets": null
     },
     {
       "aliasColors": {},
@@ -2224,7 +2224,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "topk(5, rate(mysql_global_status_commands_total{job=~\"$job\", instance=~\"$instance\"}[$__interval])>0)",
+          "expr": "topk(5, rate(mysql_global_status_commands_total{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval])>0)",
           "format": "time_series",
           "hide": false,
           "interval": "1m",
@@ -2339,7 +2339,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "rate(mysql_global_status_handlers_total{instance=~\"$instance\", handler!~\"commit|rollback|savepoint.*|prepare\"}[$__interval]) or irate(mysql_global_status_handlers_total{instance=~\"$instance\", handler!~\"commit|rollback|savepoint.*|prepare\"}[5m])",
+          "expr": "rate(mysql_global_status_handlers_total{instance=~\"$instance\", handler!~\"commit|rollback|savepoint.*|prepare\"}[$__rate_interval]) or irate(mysql_global_status_handlers_total{instance=~\"$instance\", handler!~\"commit|rollback|savepoint.*|prepare\"}[5m])",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -2452,7 +2452,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "rate(mysql_global_status_handlers_total{instance=~\"$instance\", handler=~\"commit|rollback|savepoint.*|prepare\"}[$__interval]) or irate(mysql_global_status_handlers_total{instance=~\"$instance\", handler=~\"commit|rollback|savepoint.*|prepare\"}[5m])",
+          "expr": "rate(mysql_global_status_handlers_total{instance=~\"$instance\", handler=~\"commit|rollback|savepoint.*|prepare\"}[$__rate_interval]) or irate(mysql_global_status_handlers_total{instance=~\"$instance\", handler=~\"commit|rollback|savepoint.*|prepare\"}[5m])",
           "interval": "1m",
           "intervalFactor": 1,
           "legendFormat": "{{ handler }}",
@@ -2502,557 +2502,23 @@
       }
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
+      "collapsed": false,
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "decimals": 2,
-      "editable": true,
-      "error": false,
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "fill": 0,
-      "fillGradient": 0,
-      "grid": {},
       "gridPos": {
-        "h": 7,
+        "h": 1,
         "w": 24,
         "x": 0,
         "y": 82
-      },
-      "hiddenSeries": false,
-      "id": 40,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": false,
-        "hideZero": true,
-        "max": true,
-        "min": false,
-        "rightSide": true,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 2,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "calculatedInterval": "2m",
-          "datasourceErrors": {},
-          "errors": {},
-          "expr": "mysql_info_schema_threads{job=~\"$job\", instance=~\"$instance\"}",
-          "format": "time_series",
-          "interval": "1m",
-          "intervalFactor": 1,
-          "legendFormat": "{{ state }}",
-          "metric": "",
-          "refId": "A",
-          "step": 20
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "프로세스 상태",
-      "tooltip": {
-        "msResolution": false,
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "logBase": 1,
-          "max": null,
-          "min": 0,
-          "show": true
-        },
-        {
-          "format": "short",
-          "logBase": 1,
-          "max": null,
-          "min": 0,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "decimals": 2,
-      "editable": true,
-      "error": false,
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "fill": 6,
-      "fillGradient": 0,
-      "grid": {},
-      "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 89
-      },
-      "hiddenSeries": false,
-      "id": 49,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": false,
-        "hideZero": true,
-        "max": true,
-        "min": false,
-        "rightSide": true,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 2,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "calculatedInterval": "2m",
-          "datasourceErrors": {},
-          "errors": {},
-          "expr": "topk(5, avg_over_time(mysql_info_schema_threads{job=~\"$job\", instance=~\"$instance\"}[1h]))",
-          "interval": "1m",
-          "intervalFactor": 1,
-          "legendFormat": "{{ state }}",
-          "metric": "",
-          "refId": "A",
-          "step": 3600
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": "24h",
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "시간별 상위 프로세스 상태",
-      "tooltip": {
-        "msResolution": false,
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "logBase": 1,
-          "max": null,
-          "min": 0,
-          "show": true
-        },
-        {
-          "format": "short",
-          "logBase": 1,
-          "max": null,
-          "min": 0,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "collapsed": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 96
-      },
-      "id": 391,
-      "panels": [],
-      "repeat": null,
-      "title": "쿼리 캐시",
-      "type": "row"
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "decimals": 2,
-      "description": "**MySQL 쿼리 캐시 메모리**\n\n쿼리 캐시는 한 번에 한 스레드만 쿼리 캐시에서 작업할 수 있어 확장성에 큰 문제가 있음, 이 직렬화는 SELECT뿐 아니라 INSERT/UPDATE/DELETE에도 해당\n\n즉 `query_cache_size`를 크게 설정할수록 이런 작업이 더 느려지는 결과, 동시 실행 환경에서 MySQL 쿼리 캐시는 빠르게 경합 지점이 되어 성능 저하, MariaDB와 AWS Aurora는 각자의 MySQL 변형에서 쿼리 캐시 경합을 없애려는 작업을 진행, MySQL 8.0은 쿼리 캐시 기능을 제거\n\n대부분의 환경에서 권장 설정:\n  ``query_cache_type=0``\n  ``query_cache_size=0``\n\n값을 동적으로 변경할 수 있지만 경합 지점을 완전히 없애려면 데이터베이스 재시작 필요",
-      "editable": true,
-      "error": false,
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "fill": 2,
-      "fillGradient": 0,
-      "grid": {},
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 97
-      },
-      "hiddenSeries": false,
-      "id": 46,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": false,
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 2,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "calculatedInterval": "2m",
-          "datasourceErrors": {},
-          "errors": {},
-          "expr": "mysql_global_status_qcache_free_memory{job=~\"$job\", instance=~\"$instance\"}",
-          "format": "time_series",
-          "interval": "1m",
-          "intervalFactor": 1,
-          "legendFormat": "여유 메모리",
-          "metric": "",
-          "refId": "F",
-          "step": 20
-        },
-        {
-          "calculatedInterval": "2m",
-          "datasourceErrors": {},
-          "errors": {},
-          "expr": "mysql_global_variables_query_cache_size{job=~\"$job\", instance=~\"$instance\"}",
-          "format": "time_series",
-          "interval": "1m",
-          "intervalFactor": 1,
-          "legendFormat": "쿼리 캐시 크기",
-          "metric": "",
-          "refId": "E",
-          "step": 20
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "MySQL 쿼리 캐시 메모리",
-      "tooltip": {
-        "msResolution": false,
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "bytes",
-          "logBase": 1,
-          "max": null,
-          "min": 0,
-          "show": true
-        },
-        {
-          "format": "short",
-          "logBase": 1,
-          "max": null,
-          "min": 0,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "decimals": 2,
-      "description": "**MySQL 쿼리 캐시 활동**\n\n쿼리 캐시는 한 번에 한 스레드만 쿼리 캐시에서 작업할 수 있어 확장성에 큰 문제가 있음, 이 직렬화는 SELECT뿐 아니라 INSERT/UPDATE/DELETE에도 해당\n\n즉 `query_cache_size`를 크게 설정할수록 이런 작업이 더 느려지는 결과, 동시 실행 환경에서 MySQL 쿼리 캐시는 빠르게 경합 지점이 되어 성능 저하, MariaDB와 AWS Aurora는 각자의 MySQL 변형에서 쿼리 캐시 경합을 없애려는 작업을 진행, MySQL 8.0은 쿼리 캐시 기능을 제거\n\n대부분의 환경에서 권장 설정:\n``query_cache_type=0``\n``query_cache_size=0``\n\n값을 동적으로 변경할 수 있지만 경합 지점을 완전히 없애려면 데이터베이스 재시작 필요",
-      "editable": true,
-      "error": false,
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "fill": 2,
-      "fillGradient": 0,
-      "grid": {},
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 97
-      },
-      "height": "",
-      "hiddenSeries": false,
-      "id": 45,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": false,
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 2,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "calculatedInterval": "2m",
-          "datasourceErrors": {},
-          "errors": {},
-          "expr": "rate(mysql_global_status_qcache_hits{job=~\"$job\", instance=~\"$instance\"}[$__interval]) or irate(mysql_global_status_qcache_hits{job=~\"$job\", instance=~\"$instance\"}[5m])",
-          "format": "time_series",
-          "interval": "1m",
-          "intervalFactor": 1,
-          "legendFormat": "적중",
-          "metric": "",
-          "refId": "B",
-          "step": 20
-        },
-        {
-          "calculatedInterval": "2m",
-          "datasourceErrors": {},
-          "errors": {},
-          "expr": "rate(mysql_global_status_qcache_inserts{job=~\"$job\", instance=~\"$instance\"}[$__interval]) or irate(mysql_global_status_qcache_inserts{job=~\"$job\", instance=~\"$instance\"}[5m])",
-          "format": "time_series",
-          "interval": "1m",
-          "intervalFactor": 1,
-          "legendFormat": "삽입",
-          "metric": "",
-          "refId": "C",
-          "step": 20
-        },
-        {
-          "calculatedInterval": "2m",
-          "datasourceErrors": {},
-          "errors": {},
-          "expr": "rate(mysql_global_status_qcache_not_cached{job=~\"$job\", instance=~\"$instance\"}[$__interval]) or irate(mysql_global_status_qcache_not_cached{job=~\"$job\", instance=~\"$instance\"}[5m])",
-          "format": "time_series",
-          "interval": "1m",
-          "intervalFactor": 1,
-          "legendFormat": "비캐시",
-          "metric": "",
-          "refId": "D",
-          "step": 20
-        },
-        {
-          "calculatedInterval": "2m",
-          "datasourceErrors": {},
-          "errors": {},
-          "expr": "rate(mysql_global_status_qcache_lowmem_prunes{job=~\"$job\", instance=~\"$instance\"}[$__interval]) or irate(mysql_global_status_qcache_lowmem_prunes{job=~\"$job\", instance=~\"$instance\"}[5m])",
-          "format": "time_series",
-          "interval": "1m",
-          "intervalFactor": 1,
-          "legendFormat": "정리",
-          "metric": "",
-          "refId": "F",
-          "step": 20
-        },
-        {
-          "calculatedInterval": "2m",
-          "datasourceErrors": {},
-          "errors": {},
-          "expr": "mysql_global_status_qcache_queries_in_cache{job=~\"$job\", instance=~\"$instance\"}",
-          "format": "time_series",
-          "interval": "1m",
-          "intervalFactor": 1,
-          "legendFormat": "캐시된 쿼리 수",
-          "metric": "",
-          "refId": "E",
-          "step": 20
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "MySQL 쿼리 캐시 활동",
-      "tooltip": {
-        "msResolution": false,
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "logBase": 1,
-          "max": null,
-          "min": 0,
-          "show": true
-        },
-        {
-          "format": "short",
-          "logBase": 1,
-          "max": null,
-          "min": 0,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "collapsed": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 104
       },
       "id": 392,
       "panels": [],
       "repeat": null,
       "title": "파일 및 테이블",
-      "type": "row"
+      "type": "row",
+      "targets": null
     },
     {
       "aliasColors": {},
@@ -3079,7 +2545,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 105
+        "y": 83
       },
       "hiddenSeries": false,
       "id": 43,
@@ -3116,7 +2582,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "rate(mysql_global_status_opened_files{job=~\"$job\", instance=~\"$instance\"}[$__interval]) or irate(mysql_global_status_opened_files{job=~\"$job\", instance=~\"$instance\"}[5m])",
+          "expr": "rate(mysql_global_status_opened_files{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]) or irate(mysql_global_status_opened_files{job=~\"$job\", instance=~\"$instance\"}[5m])",
           "interval": "1m",
           "intervalFactor": 1,
           "legendFormat": "열기",
@@ -3190,7 +2656,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 105
+        "y": 83
       },
       "hiddenSeries": false,
       "id": 41,
@@ -3306,13 +2772,14 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 112
+        "y": 90
       },
       "id": 393,
       "panels": [],
       "repeat": null,
       "title": "테이블 열기",
-      "type": "row"
+      "type": "row",
+      "targets": null
     },
     {
       "aliasColors": {},
@@ -3340,7 +2807,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 113
+        "y": 91
       },
       "hiddenSeries": false,
       "id": 44,
@@ -3387,7 +2854,7 @@
           "calculatedInterval": "2m",
           "datasourceErrors": {},
           "errors": {},
-          "expr": "rate(mysql_global_status_opened_tables{job=~\"$job\", instance=~\"$instance\"}[$__interval]) or irate(mysql_global_status_opened_tables{job=~\"$job\", instance=~\"$instance\"}[5m])",
+          "expr": "rate(mysql_global_status_opened_tables{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]) or irate(mysql_global_status_opened_tables{job=~\"$job\", instance=~\"$instance\"}[5m])",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -3397,7 +2864,7 @@
           "step": 20
         },
         {
-          "expr": "rate(mysql_global_status_table_open_cache_hits{job=~\"$job\", instance=~\"$instance\"}[$__interval]) or irate(mysql_global_status_table_open_cache_hits{job=~\"$job\", instance=~\"$instance\"}[5m])",
+          "expr": "rate(mysql_global_status_table_open_cache_hits{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]) or irate(mysql_global_status_table_open_cache_hits{job=~\"$job\", instance=~\"$instance\"}[5m])",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -3406,7 +2873,7 @@
           "step": 20
         },
         {
-          "expr": "rate(mysql_global_status_table_open_cache_misses{job=~\"$job\", instance=~\"$instance\"}[$__interval]) or irate(mysql_global_status_table_open_cache_misses{job=~\"$job\", instance=~\"$instance\"}[5m])",
+          "expr": "rate(mysql_global_status_table_open_cache_misses{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]) or irate(mysql_global_status_table_open_cache_misses{job=~\"$job\", instance=~\"$instance\"}[5m])",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -3415,7 +2882,7 @@
           "step": 20
         },
         {
-          "expr": "rate(mysql_global_status_table_open_cache_overflows{job=~\"$job\", instance=~\"$instance\"}[$__interval]) or irate(mysql_global_status_table_open_cache_overflows{job=~\"$job\", instance=~\"$instance\"}[5m])",
+          "expr": "rate(mysql_global_status_table_open_cache_overflows{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]) or irate(mysql_global_status_table_open_cache_overflows{job=~\"$job\", instance=~\"$instance\"}[5m])",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -3424,7 +2891,7 @@
           "step": 20
         },
         {
-          "expr": "(rate(mysql_global_status_table_open_cache_hits{job=~\"$job\", instance=~\"$instance\"}[$__interval]) or irate(mysql_global_status_table_open_cache_hits{job=~\"$job\", instance=~\"$instance\"}[5m]))/((rate(mysql_global_status_table_open_cache_hits{job=~\"$job\", instance=~\"$instance\"}[$__interval]) or irate(mysql_global_status_table_open_cache_hits{job=~\"$job\", instance=~\"$instance\"}[5m]))+(rate(mysql_global_status_table_open_cache_misses{job=~\"$job\", instance=~\"$instance\"}[$__interval]) or irate(mysql_global_status_table_open_cache_misses{job=~\"$job\", instance=~\"$instance\"}[5m])))",
+          "expr": "(rate(mysql_global_status_table_open_cache_hits{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]) or irate(mysql_global_status_table_open_cache_hits{job=~\"$job\", instance=~\"$instance\"}[5m]))/((rate(mysql_global_status_table_open_cache_hits{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]) or irate(mysql_global_status_table_open_cache_hits{job=~\"$job\", instance=~\"$instance\"}[5m]))+(rate(mysql_global_status_table_open_cache_misses{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]) or irate(mysql_global_status_table_open_cache_misses{job=~\"$job\", instance=~\"$instance\"}[5m])))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -3499,7 +2966,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 113
+        "y": 91
       },
       "hiddenSeries": false,
       "id": 42,
@@ -3614,13 +3081,14 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 120
+        "y": 98
       },
       "id": 394,
       "panels": [],
       "repeat": null,
       "title": "MySQL 테이블 정의 캐시",
-      "type": "row"
+      "type": "row",
+      "targets": null
     },
     {
       "aliasColors": {},
@@ -3648,7 +3116,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 121
+        "y": 99
       },
       "hiddenSeries": false,
       "id": 54,
@@ -3718,7 +3186,7 @@
           "step": 20
         },
         {
-          "expr": "rate(mysql_global_status_opened_table_definitions{job=~\"$job\", instance=~\"$instance\"}[$__interval]) or irate(mysql_global_status_opened_table_definitions{job=~\"$job\", instance=~\"$instance\"}[5m])",
+          "expr": "rate(mysql_global_status_opened_table_definitions{job=~\"$job\", instance=~\"$instance\"}[$__rate_interval]) or irate(mysql_global_status_opened_table_definitions{job=~\"$job\", instance=~\"$instance\"}[5m])",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
