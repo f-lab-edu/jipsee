@@ -27,6 +27,7 @@ services:
     restart: unless-stopped
     logging: *logging
     mem_limit: 64m
+    hostname: jipsee-server
     networks: [monitoring]
     command:
       - --path.procfs=/host/proc
