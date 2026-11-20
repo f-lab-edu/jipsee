@@ -387,166 +387,6 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "description": "룰 그룹 평가 지연으로 놓친 룰 그룹 평가 총 횟수",
-          "format": "none",
-          "gauge": {
-            "maxValue": 100,
-            "minValue": 0,
-            "show": false,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
-          "id": 16,
-          "interval": null,
-          "links": [],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "해당 없음",
-              "to": "null"
-            }
-          ],
-          "span": 2,
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": false,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": false
-          },
-          "tableColumn": "",
-          "targets": [
-            {
-              "expr": "sum(sum_over_time(prometheus_evaluator_iterations_missed_total{job=~\"$job\",instance=~\"$instance\"}[$interval]))",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "refId": "A",
-              "step": 40
-            }
-          ],
-          "thresholds": "1,10",
-          "title": "놓친 반복 [$interval]",
-          "type": "singlestat",
-          "valueFontSize": "100%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "해당 없음",
-              "value": "null"
-            }
-          ],
-          "valueName": "current"
-        },
-        {
-          "cacheTimeout": null,
-          "colorBackground": false,
-          "colorValue": true,
-          "colors": [
-            "rgba(50, 172, 45, 0.97)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(245, 54, 54, 0.9)"
-          ],
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "description": "지표 저장소 스로틀링으로 건너뛴 룰 그룹 평가 총 횟수",
-          "format": "none",
-          "gauge": {
-            "maxValue": 100,
-            "minValue": 0,
-            "show": false,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
-          "id": 18,
-          "interval": null,
-          "links": [],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "해당 없음",
-              "to": "null"
-            }
-          ],
-          "span": 2,
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": false,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": false
-          },
-          "tableColumn": "",
-          "targets": [
-            {
-              "expr": "sum(sum_over_time(prometheus_evaluator_iterations_skipped_total{job=~\"$job\",instance=~\"$instance\"}[$interval]))",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "refId": "A",
-              "step": 40
-            }
-          ],
-          "thresholds": "1,10",
-          "title": "건너뛴 반복 [$interval]",
-          "type": "singlestat",
-          "valueFontSize": "100%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "해당 없음",
-              "value": "null"
-            }
-          ],
-          "valueName": "current"
-        },
-        {
-          "cacheTimeout": null,
-          "colorBackground": false,
-          "colorValue": true,
-          "colors": [
-            "rgba(50, 172, 45, 0.97)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(245, 54, 54, 0.9)"
-          ],
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
           "description": "샘플 한도에 도달해 거부된 스크레이프 총 횟수",
           "format": "none",
           "gauge": {
@@ -594,7 +434,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "sum(sum_over_time(prometheus_target_scrapes_exceeded_sample_limit_total{job=~\"$job\",instance=~\"$instance\"}[$interval]))",
+              "expr": "sum(increase(prometheus_target_scrapes_exceeded_sample_limit_total{job=~\"$job\",instance=~\"$instance\"}[$interval]))",
               "format": "time_series",
               "intervalFactor": 2,
               "refId": "A",
@@ -674,7 +514,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "sum(sum_over_time(prometheus_tsdb_reloads_failures_total{job=~\"$job\",instance=~\"$instance\"}[$interval]))",
+              "expr": "sum(increase(prometheus_tsdb_reloads_failures_total{job=~\"$job\",instance=~\"$instance\"}[$interval]))",
               "format": "time_series",
               "intervalFactor": 2,
               "refId": "A",
@@ -707,7 +547,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "description": "건너뛴 스크레이프 전체 합계",
+          "description": "중복 타임스탬프, 범위 벗어남, 순서 어긋남으로 거부된 샘플 수 합계",
           "format": "none",
           "gauge": {
             "maxValue": 100,
@@ -754,7 +594,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "sum(sum_over_time(prometheus_target_scrapes_exceeded_sample_limit_total{job=~\"$job\",instance=~\"$instance\"}[$interval])) + \nsum(sum_over_time(prometheus_target_scrapes_sample_duplicate_timestamp_total{job=~\"$job\",instance=~\"$instance\"}[$interval])) + \nsum(sum_over_time(prometheus_target_scrapes_sample_out_of_bounds_total{job=~\"$job\",instance=~\"$instance\"}[$interval])) + \nsum(sum_over_time(prometheus_target_scrapes_sample_out_of_order_total{job=~\"$job\",instance=~\"$instance\"}[$interval])) ",
+              "expr": "sum(increase(prometheus_target_scrapes_sample_duplicate_timestamp_total{job=~\"$job\",instance=~\"$instance\"}[$interval])) + \nsum(increase(prometheus_target_scrapes_sample_out_of_bounds_total{job=~\"$job\",instance=~\"$instance\"}[$interval])) + \nsum(increase(prometheus_target_scrapes_sample_out_of_order_total{job=~\"$job\",instance=~\"$instance\"}[$interval])) ",
               "format": "time_series",
               "intervalFactor": 2,
               "refId": "A",
@@ -762,7 +602,7 @@
             }
           ],
           "thresholds": "1,10",
-          "title": "건너뛴 스크레이프 [$interval]",
+          "title": "거부된 샘플 [$interval]",
           "type": "singlestat",
           "valueFontSize": "100%",
           "valueMaps": [
@@ -827,30 +667,6 @@
               "intervalFactor": 2,
               "legendFormat": "연결 실패",
               "refId": "A",
-              "step": 2
-            },
-            {
-              "expr": "sum(increase(prometheus_evaluator_iterations_missed_total{instance=~\"$instance\"}[5m])) > 0",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "놓친 반복",
-              "refId": "B",
-              "step": 2
-            },
-            {
-              "expr": "sum(increase(prometheus_evaluator_iterations_skipped_total{instance=~\"$instance\"}[5m])) > 0",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "건너뛴 반복",
-              "refId": "C",
-              "step": 2
-            },
-            {
-              "expr": "sum(increase(prometheus_rule_evaluation_failures_total{instance=~\"$instance\"}[5m])) > 0",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "평가",
-              "refId": "D",
               "step": 2
             },
             {
@@ -1740,7 +1556,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "description": "거부된 스크레이프 총 횟수",
+          "description": "샘플 한도 초과는 거부된 스크레이프 횟수, 나머지는 거부된 샘플 수의 누적값",
           "fill": 1,
           "id": 30,
           "legend": {
@@ -1770,7 +1586,7 @@
               "expr": "sum(prometheus_target_scrapes_exceeded_sample_limit_total{job=~\"$job\",instance=~\"$instance\"})",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "샘플 한도 초과",
+              "legendFormat": "샘플 한도 초과 (스크레이프 수)",
               "refId": "A",
               "step": 4
             },
@@ -1779,7 +1595,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "중복 타임스탬프",
+              "legendFormat": "중복 타임스탬프 (샘플 수)",
               "refId": "B",
               "step": 4
             },
@@ -1788,7 +1604,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "범위 벗어남",
+              "legendFormat": "범위 벗어남 (샘플 수)",
               "refId": "C",
               "step": 4
             },
@@ -1797,7 +1613,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "순서 어긋남",
+              "legendFormat": "순서 어긋남 (샘플 수)",
               "refId": "D",
               "step": 4
             }
@@ -1805,7 +1621,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "거부된 스크레이프",
+          "title": "거부된 스크레이프와 샘플",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -1851,86 +1667,6 @@
       "collapse": false,
       "height": 250,
       "panels": [
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "description": "룰 그룹 평가 소요 시간",
-          "fill": 1,
-          "id": 10,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "span": 6,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "1000 * rate(prometheus_evaluator_duration_seconds_sum{job=~\"$job\", instance=~\"$instance\"}[5m]) / rate(prometheus_evaluator_duration_seconds_count{job=~\"$job\", instance=~\"$instance\"}[5m])",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{instance}}",
-              "refId": "E",
-              "step": 4
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "룰 평균 평가 소요 시간",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": "밀리초",
-              "logBase": 1,
-              "max": null,
-              "min": "0",
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
         {
           "aliasColors": {},
           "bars": false,
@@ -2074,102 +1810,6 @@
             {
               "format": "short",
               "label": "초",
-              "logBase": 1,
-              "max": null,
-              "min": "0",
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "description": "룰 그룹 평가 \n - 전체\n - 평가 지연으로 놓침\n - 지표 저장소 스로틀링으로 건너뜀",
-          "fill": 1,
-          "id": 31,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "span": 6,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "sum(rate(prometheus_evaluator_iterations_total{job=~\"$job\", instance=~\"$instance\"}[5m]))",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "전체",
-              "refId": "B",
-              "step": 4
-            },
-            {
-              "expr": "sum(rate(prometheus_evaluator_iterations_missed_total{job=~\"$job\", instance=~\"$instance\"}[5m]))",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "놓침",
-              "refId": "A",
-              "step": 4
-            },
-            {
-              "expr": "sum(rate(prometheus_evaluator_iterations_skipped_total{job=~\"$job\", instance=~\"$instance\"}[5m]))",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "건너뜀",
-              "refId": "C",
-              "step": 4
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "룰 평가 반복",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": "반복",
               "logBase": 1,
               "max": null,
               "min": "0",
