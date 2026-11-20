@@ -960,7 +960,8 @@ test.describe("모바일 390x844 light 문서 화면 동작", () => {
 			);
 		});
 
-		test(`${caseId("P3", 11)} 모바일 ${title} 헤더에 계정 링크가 없고 하단 내비게이션 셋째 탭이 이름 로그인으로 로그인에 보냄`, async ({
+		// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+		test.skip(`${caseId("P3", 11)} 모바일 ${title} 헤더에 계정 링크가 없고 하단 내비게이션 셋째 탭이 이름 로그인으로 로그인에 보냄`, async ({
 			page,
 		}) => {
 			test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
@@ -1038,6 +1039,8 @@ for (const { label, viewport, layout } of SCREENS) {
 			test(`${caseId("P7", 1)} ${label} ${path}에서 푸터 링크는 ${bold ?? "없음"}만 굵음`, async ({
 				page,
 			}) => {
+				// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+				test.skip(loginOnly || logoutOnly);
 				test.skip(
 					loginOnly && !LOGGED_IN,
 					"로그인 TC는 TC_SESSION=in일 때만 돌림",

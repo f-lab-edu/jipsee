@@ -395,6 +395,8 @@ const ME_ERRORS = [
 
 for (const { label, viewport, layout } of SCREENS) {
 	test.describe(`${label} ${viewport.width}x${viewport.height} 내 정보 실패 안내`, () => {
+		// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+		test.skip(true);
 		test.use({ viewport, colorScheme: "light" });
 		test.skip(!LOGGED_IN, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 
@@ -495,6 +497,8 @@ for (const { label, viewport, layout } of SCREENS) {
 }
 
 test.describe("대화 삭제 실패 안내", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(!LOGGED_IN, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 
 	test.describe("모바일 대화 목록", () => {

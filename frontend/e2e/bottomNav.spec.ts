@@ -111,6 +111,8 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 					test(`${caseId("NAV", 3)} ${label} ${path}에서 ${tab ?? "활성 탭 없음"}의 aria-current가 ${value ?? "없음"}임`, async ({
 						page,
 					}) => {
+						// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+						test.skip(path === "/login");
 						test.skip(
 							LOGGED_IN && path === "/login",
 							"로그인한 상태에서는 /login이 홈으로 이동함",
@@ -160,6 +162,8 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 					test(`${caseId("NAV", 5)} ${label} ${name}에서 푸터가 내비게이션 바로 위에 붙고 하단 바가 있으면 푸터 위에 붙으며 푸터 높이가 44이며 위 테두리가 없음`, async ({
 						page,
 					}) => {
+						// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+						test.skip(path === "/login");
 						test.skip(
 							LOGGED_IN && path === "/login",
 							"로그인한 상태에서는 /login이 홈으로 이동함",
@@ -198,6 +202,8 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 					test(`${caseId("NAV", 6)} ${label} ${name}에서 끝까지 스크롤하면 본문이 하단 바나 푸터 위에서 끝나고 푸터가 내비게이션 바로 위에 있음`, async ({
 						page,
 					}) => {
+						// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+						test.skip(path === "/login");
 						test.skip(
 							LOGGED_IN && path === "/login",
 							"로그인한 상태에서는 /login이 홈으로 이동함",
@@ -227,6 +233,8 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 				test(`${caseId("NAV", 7)} ${label} ${name}에서 열이 폭 ${columnWidth}의 흰색이고 main에 카드 모양이 없음`, async ({
 					page,
 				}) => {
+					// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+					test.skip(path === "/login");
 					test.skip(
 						LOGGED_IN && path === "/login",
 						"로그인한 상태에서는 /login이 홈으로 이동함",
@@ -283,7 +291,8 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 				});
 			}
 
-			test(`${caseId("NAV", 10)} ${label} /me에서 열이 폭 ${columnWidth}의 흰색이고 푸터가 내비게이션 바로 위에 있음`, async ({
+			// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+			test.skip(`${caseId("NAV", 10)} ${label} /me에서 열이 폭 ${columnWidth}의 흰색이고 푸터가 내비게이션 바로 위에 있음`, async ({
 				page,
 			}) => {
 				test.skip(!LOGGED_IN, "로그인 상태 TC는 TC_SESSION=in일 때만 돌림");
@@ -306,7 +315,8 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 			});
 
 			if (colorScheme === "light" && label === "모바일") {
-				test(`${caseId("NAV", 11)} ${label} /me에서 내 정보 탭의 aria-current가 page이고 href가 /me임`, async ({
+				// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+				test.skip(`${caseId("NAV", 11)} ${label} /me에서 내 정보 탭의 aria-current가 page이고 href가 /me임`, async ({
 					page,
 				}) => {
 					test.skip(!LOGGED_IN, "로그인 상태 TC는 TC_SESSION=in일 때만 돌림");
@@ -378,6 +388,8 @@ for (const { label, viewport } of [
 			test(`${caseId("NAV", 17)} ${label}에서 ${name}의 page-column 배경이 투명이고 main에 카드 모양이 없고 푸터가 고정되지 않음`, async ({
 				page,
 			}) => {
+				// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+				test.skip(path === "/login");
 				test.skip(
 					LOGGED_IN && path === "/login",
 					"로그인한 상태에서는 /login이 홈으로 이동함",

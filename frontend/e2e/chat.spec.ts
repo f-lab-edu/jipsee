@@ -49,6 +49,8 @@ async function waitForAnswer(page: Page, count = 1) {
 
 // 커밋 1: 접근 제어, 라우트, 내비게이션 (CH1)
 test.describe("로그아웃 접근 제어", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
 	test.use({ viewport: MOBILE });
 
@@ -75,6 +77,8 @@ test.describe("로그아웃 접근 제어", () => {
 });
 
 test.describe("라우트와 하단 내비게이션", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: MOBILE });
 
@@ -130,6 +134,8 @@ test.describe("라우트와 하단 내비게이션", () => {
 // 커밋 2: 빈 대화, 예시 질문, 건물 기준 새 대화 (CH2)
 for (const theme of LIGHT_ONLY) {
 	test.describe(`빈 대화 ${theme}`, () => {
+		// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+		test.skip(true);
 		test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 		test.use({ viewport: MOBILE, colorScheme: theme });
 
@@ -208,6 +214,8 @@ for (const theme of LIGHT_ONLY) {
 
 // 커밋 3: 질문 전송과 스트리밍 (CH3)
 test.describe("질문 전송과 스트리밍", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: MOBILE });
 
@@ -367,6 +375,8 @@ test.describe("질문 전송과 스트리밍", () => {
 
 // 커밋 3: 판단 요청과 개별 사건 안내 (CH4)
 test.describe("고정 안내 답변", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: MOBILE });
 
@@ -399,6 +409,8 @@ test.describe("고정 안내 답변", () => {
 
 // 커밋 4: 일일 한도, 오류와 다시 시도 (CH5, CH6)
 test.describe("일일 한도 시나리오", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(
 		!LOGGED_IN || CHAT_SCENARIO !== "dailyLimit",
 		"TC_SESSION=in이고 TC_CHAT이 dailyLimit일 때만 돌림",
@@ -463,6 +475,8 @@ test.describe("일일 한도 시나리오", () => {
 });
 
 test.describe("일일 한도 응답과 오류 응답", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: MOBILE });
 
@@ -581,6 +595,8 @@ const ITEMS = '[data-area="chat-history-item"]';
 const RAIL = '[data-area="chat-rail"]';
 
 test.describe("대화 목록", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: MOBILE });
 
@@ -804,6 +820,8 @@ test.describe("대화 목록", () => {
 });
 
 test.describe("빈 대화 목록 시나리오", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(
 		!LOGGED_IN || CHAT_SCENARIO !== "noHistory",
 		"TC_SESSION=in이고 TC_CHAT이 noHistory일 때만 돌림",
@@ -830,6 +848,8 @@ const COLUMNS = [
 for (const { label, viewport, x, width } of COLUMNS) {
 	for (const theme of THEMES) {
 		test.describe(`레이아웃 ${label} ${viewport.width}x${viewport.height} ${theme}`, () => {
+			// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+			test.skip(true);
 			test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 			test.use({ viewport, colorScheme: theme });
 			const colors = CHAT_COLORS[theme];
@@ -955,6 +975,8 @@ for (const { label, viewport, x, width } of COLUMNS) {
 }
 
 test.describe("데스크톱 레이아웃", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 
 	for (const theme of THEMES) {
@@ -1040,6 +1062,8 @@ test.describe("데스크톱 레이아웃", () => {
 for (const { label, viewport } of COLUMNS.slice(0, 1)) {
 	for (const theme of THEMES) {
 		test.describe(`헤더 구분선 ${label} ${theme}`, () => {
+			// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+			test.skip(true);
 			test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 			test.use({ viewport, colorScheme: theme });
 
@@ -1061,6 +1085,8 @@ for (const { label, viewport } of COLUMNS.slice(0, 1)) {
 }
 
 test.describe("스크롤", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: { width: 390, height: 480 } });
 
@@ -1100,6 +1126,8 @@ const RAIL_ITEM_LINKS = `${RAIL} [data-area="chat-history-item"] a`;
 
 for (const theme of THEMES) {
 	test.describe(`데스크톱 레일 ${theme}`, () => {
+		// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+		test.skip(true);
 		test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 		test.use({ viewport: DESKTOP, colorScheme: theme });
 		const colors = CHAT_COLORS[theme];
@@ -1294,6 +1322,8 @@ for (const theme of THEMES) {
 }
 
 test.describe("데스크톱 레일 동작", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: DESKTOP });
 
@@ -1496,6 +1526,8 @@ test.describe("데스크톱 레일 동작", () => {
 });
 
 test.describe("데스크톱 빈 목록 시나리오", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(
 		!LOGGED_IN || CHAT_SCENARIO !== "noHistory",
 		"TC_SESSION=in이고 TC_CHAT이 noHistory일 때만 돌림",
@@ -1518,6 +1550,8 @@ test.describe("데스크톱 빈 목록 시나리오", () => {
 });
 
 test.describe("데스크톱 한도 시나리오", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(
 		!LOGGED_IN || CHAT_SCENARIO !== "dailyLimit",
 		"TC_SESSION=in이고 TC_CHAT이 dailyLimit일 때만 돌림",
@@ -1541,6 +1575,8 @@ test.describe("데스크톱 한도 시나리오", () => {
 
 // 커밋 7: 접근성과 콘솔 (CH9)
 test.describe("접근성", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 	test.use({ viewport: MOBILE });
 
@@ -1602,6 +1638,8 @@ const DELETE_ROUTE = (chatId: number | string) => `/api/chat/${chatId}/delete`;
 const FOREIGN_ORIGIN = "https://evil.example";
 
 test.describe("대화 삭제 경로 직접 요청", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 
 	const redirectCases = [

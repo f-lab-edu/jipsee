@@ -93,6 +93,8 @@ for (const { label, viewport } of SCREENS) {
 
 	for (const theme of THEMES) {
 		test.describe(`${label} ${viewport.width}x${viewport.height} ${theme}`, () => {
+			// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+			test.skip(true);
 			test.use({ viewport, colorScheme: theme });
 			test.skip(
 				process.env.TC_SESSION === "in",
@@ -403,6 +405,8 @@ for (const { label, viewport } of SCREENS) {
 
 	for (const theme of THEMES) {
 		test.describe(`${label} ${viewport.width}x${viewport.height} ${theme} 제공자 버튼`, () => {
+			// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+			test.skip(true);
 			test.use({ viewport, colorScheme: theme });
 			test.skip(
 				process.env.TC_SESSION === "in",
@@ -539,6 +543,8 @@ for (const { label, viewport } of SCREENS) {
 }
 
 test.describe("모바일 320x640 light 제공자 버튼", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.use({ viewport: { width: 320, height: 640 }, colorScheme: "light" });
 	test.skip(
 		process.env.TC_SESSION === "in",
@@ -733,6 +739,8 @@ for (const { label, viewport } of SCREENS) {
 // 접근 제어: 로그인한 상태로 /login에 들어오면 홈으로 감
 for (const { label, viewport } of SCREENS) {
 	test.describe(`${label} ${viewport.width}x${viewport.height} light`, () => {
+		// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+		test.skip(true);
 		test.use({ viewport, colorScheme: "light" });
 		test.skip(
 			process.env.TC_SESSION !== "in",
@@ -798,6 +806,8 @@ const SECTION_HEIGHT = 20 + 22 + 12 + 74 + 12 + 48 + 24;
 const CARD_HEIGHT = 24 + 22 + 12 + 74 + 12 + 48 + 24 + 2;
 
 test.describe("로그아웃 /me", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.skip(
 		process.env.TC_SESSION === "in",
 		"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
@@ -833,6 +843,8 @@ for (const { label, viewport } of SCREENS) {
 
 	for (const theme of THEMES) {
 		test.describe(`${label} ${viewport.width}x${viewport.height} ${theme} 내 정보`, () => {
+			// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+			test.skip(true);
 			test.use({ viewport, colorScheme: theme });
 			test.skip(
 				process.env.TC_SESSION !== "in",
@@ -1201,6 +1213,8 @@ for (const { label, viewport } of SCREENS) {
 	const layout = isMobile ? "mobile" : "desktop";
 
 	test.describe(`${label} ${viewport.width}x${viewport.height} 약관과 정책 줄 없음`, () => {
+		// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+		test.skip(true);
 		test.use({ viewport, colorScheme: "light" });
 		test.skip(
 			process.env.TC_SESSION !== "in",
@@ -1234,6 +1248,8 @@ for (const { label, viewport } of SCREENS) {
 
 	for (const theme of THEMES) {
 		test.describe(`${label} ${viewport.width}x${viewport.height} ${theme} 회원 탈퇴`, () => {
+			// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+			test.skip(true);
 			test.use({ viewport, colorScheme: theme });
 			test.skip(
 				process.env.TC_SESSION !== "in",
@@ -1367,6 +1383,8 @@ for (const { label, viewport } of SCREENS) {
 	const layout = viewport === MOBILE ? "mobile" : "desktop";
 
 	test.describe(`${label} ${viewport.width}x${viewport.height} 로그아웃`, () => {
+		// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+		test.skip(true);
 		test.use({ viewport, colorScheme: "light" });
 		test.skip(
 			process.env.TC_SESSION !== "in",
@@ -1466,6 +1484,8 @@ for (const { label, viewport } of SCREENS) {
 
 	for (const theme of THEMES) {
 		test.describe(`${label} ${viewport.width}x${viewport.height} ${theme} 탈퇴 확인 창`, () => {
+			// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+			test.skip(true);
 			test.use({ viewport, colorScheme: theme });
 			test.skip(
 				process.env.TC_SESSION !== "in",
@@ -1717,6 +1737,8 @@ for (const { label, viewport } of SCREENS) {
 }
 
 test.describe("탈퇴 확인 창 요청", () => {
+	// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+	test.skip(true);
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 	test.skip(
 		process.env.TC_SESSION !== "in",
@@ -1788,6 +1810,8 @@ const LG_ABOVE = { width: 1280, height: 900 };
 
 for (const theme of LIGHT_ONLY) {
 	test.describe(`${theme} 탈퇴 확인 창 lg 경계`, () => {
+		// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+		test.skip(true);
 		test.use({ viewport: LG_BELOW, colorScheme: theme });
 		test.skip(
 			process.env.TC_SESSION !== "in",
@@ -1858,6 +1882,8 @@ for (const theme of LIGHT_ONLY) {
 for (const viewport of [MOBILE, { width: 768, height: 1024 }, DESKTOP]) {
 	for (const theme of LIGHT_ONLY) {
 		test.describe(`${viewport.width}x${viewport.height} ${theme} 탈퇴 확인 창 딤`, () => {
+			// 2단계 기능(로그인, 챗봇, 내 정보)이라 1단계에서는 건너뜀
+			test.skip(true);
 			test.use({ viewport, colorScheme: theme });
 			test.skip(
 				process.env.TC_SESSION !== "in",
