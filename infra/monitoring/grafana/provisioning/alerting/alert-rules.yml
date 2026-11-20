@@ -114,7 +114,7 @@ groups:
               datasource:
                 type: prometheus
                 uid: prometheus
-              expr: 'sum by (spring_batch_job_name) (increase(spring_batch_job_seconds_count{spring_batch_job_status="FAILED"}[25h]) or spring_batch_job_seconds_count{spring_batch_job_status="FAILED"} * 0) + sum by (spring_batch_job_name) (clamp_max(spring_batch_job_seconds_count{spring_batch_job_status="FAILED"} unless spring_batch_job_seconds_count{spring_batch_job_status="FAILED"} offset 25h, 1) or spring_batch_job_seconds_count{spring_batch_job_status="FAILED"} * 0)'
+              expr: 'sum by (spring_batch_job_name) (sum_over_time(sum by (spring_batch_job_name) ((((spring_batch_job_seconds_count{spring_batch_job_status="FAILED"} - spring_batch_job_seconds_count{spring_batch_job_status="FAILED"} offset 1m) > 0) or (spring_batch_job_seconds_count{spring_batch_job_status="FAILED"} < spring_batch_job_seconds_count{spring_batch_job_status="FAILED"} offset 1m) or clamp_max(spring_batch_job_seconds_count{spring_batch_job_status="FAILED"} unless spring_batch_job_seconds_count{spring_batch_job_status="FAILED"} offset 1m, 1)))[25h:1m]) or spring_batch_job_seconds_count{spring_batch_job_status="FAILED"} * 0)'
               instant: true
               intervalMs: 1000
               maxDataPoints: 43200
