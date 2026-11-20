@@ -83,7 +83,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 				`id ${id} 헤더 안에 건물명 없음`,
 				!(m.headerText ?? "").includes(name),
 				m.headerText,
-				"로고와 계정 링크만 있음",
+				"로고만 있음",
 			);
 		}
 	});
@@ -213,7 +213,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 	test.describe(`${DESKTOP.width}x${DESKTOP.height} ${theme}`, () => {
 		test.use({ viewport: DESKTOP, colorScheme: theme });
 
-		test(`${caseId("C3", 22 + 4 * themeIndex)} 데스크톱 로고 헤더가 높이 65(로고 줄 64와 아래 테두리 1)에 로그인 링크를 보여줌 (${theme})`, async ({
+		test(`${caseId("C3", 22 + 4 * themeIndex)} 데스크톱 로고 헤더가 높이 65(로고 줄 64와 아래 테두리 1)에 로그인 링크를 보여주지 않음 (${theme})`, async ({
 			t,
 		}) => {
 			test.skip(
@@ -224,7 +224,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			const m = await t.measure();
 			t.near("헤더 높이", m.header?.h, 65, 0);
 			t.eq("로고 링크 개수", m.logoVisible, 1);
-			t.eq("로그인 버튼 개수", m.loginVisible, 1);
+			t.eq("로그인 버튼 개수", m.loginVisible, 0);
 			t.eq("내 정보 버튼 개수", m.myInfoVisible, 0);
 			t.color("헤더 배경 bg.layerDefault", m.bgHeader, t.tokens.layerDefault);
 			t.color(
@@ -516,7 +516,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 // 거래 이력 섹션(C6)이 생긴 뒤 모바일 id 1은 1200보다 길어져서 id 3으로 바꿨고, 주변 거래 섹션(C10)이 생긴 뒤 id 3도 1343이 되어
 // 모바일은 가장 짧은 id 4(위치 정보 없음, 캔버스 높이 1470)에 뷰포트 높이 1800으로 둠. 이후 커밋이 길이를 늘려도 id 4는 이 안에 들어옴
 // 주변 거래 목록(C11)이 생긴 뒤 데스크톱 id 1도 2200을 넘어서 데스크톱도 id 4(캔버스 높이 1030)로 바꿈
-// 2026-11-13 이후: 모바일은 푸터가 하단 내비게이션(위 테두리 1과 탭 56) 바로 위에 있고 질문 하단 바는 푸터 위에 있으므로 푸터 아래 끝이 내비게이션 위에 닿음
+// 2026-11-13 이후: 모바일은 푸터가 하단 내비게이션(위 테두리 1과 탭 56) 바로 위에 있고 푸터 아래 끝이 내비게이션 위에 닿음
 for (const [index, [w, h, id, bar]] of [
 	[390, 1800, 4, 57],
 	[1440, 1400, 4, 0],
@@ -661,7 +661,7 @@ for (const [index, [label, viewport]] of (
 test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test.use({ viewport: DESKTOP, colorScheme: "light" });
 
-	test("C3-59 로그인하지 않으면 데스크톱 헤더에 로그인이 보이고 내 정보는 없음", async ({
+	test("C3-59 로그인하지 않으면 데스크톱 헤더에 로그인과 내 정보가 모두 없음", async ({
 		t,
 	}) => {
 		test.skip(
@@ -670,7 +670,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 		);
 		await t.goto("/buildings/1");
 		const m = await t.measure();
-		t.eq("로그인", m.loginVisible, 1);
+		t.eq("로그인", m.loginVisible, 0);
 		t.eq("내 정보", m.myInfoVisible, 0);
 	});
 });

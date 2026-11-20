@@ -17,7 +17,6 @@ import { sendQuestion } from "./support/chat/sendQuestion";
 import { isDimmedAt } from "./support/dialog/isDimmedAt";
 import { gotoAndSettle } from "./support/gotoAndSettle";
 import { readBox } from "./support/policy/readBox";
-import { SEARCH_PATH } from "./support/searchFixtures";
 import { test } from "./support/test";
 import { BOTTOM_NAV_HEIGHT, DESKTOP, MOBILE } from "./support/viewports";
 import { waitForAnimations } from "./support/waitForAnimations";
@@ -108,27 +107,6 @@ test.describe("라우트와 하단 내비게이션", () => {
 		expect(await gotoAndSettle(page, "/chat/abc")).toBe(404);
 		expect(await gotoAndSettle(page, "/chat?buildingId=99999")).toBe(404);
 		expect(await gotoAndSettle(page, "/chat?buildingId=abc")).toBe(404);
-	});
-
-	test(`${caseId("CH1", 8)} 홈과 검색 결과의 지난 대화 링크가 /chat/history임`, async ({
-		page,
-	}) => {
-		await gotoAndSettle(page, "/");
-		await expect(page.getByRole("link", { name: "지난 대화" })).toHaveAttribute(
-			"href",
-			"/chat/history",
-		);
-		await gotoAndSettle(page, SEARCH_PATH);
-		await expect(page.getByRole("link", { name: "지난 대화" })).toHaveAttribute(
-			"href",
-			"/chat/history",
-		);
-		await page.setViewportSize(DESKTOP);
-		await gotoAndSettle(page, "/");
-		await expect(page.getByRole("link", { name: "지난 대화" })).toHaveAttribute(
-			"href",
-			"/chat/history",
-		);
 	});
 
 	for (const [index, viewport] of [MOBILE, TABLET].entries()) {
@@ -307,19 +285,6 @@ test.describe("질문 전송과 스트리밍", () => {
 		await expect(log).toHaveAttribute("aria-live", "polite");
 		await expect(log).toHaveAttribute("aria-relevant", "additions text");
 		await expect(log).toHaveAttribute("data-area", "chat-thread");
-	});
-
-	test(`${caseId("CH3", 8)} 홈 질문 폼에서 보낸 질문이 /chat에 도착하자마자 첫 말풍선이고 스트리밍이 시작됨`, async ({
-		page,
-	}) => {
-		await gotoAndSettle(page, "/");
-		const input = page.getByRole("textbox", { name: "집사에게 질문" });
-		await input.fill(CHAT_TEXT.question);
-		await input.press("Enter");
-		await page.waitForURL(/\/chat$/);
-		await expect(page.locator(USER_TEXT)).toHaveText(CHAT_TEXT.question);
-		await waitForAnswer(page);
-		await expect(page.locator(USER)).toHaveCount(1);
 	});
 
 	test(`${caseId("CH3", 9)} /chat/1은 말풍선 네 개이고 둘째 답변 출처가 법령 줄과 법제처 기준일임`, async ({
@@ -993,7 +958,7 @@ test.describe("데스크톱 레이아웃", () => {
 	test.skip(!LOGGED_IN || !NORMAL, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 
 	for (const theme of THEMES) {
-		test(`${caseId("CH8", theme === "light" ? 5 : 15)} ${theme} 1440x900에서 폭 1152 카드가 가운데에서 헤더와 푸터 사이를 채우고 모서리 20, 입력 높이 52임`, async ({
+		test(`${caseId("CH8", theme === "light" ? 5 : 15)} ${theme} 1440x900에서 폭 1152 카드가 가운데에서 헤더와 푸터 사이를 채우고 모서리 20, 입력 높이 52이고 헤더에 내 정보 링크가 없음`, async ({
 			page,
 		}) => {
 			await page.setViewportSize(DESKTOP);
@@ -1038,8 +1003,7 @@ test.describe("데스크톱 레이아웃", () => {
 			);
 			expect.soft(input.height, "입력 높이").toBe(52);
 			const account = page.getByRole("link", { name: "내 정보" });
-			await expect.soft(account).toBeVisible();
-			await expect.soft(account).not.toHaveAttribute("aria-current");
+			await expect.soft(account).toHaveCount(0);
 			await expect.soft(page.locator(NAV)).toBeHidden();
 		});
 	}

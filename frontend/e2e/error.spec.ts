@@ -228,7 +228,7 @@ for (const { label, viewport, layout } of SCREENS) {
 			"TC_BUILDING_FAILURE=buildingRateLimited일 때만 돌림",
 		);
 
-		test(`${caseId("E2", 3)} ${label} 요청 제한이면 본문만 요청 제한 안내로 바뀌고 헤더, 질문 바, 푸터는 남음`, async ({
+		test(`${caseId("E2", 3)} ${label} 요청 제한이면 본문만 요청 제한 안내로 바뀌고 헤더와 푸터는 남음`, async ({
 			page,
 		}) => {
 			expect(await gotoAndSettle(page, "/buildings/1")).toBe(200);
@@ -239,11 +239,6 @@ for (const { label, viewport, layout } of SCREENS) {
 			).toBeVisible();
 			await expect(page.getByTestId(`header-${layout}`)).toBeVisible();
 			await expect(page.getByTestId(`footer-${layout}`)).toBeVisible();
-			if (layout === "mobile") {
-				await expect(
-					page.locator('[data-area="ask-building-bar"]'),
-				).toBeVisible();
-			}
 			// 건물 정보는 그리지 않음
 			await expect(page.getByRole("heading", { level: 1 })).toHaveCount(0);
 		});

@@ -3,13 +3,8 @@
 // 안전 영역 높이는 브라우저에서 값이 0이라 확인하지 않음
 // /me는 로그인 상태에서만 열려 TC_SESSION=in일 때만 돌림. 로그인 상태는 쿠키로 정함(e2e/support/mockStorageState.ts). 로그아웃 전제 TC는 TC_SESSION=in이면 건너뜀
 import { expect } from "@playwright/test";
-import { parseShadow } from "./support/bottomNav/parseShadow";
 import { readColumn } from "./support/bottomNav/readColumn";
-import {
-	readChatPanelEdge,
-	readDesktopHeaderEdge,
-	readHeaderEdge,
-} from "./support/bottomNav/readHeaderEdge";
+import { readDesktopHeaderEdge } from "./support/bottomNav/readHeaderEdge";
 import { scrollToEnd } from "./support/bottomNav/scrollToEnd";
 import { caseId } from "./support/caseId";
 import { gotoAndSettle } from "./support/gotoAndSettle";
@@ -61,9 +56,9 @@ const COLUMN_PATHS = [
 
 // 화면마다 하단 바는 설계 문서 10.3절. 로그인과 정책은 하단 바가 없음
 const STACK_PATHS = [
-	{ name: "홈", path: "/", bar: "chat-panel-mobile" },
-	{ name: "검색 결과", path: SEARCH_PATH, bar: "chat-compact-bar" },
-	{ name: "건물 상세", path: "/buildings/1", bar: "ask-building-bar" },
+	{ name: "홈", path: "/", bar: null },
+	{ name: "검색 결과", path: SEARCH_PATH, bar: null },
+	{ name: "건물 상세", path: "/buildings/1", bar: null },
 	{ name: "로그인", path: "/login", bar: null },
 	{ name: "이용약관", path: "/policies/terms", bar: null },
 	{ name: "개인정보처리방침", path: "/policies/privacy", bar: null },
@@ -265,35 +260,6 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 			}
 
 			if (colorScheme === "light" && label === "모바일") {
-				test(`${caseId("NAV", 8)} ${label} 헤더 아래 구분선이 챗봇 패널 위쪽 가장자리의 테두리와 그림자를 아래로 뒤집은 값임`, async ({
-					page,
-				}) => {
-					await gotoAndSettle(page, "/");
-					const header = await readHeaderEdge(page);
-					const panel = await readChatPanelEdge(page);
-					expect.soft(header.borderBottomWidth, "헤더 아래 테두리").toBe("1px");
-					expect
-						.soft(
-							header.borderBottomColor,
-							"헤더 아래 테두리 색이 패널 위 테두리 색과 같음",
-						)
-						.toBe(panel.borderTopColor);
-					const headerShadow = parseShadow(header.boxShadow);
-					const panelShadow = parseShadow(panel.boxShadow);
-					expect.soft(headerShadow.y, "헤더 그림자 y").toBe(6);
-					expect.soft(headerShadow.blur, "헤더 그림자 blur").toBe(20);
-					expect.soft(headerShadow.x, "헤더 그림자 x").toBe(0);
-					expect.soft(headerShadow.spread, "헤더 그림자 spread").toBe(0);
-					expect
-						.soft(headerShadow.y, "헤더 그림자 y가 패널 그림자 y의 반대")
-						.toBe(-panelShadow.y);
-					expect
-						.soft(headerShadow.color, "헤더 그림자 색이 패널 그림자 색과 같음")
-						.toBe(panelShadow.color);
-				});
-			}
-
-			if (colorScheme === "light" && label === "모바일") {
 				test(`${caseId("NAV", 9)} ${label} 건물 상세를 스크롤하기 전과 뒤에 푸터와 내비게이션 위치가 같고 푸터 링크 세 개가 보임`, async ({
 					page,
 				}) => {
@@ -389,18 +355,6 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 				expect
 					.soft(content, "viewport content")
 					.toContain("viewport-fit=cover");
-			});
-
-			test(`${caseId("NAV", 15)} ${label} 홈에서 챗봇 입력에 포커스해도 내비게이션이 보임`, async ({
-				page,
-			}) => {
-				test.skip(!LOGGED_IN, "입력창은 로그인 상태에서만 있음");
-				await gotoAndSettle(page, "/");
-				await page
-					.locator('[data-area="chat-panel-mobile"] input')
-					.first()
-					.focus();
-				await expect.soft(page.locator(NAV)).toBeVisible();
 			});
 		});
 	}

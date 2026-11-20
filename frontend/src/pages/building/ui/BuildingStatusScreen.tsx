@@ -1,6 +1,5 @@
 import { VStack } from "@seed-design/react";
 import type { Session } from "@/entities/session/model/session";
-import AskBuildingBar from "@/features/askChatbot/ui/AskBuildingBar";
 import { buildingScreenStyles } from "@/pages/building/config/buildingScreenStyles";
 import { buildingStatusStyles } from "@/pages/building/config/buildingStatusStyles";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
@@ -20,7 +19,7 @@ interface BuildingStatusScreenProps {
 /**
  * 건물 상세 > 요청 제한 화면
  *
- * - 건물 상세 화면의 헤더, 모바일 질문 바, 푸터, 하단 내비게이션은 그대로 두고 본문만 요청 제한 안내로 대신 출력
+ * - 건물 상세 화면의 헤더, 푸터, 하단 내비게이션은 그대로 두고 본문만 요청 제한 안내로 대신 출력
  */
 export default function BuildingStatusScreen({
 	buildingId,
@@ -41,7 +40,6 @@ export default function BuildingStatusScreen({
 					</VStack>
 				</ContentContainer>
 			</VStack>
-			<AskBuildingBar buildingId={buildingId} session={session} />
 			<Footer />
 			<BottomNav session={session} />
 		</PageColumn>
