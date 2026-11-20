@@ -21,7 +21,7 @@
           "uid": "prometheus"
         },
         "enable": true,
-        "expr": "resets(process_uptime_seconds{application=\"$application\", instance=\"$instance\"}[1m]) > 0",
+        "expr": "changes(process_start_time_seconds{application=\"$application\", instance=\"$instance\"}[2m]) > 0",
         "iconColor": "rgba(255, 96, 96, 1)",
         "name": "재시작 감지",
         "showIn": 0,
