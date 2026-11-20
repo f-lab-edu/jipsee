@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import kr.jipsee.region.dto.LegalDongKey;
 import kr.jipsee.region.dto.LegalDongRow;
 import kr.jipsee.region.repository.LegalDongCsvRepository;
@@ -102,5 +103,82 @@ class RegionServiceTest {
                 .noneMatch(key -> key.legalDongCode().equals("00000"))
                 .doesNotHaveDuplicates()
                 .isSortedAccordingTo(Comparator.comparing(LegalDongKey::code));
+    }
+
+    @Test
+    @DisplayName("읍면동명이 같으면 시군구 코드와 이름으로 법정동 키를 찾음")
+    void 읍면동명이_같으면_시군구_코드와_이름으로_법정동_키를_찾음() {
+        // given
+        given(repository.findAll()).willReturn(List.of(new LegalDongRow("1126010100", "서울특별시", "중랑구", "면목동", "")));
+
+        // when
+        Optional<LegalDongKey> key = new RegionService(repository).find("11260", "면목동");
+
+        // then
+        assertThat(key).contains(new LegalDongKey("11260", "10100"));
+    }
+
+    @Test
+    @DisplayName("리가 있으면 읍면동명과 리명을 공백으로 이은 이름으로 찾음")
+    void 리가_있으면_읍면동명과_리명을_공백으로_이은_이름으로_찾음() {
+        // given
+        given(repository.findAll())
+                .willReturn(List.of(new LegalDongRow("1213025021", "전남광주통합특별시", "여수시", "돌산읍", "군내리")));
+        RegionService service = new RegionService(repository);
+
+        // when, then
+        assertThat(service.find("12130", "돌산읍 군내리")).contains(new LegalDongKey("12130", "25021"));
+        assertThat(service.find("12130", "군내리")).isEmpty();
+    }
+
+    @Test
+    @DisplayName("읍면동만 있는 행은 읍면동명으로 찾음")
+    void 읍면동만_있는_행은_읍면동명으로_찾음() {
+        // given
+        given(repository.findAll()).willReturn(List.of(new LegalDongRow("1213025000", "전남광주통합특별시", "여수시", "돌산읍", "")));
+
+        // when
+        Optional<LegalDongKey> key = new RegionService(repository).find("12130", "돌산읍");
+
+        // then
+        assertThat(key).contains(new LegalDongKey("12130", "25000"));
+    }
+
+    @Test
+    @DisplayName("이름이 있어도 시군구 코드가 다르면 빈 값")
+    void 이름이_있어도_시군구_코드가_다르면_빈_값() {
+        // given
+        given(repository.findAll()).willReturn(List.of(new LegalDongRow("1126010100", "서울특별시", "중랑구", "면목동", "")));
+
+        // when
+        Optional<LegalDongKey> key = new RegionService(repository).find("11110", "면목동");
+
+        // then
+        assertThat(key).isEmpty();
+    }
+
+    @Test
+    @DisplayName("시도와 시군구 행은 찾지 않음")
+    void 시도와_시군구_행은_찾지_않음() {
+        // given
+        given(repository.findAll())
+                .willReturn(List.of(
+                        new LegalDongRow("1100000000", "서울특별시", "", "", ""),
+                        new LegalDongRow("1126000000", "서울특별시", "중랑구", "", "")));
+        RegionService service = new RegionService(repository);
+
+        // when, then
+        assertThat(service.find("11260", "")).isEmpty();
+        assertThat(service.find("11260", "중랑구")).isEmpty();
+    }
+
+    @Test
+    @DisplayName("실제 사전에서 노원구 하계동을 찾음")
+    void 실제_사전에서_노원구_하계동을_찾음() {
+        // when
+        Optional<LegalDongKey> key = new RegionService(new LegalDongCsvRepository()).find("11350", "하계동");
+
+        // then
+        assertThat(key).contains(new LegalDongKey("11350", "10400"));
     }
 }
