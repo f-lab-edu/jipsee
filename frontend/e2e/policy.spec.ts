@@ -15,7 +15,12 @@ import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
 import { caseId } from "./support/caseId";
 import { gotoAndSettle } from "./support/gotoAndSettle";
-import { PHASE2_OFF, PHASE2_SKIP_REASON } from "./support/phase2Routes";
+import {
+	isHiddenPolicyPath,
+	PHASE1_POLICY_SKIP_REASON,
+	PHASE2_OFF,
+	PHASE2_SKIP_REASON,
+} from "./support/phase2Routes";
 import { POLICY_TOKENS } from "./support/policy/policyTokens";
 import { readBox } from "./support/policy/readBox";
 import { readStyle } from "./support/policy/readStyle";
@@ -106,12 +111,14 @@ for (const { label, viewport, layout } of SCREENS) {
 					test(`${caseId("P1", 1)} ${label} ${path}는 200이고 콘솔 오류가 없음`, async ({
 						page,
 					}) => {
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						expect(await gotoAndSettle(page, path)).toBe(200);
 					});
 
 					test(`${caseId("P1", 3)} ${label} ${path}의 보이는 h1은 ${title} 하나임`, async ({
 						page,
 					}) => {
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						await gotoAndSettle(page, path);
 						await expectVisibleHeading(page, title);
 					});
@@ -119,6 +126,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					test(`${caseId("P1", 5)} ${label} ${path}에 id 중복이 없음`, async ({
 						page,
 					}) => {
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						await gotoAndSettle(page, path);
 						const duplicates = await page.evaluate(() => {
 							const ids = [...document.querySelectorAll("[id]")].map(
@@ -135,6 +143,7 @@ for (const { label, viewport, layout } of SCREENS) {
 						test(`${caseId("P1", 2)} 모바일 ${path}의 문서 제목이 ${title} | 집씨임`, async ({
 							page,
 						}) => {
+							test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 							await gotoAndSettle(page, path);
 							await expect(page).toHaveTitle(`${title} | 집씨`);
 						});
@@ -142,6 +151,7 @@ for (const { label, viewport, layout } of SCREENS) {
 						test(`${caseId("P1", 6)} 모바일 ${path}는 390과 320 폭에서 가로 스크롤이 없음`, async ({
 							page,
 						}) => {
+							test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 							for (const width of [390, 320]) {
 								await page.setViewportSize({ width, height: 844 });
 								await gotoAndSettle(page, path);
@@ -165,6 +175,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					test(`${caseId("P1", 7)} ${label} ${path}의 h1이 ${isMobile ? "본문 첫 줄" : "열 맨 위"}에 있음`, async ({
 						page,
 					}) => {
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						await gotoAndSettle(page, path);
 						const heading = page.locator("h1:visible");
 						await expect(heading).toHaveText(title);
@@ -182,6 +193,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				test(`${caseId("P2", 1)} ${label} 푸터 링크가 세 경로로 이동하고 h1이 맞음`, async ({
 					page,
 				}) => {
+					test.skip(PHASE2_OFF, PHASE1_POLICY_SKIP_REASON);
 					for (const { path, title } of ALL_PAGES) {
 						await gotoAndSettle(page, "/");
 						await page
@@ -203,6 +215,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					test(`${caseId("P3", 1)} ${label} ${title} 시행일 줄이 시행일 2026.11.17이고 이전 버전 링크가 없음`, async ({
 						page,
 					}) => {
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						await gotoAndSettle(page, path);
 						await expect(
 							page.locator(`[data-area="policy-effective-date-${layout}"]`),
@@ -215,6 +228,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					test(`${caseId("P3", toc.length === 10 ? 2 : 3)} ${label} ${title} 목차가 nav 안 ol이고 항목 ${toc.length}개의 순서와 문구가 맞음`, async ({
 						page,
 					}) => {
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						await gotoAndSettle(page, path);
 						const items = tocNav(page).locator("ol > li");
 						await expect(items).toHaveCount(toc.length);
@@ -226,6 +240,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					test(`${caseId("P3", 4)} ${label} ${title} 목차 항목과 조항 h2가 개수와 문구가 같음`, async ({
 						page,
 					}) => {
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						await gotoAndSettle(page, path);
 						const headings = body(page).locator("h2");
 						await expect(headings).toHaveCount(toc.length);
@@ -237,6 +252,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					test(`${caseId("P3", 5)} ${label} ${title} 목차 항목을 누르면 해시가 조항 id가 되고 제목이 고정 헤더에 가리지 않음`, async ({
 						page,
 					}) => {
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						await gotoAndSettle(page, path);
 						for (const order of [3, toc.length]) {
 							await tocNav(page)
@@ -262,6 +278,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					test(`${caseId("P3", 8)} ${label} ${title} 로그인하지 않아도 열리고 로그인 화면으로 보내지 않음`, async ({
 						page,
 					}) => {
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
 						await gotoAndSettle(page, path);
 						expect(new URL(page.url()).pathname).toBe(path);
@@ -270,6 +287,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					test(`${caseId("P3", 9)} ${label} ${title} 조항별 문단 수가 본문 데이터와 같음`, async ({
 						page,
 					}) => {
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						await gotoAndSettle(page, path);
 						for (const [index, clause] of data.clauses.entries()) {
 							const paragraphCount = clause.blocks.filter(
@@ -286,6 +304,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					test(`${caseId("P3", 10)} ${label} ${title} 시행일 줄 위에 임시 초안 안내가 보임`, async ({
 						page,
 					}) => {
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						await gotoAndSettle(page, path);
 						const notice = page.locator(
 							`[data-area="policy-draft-notice-${layout}"]`,
@@ -426,7 +445,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				for (const { path, area } of [
 					{ path: TERMS.path, area: "policy" },
 					{ path: DATA_SOURCES.path, area: "data-sources" },
-				]) {
+				].filter(({ path }) => !isHiddenPolicyPath(path))) {
 					await gotoAndSettle(page, path);
 					const notice = draftNotice(page, area);
 					const style = await readStyle(notice, [
@@ -468,7 +487,9 @@ for (const { label, viewport, layout } of SCREENS) {
 				test(`${caseId("P6", 2)} ${label} 제목 글자와 제목 아래 안내 간격이 보드와 같음`, async ({
 					page,
 				}) => {
-					for (const { path } of ALL_PAGES) {
+					for (const { path } of ALL_PAGES.filter(
+						({ path }) => !isHiddenPolicyPath(path),
+					)) {
 						await gotoAndSettle(page, path);
 						const heading = page.locator("h1:visible");
 						const style = await readStyle(heading, [
@@ -491,6 +512,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				test(`${caseId("P6", 3)} ${label} 문서 화면 바깥 치수가 보드와 같음`, async ({
 					page,
 				}) => {
+					test.skip(PHASE2_OFF, PHASE1_POLICY_SKIP_REASON);
 					await gotoAndSettle(page, TERMS.path);
 					if (isMobile) {
 						const body = page.locator(
@@ -537,6 +559,7 @@ for (const { label, viewport, layout } of SCREENS) {
 					test(`${caseId("P6", 4)} ${label} ${title} 목차가 보드의 ${isMobile ? "한 열" : "두 열"} 44px 행임`, async ({
 						page,
 					}) => {
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						await gotoAndSettle(page, path);
 						const nav = page.locator(`[data-area="policy-toc-${layout}"]`);
 						const items = nav.locator("ol > li");
@@ -582,6 +605,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				test(`${caseId("P6", 5)} ${label} 조항 구분선, 제목, 본문 글자가 보드와 같음`, async ({
 					page,
 				}) => {
+					test.skip(PHASE2_OFF, PHASE1_POLICY_SKIP_REASON);
 					await gotoAndSettle(page, TERMS.path);
 					const clause = page.locator(
 						`[data-area="policy-clause-${layout}-2"]`,
@@ -622,6 +646,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				test(`${caseId("P6", 6)} ${label} 본문 목록이 글머리 기호 목록이고 부칙이 14px임`, async ({
 					page,
 				}) => {
+					test.skip(PHASE2_OFF, PHASE1_POLICY_SKIP_REASON);
 					await gotoAndSettle(page, TERMS.path);
 					const list = page
 						.locator(`[data-area="policy-clause-${layout}-1"] ul`)
@@ -647,6 +672,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				test(`${caseId("P6", 7)} ${label} 처리 항목이 라벨 값 카드이고 ${isMobile ? "라벨 아래에 값이" : "160px 라벨 열 옆에 값이"} 나옴`, async ({
 					page,
 				}) => {
+					test.skip(PHASE2_OFF, PHASE1_POLICY_SKIP_REASON);
 					await gotoAndSettle(page, PRIVACY.path);
 					const clause = page.locator(
 						`[data-area="policy-clause-${layout}-2"]`,
@@ -705,6 +731,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				test(`${caseId("P6", 8)} ${label} 처리 위탁이 ${isMobile ? "수탁자별 카드" : "수탁자 표"}이고 국외 이전은 이전받는 자별 카드임`, async ({
 					page,
 				}) => {
+					test.skip(PHASE2_OFF, PHASE1_POLICY_SKIP_REASON);
 					await gotoAndSettle(page, PRIVACY.path);
 					const outsourcing = page.locator(
 						`[data-area="policy-clause-${layout}-4"]`,
@@ -895,6 +922,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				test(`${caseId("P5", 1)} 모바일 ${theme} 본문 글자색이 fg.neutral, 보조 글자색이 fg.neutralMuted, 배경이 bg.layerDefault임`, async ({
 					page,
 				}) => {
+					test.skip(PHASE2_OFF, PHASE1_POLICY_SKIP_REASON);
 					await gotoAndSettle(page, TERMS.path);
 					const read = (selector: string) =>
 						page
@@ -924,6 +952,7 @@ for (const { label, viewport, layout } of SCREENS) {
 			test(`${caseId("P5", 2)} 데스크톱 ${theme} 하늘빛 배경이 열 바깥에 깔림`, async ({
 				page,
 			}) => {
+				test.skip(PHASE2_OFF, PHASE1_POLICY_SKIP_REASON);
 				await gotoAndSettle(page, TERMS.path);
 				const background = await page.evaluate(
 					() => getComputedStyle(document.body).backgroundColor,
@@ -945,6 +974,7 @@ test.describe("모바일 390x844 light 문서 화면 동작", () => {
 		test(`${caseId("P3", 6)} 모바일 ${title} 마지막 조항으로 이동해도 제목이 고정 헤더에 가리지 않음`, async ({
 			page,
 		}) => {
+			test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 			await gotoAndSettle(page, path);
 			await page
 				.getByRole("navigation", { name: "목차" })
@@ -983,6 +1013,7 @@ test.describe("모바일 390x844 light 문서 화면 동작", () => {
 	test(`${caseId("P3", 7)} 모바일 뒤로 가기 버튼이 있고 누르면 이전 화면으로 돌아감`, async ({
 		page,
 	}) => {
+		test.skip(PHASE2_OFF, PHASE1_POLICY_SKIP_REASON);
 		await gotoAndSettle(page, "/");
 		await page
 			.getByTestId("footer-mobile")
@@ -1000,6 +1031,7 @@ test.describe("모바일 390x844 light 문서 화면 동작", () => {
 	test(`${caseId("P2", 4)} 모바일 정책 화면의 푸터 링크로 문서끼리 오감`, async ({
 		page,
 	}) => {
+		test.skip(PHASE2_OFF, PHASE1_POLICY_SKIP_REASON);
 		await gotoAndSettle(page, TERMS.path);
 		for (const { path, title } of [PRIVACY, DATA_SOURCES, TERMS]) {
 			await page
@@ -1041,6 +1073,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				page,
 			}) => {
 				test.skip(PHASE2_OFF && (loginOnly || logoutOnly), PHASE2_SKIP_REASON);
+				test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 				test.skip(
 					loginOnly && !LOGGED_IN,
 					"로그인 TC는 TC_SESSION=in일 때만 돌림",
@@ -1050,7 +1083,9 @@ for (const { label, viewport, layout } of SCREENS) {
 					"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
 				);
 				await gotoAndSettle(page, path);
-				for (const { title } of ALL_PAGES) {
+				for (const { title } of ALL_PAGES.filter(
+					({ path }) => !isHiddenPolicyPath(path),
+				)) {
 					const weight = await page
 						.getByTestId(`footer-${layout}`)
 						.getByRole("link", { name: title, exact: true })
