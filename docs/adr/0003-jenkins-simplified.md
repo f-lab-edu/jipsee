@@ -16,6 +16,7 @@
 - `jenkins/jenkins` LTS 이미지에 docker CLI를 추가하고 호스트 Docker 소켓 마운트
 - Jenkinsfile이 Job마다 `docker run --rm`으로 `ghcr.io/f-lab-edu/jipsee-backend:<태그>` 컨테이너를 직접 실행
   - 태그는 `.env.deploy`의 `IMAGE_TAG`에서 읽음
+- Jenkinsfile 위치: `infra/jenkins/Jenkinsfile`(#25)
 
 ### 설정 최소화
 
