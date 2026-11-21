@@ -12,6 +12,7 @@ import type { T } from "../support/buildingDetail/makeT";
 import { sameColor } from "../support/buildingDetail/sameColor";
 import type { Theme } from "../support/buildingDetail/tokens";
 import { caseId } from "../support/caseId";
+import { PHASE2_OFF } from "../support/phase2Routes";
 import { SEARCH_PATH } from "../support/searchFixtures";
 import { test } from "../support/test";
 import { DESKTOP, MOBILE } from "../support/viewports";
@@ -517,8 +518,9 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 // 모바일은 가장 짧은 id 4(주변 거래 0건, 2026-11-21 이후에도 1800 안에 들어옴)에 뷰포트 높이 1800으로 둠. 이후 커밋이 길이를 늘려도 id 4는 이 안에 들어옴
 // 주변 거래 목록(C11)이 생긴 뒤 데스크톱 id 1도 2200을 넘어서 데스크톱도 id 4(캔버스 높이 1030)로 바꿈
 // 2026-11-13 이후: 모바일은 푸터가 하단 내비게이션(위 테두리 1과 탭 56) 바로 위에 있고 푸터 아래 끝이 내비게이션 위에 닿음
+// 1단계(PHASE2_OFF)에서는 내비게이션이 없어 모바일 푸터 아래 끝이 화면 아래임
 for (const [index, [w, h, id, bar]] of [
-	[390, 1800, 4, 57],
+	[390, 1800, 4, PHASE2_OFF ? 0 : 57],
 	[1440, 1400, 4, 0],
 ].entries()) {
 	test.describe(`${w}x${h} light`, () => {

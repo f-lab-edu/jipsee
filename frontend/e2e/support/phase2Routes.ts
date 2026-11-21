@@ -16,3 +16,7 @@ export const PHASE1_POLICY_SKIP_REASON =
 export function isHiddenPolicyPath(path: string) {
 	return PHASE2_OFF && PHASE2_HIDDEN_POLICY_PATHS.includes(path);
 }
+
+// phase2RoutesEnabled가 false이면 하단 내비게이션이 없고 푸터가 열의 맨 아래에 놓임
+export const PHASE1_BOTTOM_NAV_SKIP_REASON =
+	"1단계에서는 하단 내비게이션이 없음(src/shared/config/phase2Routes.ts)";
