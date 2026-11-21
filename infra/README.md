@@ -65,19 +65,6 @@
 
 실패한 앱의 컨테이너 로그는 `/var/log/jipsee/app/deploy-failed-<커밋 앞 7자리>.log`에 기록. 7일이 지난 파일은 다음 배포 때 삭제
 
-### 배치 Job 주의
-
-- 배포는 실행 중인 배치 Job을 기다리지 않고 앱 교체. 매일 04:00(KST)에 Job이 돌기 때문에 그 시각 전후에는 배포하지 않아야함
-  - 추후 보완 필요
-- 앱 교체로 끊긴 Job은 `BATCH_JOB_EXECUTION`에 `STARTED`로 남고, 다시 실행되지 않음. 앱이 다시 뜬 뒤 아래 SQL로 정리
-
-```sql
-UPDATE BATCH_STEP_EXECUTION SET STATUS = 'FAILED', EXIT_CODE = 'FAILED', END_TIME = NOW() WHERE STATUS IN ('STARTING', 'STARTED', 'STOPPING');
-UPDATE BATCH_JOB_EXECUTION SET STATUS = 'FAILED', EXIT_CODE = 'FAILED', END_TIME = NOW() WHERE STATUS IN ('STARTING', 'STARTED', 'STOPPING');
-```
-
-- SQL 접속: `docker compose -f db/compose.yaml --env-file .env exec mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" jipsee'`
-
 ### 인프라 파일 변경
 
 워크플로는 서버에 파일을 올리지 않음. `compose.yaml`, `db/compose.yaml`, `fluent-bit/fluent-bit.conf`, `remote-deploy.sh`가 바뀐 PR은 머지한 뒤 서버에 직접 복사. 배포 키는 `remote-deploy.sh` 실행만 허용(`restrict,command=`)해서 파일을 올릴 수 없음
@@ -116,6 +103,7 @@ restrict,command="/opt/jipsee/bin/remote-deploy.sh" ssh-ed25519 AAAA... jipsee-d
    - `sudo install -d -o 1000 -g ubuntu -m 775 /var/log/jipsee/app`
    - `sudo install -d -m 755 /var/lib/jipsee/fluent-bit`
 4. 저장소의 `infra/compose.yaml`, `infra/db/compose.yaml`, `infra/fluent-bit/fluent-bit.conf`를 같은 경로로, `infra/remote-deploy.sh`를 `bin/remote-deploy.sh`로 복사하고 `chmod 755 bin/remote-deploy.sh`
+   - 저장소의 `backend/schema/*.sql`을 `db/schema`로 복사(7단계 flyway 실행 전)
 5. `.env`에 로그 업로드 변수 3개 추가
 6. DB 실행: `docker compose -f db/compose.yaml --env-file .env up -d mysql`. 앱이 붙는 네트워크 `jipsee-db`도 이때 생성
 7. 스키마 적용: `docker compose -f db/compose.yaml --env-file .env --profile schema run --rm flyway`
