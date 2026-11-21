@@ -20,3 +20,4 @@ Jenkins는 `127.0.0.1:8091`로만 게시, 접속은 SSH 터널(`ssh -L 8091:127.
 - `jenkins/compose.yaml`: Jenkins 컨테이너
 - `jenkins/Dockerfile`: Jenkins 이미지
 - `jenkins/Jenkinsfile`: 배치 파이프라인
+- `job.env`(저장소에 없음, 서버 `/opt/jipsee/job.env`): Job 컨테이너 환경 변수(DB 접속 정보와 공공데이터 API 키)
