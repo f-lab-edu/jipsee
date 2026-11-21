@@ -13,8 +13,10 @@ HEALTH_URL=http://127.0.0.1:8090/actuator/health
 KEEP_IMAGES=3
 
 finish() {
-  echo "RESULT $1"
-  exit "$2"
+  local result="$1"
+  local code="$2"
+  echo "RESULT $result"
+  exit "$code"
 }
 
 fail() {
@@ -29,7 +31,7 @@ compose() {
 
 wait_healthy() {
   local end=$((SECONDS + WAIT_TIMEOUT))
-  while [ "$SECONDS" -lt "$end" ]; do
+  while [[ "$SECONDS" -lt "$end" ]]; do
     if curl -fs --max-time 2 "$HEALTH_URL" 2>/dev/null | grep -q '"status":"UP"'; then
       return 0
     fi
@@ -58,7 +60,7 @@ remove_old_images() {
   done
   # 옛 로컬 이미지는 쓰는 컨테이너가 없을 때만 지움
   if docker image inspect "$LEGACY_IMAGE" >/dev/null 2>&1 &&
-    [ -z "$(docker ps -a -q --filter "ancestor=$LEGACY_IMAGE")" ]; then
+    [[ -z "$(docker ps -a -q --filter "ancestor=$LEGACY_IMAGE")" ]]; then
     docker rmi "$LEGACY_IMAGE" >/dev/null 2>&1 || true
   fi
 }
@@ -69,14 +71,14 @@ read -r -t 30 user || fail "ghcr 사용자 이름을 읽지 못함"
 read -r -t 30 token || fail "토큰을 읽지 못함"
 [[ $tag =~ ^[0-9a-f]{40}$ ]] || fail "이미지 태그는 40자리 소문자 16진수여야 함"
 [[ $user =~ ^[A-Za-z0-9-]{1,39}$ ]] || fail "ghcr 사용자 이름 형식이 틀림"
-[ -n "$token" ] || fail "토큰이 비어 있음"
+[[ -n "$token" ]] || fail "토큰이 비어 있음"
 
 # 2. 서버 준비 확인
 cd "$DEPLOY_DIR" 2>/dev/null || fail "$DEPLOY_DIR 없음"
 for f in .env compose.yaml; do
-  [ -f "$f" ] || fail "$f 없음"
+  [[ -f "$f" ]] || fail "$f 없음"
 done
-[ -d "$LOG_DIR" ] || fail "$LOG_DIR 없음"
+[[ -d "$LOG_DIR" ]] || fail "$LOG_DIR 없음"
 command -v flock >/dev/null || fail "flock 없음"
 exec 9>.deploy.lock
 flock -n 9|| fail "다른 배포가 실행 중임"
@@ -97,7 +99,7 @@ unset token
 
 # 4. 교체, 7일이 지난 실패 로그는 지움
 find "$LOG_DIR" -name 'deploy-failed-*.log' -mtime +7 -delete
-if [ -f .env.deploy ]; then
+if [[ -f .env.deploy ]]; then
   cp .env.deploy .env.deploy.prev || fail ".env.deploy.prev를 쓰지 못함"
 else
   rm -f .env.deploy.prev
@@ -117,7 +119,7 @@ failed_log=$LOG_DIR/deploy-failed-${tag:0:7}.log
 DEPLOY_ENV=.env.deploy.next compose logs --no-color app >"$failed_log" 2>&1
 echo "--- 앱 로그 마지막 30줄"
 tail -n 30 "$failed_log"
-if [ -f .env.deploy.prev ]; then
+if [[ -f .env.deploy.prev ]]; then
   rm -f .env.deploy.next
   if deploy_app; then
     finish ROLLED_BACK 1
