@@ -3,9 +3,7 @@ import { toSafeNext } from "@/pages/login/lib/toSafeNext";
 
 describe("toSafeNext", () => {
 	it("쿼리가 붙은 같은 사이트 경로는 그대로 반환함", () => {
-		expect(toSafeNext("/buildings/3?radius=300")).toBe(
-			"/buildings/3?radius=300",
-		);
+		expect(toSafeNext("/buildings/3?period=24")).toBe("/buildings/3?period=24");
 	});
 
 	it.each([

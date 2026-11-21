@@ -37,14 +37,14 @@ const HEADER_LOGIN_CASES = [
 		href: "/login?next=%2Fsearch%3Fkeyword%3D%25EB%2585%25B8%25EC%259B%2590%2526x",
 	},
 	{
-		what: "건물 상세(반경 300, 기간 12, 전세)",
-		path: "/buildings/3?radius=300&period=12&type=jeonse",
-		href: "/login?next=%2Fbuildings%2F3%3Fradius%3D300%26period%3D12%26type%3Djeonse",
+		what: "건물 상세(기간 12, 전세)",
+		path: "/buildings/3?period=12&type=jeonse",
+		href: "/login?next=%2Fbuildings%2F3%3Fperiod%3D12%26type%3Djeonse",
 	},
 	{
-		what: "건물 상세(조건이 기본값과 다른 반경 1000, 기간 24, 월세)",
-		path: "/buildings/3?radius=1000&period=24&type=wolse",
-		href: "/login?next=%2Fbuildings%2F3%3Fradius%3D1000%26period%3D24%26type%3Dwolse",
+		what: "건물 상세(조건이 기본값과 다른 기간 24, 월세)",
+		path: "/buildings/3?period=24&type=wolse",
+		href: "/login?next=%2Fbuildings%2F3%3Fperiod%3D24%26type%3Dwolse",
 	},
 ];
 
