@@ -25,6 +25,5 @@
 
 - `GRAFANA_ADMIN_USER`, `GRAFANA_ADMIN_PASSWORD`: Grafana 관리자 계정
 - `JIPSEE_ALERT_WEBHOOK_URL`: Grafana 알림 웹훅, 토큰 포함 전체 URL
-- `JIPSEE_DOMAIN`: Grafana 주소 도메인
 
-Grafana 접속은 nginx `https://grafana.JIPSEE_DOMAIN`에서 로그인(회원가입, 익명 접속 비활성)
+Grafana 접속은 nginx `https://grafana.jipsee.link`에서 로그인(회원가입, 익명 접속 비활성)
