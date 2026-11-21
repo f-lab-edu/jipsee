@@ -1,6 +1,6 @@
 # Jipsee ERD
 
-이 문서의 스키마는 V16(#24) 적용 뒤 기준
+이 문서의 스키마는 V17(#24) 적용 뒤 기준
 
 ## 개요
 
@@ -21,9 +21,10 @@ erDiagram
 
 ## 거래 묶음
 
-> 같은 지번의 거래를 건물 하나로 보는 조회 단위. 테이블에 저장하지 않음
+> 같은 지번의 거래를 건물 하나로 보는 검색 단위. `deal_group`에 저장함
 
-- 묶음 키는 (sigungu_code, legal_dong_name, lot_number)이며 어느 테이블에도 저장하지 않고 rent_deal과 sale_deal의 행에서 조회할 때 계산
+- 묶음 키는 (sigungu_code, legal_dong_name, lot_number)이며 검색 단위는 요약 테이블 `deal_group`에 저장하고 일일 수집 뒤 배치 Step이 갱신함. 검색 결과는 최대 하루 늦게 반영됨(ADR 0010)
+- `deal_group` 테이블 절은 스키마 파일과 함께 추가함
 - 묶음 id 문자열 형식은 `{sigungu_code}-{legal_dong_name}-{lot_number}`이며 예는 `11440-망원동-123-4`
 - lot_number가 NULL인 거래는 묶음을 이루지 않으며 같은 법정동 주변 거래 조회에만 포함
 - 묶음 이름은 묶음 안에서 계약일이 가장 늦은 거래의 house_name이며, 계약일이 같으면 rent_deal을 우선하고 그다음 id가 큰 행을 사용
@@ -59,8 +60,8 @@ erDiagram
 
 - 유니크 제약을 두지 않음. 원본에 거래 ID가 없고 값이 같은 행이 있기 때문임
 - INDEX(sigungu_code, deal_date)를 재수집할 때 삭제할 행을 찾는 데 사용함
-- INDEX(sigungu_code, legal_dong_name, lot_number, deal_date) 추가 예정, 묶음의 거래 이력과 같은 법정동 주변 거래 조회에 사용. 새 버전 파일로 추가
-- FULLTEXT(house_name) ngram 추가 예정, 연립다세대명 검색에 사용. 새 버전 파일로 추가
+- INDEX(sigungu_code, legal_dong_name, lot_number, deal_date)를 묶음의 거래 이력과 같은 법정동 주변 거래 조회에 사용함(V17)
+- FULLTEXT(house_name) ngram을 연립다세대명 검색에 사용함(V17)
 
 ## sale_deal
 
@@ -88,8 +89,8 @@ erDiagram
 
 - 유니크 제약을 두지 않음. 원본에 거래 ID가 없고 값이 같은 행이 있기 때문임
 - INDEX(sigungu_code, deal_date)를 재수집할 때 삭제할 행을 찾는 데 사용함
-- INDEX(sigungu_code, legal_dong_name, lot_number, deal_date) 추가 예정, 묶음의 거래 이력과 같은 법정동 주변 거래 조회에 사용. 새 버전 파일로 추가
-- FULLTEXT(house_name) ngram 추가 예정, 단지명 검색에 사용. 새 버전 파일로 추가
+- INDEX(sigungu_code, legal_dong_name, lot_number, deal_date)를 묶음의 거래 이력과 같은 법정동 주변 거래 조회에 사용함(V17)
+- FULLTEXT(house_name) ngram을 단지명 검색에 사용함(V17)
 
 ## collect_status
 
