@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 운영 서버에서 앱 이미지를 교체함
+# 운영 서버에서 앱 이미지를 교체함, 배치 이미지는 같은 태그로 함께 받음
 # 표준 입력 3줄: 이미지 태그(커밋 해시), ghcr 사용자 이름, 토큰
 # 마지막 줄에 RESULT DEPLOYED, ROLLED_BACK, ROLLBACK_FAILED, FAILED 중 하나를 출력함
 set -uo pipefail
@@ -8,7 +8,7 @@ DEPLOY_DIR=${DEPLOY_DIR:-/opt/jipsee}
 LOG_DIR=${LOG_DIR:-/var/log/jipsee/app}
 WAIT_TIMEOUT=${WAIT_TIMEOUT:-60}
 LEGACY_IMAGE=${LEGACY_IMAGE:-jipsee-backend:latest}
-IMAGE_REPO=ghcr.io/f-lab-edu/jipsee-backend
+IMAGE_REPOS=(ghcr.io/f-lab-edu/jipsee-backend ghcr.io/f-lab-edu/jipsee-batch)
 HEALTH_URL=http://127.0.0.1:8090/actuator/health
 KEEP_IMAGES=3
 
@@ -42,18 +42,20 @@ deploy_app() {
   compose up -d --no-deps --wait --wait-timeout "$WAIT_TIMEOUT" app >/dev/null && wait_healthy
 }
 
-# 지금 태그, 직전 태그, 만든 시각이 가장 최근인 나머지를 합쳐 KEEP_IMAGES개만 남기고 지움
+# 이미지 저장소마다 지금 태그, 직전 태그, 만든 시각이 가장 최근인 나머지를 합쳐 KEEP_IMAGES개만 남기고 지움
 remove_old_images() {
-  local ref prev_tag
+  local repo ref prev_tag
   prev_tag=$(sed -n 's/^IMAGE_TAG=//p' .env.deploy.prev 2>/dev/null)
-  docker images "$IMAGE_REPO" --format '{{.Repository}}:{{.Tag}}' | grep -v '<none>' |
-    while read -r ref; do
-      echo "$(docker image inspect -f '{{.Created}}' "$ref") $ref"
-    done | sort -r | awk '{print $2}' | grep -vFx -e "$IMAGE_REPO:$tag" -e "$IMAGE_REPO:$prev_tag" |
-    tail -n +"$((KEEP_IMAGES - 1))" |
-    while read -r ref; do
-      docker rmi "$ref" >/dev/null 2>&1 || true
-    done
+  for repo in "${IMAGE_REPOS[@]}"; do
+    docker images "$repo" --format '{{.Repository}}:{{.Tag}}' | grep -v '<none>' |
+      while read -r ref; do
+        echo "$(docker image inspect -f '{{.Created}}' "$ref") $ref"
+      done | sort -r | awk '{print $2}' | grep -vFx -e "$repo:$tag" -e "$repo:$prev_tag" |
+      tail -n +"$((KEEP_IMAGES - 1))" |
+      while read -r ref; do
+        docker rmi "$ref" >/dev/null 2>&1 || true
+      done
+  done
   # 옛 로컬 이미지는 쓰는 컨테이너가 없을 때만 지움
   if docker image inspect "$LEGACY_IMAGE" >/dev/null 2>&1 &&
     [ -z "$(docker ps -a -q --filter "ancestor=$LEGACY_IMAGE")" ]; then
@@ -86,8 +88,10 @@ trap 'rm -rf "$docker_config"' EXIT
 printf '%s' "$token" |
   DOCKER_CONFIG=$docker_config docker login ghcr.io -u "$user" --password-stdin >/dev/null ||
   fail "ghcr 로그인 실패, 토큰 확인"
-DOCKER_CONFIG=$docker_config docker pull "$IMAGE_REPO:$tag" >/dev/null ||
-  fail "이미지 받기 실패, 토큰 권한과 디스크 확인"
+for repo in "${IMAGE_REPOS[@]}"; do
+  DOCKER_CONFIG=$docker_config docker pull "$repo:$tag" >/dev/null ||
+    fail "이미지 받기 실패($repo), 토큰 권한과 디스크 확인"
+done
 DOCKER_CONFIG=$docker_config docker logout ghcr.io >/dev/null 2>&1
 unset token
 

@@ -32,8 +32,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: 이미지 빌드와 푸시
         run: |
-          docker build -t "ghcr.io/f-lab-edu/jipsee-backend:$GITHUB_SHA" backend
+          docker build --target api -t "ghcr.io/f-lab-edu/jipsee-backend:$GITHUB_SHA" backend
+          docker build --target batch -t "ghcr.io/f-lab-edu/jipsee-batch:$GITHUB_SHA" backend
           docker push "ghcr.io/f-lab-edu/jipsee-backend:$GITHUB_SHA"
+          docker push "ghcr.io/f-lab-edu/jipsee-batch:$GITHUB_SHA"
 
   deploy:
     needs: build

@@ -34,9 +34,9 @@
 - `DB_USERNAME`
 - `DB_PASSWORD`
 
-#### 앱
+#### 배치
 
-- `DATA_GO_KR_KEY`
+- `DATA_GO_KR_KEY`: 배치 이미지(Jenkins가 실행)만 사용. 앱 컨테이너에는 전달하지 않음
 
 #### 로그 업로드
 
@@ -49,10 +49,10 @@
 ### 흐름
 
 1. `main`에 `backend/**`나 `.github/workflows/deploy-backend.yml` 변경사항이 반영되면 `deploy-backend` 워크플로 실행. Actions 탭에서 `main`을 골라 수동으로도 실행할 수 있음
-2. ARM 러너에서 `backend/Dockerfile`로 빌드해 `ghcr.io/f-lab-edu/jipsee-backend:<커밋 해시>`로 업로드
+2. ARM 러너에서 `backend/Dockerfile`의 `api`, `batch` 타깃을 각각 빌드해 `ghcr.io/f-lab-edu/jipsee-backend:<커밋 해시>`와 `ghcr.io/f-lab-edu/jipsee-batch:<커밋 해시>`로 업로드
 3. 서버에 ssh로 접속해 커밋 해시, 사용자 이름, `GITHUB_TOKEN`을 표준 입력으로 전달
-4. 서버의 `bin/remote-deploy.sh`가 이미지를 받고 앱 컨테이너 교체. `/actuator/health`가 60초 안에 `UP`이 되지 않으면 직전 태그로 되돌리고 실패 처리 후 종료
-5. 성공하면 지금 태그, 직전 태그, 그 밖에 가장 최근 태그 1개만 남기고 이미지 삭제
+4. 서버의 `bin/remote-deploy.sh`가 두 이미지를 받고(하나라도 실패하면 배포 중단) 앱 컨테이너 교체. `/actuator/health`가 60초 안에 `UP`이 되지 않으면 직전 태그로 되돌리고 실패 처리 후 종료
+5. 성공하면 이미지 저장소마다 지금 태그, 직전 태그, 그 밖에 가장 최근 태그 1개만 남기고 이미지 삭제
 
 ### 결과
 
@@ -93,7 +93,7 @@ UPDATE BATCH_JOB_EXECUTION SET STATUS = 'FAILED', EXIT_CODE = 'FAILED', END_TIME
    - `VM_USER`: 서버 사용자
    - `VM_SSH_KEY`: 배포 키의 개인키 전체
    - `VM_SSH_HOST_KEY`: `ssh-keyscan -t ed25519 <서버 주소>`의 출력 한 줄(`<서버 주소> ssh-ed25519 AAAA...`)
-4. 첫 배포로 ghcr 패키지 `jipsee-backend`가 생기면 Package settings, Manage Actions access에서 `f-lab-edu/jipsee`를 Read 역할로 추가. 조직이 공개 패키지를 막아서 서버가 `GITHUB_TOKEN`으로 받으려면 필요. 첫 배포가 이미지 받기에서 실패하면 이 설정 뒤 다시 실행
+4. 첫 배포로 ghcr 패키지 `jipsee-backend`와 `jipsee-batch`가 생기면 각 패키지의 Package settings, Manage Actions access에서 `f-lab-edu/jipsee`를 Read 역할로 추가. 조직이 공개 패키지를 막아서 서버가 `GITHUB_TOKEN`으로 받으려면 필요. 첫 배포가 이미지 받기에서 실패하면 이 설정 뒤 다시 실행
 
 ### 배포 키
 
