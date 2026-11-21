@@ -320,7 +320,7 @@ test.describe(`모바일 ${MOBILE.width}x${MOBILE.height} light 아이콘`, () =
 		expect.soft(home.robotsCount, "홈 robots 개수").toBe(0);
 	});
 
-	test(`${caseId("M1", 11)} robots.txt는 200 text/plain이고 모든 크롤러 허용과 사이트맵 절대 주소뿐임`, async ({
+	test(`${caseId("M1", 11)} robots.txt는 200 text/plain이고 모든 크롤러와 AI 크롤러 네 개 허용과 사이트맵 절대 주소뿐임`, async ({
 		page,
 		baseURL,
 	}) => {
@@ -333,6 +333,12 @@ test.describe(`모바일 ${MOBILE.width}x${MOBILE.height} light 아이콘`, () =
 			.soft((await response.text()).trim().split("\n"), "줄")
 			.toEqual([
 				"User-Agent: *",
+				"Allow: /",
+				"",
+				"User-Agent: GPTBot",
+				"User-Agent: ClaudeBot",
+				"User-Agent: Google-Extended",
+				"User-Agent: PerplexityBot",
 				"Allow: /",
 				"",
 				`Sitemap: ${baseURL}/sitemap.xml`,
@@ -399,6 +405,32 @@ test.describe(`모바일 ${MOBILE.width}x${MOBILE.height} light 아이콘`, () =
 			await gotoAndSettle(page, path);
 			expect.soft(await readJsonLd(), `${path} ld+json`).toEqual([]);
 		}
+	});
+
+	test(`${caseId("M1", 14)} llms.txt는 200 text/plain이고 이름, 설명, 홈과 데이터 출처의 절대 주소 링크뿐임`, async ({
+		page,
+		baseURL,
+	}) => {
+		const response = await page.request.get("/llms.txt");
+		expect.soft(response.status(), "status").toBe(200);
+		expect
+			.soft(response.headers()["content-type"], "content-type")
+			.toBe("text/plain; charset=utf-8");
+		expect
+			.soft(await response.text(), "본문")
+			.toBe(
+				[
+					`# ${SITE_NAME}`,
+					"",
+					`> ${SITE_DESCRIPTION}`,
+					"",
+					"## 페이지",
+					"",
+					`- [${SITE_NAME}](${baseURL}/)`,
+					`- [데이터 출처](${baseURL}/policies/data-sources)`,
+					"",
+				].join("\n"),
+			);
 	});
 
 	test(`${caseId("M1", 7)} 홈과 검색 결과에 theme-color 메타 태그가 #217CF9로 있음`, async ({

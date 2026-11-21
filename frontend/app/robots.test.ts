@@ -11,8 +11,14 @@ describe("robots.txt", () => {
 		vi.unstubAllEnvs();
 	});
 
-	it("모든 크롤러에 전체 경로를 허용하고 다른 규칙은 두지 않음", () => {
-		expect(robots().rules).toEqual({ userAgent: "*", allow: "/" });
+	it("모든 크롤러와 AI 크롤러 네 개에 전체 경로를 허용하고 다른 규칙은 두지 않음", () => {
+		expect(robots().rules).toEqual([
+			{ userAgent: "*", allow: "/" },
+			{
+				userAgent: ["GPTBot", "ClaudeBot", "Google-Extended", "PerplexityBot"],
+				allow: "/",
+			},
+		]);
 	});
 
 	it("사이트맵 주소는 SITE_URL 기준의 절대 주소임", () => {
