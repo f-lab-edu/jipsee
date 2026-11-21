@@ -1,0 +1,39 @@
+global:
+  scrape_interval: 30s
+
+scrape_configs:
+  - job_name: jipsee-app
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [ "app:8080" ]
+
+  - job_name: node
+    static_configs:
+      - targets: [ "node-exporter:9100" ]
+
+  - job_name: cadvisor
+    static_configs:
+      - targets: [ "cadvisor:8080" ]
+
+  - job_name: mysql
+    static_configs:
+      - targets: [ "mysqld-exporter:9104" ]
+
+  - job_name: loki
+    static_configs:
+      - targets: [ "loki:3100" ]
+
+  - job_name: fluent-bit
+    metrics_path: /api/v2/metrics/prometheus
+    static_configs:
+      - targets: [ "fluent-bit:2020" ]
+
+  # Jenkins (infra/jenkins/compose.yaml)에서 엔드포인트를 제공하고, 수집 설정은 모니터링 쪽이 관리
+  - job_name: jenkins
+    metrics_path: /prometheus/
+    static_configs:
+      - targets: [ "jenkins:8080" ]
+
+  - job_name: prometheus
+    static_configs:
+      - targets: [ "localhost:9090" ]
