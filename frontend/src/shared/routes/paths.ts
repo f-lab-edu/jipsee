@@ -21,4 +21,5 @@ export const paths = {
 	buildings: "/buildings",
 	building: (id: number) => `/buildings/${id}`,
 	buildingsSearchApi: "/api/buildings/search",
+	sitemap: "/sitemap.xml",
 } as const;

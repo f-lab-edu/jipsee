@@ -307,6 +307,59 @@ test.describe(`모바일 ${MOBILE.width}x${MOBILE.height} light 아이콘`, () =
 		}
 	});
 
+	test(`${caseId("M1", 10)} 검색 결과의 robots 메타 태그는 하나이고 noindex, follow이며 홈에는 없음`, async ({
+		page,
+	}) => {
+		await gotoAndSettle(page, `/search?keyword=${encodeURIComponent(KEYWORD)}`);
+		const search = await readHead(page);
+		expect.soft(search.robots, "검색 결과 robots").toBe("noindex, follow");
+		expect.soft(search.robotsCount, "검색 결과 robots 개수").toBe(1);
+
+		await gotoAndSettle(page, "/");
+		const home = await readHead(page);
+		expect.soft(home.robotsCount, "홈 robots 개수").toBe(0);
+	});
+
+	test(`${caseId("M1", 11)} robots.txt는 200 text/plain이고 모든 크롤러 허용과 사이트맵 절대 주소뿐임`, async ({
+		page,
+		baseURL,
+	}) => {
+		const response = await page.request.get("/robots.txt");
+		expect.soft(response.status(), "status").toBe(200);
+		expect
+			.soft(response.headers()["content-type"], "content-type")
+			.toContain("text/plain");
+		expect
+			.soft((await response.text()).trim().split("\n"), "줄")
+			.toEqual([
+				"User-Agent: *",
+				"Allow: /",
+				"",
+				`Sitemap: ${baseURL}/sitemap.xml`,
+			]);
+	});
+
+	test(`${caseId("M1", 12)} sitemap.xml은 200 xml이고 홈과 데이터 출처의 절대 주소만 있음`, async ({
+		page,
+		baseURL,
+	}) => {
+		const response = await page.request.get("/sitemap.xml");
+		expect.soft(response.status(), "status").toBe(200);
+		expect
+			.soft(response.headers()["content-type"], "content-type")
+			.toContain("xml");
+		const body = await response.text();
+		expect
+			.soft(
+				[...body.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]),
+				"loc",
+			)
+			.toEqual([`${baseURL}/`, `${baseURL}/policies/data-sources`]);
+		expect
+			.soft(body, "수정일, 갱신 주기, 우선순위 없음")
+			.not.toMatch(/lastmod|changefreq|priority/);
+	});
+
 	test(`${caseId("M1", 7)} 홈과 검색 결과에 theme-color 메타 태그가 #217CF9로 있음`, async ({
 		page,
 	}) => {
