@@ -1,6 +1,7 @@
 package kr.jipsee.batch.common;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -24,5 +25,16 @@ public class CollectStatusRepository {
                 "select exists(select 1 from collect_status where source = ?)", Boolean.class, source);
 
         return Boolean.TRUE.equals(exists);
+    }
+
+    /** 출처의 마지막 수집 시각 반환. 행이 없으면 빈 값 */
+    public Optional<LocalDateTime> findLoadedAt(String source) {
+        return jdbcTemplate
+                .query(
+                        "select loaded_at from collect_status where source = ?",
+                        (rs, rowNum) -> rs.getTimestamp("loaded_at").toLocalDateTime(),
+                        source)
+                .stream()
+                .findFirst();
     }
 }

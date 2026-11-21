@@ -3,6 +3,7 @@ package kr.jipsee.batch.common;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import kr.jipsee.TestcontainersConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -75,5 +76,20 @@ class CollectStatusRepositoryTest {
         // then
         assertThat(before).isFalse();
         assertThat(after).isTrue();
+    }
+
+    @Test
+    @DisplayName("출처의 마지막 수집 시각을 반환하고 행이 없으면 빈 값을 반환함")
+    void 출처의_마지막_수집_시각을_반환하고_행이_없으면_빈_값을_반환함() {
+        // given
+        Optional<LocalDateTime> before = collectStatusRepository.findLoadedAt("BUILDING_REGISTER");
+
+        // when
+        collectStatusRepository.saveLoadedAt("BUILDING_REGISTER", LocalDateTime.of(2026, 11, 5, 5, 0));
+        Optional<LocalDateTime> after = collectStatusRepository.findLoadedAt("BUILDING_REGISTER");
+
+        // then
+        assertThat(before).isEmpty();
+        assertThat(after).contains(LocalDateTime.of(2026, 11, 5, 5, 0));
     }
 }
