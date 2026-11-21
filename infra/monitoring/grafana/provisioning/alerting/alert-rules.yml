@@ -290,7 +290,7 @@ groups:
               datasource:
                 type: prometheus
                 uid: prometheus
-              expr: 'min by (job) (up{job=~"loki|fluent-bit|mysql|node|cadvisor"}) or label_replace(clamp_max(count(container_last_seen{container_label_com_docker_compose_project="jipsee"}), 1) or vector(0), "job", "cadvisor-containers", "", "")'
+              expr: 'min by (job) (up{job=~"loki|fluent-bit|mysql|node|cadvisor|jenkins"}) or label_replace(clamp_max(count(container_last_seen{container_label_com_docker_compose_project="jipsee"}), 1) or vector(0), "job", "cadvisor-containers", "", "")'
               instant: true
               intervalMs: 1000
               maxDataPoints: 43200
