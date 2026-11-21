@@ -90,6 +90,7 @@ Oct 18, 2026 / @윤상준
 | 조건 결합      | 모든 단어의 조건을 AND로 결합                                                                                                              |
 | 후보 행 상한   | `rent_deal`, `sale_deal` 각각에서 일치한 행을 관련도순으로 최대 5,000행까지 사용                                                           |
 | 묶기, 페이지   | 일치한 행만 묶음 키로 묶고, 20건 단위로 조회하며 응답에 `hasNext` 포함                                                                   |
+| 묶음 이름      | 결과의 묶음 이름은 일치한 행이 아니라 묶음의 전체 거래로 정함. 계약일이 가장 늦은 거래의 `house_name`이며 `docs/erd.md`의 묶음 이름과 같은 규칙 |
 | 인덱스         | `rent_deal`, `sale_deal`에 `(sigungu_code, legal_dong_name, lot_number, deal_date)`와 `house_name` FULLTEXT ngram 추가. 기존 `(sigungu_code, deal_date)`는 재수집의 삭제 대상 조회에 유지 |
 
 ### 건물 상세
