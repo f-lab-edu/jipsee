@@ -135,7 +135,7 @@ public abstract class PublicDataApiClient {
     /** 오류 코드 22, 23, 상태 코드, 그 밖의 오류 코드 순으로 실패 판단 */
     private static void throwIfFailed(String errorCode, HttpStatusCode status, String requestInfo) {
         if ("22".equals(errorCode)) {
-            throw new PublicDataApiException("호출 한도 초과(22): " + requestInfo);
+            throw new PublicDataQuotaExceededException("호출 한도 초과(22): " + requestInfo);
         }
 
         if ("23".equals(errorCode)) {
