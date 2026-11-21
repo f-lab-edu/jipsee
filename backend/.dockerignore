@@ -1,3 +1,4 @@
-build
+**/build
 .gradle
-src/main/resources/application-local.yml
+**/src/main/resources/application-local.yml
+**/src/main/resources/jipsee-core-local.yml
