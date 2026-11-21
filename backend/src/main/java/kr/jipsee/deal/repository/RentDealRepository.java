@@ -34,12 +34,12 @@ public class RentDealRepository {
                 sql, sigunguCode, dealMonth.atDay(1), dealMonth.plusMonths(1).atDay(1));
     }
 
-    /** 행을 한 번의 배치로 삽입함. 매칭 상태는 FAILED로 둠 */
+    /** 행을 한 번의 배치로 삽입함 */
     public void insertAll(List<RentDealRow> rows) {
         String sql = "insert into rent_deal (sigungu_code, legal_dong_name, lot_number, house_name, build_year,"
                 + " exclusive_area, floor, deal_date, deposit, monthly_rent, previous_deposit, previous_monthly_rent,"
-                + " contract_term, contract_type, renewal_right_used, match_status) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,"
-                + " ?, ?, ?, ?, ?, 'FAILED')";
+                + " contract_term, contract_type, renewal_right_used) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,"
+                + " ?, ?, ?, ?, ?)";
         jdbcTemplate.batchUpdate(sql, rows.stream().map(RentDealRow::toArray).toList());
     }
 }
