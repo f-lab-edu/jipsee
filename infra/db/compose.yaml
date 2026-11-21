@@ -11,7 +11,7 @@ services:
     image: mysql:8.4.11
     restart: unless-stopped
     logging: *logging
-    mem_limit: 1g
+    mem_limit: 4g
     environment:
       MYSQL_DATABASE: jipsee
       MYSQL_USER: ${DB_USERNAME:?DB_USERNAME is required}
@@ -22,6 +22,8 @@ services:
       - --collation-server=utf8mb4_0900_ai_ci
       - --default-time-zone=+09:00
       - --skip-log-bin
+      # 데이터와 인덱스 약 1.3GB가 메모리에 들어가도록 버퍼 풀 3GB, 컨테이너 메모리 4GB
+      - --innodb-buffer-pool-size=3G
     volumes:
       - mysql-data:/var/lib/mysql
     ports:
