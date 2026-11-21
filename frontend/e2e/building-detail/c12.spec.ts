@@ -9,7 +9,6 @@ import {
 	C12_BODY,
 	C12_ID2_WOLSE,
 	C12_ID3_WOLSE,
-	C12_NONE,
 	C12_STATES,
 } from "../support/buildingDetail/c12Fixtures";
 import { c12Notices } from "../support/buildingDetail/c12Notices";
@@ -22,14 +21,13 @@ import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
 
 const THEMES: Theme[] = ["light", "dark"];
 
-// 케이스 id는 test 제목에 그대로 적음. 상태 케이스와 id 4 케이스는 레이아웃마다 하나씩이고 모양 케이스는 테마까지 나뉨
+// 케이스 id는 test 제목에 그대로 적음. 상태 케이스는 레이아웃마다 하나씩이고 모양 케이스는 테마까지 나뉨. 2026-11-21 id 4의 위치 정보 없음 TC(C12-03, 04)를 삭제함. 번호는 비워 둠
 const LAYOUTS = [
 	{
 		name: "모바일",
 		kind: "mobile",
 		viewport: MOBILE,
 		stateId: "C12-01",
-		noneId: "C12-03",
 		shapeIds: { light: "C12-05", dark: "C12-07" },
 	},
 	{
@@ -37,7 +35,6 @@ const LAYOUTS = [
 		kind: "desktop",
 		viewport: DESKTOP,
 		stateId: "C12-02",
-		noneId: "C12-04",
 		shapeIds: { light: "C12-06", dark: "C12-08" },
 	},
 ] as const;
@@ -86,32 +83,6 @@ for (const layout of LAYOUTS) {
 				}
 				t.eq(`${l} 중복 id 없음`, m.dupIds, []);
 				t.eq(`${l} 콘솔 오류 없음`, t.issues.slice(), []);
-			}
-		});
-
-		test(`${layout.noneId} ${name} id 4는 위치 정보 없음 안내만 있고 조건 확장 안내, 건수 줄, 목록이 없음`, async ({
-			t,
-		}) => {
-			for (const q of ["", "?type=wolse"]) {
-				await t.goto(`/buildings/4${q}`);
-				const m = await nearbyMeasure(t);
-				const l = `${name} id 4${q ? " 월세" : ""}`;
-				t.eq(`${l} 조건 확장 안내 개수`, c12Notices(m).length, 0);
-				t.eq(`${l} note 개수(위치 정보 없음 안내만)`, c12Total(m), 1);
-				t.eq(
-					`${l} 안내 문구`,
-					(m.notes ?? [])[0]?.texts.map((x) => x.t),
-					["이 건물은 위치 정보가 없어서 주변 거래를 보여드릴 수 없어요"],
-				);
-				t.eq(
-					`${l} 조건 확장 문구가 화면에 없음`,
-					[
-						m.bodyText.includes(C12_BODY),
-						m.bodyText.includes(C12_NONE),
-						m.bodyText.includes("조건에 맞는 거래"),
-					],
-					[false, false, false],
-				);
 			}
 		});
 	});

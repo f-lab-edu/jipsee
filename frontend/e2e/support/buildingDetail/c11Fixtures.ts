@@ -59,7 +59,7 @@ export const C11_FW: C11Row[] = [
 	["2026.08", "신규", "40㎡", "보증금 3,000만원 / 월 55만원"],
 ];
 
-/** 설계 2절 상태표. id 2는 전세와 월세 모두 0건, id 5는 id 1과 같은 값 */
+/** 설계 2절 상태표. id 2와 id 4는 전세와 월세 모두 0건, id 5는 id 1과 같은 값 */
 export const C11_STATES: {
 	id: number;
 	q: string;
@@ -73,6 +73,8 @@ export const C11_STATES: {
 	{ id: 3, q: "?type=wolse", count: 1, rows: C11_FW, label: "id 3 월세" },
 	{ id: 2, q: "", count: 0, rows: [], label: "id 2 전세" },
 	{ id: 2, q: "?type=wolse", count: 0, rows: [], label: "id 2 월세" },
+	{ id: 4, q: "", count: 0, rows: [], label: "id 4 전세" },
+	{ id: 4, q: "?type=wolse", count: 0, rows: [], label: "id 4 월세" },
 	{ id: 5, q: "", count: 14, rows: C11_J, label: "id 5 전세" },
 	{ id: 5, q: "?type=wolse", count: 9, rows: C11_W, label: "id 5 월세" },
 ];

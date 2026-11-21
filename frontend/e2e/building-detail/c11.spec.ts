@@ -1,9 +1,9 @@
 // S2 건물 상세 C11: 주변 전월세 거래 건수 줄, 목록, 확정일자 안내
 // 기대값 출처: 설계 2절(상태표, 글자 크기, 주요 간격 건수 줄과 안내 상자와 주변 거래 목록), 3절(문구), 7절(색), 9절(role), 12절 18번(건물명 기호는 실제 이름으로 바꿔 건물명 문구는 검사하지 않음)과 31번(월세 금액),
-//   캔버스 S2(Mobile|Desktop)(Default|Few|Zero|NoLoc)와 Dark* 보드의 NJ, NM, NF 데이터
+//   캔버스 S2(Mobile|Desktop)(Default|Few|Zero)와 Dark* 보드의 NJ, NM, NF 데이터
+// 2026-11-21 id 4의 위치 정보 없음 상태를 지워 C11-03, 04를 삭제함. 번호는 비워 둠. id 4는 id 2와 같은 0건 상태라 상태 표에 넣음
 // 조건 확장 안내는 C12에서 보고, 질문하기(커밋 13)는 이후 커밋이라 여기서 보지 않음. 그래서 "조건에 맞는 거래 N건" 굵은 건수가 있는 줄만 건수 줄로 보고, 확정일자 안내는 문구로 찾음
 
-import { C10_NOTICE } from "../support/buildingDetail/c10Notice";
 import { c11Bounds } from "../support/buildingDetail/c11Bounds";
 import { c11CheckDesktopRows } from "../support/buildingDetail/c11CheckDesktopRows";
 import { c11CheckMobileRows } from "../support/buildingDetail/c11CheckMobileRows";
@@ -41,7 +41,7 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 	test.describe(`${viewport.width}x${viewport.height} light`, () => {
 		test.use({ viewport, colorScheme: "light" });
 
-		test(`${caseId("C11", 1 + layoutIndex)} ${name} id 1, 2, 3, 5의 전세와 월세에서 건수, 기준 월, 행 순서와 내용, 확정일자 안내가 설계와 같음`, async ({
+		test(`${caseId("C11", 1 + layoutIndex)} ${name} id 1, 2, 3, 4, 5의 전세와 월세에서 건수, 기준 월, 행 순서와 내용, 확정일자 안내가 설계와 같음`, async ({
 			t,
 		}) => {
 			for (const s of C11_STATES) {
@@ -68,43 +68,6 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 		});
 	});
 }
-for (const [layoutIndex, [name, viewport]] of LAYOUTS.entries()) {
-	test.describe(`${viewport.width}x${viewport.height} light`, () => {
-		test.use({ viewport, colorScheme: "light" });
-
-		test(`${caseId("C11", 3 + layoutIndex)} ${name}에서 id 4는 건수 줄, 목록, 확정일자 안내가 없고 위치 정보 없음 안내만 있음`, async ({
-			t,
-		}) => {
-			await t.goto("/buildings/4");
-			const m = await c11Measure(t);
-			t.eq("건수 줄 없음", m.summary, null);
-			t.eq(
-				"목록 없음(ul, table)",
-				[m.ul, m.tables, m.lis.length, m.trs.length],
-				[0, 0, 0, 0],
-			);
-			t.eq("확정일자 안내 없음", c11Confirmed(m).length, 0);
-			t.ok(
-				"본문에 확정일자 문구가 없음",
-				!m.bodyText.includes("확정일자를 기준으로"),
-				"있음",
-				"없음",
-			);
-			t.ok(
-				"본문에 건수 문구가 없음",
-				!m.bodyText.includes("조건에 맞는 거래"),
-				"있음",
-				"없음",
-			);
-			t.eq(
-				"위치 정보 없음 안내만 note로 있음",
-				(m.notes ?? []).map((n) => n.texts.map((x) => x.t)),
-				[[C10_NOTICE]],
-			);
-		});
-	});
-}
-
 // 모양과 위치: id 1 기본
 for (const [themeIndex, theme] of THEMES.entries()) {
 	test.describe(`${MOBILE.width}x${MOBILE.height} ${theme}`, () => {

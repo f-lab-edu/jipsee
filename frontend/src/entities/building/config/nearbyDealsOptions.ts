@@ -1,13 +1,11 @@
 import type { NearbyDealsCondition } from "@/entities/building/model/nearbyDealsCondition";
 
 const defaultCondition: NearbyDealsCondition = {
-	radius: 500,
 	period: 12,
 	type: "jeonse",
 };
 
 export const nearbyDealsOptions = {
-	radii: [300, 500, 1000],
 	periods: [6, 12, 24],
 	types: ["jeonse", "wolse"],
 	defaultCondition,
