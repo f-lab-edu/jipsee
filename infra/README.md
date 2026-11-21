@@ -19,6 +19,12 @@
 
 앱은 `127.0.0.1:8090`, MySQL은 `127.0.0.1:3307`에만 열림. DB 도구는 SSH 터널로 `127.0.0.1:3307`에 접속함
 
-## 모니터링 알림
+## 모니터링
 
-Grafana 알림은 웹훅으로 전송, 서버 `monitoring/.env`의 `JIPSEE_ALERT_WEBHOOK_URL`에 토큰 포함 전체 URL 지정
+서버 `monitoring/.env` 변수
+
+- `GRAFANA_ADMIN_USER`, `GRAFANA_ADMIN_PASSWORD`: Grafana 관리자 계정
+- `JIPSEE_ALERT_WEBHOOK_URL`: Grafana 알림 웹훅, 토큰 포함 전체 URL
+- `JIPSEE_DOMAIN`: Grafana 주소 도메인
+
+Grafana 접속은 nginx `https://grafana.JIPSEE_DOMAIN`에서 로그인(회원가입, 익명 접속 비활성)
