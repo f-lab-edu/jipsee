@@ -7,68 +7,42 @@ x-logging: &logging
     max-file: "3"
 
 services:
-  mysql:
-    image: mysql:8.4.11
-    restart: unless-stopped
-    logging: *logging
-    mem_limit: 1g
-    environment:
-      MYSQL_DATABASE: jipsee
-      MYSQL_USER: ${DB_USERNAME:?DB_USERNAME is required}
-      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_0900_ai_ci
-      - --default-time-zone=+09:00
-      - --skip-log-bin
-    volumes:
-      - mysql-data:/var/lib/mysql
-    ports:
-      - "127.0.0.1:3307:3306"
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          'mysqladmin ping -h 127.0.0.1 -u"$$MYSQL_USER" -p"$$MYSQL_PASSWORD"',
-        ]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-
   app:
-    image: jipsee-backend:latest
-    pull_policy: never
+    image: ghcr.io/f-lab-edu/jipsee-backend:${IMAGE_TAG:?IMAGE_TAG is required}
     environment:
       SPRING_PROFILES_ACTIVE: prod
       DB_URL: jdbc:mysql://mysql:3306/jipsee
       DB_USERNAME: ${DB_USERNAME:?DB_USERNAME is required}
       DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
       DATA_GO_KR_KEY: ${DATA_GO_KR_KEY:?DATA_GO_KR_KEY is required}
-    depends_on:
-      mysql:
-        condition: service_healthy
+      LOGGING_FILE_NAME: /app/logs/jipsee.log
+      LOGGING_LOGBACK_ROLLINGPOLICY_MAX_HISTORY: "7"
+    volumes:
+      - /var/log/jipsee/app:/app/logs
+    networks:
+      - db
     ports:
       - "127.0.0.1:8090:8080"
     mem_limit: 1g
     restart: unless-stopped
+    stop_grace_period: 60s
     logging: *logging
 
-  flyway:
-    image: flyway/flyway:12.11.0
-    profiles: [schema]
-    mem_limit: 512m
-    command: migrate
+  fluent-bit:
+    image: fluent/fluent-bit:5.2.0
     environment:
-      FLYWAY_URL: jdbc:mysql://mysql:3306/jipsee
-      FLYWAY_USER: ${DB_USERNAME:?DB_USERNAME is required}
-      FLYWAY_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
-    depends_on:
-      mysql:
-        condition: service_healthy
+      AWS_ACCESS_KEY_ID: ${LOGS_S3_ACCESS_KEY_ID:?LOGS_S3_ACCESS_KEY_ID is required}
+      AWS_SECRET_ACCESS_KEY: ${LOGS_S3_SECRET_ACCESS_KEY:?LOGS_S3_SECRET_ACCESS_KEY is required}
+      LOGS_S3_ENDPOINT: ${LOGS_S3_ENDPOINT:?LOGS_S3_ENDPOINT is required}
     volumes:
-      - ./schema:/flyway/sql:ro
-    restart: "no"
+      - ./fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - /var/log/jipsee/app:/logs:ro
+      - /var/lib/jipsee/fluent-bit:/state
+    mem_limit: 64m
+    restart: unless-stopped
+    logging: *logging
 
-volumes:
-  mysql-data:
+networks:
+  db:
+    external: true
+    name: jipsee-db
