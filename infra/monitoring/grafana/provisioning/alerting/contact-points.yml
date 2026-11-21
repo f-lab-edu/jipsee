@@ -5,8 +5,9 @@ contactPoints:
     name: jipsee-alerts
     receivers:
       - uid: jipsee-alerts
-        # webhook, slack, discord 모두 settings.url 사용
-        # 값은 compose.yaml의 ALERT_CONTACT_TYPE, ALERT_CONTACT_URL에서 주입, 기본값은 닫힌 포트 임시 수신처
-        type: ${ALERT_CONTACT_TYPE}
+        type: webhook
+        # 토큰 포함 전체 URL은 compose.yaml의 JIPSEE_ALERT_WEBHOOK_URL에서 주입
         settings:
-          url: ${ALERT_CONTACT_URL}
+          url: ${JIPSEE_ALERT_WEBHOOK_URL}
+          httpMethod: POST
+        disableResolveMessage: false

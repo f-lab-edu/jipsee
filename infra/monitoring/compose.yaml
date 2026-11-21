@@ -103,8 +103,7 @@ services:
       GF_ANALYTICS_REPORTING_ENABLED: "false"
       GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
       GF_USERS_DEFAULT_LANGUAGE: ko-KR
-      ALERT_CONTACT_TYPE: ${ALERT_CONTACT_TYPE:-webhook}
-      ALERT_CONTACT_URL: ${ALERT_CONTACT_URL:-http://127.0.0.1:9/}
+      JIPSEE_ALERT_WEBHOOK_URL: ${JIPSEE_ALERT_WEBHOOK_URL:?JIPSEE_ALERT_WEBHOOK_URL is required}
     volumes:
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro

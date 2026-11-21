@@ -18,3 +18,7 @@
 6. 앱 실행: `docker compose up -d app`. 이미지만 바꿀 때는 `docker compose up -d --no-deps app`
 
 앱은 `127.0.0.1:8090`, MySQL은 `127.0.0.1:3307`에만 열림. DB 도구는 SSH 터널로 `127.0.0.1:3307`에 접속함
+
+## 모니터링 알림
+
+Grafana 알림은 웹훅으로 전송, 서버 `monitoring/.env`의 `JIPSEE_ALERT_WEBHOOK_URL`에 토큰 포함 전체 URL 지정
