@@ -27,17 +27,33 @@ void stopJob(String job) {
   sh(returnStatus: true, script: "docker stop -t 60 jipsee-job-${job} >/dev/null 2>&1")
 }
 
-// Job 하나를 실행하고 결과를 스테이지와 빌드에 반영
+// 성공이 아닌 Job을 웹훅으로 알림. ALERT_WEBHOOK_URL은 컨트롤러 환경 변수, 비어 있으면 알림 생략
+// 전송 실패는 결과에 반영하지 않음. shebang으로 set -x를 막아 URL이 콘솔에 남지 않음
+void alertJob(String job, String result, Integer code) {
+  withEnv(["ALERT_JOB=${job}", "ALERT_RESULT=${result}", "ALERT_CODE=${code == null ? 'null' : code}"]) {
+    sh(returnStatus: true, script: '''#!/bin/sh
+[ -n "$ALERT_WEBHOOK_URL" ] || exit 0
+curl -fsS -m 10 -H 'Content-Type: application/json' \\
+  -d "{\\"job\\":\\"$ALERT_JOB\\",\\"result\\":\\"$ALERT_RESULT\\",\\"buildUrl\\":\\"$BUILD_URL\\",\\"exitCode\\":$ALERT_CODE,\\"build\\":$BUILD_NUMBER}" \\
+  "$ALERT_WEBHOOK_URL" >/dev/null
+''')
+  }
+}
+
+// Job 하나를 실행하고 결과를 스테이지와 빌드에 반영. 성공이 아니면 웹훅으로 알림
+// 종료 코드를 얻지 못한 경우(타임아웃, 사용자 중단, 태그 읽기 실패)는 code가 null
 void runJob(String job, int minutes) {
-  catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', catchInterruptions: false) {
-    int code = 255
-    try {
-      timeout(time: minutes, unit: 'MINUTES') {
-        String tag = readTag()
-        if (!tag) { error("${job} .env.deploy의 IMAGE_TAG를 읽지 못함") }
-        currentBuild.description = (currentBuild.description ?: '') + "${job}: 이미지 태그 ${tag}\n"
-        withEnv(["JOB=${job}", "TAG=${tag}"]) {
-          code = sh(returnStatus: true, script: '''docker run --rm --name "jipsee-job-$JOB" \\
+  String result = 'SUCCESS'
+  Integer code = null
+  try {
+    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', catchInterruptions: false) {
+      try {
+        timeout(time: minutes, unit: 'MINUTES') {
+          String tag = readTag()
+          if (!tag) { error("${job} .env.deploy의 IMAGE_TAG를 읽지 못함") }
+          currentBuild.description = (currentBuild.description ?: '') + "${job}: 이미지 태그 ${tag}\n"
+          withEnv(["JOB=${job}", "TAG=${tag}"]) {
+            code = sh(returnStatus: true, script: '''docker run --rm --name "jipsee-job-$JOB" \\
   --network jipsee-db --memory 1g --cpus 2 --stop-timeout 60 \\
   --log-opt max-size=10m --log-opt max-file=3 \\
   -e SPRING_PROFILES_ACTIVE=prod \\
@@ -47,23 +63,32 @@ void runJob(String job, int minutes) {
   --env-file /etc/jipsee/job.env \\
   "ghcr.io/f-lab-edu/jipsee-backend:$TAG"
 ''')
+          }
         }
+      } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+        result = 'ABORTED'  // 타임아웃과 사용자 중단
+        throw e
+      } catch (e) {
+        result = 'FAILURE'
+        throw e
+      } finally {
+        stopJob(job)
       }
-    } finally {
-      stopJob(job)
+      result = mapResult(job, code)
+      echo "${job} 종료 코드 ${code} 결과 ${result}"
+      if (result != 'SUCCESS') {
+        catchError(buildResult: result, stageResult: result) { error("${job} 종료 코드 ${code}") }
+      }
     }
-    String result = mapResult(job, code)
-    echo "${job} 종료 코드 ${code} 결과 ${result}"
-    if (result != 'SUCCESS') {
-      catchError(buildResult: result, stageResult: result) { error("${job} 종료 코드 ${code}") }
-    }
+  } finally {
+    if (result != 'SUCCESS') { alertJob(job, result, code) }
   }
 }
 
 pipeline {
   agent any
   options {
-    // Jenkinsfile이 작업 폴더 파일을 쓰지 않으므로 저장소 체크아웃 생략, 체크아웃 실패가 실패 웹훅을 막지 않음
+    // Jenkinsfile이 작업 폴더 파일을 쓰지 않으므로 저장소 체크아웃 생략
     skipDefaultCheckout()
     timeout(time: 180, unit: 'MINUTES')
     timestamps()
@@ -79,19 +104,5 @@ pipeline {
     stage('dailySaleCollectJob')  { steps { script { runJob('dailySaleCollectJob', 30) } } }
     stage('initialRentLoadJob')   { steps { script { runJob('initialRentLoadJob', 60) } } }
     stage('initialSaleLoadJob')   { steps { script { runJob('initialSaleLoadJob', 60) } } }
-  }
-  post {
-    // 실패, 불안정, 중단 빌드를 웹훅으로 한 번 알림. ALERT_WEBHOOK_URL은 컨트롤러 환경 변수
-    // 변수가 비어 있으면 알림 생략. 전송 실패는 빌드 결과에 반영하지 않음. shebang으로 set -x를 막아 URL이 콘솔에 남지 않음
-    unsuccessful {
-      withEnv(["ALERT_JOB=${env.JOB_NAME}", "ALERT_RESULT=${currentBuild.currentResult}", "ALERT_URL=${env.BUILD_URL}"]) {
-        sh(returnStatus: true, script: '''#!/bin/sh
-[ -n "$ALERT_WEBHOOK_URL" ] || exit 0
-curl -fsS -m 10 -H 'Content-Type: application/json' \\
-  -d "{\\"job\\":\\"$ALERT_JOB\\",\\"result\\":\\"$ALERT_RESULT\\",\\"url\\":\\"$ALERT_URL\\"}" \\
-  "$ALERT_WEBHOOK_URL" >/dev/null
-''')
-      }
-    }
   }
 }
