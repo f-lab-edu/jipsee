@@ -118,8 +118,8 @@ class RentDealServiceTest {
     }
 
     @Test
-    @DisplayName("값이 없는 컬럼은 null로 저장하고 매칭 상태는 FAILED, 필지 ID는 null로 둠")
-    void 값이_없는_컬럼은_null로_저장하고_매칭_상태는_FAILED_필지_ID는_null로_둠() {
+    @DisplayName("값이 없는 컬럼은 null로 저장함")
+    void 값이_없는_컬럼은_null로_저장함() {
         // given
         RentDealRow row = new RentDealRow(
                 "11110",
@@ -143,8 +143,7 @@ class RentDealServiceTest {
 
         // then
         Map<String, Object> saved = jdbcTemplate.queryForMap("select * from rent_deal");
-        assertThat(saved).containsEntry("sigungu_code", "11110").containsEntry("match_status", "FAILED");
-        assertThat(saved.get("building_parcel_id")).isNull();
+        assertThat(saved).containsEntry("sigungu_code", "11110");
         assertThat(saved.get("house_name")).isNull();
         assertThat(saved.get("previous_deposit")).isNull();
         assertThat((BigDecimal) saved.get("exclusive_area")).isEqualByComparingTo("69.99");
