@@ -360,6 +360,47 @@ test.describe(`모바일 ${MOBILE.width}x${MOBILE.height} light 아이콘`, () =
 			.not.toMatch(/lastmod|changefreq|priority/);
 	});
 
+	test(`${caseId("M1", 13)} 홈에는 ld+json script가 하나이고 WebSite와 SearchAction 값이 정해진 대로이며 다른 페이지에는 없음`, async ({
+		page,
+		baseURL,
+	}) => {
+		const readJsonLd = () =>
+			page.evaluate(() =>
+				[
+					...document.querySelectorAll('script[type="application/ld+json"]'),
+				].map((script) => script.textContent ?? ""),
+			);
+
+		await gotoAndSettle(page, "/");
+		const home = await readJsonLd();
+		expect.soft(home, "홈 ld+json 개수").toHaveLength(1);
+		expect.soft(JSON.parse(home[0] ?? "null"), "홈 ld+json").toEqual({
+			"@context": "https://schema.org",
+			"@type": "WebSite",
+			name: SITE_NAME,
+			url: `${baseURL}/`,
+			description: SITE_DESCRIPTION,
+			inLanguage: "ko",
+			potentialAction: {
+				"@type": "SearchAction",
+				target: {
+					"@type": "EntryPoint",
+					urlTemplate: `${baseURL}/search?keyword={search_term_string}`,
+				},
+				"query-input": "required name=search_term_string",
+			},
+		});
+
+		for (const path of [
+			SEARCH_PATH,
+			"/buildings/1",
+			"/policies/data-sources",
+		]) {
+			await gotoAndSettle(page, path);
+			expect.soft(await readJsonLd(), `${path} ld+json`).toEqual([]);
+		}
+	});
+
 	test(`${caseId("M1", 7)} 홈과 검색 결과에 theme-color 메타 태그가 #217CF9로 있음`, async ({
 		page,
 	}) => {
