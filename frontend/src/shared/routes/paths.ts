@@ -1,6 +1,8 @@
 export const paths = {
 	home: "/",
 	search: "/search",
+	searchWithKeyword: (keyword: string) =>
+		`/search?keyword=${encodeURIComponent(keyword)}`,
 	login: "/login",
 	loginWithNext: (next: string) => `/login?next=${encodeURIComponent(next)}`,
 	oauthAuthorization: (segment: string) => `/oauth2/authorization/${segment}`,

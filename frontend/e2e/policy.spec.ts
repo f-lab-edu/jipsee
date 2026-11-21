@@ -24,6 +24,7 @@ import {
 import { POLICY_TOKENS } from "./support/policy/policyTokens";
 import { readBox } from "./support/policy/readBox";
 import { readStyle } from "./support/policy/readStyle";
+import { readHead } from "./support/readHead";
 import { test } from "./support/test";
 import { DESKTOP, MOBILE } from "./support/viewports";
 import { waitForHydration } from "./support/waitForHydration";
@@ -167,6 +168,24 @@ for (const { label, viewport, layout } of SCREENS) {
 						page,
 					}) => {
 						expect(await gotoAndSettle(page, "/policies/unknown")).toBe(404);
+					});
+				}
+
+				if (isMobile) {
+					test(`${caseId("P1", 8)} 모바일 ${DATA_SOURCES.path}의 대표 주소와 og:url은 사이트 주소의 같은 경로이고 각각 하나뿐임`, async ({
+						page,
+						baseURL,
+					}) => {
+						await gotoAndSettle(page, DATA_SOURCES.path);
+						const head = await readHead(page);
+						expect
+							.soft(head.canonical, "canonical")
+							.toBe(`${baseURL}${DATA_SOURCES.path}`);
+						expect.soft(head.canonicalCount, "canonical 개수").toBe(1);
+						expect
+							.soft(head.ogUrl, "og:url")
+							.toBe(`${baseURL}${DATA_SOURCES.path}`);
+						expect.soft(head.ogUrlCount, "og:url 개수").toBe(1);
 					});
 				}
 

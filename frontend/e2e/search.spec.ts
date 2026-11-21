@@ -278,6 +278,35 @@ test.describe(`모바일 ${MOBILE.width}x${MOBILE.height} light 아이콘`, () =
 		}
 	});
 
+	test(`${caseId("M1", 8)} 홈의 대표 주소와 og:url은 사이트 주소이고 각각 하나뿐임`, async ({
+		page,
+		baseURL,
+	}) => {
+		await gotoAndSettle(page, "/");
+		const head = await readHead(page);
+		// Next가 홈 주소는 끝의 /를 빼고 내보냄
+		expect.soft(head.canonical, "canonical").toBe(baseURL);
+		expect.soft(head.canonicalCount, "canonical 개수").toBe(1);
+		expect.soft(head.ogUrl, "og:url").toBe(baseURL);
+		expect.soft(head.ogUrlCount, "og:url 개수").toBe(1);
+	});
+
+	test(`${caseId("M1", 9)} 검색 결과에는 대표 주소가 없고 og:url은 검색어를 넣은 절대 주소임(공백이 붙은 검색어는 다듬어서 넣음)`, async ({
+		page,
+		baseURL,
+	}) => {
+		const encoded = encodeURIComponent(KEYWORD);
+		for (const query of [encoded, `%20${encoded}%20`]) {
+			await gotoAndSettle(page, `/search?keyword=${query}`);
+			const head = await readHead(page);
+			expect.soft(head.canonicalCount, `${query} canonical 개수`).toBe(0);
+			expect
+				.soft(head.ogUrl, `${query} og:url`)
+				.toBe(`${baseURL}/search?keyword=${encoded}`);
+			expect.soft(head.ogUrlCount, `${query} og:url 개수`).toBe(1);
+		}
+	});
+
 	test(`${caseId("M1", 7)} 홈과 검색 결과에 theme-color 메타 태그가 #217CF9로 있음`, async ({
 		page,
 	}) => {

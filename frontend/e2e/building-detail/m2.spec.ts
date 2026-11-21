@@ -21,6 +21,13 @@ async function readTitles(t: T) {
 			document
 				.querySelector('meta[property="og:image"]')
 				?.getAttribute("content") ?? null,
+		canonical:
+			document.querySelector('link[rel="canonical"]')?.getAttribute("href") ??
+			null,
+		ogUrl:
+			document
+				.querySelector('meta[property="og:url"]')
+				?.getAttribute("content") ?? null,
 		ogSiteName:
 			document
 				.querySelector('meta[property="og:site_name"]')
@@ -62,5 +69,27 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			/null|undefined/.test(h.title),
 			false,
 		);
+	});
+
+	test("M2-03 id 1과 4의 대표 주소와 og:url은 사이트 주소의 /buildings/{id}임", async ({
+		t,
+		baseURL,
+	}) => {
+		for (const id of [1, 4]) {
+			await t.goto(`/buildings/${id}`);
+			const h = await readTitles(t);
+			t.eq(`id ${id} canonical`, h.canonical, `${baseURL}/buildings/${id}`);
+			t.eq(`id ${id} og:url`, h.ogUrl, `${baseURL}/buildings/${id}`);
+		}
+	});
+
+	test("M2-04 없는 건물(999)과 잘못된 번호(01)의 404 화면에는 대표 주소가 없음", async ({
+		t,
+	}) => {
+		for (const id of ["999", "01"]) {
+			t.eq(`${id} status`, await t.goto(`/buildings/${id}`), 404);
+			const h = await readTitles(t);
+			t.eq(`${id} canonical 없음`, h.canonical, null);
+		}
 	});
 });
