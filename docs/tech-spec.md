@@ -42,7 +42,9 @@ Oct 18, 2026 / @윤상준
 | 실행          | Docker Compose                                                                 |
 | 리버스 프록시 | nginx + certbot                                                                |
 | CI/CD         | GitHub Actions                                                                 |
-| 로그          | 앱 로그 파일                                                                   |
+| 로그          | 앱 로그 파일(`/var/log/jipsee/app/jipsee.log`, 하루 단위, 7일 보관)            |
+| 로그 수집     | fluent-bit, Loki. fluent-bit이 앱 로그를 Oracle Object Storage 버킷 `jipsee-logs`로 전송함 |
+| 모니터링      | Prometheus, Grafana. 앱 메트릭을 노출하고, 배치 대시보드는 Jenkins Prometheus 플러그인 메트릭을 사용하며, 배치 실패 알림은 Jenkinsfile이 보내는 웹훅임 |
 | 배포          | blue/green (nginx upstream을 전환함)                                           |
 | 백업          | mysqldump로 매일 1회 백업해 Oracle Object Storage에 저장하고 최근 7개만 보관함 |
 
