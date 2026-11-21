@@ -13,7 +13,7 @@ description: >
 - `@Transactional` belongs on **service methods**, never controllers or repositories
 - Default propagation is `REQUIRED` — joins existing transaction or creates one
 - Services are annotated at class level with `@Transactional(readOnly = true)`; each write method gets its own `@Transactional`
-- Service methods take ids (not entities) and return DTOs — entities never leave the service
+- Service methods take ids (not entities) and return domain DTOs (`core`) and never entities. Response DTOs belong to the api controller, and services never throw HTTP errors. Where the target must exist, the service throws `BusinessException(ErrorCode.X_NOT_FOUND)` (`kr.jipsee.global.exception`, `core`) and the api handler maps it to 404. `Optional` is returned only where an empty result is a legitimate answer (search, batch lookups). A violated invariant is `IllegalStateException` (500)
 
 ```java
 @Service
@@ -25,16 +25,16 @@ public class OrderService {
     private final InventoryService inventoryService;
 
     @Transactional // overrides readOnly for writes
-    public OrderResponse createOrder(CreateOrderRequest request) {
-        inventoryService.reserve(request.items()); // participates in same TX
-        Order order = orderRepository.save(Order.create(request.customerEmail()));
-        return OrderResponse.from(order);
+    public OrderSummary createOrder(CreateOrderCommand command) {
+        inventoryService.reserve(command.items()); // participates in same TX
+        Order order = orderRepository.save(Order.create(command.customerEmail()));
+        return OrderSummary.from(order);
     }
 
-    public OrderResponse findById(Long id) {
-        Order order = orderRepository.findById(id)
-            .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND)); // readOnly = true inherited
-        return OrderResponse.from(order);
+    public OrderSummary findById(Long id) {
+        return orderRepository.findById(id)
+                .map(OrderSummary::from) // readOnly = true inherited
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND)); // the api handler returns 404
     }
 }
 ```
@@ -109,12 +109,12 @@ public class OrderService {
 
 ## Handling Exceptions
 
-`BusinessException` extends `RuntimeException`, so the default rollback rule applies. Plain `@Transactional` is enough; no `rollbackFor`.
+Any `RuntimeException` triggers the default rollback rule. Plain `@Transactional` is enough; no `rollbackFor`.
 
 ```java
 @Transactional
-public OrderResponse createOrder(CreateOrderRequest request) {
-    ... // any RuntimeException (e.g. `BusinessException`) rolls back
+public OrderSummary createOrder(CreateOrderCommand command) {
+    ... // any RuntimeException rolls back
 }
 ```
 
@@ -134,11 +134,12 @@ if the TX rolls back, you've already sent it. Bind the side effect to the commit
 ```java
 // Publisher — inside the TX
 @Transactional
-public OrderResponse place(Long id) {
-    Order order = getOrder(id);
+public OrderSummary place(Long id) {
+    Order order = orderRepository.findById(id)
+            .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
     order.place();
     eventPublisher.publishEvent(new OrderPlaced(order.getId())); // not sent yet
-    return OrderResponse.from(order);
+    return OrderSummary.from(order);
 }
 
 // Listener — runs ONLY if the TX commits successfully
@@ -156,7 +157,7 @@ new `@Transactional(REQUIRES_NEW)` is needed if the listener itself writes to th
 - Agent sends email / publishes events / calls external APIs inside the TX — use `@TransactionalEventListener(AFTER_COMMIT)` or call outside the TX
 - Agent forgets `readOnly = true` on read methods — put it at class level and override write methods with `@Transactional`
 - Agent calls `@Transactional` methods on `this` — self-invocation bypasses proxy
-- Agent adds `rollbackFor` — `BusinessException` is a `RuntimeException`, default rollback applies
+- Agent adds `rollbackFor`: domain failures are `RuntimeException`s, default rollback applies
 - Agent uses `@Transactional` on `private` methods — Spring proxy can't intercept
-- Agent returns entities or takes entities as parameters on services — use ids in, DTOs out
+- Agent returns entities or takes entities as parameters on services: use ids in, domain DTOs out (`BusinessException` when the target must exist; `Optional` only for legitimately empty results)
 - Agent uses `REQUIRES_NEW` to insert an FK row to a row the outer TX just wrote — MySQL lock wait timeout

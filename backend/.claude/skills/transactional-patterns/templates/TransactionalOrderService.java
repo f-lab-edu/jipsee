@@ -1,13 +1,7 @@
-package kr.jipsee.order.service;
+package kr.jipsee.order;
 
-import kr.jipsee.global.core.exception.BusinessException;
-import kr.jipsee.global.core.exception.ErrorCode;
-import kr.jipsee.order.repository.AuditLogRepository;
-import kr.jipsee.order.repository.OrderRepository;
-import kr.jipsee.order.entity.AuditLog;
-import kr.jipsee.order.entity.Order;
-import kr.jipsee.order.dto.CreateOrderRequest;
-import kr.jipsee.order.dto.OrderResponse;
+import kr.jipsee.global.exception.BusinessException;
+import kr.jipsee.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -28,34 +22,32 @@ public class TransactionalOrderService {
     private final ApplicationEventPublisher eventPublisher;
 
     // Inherits class-level readOnly = true
-    public OrderResponse findById(Long id) {
-        return OrderResponse.from(getOrder(id));
+    public OrderSummary findById(Long id) {
+        return orderRepository.findById(id)
+                .map(OrderSummary::from)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND)); // the target must exist, so the api handler returns 404
     }
 
     // Inherits class-level readOnly = true
-    public Page<OrderResponse> findAll(Pageable pageable) {
-        return orderRepository.findAll(pageable).map(OrderResponse::from);
+    public Page<OrderSummary> findAll(Pageable pageable) {
+        return orderRepository.findAll(pageable).map(OrderSummary::from);
     }
 
-    // Override: write transaction. BusinessException is a RuntimeException, so no rollbackFor
+    // Override: write transaction. Any RuntimeException rolls back, so no rollbackFor
     @Transactional
-    public OrderResponse createOrder(CreateOrderRequest request) {
-        Order order = orderRepository.save(Order.create(request.customerEmail()));
+    public OrderSummary createOrder(CreateOrderCommand command) {
+        Order order = orderRepository.save(Order.create(command.customerEmail()));
         eventPublisher.publishEvent(new OrderCreated(order.getId()));
-        return OrderResponse.from(order);
+        return OrderSummary.from(order);
     }
 
     // Override: write transaction
     @Transactional
     public void cancel(Long id) {
-        Order order = getOrder(id);
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND)); // the api handler returns 404
         order.cancel();
         eventPublisher.publishEvent(new OrderCancelled(order.getId()));
-    }
-
-    private Order getOrder(Long id) {
-        return orderRepository.findById(id)
-            .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
     }
 }
 

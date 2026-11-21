@@ -9,7 +9,7 @@ description: >
 
 Spring Boot 4 / Spring Framework 7 includes native RFC 9457 support via `ProblemDetail`.
 
-The project has exactly one `@RestControllerAdvice`, `GlobalExceptionHandler` in `kr.jipsee.global.core.exception.handler`,
+The project has exactly one `@RestControllerAdvice`, `GlobalExceptionHandler` in the api module (`kr.jipsee.api.exception`),
 extending `ResponseEntityExceptionHandler`. Spring's own MVC exceptions (validation, 404, 405, 415, unreadable body) all go
 through `handleExceptionInternal`, which the handler overrides to map them to an `ErrorCode` by exception type and status.
 No `spring.mvc.problemdetails.enabled` setting is needed. Do not add `@ExceptionHandler` methods for them.
@@ -27,29 +27,41 @@ No `spring.mvc.problemdetails.enabled` setting is needed. Do not add `@Exception
 }
 ```
 
-Build every error body with `ErrorResponse.of(errorCode)`. `ErrorResponse` extends `ProblemDetail` and adds a typed
+Build every error body with `ErrorResponse.of(errorCode, httpStatus)`; the handler's `toErrorResponse(errorCode)` supplies the status. `ErrorResponse` extends `ProblemDetail` and adds a typed
 `code` field (`ErrorCode`, serialized as the constant name). Spring fills `title` (reason phrase of the status) and
 `instance` (request path). No `timestamp`, no custom `type` URI.
 
 ## Error Model
 
-Package `kr.jipsee.global.core.exception`. Templates: `templates/ErrorCode.java`, `templates/ErrorResponse.java`,
-`templates/BusinessException.java`, `templates/GlobalExceptionHandler.java`.
+`BusinessException`, `ErrorCode`, and `ErrorKind` are in `core` (`kr.jipsee.global.exception`) and must not depend on spring-web.
+`ErrorResponse` and `GlobalExceptionHandler` are in `api` (`kr.jipsee.api.exception`).
+Templates: `templates/ErrorCode.java`, `templates/ErrorKind.java`, `templates/BusinessException.java`,
+`templates/ErrorResponse.java`, `templates/GlobalExceptionHandler.java`.
 
 ```java
+/** core: 오류 종류. HTTP 상태로의 변환은 api의 GlobalExceptionHandler가 함 */
+public enum ErrorKind {
+    INVALID,
+    NOT_FOUND,
+    METHOD_NOT_ALLOWED,
+    NOT_ACCEPTABLE,
+    UNSUPPORTED_MEDIA_TYPE,
+    INTERNAL
+}
+
 @Getter
 @RequiredArgsConstructor
 public enum ErrorCode {
-    INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "예기치 못한 오류가 발생했습니다."),
-    VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
-    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "요청 형식이 올바르지 않습니다."),
-    PATH_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 주소를 찾을 수 없습니다."),
-    METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 요청 방식입니다."),
-    NOT_ACCEPTABLE(HttpStatus.NOT_ACCEPTABLE, "지원하지 않는 응답 형식입니다."),
-    UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "지원하지 않는 요청 본문 형식입니다."),
-    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다.");
+    INTERNAL_ERROR(ErrorKind.INTERNAL, "예기치 못한 오류가 발생했습니다."),
+    VALIDATION_FAILED(ErrorKind.INVALID, "입력값이 올바르지 않습니다."),
+    INVALID_REQUEST(ErrorKind.INVALID, "요청 형식이 올바르지 않습니다."),
+    PATH_NOT_FOUND(ErrorKind.NOT_FOUND, "요청한 주소를 찾을 수 없습니다."),
+    METHOD_NOT_ALLOWED(ErrorKind.METHOD_NOT_ALLOWED, "지원하지 않는 요청 방식입니다."),
+    NOT_ACCEPTABLE(ErrorKind.NOT_ACCEPTABLE, "지원하지 않는 응답 형식입니다."),
+    UNSUPPORTED_MEDIA_TYPE(ErrorKind.UNSUPPORTED_MEDIA_TYPE, "지원하지 않는 요청 본문 형식입니다."),
+    ORDER_NOT_FOUND(ErrorKind.NOT_FOUND, "주문을 찾을 수 없습니다.");
 
-    private final HttpStatus status;
+    private final ErrorKind kind;
     private final String detail;
 }
 
@@ -72,34 +84,45 @@ public class BusinessException extends RuntimeException {
 public class ErrorResponse extends ProblemDetail {
     private final ErrorCode code;
 
-    private ErrorResponse(ErrorCode errorCode) {
-        super(errorCode.getStatus().value());
+    private ErrorResponse(ErrorCode errorCode, HttpStatus status) {
+        super(status.value());
         setDetail(errorCode.getDetail());
         this.code = errorCode;
     }
 
-    /** ErrorCode의 상태, detail, 상수 이름으로 오류 응답 생성 */
-    public static ErrorResponse of(ErrorCode errorCode) {
-        return new ErrorResponse(errorCode);
+    /** HTTP 상태와 ErrorCode의 detail, 상수 이름으로 오류 응답 생성 */
+    public static ErrorResponse of(ErrorCode errorCode, HttpStatus status) {
+        return new ErrorResponse(errorCode, status);
     }
 }
 ```
 
 `BusinessException` is the only custom exception and extends `RuntimeException` directly (no abstract base).
-Throw it from the domain or service layer:
+Which layer throws it:
+
+- A `core` service throws `BusinessException(ErrorCode.X_NOT_FOUND)` when the lookup target must exist (detail, update, delete by id).
+- A `core` service returns `Optional` (or an empty result) only where an empty result is a legitimate answer (search, batch lookups).
+- A violated invariant is `IllegalStateException`, which the handler maps to 500 `INTERNAL_ERROR`.
+- Request validation (400) is done by the api controller.
 
 ```java
-throw new BusinessException(ErrorCode.ORDER_NOT_FOUND);
+// core service: the target must exist
+public OrderSummary findById(Long id) {
+    return orderRepository.findById(id)
+        .map(OrderSummary::from)
+        .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+}
 ```
 
-Adding an error means adding one `ErrorCode` constant. No new exception class, no new handler method.
+Adding an error means adding one `ErrorCode` constant (with an existing `ErrorKind`). A new `ErrorKind` constant needs a case in the handler's `toHttpStatus`.
+No new exception class, no new handler method.
 
 `detail` is a fixed, user-facing Korean sentence in polite form ending in `~습니다.`. Never put `ex.getMessage()` or
 internal information in the response.
 
 ## Global Exception Handler
 
-Package `kr.jipsee.global.core.exception.handler`. Template: `templates/GlobalExceptionHandler.java`.
+Package `kr.jipsee.api.exception`. Template: `templates/GlobalExceptionHandler.java`.
 
 ```java
 /**
@@ -107,7 +130,8 @@ Package `kr.jipsee.global.core.exception.handler`. Template: `templates/GlobalEx
  *
  * - 모든 오류를 ErrorResponse로 반환
  * - Spring MVC 기본 예외는 예외 타입과 HTTP 상태로 ErrorCode를 정함
- * - 매핑되지 않은 예외는 INTERNAL_ERROR로 반환하고 로그를 남김
+ * - ErrorCode의 ErrorKind를 HTTP 상태로 바꾸는 곳은 이 클래스 한 곳임
+ * - 매핑되지 않은 예외는 INTERNAL_ERROR로 반환하고 로깅
  */
 @RestControllerAdvice
 @Slf4j
@@ -118,12 +142,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGenericException(Exception exception) {
         log.error(INTERNAL_ERROR_MESSAGE, exception);
-        return ErrorResponse.of(ErrorCode.INTERNAL_ERROR);
+        return toErrorResponse(ErrorCode.INTERNAL_ERROR);
     }
 
     @ExceptionHandler(BusinessException.class)
     public ProblemDetail handleBusinessException(BusinessException exception) {
-        return ErrorResponse.of(exception.getErrorCode());
+        return toErrorResponse(exception.getErrorCode());
     }
 
     @Override
@@ -133,8 +157,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         if (errorCode == ErrorCode.INTERNAL_ERROR) {
             log.error(INTERNAL_ERROR_MESSAGE, exception);
         }
+        ErrorResponse response = toErrorResponse(errorCode);
         return super.handleExceptionInternal(
-                exception, ErrorResponse.of(errorCode), headers, errorCode.getStatus(), request);
+                exception, response, headers, HttpStatusCode.valueOf(response.getStatus()), request);
+    }
+
+    private ErrorResponse toErrorResponse(ErrorCode errorCode) {
+        return ErrorResponse.of(errorCode, toHttpStatus(errorCode.getKind()));
+    }
+
+    private HttpStatus toHttpStatus(ErrorKind kind) {
+        return switch (kind) {
+            case INVALID -> HttpStatus.BAD_REQUEST;
+            case NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case METHOD_NOT_ALLOWED -> HttpStatus.METHOD_NOT_ALLOWED;
+            case NOT_ACCEPTABLE -> HttpStatus.NOT_ACCEPTABLE;
+            case UNSUPPORTED_MEDIA_TYPE -> HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+            case INTERNAL -> HttpStatus.INTERNAL_SERVER_ERROR;
+        };
     }
 
     private ErrorCode toErrorCode(Exception exception, HttpStatusCode statusCode) {
@@ -165,13 +205,14 @@ Success returns the body directly; errors return `ProblemDetail`.
 
 ## Gotchas
 - Agent creates a new exception class per error (`OrderNotFoundException`) — add an `ErrorCode` constant and throw `BusinessException`
+- Agent puts `HttpStatus` (spring-web) in `ErrorCode` or imports it in `core`: `core` has no spring-web. Use `ErrorKind` and map it in the api handler
 - Agent adds a new `@ExceptionHandler` per error — `handleBusinessException` already maps every `ErrorCode`
 - Agent builds an abstract base exception (`DomainException`) or subclasses `BusinessException` — keep it a single concrete class extending `RuntimeException`
 - Agent exposes raw exception messages in error responses — `detail` is the fixed `ErrorCode` string; log the exception instead
 - Agent returns `Map<String, Object>` for errors — use `ProblemDetail`
 - Agent uses custom error envelope alongside ProblemDetail — pick one standard
 - Agent sets `title`, `instance`, `timestamp`, or a `type` URI — Spring fills `title` and `instance`; the rest is not part of the contract
-- Agent builds `ProblemDetail` directly or calls `setProperty("code", ...)` — use `ErrorResponse.of(errorCode)`
+- Agent builds `ProblemDetail` directly or calls `setProperty("code", ...)`: use `ErrorResponse.of(errorCode, httpStatus)` through the handler's `toErrorResponse`
 - Agent adds `@ExceptionHandler` methods for Spring MVC exceptions (validation, 404, 405, unreadable body) — `handleExceptionInternal` already maps them; add a case to `toErrorCode` instead
 - Agent returns 200 with error in body — always use the correct HTTP status code
 - Agent creates handler without extending `ResponseEntityExceptionHandler` — extend it to get Spring's built-in exception handling for free

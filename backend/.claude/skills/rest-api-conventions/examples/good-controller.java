@@ -1,4 +1,4 @@
-// ✅ GOOD — body returned directly, correct status, service returns DTOs, no entity leakage
+// ✅ GOOD: body returned directly, correct status, service returns domain DTOs and the controller maps them to response DTOs, no entity leakage
 
 @RestController
 @RequestMapping("/orders")
@@ -11,18 +11,18 @@ public class OrderController {
     public ResponseEntity<OrderResponse> create(
         @Valid @RequestBody CreateOrderRequest request
     ) {
-        OrderResponse response = orderService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        OrderSummary order = orderService.create(request.toCommand());
+        return ResponseEntity.status(HttpStatus.CREATED).body(OrderResponse.from(order));
     }
 
     @GetMapping("/{id}")
     public OrderResponse getById(@PathVariable Long id) {
-        return orderService.findById(id);
+        return OrderResponse.from(orderService.findById(id));   // throws BusinessException(ORDER_NOT_FOUND) when missing
     }
 
     @GetMapping
     public Page<OrderResponse> list(Pageable pageable) {
-        return orderService.findAll(pageable);
+        return orderService.findAll(pageable).map(OrderResponse::from);
     }
 
     @DeleteMapping("/{id}")
