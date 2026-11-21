@@ -6,6 +6,7 @@ const getSession = vi.hoisted(() => vi.fn());
 const removeChat = vi.hoisted(() => vi.fn());
 
 vi.mock("@/entities/session/api/getSession", () => ({ getSession }));
+vi.mock("@/shared/config/phase2Routes", () => ({ phase2RoutesEnabled: true }));
 vi.mock("@/entities/chat/api/removeChat", () => ({ removeChat }));
 
 const SITE_ORIGIN = "https://jipsee.example";
