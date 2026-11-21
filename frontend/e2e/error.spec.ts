@@ -85,7 +85,7 @@ for (const { label, viewport, layout } of SCREENS) {
 			await gotoAndSettle(page, "/nope");
 			await expect(page.getByTestId(`header-${layout}`)).toBeVisible();
 			await expect(page.getByTestId(`footer-${layout}`)).toBeVisible();
-			if (layout === "mobile") {
+			if (layout === "mobile" && !PHASE2_OFF) {
 				const nav = page.locator('[data-area="bottom-nav"]');
 				await expect(nav).toBeVisible();
 				await expect(nav.locator("[aria-current]")).toHaveCount(0);
