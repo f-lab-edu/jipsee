@@ -16,6 +16,7 @@ import kr.jipsee.global.publicdata.PublicDataApiException;
 import kr.jipsee.global.publicdata.PublicDataApiTransientException;
 import kr.jipsee.global.publicdata.PublicDataItem;
 import kr.jipsee.global.publicdata.PublicDataPage;
+import kr.jipsee.global.publicdata.PublicDataQuotaExceededException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -338,6 +339,59 @@ class RtmsApiClientTest {
                     .isNotInstanceOf(PublicDataApiTransientException.class)
                     .hasMessageContaining("22");
             server.verify();
+        }
+
+        @ParameterizedTest(name = "HTTP {0}")
+        @ValueSource(ints = {200, 429, 500})
+        @DisplayName("JSON 본문의 오류 코드가 22이면 PublicDataQuotaExceededException으로 실패함")
+        void JSON_본문의_오류_코드가_22이면_PublicDataQuotaExceededException으로_실패함(int status) {
+            server.expect(request -> {})
+                    .andRespond(withStatus(HttpStatus.valueOf(status))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(JSON_LIMIT_22));
+
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
+
+            assertThat(thrown).isInstanceOf(PublicDataQuotaExceededException.class);
+        }
+
+        @Test
+        @DisplayName("XML 본문의 오류 코드가 22이면 PublicDataQuotaExceededException으로 실패함")
+        void XML_본문의_오류_코드가_22이면_PublicDataQuotaExceededException으로_실패함() {
+            server.expect(request -> {})
+                    .andRespond(withSuccess(
+                            xmlError(22, "LIMITED_NUMBER_OF_SERVICE_REQUESTS_EXCEEDS_ERROR"),
+                            MediaType.APPLICATION_XML));
+
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
+
+            assertThat(thrown).isInstanceOf(PublicDataQuotaExceededException.class);
+        }
+
+        @Test
+        @DisplayName("JSON 본문의 resultCode가 22이면 PublicDataQuotaExceededException으로 실패함")
+        void JSON_본문의_resultCode가_22이면_PublicDataQuotaExceededException으로_실패함() {
+            server.expect(request -> {})
+                    .andRespond(withSuccess(
+                            "{\"response\":{\"header\":{\"resultCode\":\"22\",\"resultMsg\":\"LIMITED\"}}}",
+                            MediaType.APPLICATION_JSON));
+
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
+
+            assertThat(thrown).isInstanceOf(PublicDataQuotaExceededException.class);
+        }
+
+        @Test
+        @DisplayName("오류 23은 PublicDataQuotaExceededException이 아님")
+        void 오류_23은_PublicDataQuotaExceededException이_아님() {
+            server.expect(ExpectedCount.times(4), request -> {})
+                    .andRespond(withStatus(HttpStatus.OK)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(JSON_LIMIT_23));
+
+            Throwable thrown = catchThrowable(RtmsApiClientTest.this::call);
+
+            assertThat(thrown).isNotInstanceOf(PublicDataQuotaExceededException.class);
         }
 
         @Test
