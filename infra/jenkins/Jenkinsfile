@@ -29,7 +29,7 @@ void stopJob(String job) {
 
 // Job 하나를 실행하고 결과를 스테이지와 빌드에 반영
 void runJob(String job, int minutes) {
-  catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+  catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', catchInterruptions: false) {
     int code = 255
     try {
       timeout(time: minutes, unit: 'MINUTES') {
