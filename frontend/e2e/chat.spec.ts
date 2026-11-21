@@ -16,12 +16,15 @@ import { readChatBubble } from "./support/chat/readChatBubble";
 import { sendQuestion } from "./support/chat/sendQuestion";
 import { isDimmedAt } from "./support/dialog/isDimmedAt";
 import { gotoAndSettle } from "./support/gotoAndSettle";
+import { PHASE2_OFF, PHASE2_SKIP_REASON } from "./support/phase2Routes";
 import { readBox } from "./support/policy/readBox";
 import { test } from "./support/test";
 import { BOTTOM_NAV_HEIGHT, DESKTOP, MOBILE } from "./support/viewports";
 import { waitForAnimations } from "./support/waitForAnimations";
 import { waitForFrames } from "./support/waitForFrames";
 import { waitForQuiet } from "./support/waitForQuiet";
+
+test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
 
 const TABLET = { width: 768, height: 1024 };
 const THEMES = ["light", "dark"] as const;

@@ -1,8 +1,9 @@
 import { pageTitleCopy } from "@/shared/config/pageTitleCopy";
+import { phase2RoutesEnabled } from "@/shared/config/phase2Routes";
 import { paths } from "@/shared/routes/paths";
 import type { BottomNavTab } from "@/widgets/bottomNav/model/bottomNavTab";
 
-export const bottomNavTabs: readonly BottomNavTab[] = [
+const allBottomNavTabs: readonly BottomNavTab[] = [
 	{
 		id: "home",
 		label: "홈",
@@ -27,3 +28,8 @@ export const bottomNavTabs: readonly BottomNavTab[] = [
 		relatedPrefixes: [],
 	},
 ];
+
+// phase2RoutesEnabled가 false이면 집사와 내 정보 탭을 숨김
+export const bottomNavTabs: readonly BottomNavTab[] = phase2RoutesEnabled
+	? allBottomNavTabs
+	: allBottomNavTabs.filter((tab) => tab.id === "home");

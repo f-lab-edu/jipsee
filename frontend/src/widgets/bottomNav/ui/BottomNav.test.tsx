@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import BottomNav from "@/widgets/bottomNav/ui/BottomNav";
 
+vi.mock("@/shared/config/phase2Routes", () => ({ phase2RoutesEnabled: true }));
+
 const pathnameHolder = vi.hoisted(() => ({ value: "/" }));
 
 vi.mock("next/navigation", () => ({

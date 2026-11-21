@@ -15,6 +15,7 @@ import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
 import { caseId } from "./support/caseId";
 import { gotoAndSettle } from "./support/gotoAndSettle";
+import { PHASE2_OFF, PHASE2_SKIP_REASON } from "./support/phase2Routes";
 import { POLICY_TOKENS } from "./support/policy/policyTokens";
 import { readBox } from "./support/policy/readBox";
 import { readStyle } from "./support/policy/readStyle";
@@ -963,6 +964,7 @@ test.describe("모바일 390x844 light 문서 화면 동작", () => {
 		test(`${caseId("P3", 11)} 모바일 ${title} 헤더에 계정 링크가 없고 하단 내비게이션 셋째 탭이 이름 로그인으로 로그인에 보냄`, async ({
 			page,
 		}) => {
+			test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
 			test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
 			await gotoAndSettle(page, path);
 			await expect(
@@ -1038,6 +1040,7 @@ for (const { label, viewport, layout } of SCREENS) {
 			test(`${caseId("P7", 1)} ${label} ${path}에서 푸터 링크는 ${bold ?? "없음"}만 굵음`, async ({
 				page,
 			}) => {
+				test.skip(PHASE2_OFF && (loginOnly || logoutOnly), PHASE2_SKIP_REASON);
 				test.skip(
 					loginOnly && !LOGGED_IN,
 					"로그인 TC는 TC_SESSION=in일 때만 돌림",

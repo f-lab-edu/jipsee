@@ -7,6 +7,7 @@ import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
 import { caseId } from "./support/caseId";
 import { gotoAndSettle } from "./support/gotoAndSettle";
+import { PHASE2_OFF, PHASE2_SKIP_REASON } from "./support/phase2Routes";
 import { readBox } from "./support/policy/readBox";
 import { readStyle } from "./support/policy/readStyle";
 import { STUB_ON, STUB_SKIP_REASON, setStubMode } from "./support/stubBackend";
@@ -343,6 +344,7 @@ test.describe("기본 상태에서는 실패 안내가 없음", () => {
 
 // E4: 폼 전송 실패. 일반 텍스트 응답 대신 폼을 보낸 화면으로 303 이동하고 error 쿼리를 붙임. Origin 검사는 백엔드를 부르기 전에 하므로 백엔드와 상관없이 실패함
 test.describe("폼 전송 실패 응답", () => {
+	test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
 	test(`${caseId("E4", 1)} Origin이 없는 로그아웃 POST는 /me?error=logout-failed로 303을 반환함`, async ({
@@ -395,6 +397,7 @@ const ME_ERRORS = [
 
 for (const { label, viewport, layout } of SCREENS) {
 	test.describe(`${label} ${viewport.width}x${viewport.height} 내 정보 실패 안내`, () => {
+		test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
 		test.use({ viewport, colorScheme: "light" });
 		test.skip(!LOGGED_IN, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 
@@ -495,6 +498,7 @@ for (const { label, viewport, layout } of SCREENS) {
 }
 
 test.describe("대화 삭제 실패 안내", () => {
+	test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
 	test.skip(!LOGGED_IN, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 
 	test.describe("모바일 대화 목록", () => {

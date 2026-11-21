@@ -8,6 +8,7 @@ import { TOKENS } from "./support/buildingDetail/tokens";
 import { caseId } from "./support/caseId";
 import { isDimmedAt } from "./support/dialog/isDimmedAt";
 import { gotoAndSettle } from "./support/gotoAndSettle";
+import { PHASE2_OFF, PHASE2_SKIP_REASON } from "./support/phase2Routes";
 import {
 	STUB_DELETED_SESSION,
 	STUB_ON,
@@ -17,6 +18,8 @@ import {
 import { test } from "./support/test";
 import { BOTTOM_NAV_HEIGHT, DESKTOP, MOBILE } from "./support/viewports";
 import { waitForAnimations } from "./support/waitForAnimations";
+
+test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
 
 const SCREENS = [
 	{ label: "모바일", viewport: MOBILE },

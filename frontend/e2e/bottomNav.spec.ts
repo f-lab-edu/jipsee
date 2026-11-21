@@ -8,6 +8,7 @@ import { readDesktopHeaderEdge } from "./support/bottomNav/readHeaderEdge";
 import { scrollToEnd } from "./support/bottomNav/scrollToEnd";
 import { caseId } from "./support/caseId";
 import { gotoAndSettle } from "./support/gotoAndSettle";
+import { PHASE2_OFF, PHASE2_SKIP_REASON } from "./support/phase2Routes";
 import { readBox } from "./support/policy/readBox";
 import { SEARCH_PATH } from "./support/searchFixtures";
 import { test } from "./support/test";
@@ -74,6 +75,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 				test(`${caseId("NAV", 1)} ${label} 하단 내비게이션이 보이고 탭이 홈, 집사, ${THIRD_TAB} 순서임`, async ({
 					page,
 				}) => {
+					test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
 					await gotoAndSettle(page, "/");
 					const nav = page.locator(NAV);
 					await expect.soft(nav).toBeVisible();
@@ -90,6 +92,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 				test(`${caseId("NAV", 2)} ${label} 탭 높이가 56이고 열 폭을 셋으로 균등하게 나눔`, async ({
 					page,
 				}) => {
+					test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
 					await gotoAndSettle(page, "/");
 					const boxes = await Promise.all(
 						["bottom-nav-home", "bottom-nav-chat", "bottom-nav-me"].map(
@@ -111,6 +114,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 					test(`${caseId("NAV", 3)} ${label} ${path}에서 ${tab ?? "활성 탭 없음"}의 aria-current가 ${value ?? "없음"}임`, async ({
 						page,
 					}) => {
+						test.skip(PHASE2_OFF && path === "/login", PHASE2_SKIP_REASON);
 						test.skip(
 							LOGGED_IN && path === "/login",
 							"로그인한 상태에서는 /login이 홈으로 이동함",
@@ -121,6 +125,10 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 							"bottom-nav-chat",
 							"bottom-nav-me",
 						]) {
+							// 1단계에서는 집사와 내 정보 탭이 없어 홈 탭만 확인함
+							if (PHASE2_OFF && area !== "bottom-nav-home") {
+								continue;
+							}
 							const link = page.locator(`[data-area="${area}"]`);
 							if (area === tab && value !== null) {
 								await expect.soft(link).toHaveAttribute("aria-current", value);
@@ -160,6 +168,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 					test(`${caseId("NAV", 5)} ${label} ${name}에서 푸터가 내비게이션 바로 위에 붙고 하단 바가 있으면 푸터 위에 붙으며 푸터 높이가 44이며 위 테두리가 없음`, async ({
 						page,
 					}) => {
+						test.skip(PHASE2_OFF && path === "/login", PHASE2_SKIP_REASON);
 						test.skip(
 							LOGGED_IN && path === "/login",
 							"로그인한 상태에서는 /login이 홈으로 이동함",
@@ -198,6 +207,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 					test(`${caseId("NAV", 6)} ${label} ${name}에서 끝까지 스크롤하면 본문이 하단 바나 푸터 위에서 끝나고 푸터가 내비게이션 바로 위에 있음`, async ({
 						page,
 					}) => {
+						test.skip(PHASE2_OFF && path === "/login", PHASE2_SKIP_REASON);
 						test.skip(
 							LOGGED_IN && path === "/login",
 							"로그인한 상태에서는 /login이 홈으로 이동함",
@@ -227,6 +237,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 				test(`${caseId("NAV", 7)} ${label} ${name}에서 열이 폭 ${columnWidth}의 흰색이고 main에 카드 모양이 없음`, async ({
 					page,
 				}) => {
+					test.skip(PHASE2_OFF && path === "/login", PHASE2_SKIP_REASON);
 					test.skip(
 						LOGGED_IN && path === "/login",
 						"로그인한 상태에서는 /login이 홈으로 이동함",
@@ -286,6 +297,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 			test(`${caseId("NAV", 10)} ${label} /me에서 열이 폭 ${columnWidth}의 흰색이고 푸터가 내비게이션 바로 위에 있음`, async ({
 				page,
 			}) => {
+				test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
 				test.skip(!LOGGED_IN, "로그인 상태 TC는 TC_SESSION=in일 때만 돌림");
 				await gotoAndSettle(page, "/me");
 				const column = await readColumn(page);
@@ -309,6 +321,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 				test(`${caseId("NAV", 11)} ${label} /me에서 내 정보 탭의 aria-current가 page이고 href가 /me임`, async ({
 					page,
 				}) => {
+					test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
 					test.skip(!LOGGED_IN, "로그인 상태 TC는 TC_SESSION=in일 때만 돌림");
 					await gotoAndSettle(page, "/me");
 					const link = page.locator('[data-area="bottom-nav-me"]');
@@ -328,6 +341,10 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 				test(`${caseId("NAV", 12)} ${label} ${name} 탭의 href가 ${href}임`, async ({
 					page,
 				}) => {
+					test.skip(
+						PHASE2_OFF && area === "bottom-nav-chat",
+						PHASE2_SKIP_REASON,
+					);
 					await gotoAndSettle(page, "/");
 					await expect
 						.soft(page.locator(`[data-area="${area}"]`))
@@ -338,6 +355,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 			test(`${caseId("NAV", 13)} ${label} 로그인하지 않으면 내 정보 탭의 href가 /login?next=%2Fme임`, async ({
 				page,
 			}) => {
+				test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
 				test.skip(LOGGED_IN, "로그아웃 TC는 TC_SESSION이 없을 때만 돌림");
 				await gotoAndSettle(page, "/");
 				await expect
@@ -378,6 +396,7 @@ for (const { label, viewport } of [
 			test(`${caseId("NAV", 17)} ${label}에서 ${name}의 page-column 배경이 투명이고 main에 카드 모양이 없고 푸터가 고정되지 않음`, async ({
 				page,
 			}) => {
+				test.skip(PHASE2_OFF && path === "/login", PHASE2_SKIP_REASON);
 				test.skip(
 					LOGGED_IN && path === "/login",
 					"로그인한 상태에서는 /login이 홈으로 이동함",
