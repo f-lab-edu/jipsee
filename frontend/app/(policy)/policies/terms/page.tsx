@@ -1,7 +1,9 @@
 import type { Metadata, ResolvingMetadata } from "next";
+import { notFound } from "next/navigation";
 import { getSession } from "@/entities/session/api/getSession";
 import { termsDocument } from "@/pages/policy/config/termsDocument";
 import PolicyDocumentPage from "@/pages/policy/ui/PolicyDocumentPage";
+import { phase2RoutesEnabled } from "@/shared/config/phase2Routes";
 import { toPageMetadata } from "@/shared/lib/metadata/toPageMetadata";
 import { paths } from "@/shared/routes/paths";
 
@@ -20,9 +22,14 @@ export async function generateMetadata(
 /**
  * 이용약관 > 페이지
  *
+ * - phase2RoutesEnabled가 false이면 404로 처리
  * - 로그인 여부와 상관없이 접근 가능
  */
 export default async function Page() {
+	if (!phase2RoutesEnabled) {
+		notFound();
+	}
+
 	const session = await getSession();
 
 	return (

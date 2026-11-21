@@ -8,7 +8,12 @@ import { readDesktopHeaderEdge } from "./support/bottomNav/readHeaderEdge";
 import { scrollToEnd } from "./support/bottomNav/scrollToEnd";
 import { caseId } from "./support/caseId";
 import { gotoAndSettle } from "./support/gotoAndSettle";
-import { PHASE2_OFF, PHASE2_SKIP_REASON } from "./support/phase2Routes";
+import {
+	isHiddenPolicyPath,
+	PHASE1_POLICY_SKIP_REASON,
+	PHASE2_OFF,
+	PHASE2_SKIP_REASON,
+} from "./support/phase2Routes";
 import { readBox } from "./support/policy/readBox";
 import { SEARCH_PATH } from "./support/searchFixtures";
 import { test } from "./support/test";
@@ -115,6 +120,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 						page,
 					}) => {
 						test.skip(PHASE2_OFF && path === "/login", PHASE2_SKIP_REASON);
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						test.skip(
 							LOGGED_IN && path === "/login",
 							"로그인한 상태에서는 /login이 홈으로 이동함",
@@ -169,6 +175,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 						page,
 					}) => {
 						test.skip(PHASE2_OFF && path === "/login", PHASE2_SKIP_REASON);
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						test.skip(
 							LOGGED_IN && path === "/login",
 							"로그인한 상태에서는 /login이 홈으로 이동함",
@@ -208,6 +215,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 						page,
 					}) => {
 						test.skip(PHASE2_OFF && path === "/login", PHASE2_SKIP_REASON);
+						test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 						test.skip(
 							LOGGED_IN && path === "/login",
 							"로그인한 상태에서는 /login이 홈으로 이동함",
@@ -238,6 +246,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 					page,
 				}) => {
 					test.skip(PHASE2_OFF && path === "/login", PHASE2_SKIP_REASON);
+					test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 					test.skip(
 						LOGGED_IN && path === "/login",
 						"로그인한 상태에서는 /login이 홈으로 이동함",
@@ -274,6 +283,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 				test(`${caseId("NAV", 9)} ${label} 건물 상세를 스크롤하기 전과 뒤에 푸터와 내비게이션 위치가 같고 푸터 링크 세 개가 보임`, async ({
 					page,
 				}) => {
+					test.skip(PHASE2_OFF, PHASE1_POLICY_SKIP_REASON);
 					await gotoAndSettle(page, "/buildings/1");
 					const footerLinks = page.locator('[data-area="footer-mobile"] a');
 					await expect
@@ -397,6 +407,7 @@ for (const { label, viewport } of [
 				page,
 			}) => {
 				test.skip(PHASE2_OFF && path === "/login", PHASE2_SKIP_REASON);
+				test.skip(isHiddenPolicyPath(path), PHASE1_POLICY_SKIP_REASON);
 				test.skip(
 					LOGGED_IN && path === "/login",
 					"로그인한 상태에서는 /login이 홈으로 이동함",

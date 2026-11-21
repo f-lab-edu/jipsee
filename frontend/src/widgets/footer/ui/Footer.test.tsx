@@ -1,6 +1,8 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import Footer from "@/widgets/footer/ui/Footer";
+
+vi.mock("@/shared/config/phase2Routes", () => ({ phase2RoutesEnabled: true }));
 
 describe("Footer", () => {
 	it("모바일 푸터에 데이터 출처, 이용약관, 개인정보처리방침 링크를 순서대로 표시함", () => {
