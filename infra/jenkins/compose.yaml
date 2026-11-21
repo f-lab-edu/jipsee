@@ -23,7 +23,7 @@ services:
     networks:
       - db
     ports:
-      - "127.0.0.1:8091:8080"
+      - "127.0.0.1:8095:8080"
     mem_limit: 1g
     cpus: "1"
     restart: unless-stopped
