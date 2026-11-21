@@ -10,11 +10,11 @@ fi
 docker compose -f backend/compose.yaml up -d --wait mysql
 docker compose -f backend/compose.yaml -f backend/compose.schema.yaml run --rm flyway
 conf=backend/core/src/main/resources/jipsee-core-local.yml
-[ -f "$conf" ] || cp "$conf.example" "$conf"
+[[ -f "$conf" ]] || cp "$conf.example" "$conf"
 cd backend
-if [ "$app" = batch ]; then
+if [[ "$app" = batch ]]; then
   # DATA_GO_KR_KEY가 환경 변수에 없으면 ~/.config/jipsee/env에서 읽음
-  if [ -z "${DATA_GO_KR_KEY:-}" ] && [ -f ~/.config/jipsee/env ]; then
+  if [[ -z "${DATA_GO_KR_KEY:-}" ]] && [[ -f ~/.config/jipsee/env ]]; then
     # shellcheck source=/dev/null
     set -a && . ~/.config/jipsee/env && set +a
   fi
