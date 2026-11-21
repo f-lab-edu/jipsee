@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 
-/** 문서 head의 제목, 메타 태그, 아이콘 링크 */
+/** 문서 head의 제목, 메타 태그, 아이콘과 매니페스트 링크 */
 export async function readHead(page: Page) {
 	return page.evaluate(() => {
 		const readMeta = (key: string) =>
@@ -30,6 +30,8 @@ export async function readHead(page: Page) {
 			ogImageAlt: readMeta("og:image:alt"),
 			twitterCard: readMeta("twitter:card"),
 			twitterImage: readMeta("twitter:image"),
+			theme: readMeta("theme-color"),
+			manifest: readLink("manifest"),
 			icon: readLink("icon"),
 			appleIcon: readLink("apple-touch-icon"),
 		};

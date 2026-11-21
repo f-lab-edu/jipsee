@@ -227,6 +227,66 @@ test.describe(`모바일 ${MOBILE.width}x${MOBILE.height} light 아이콘`, () =
 				.toEqual({ width: 1200, height: 630 });
 		}
 	});
+
+	test(`${caseId("M1", 5)} 홈에 매니페스트 링크가 있고 이름, 시작 경로, 표시 방식, 색, 언어가 정해진 값으로 200 열림`, async ({
+		page,
+	}) => {
+		await gotoAndSettle(page, "/");
+		const head = await readHead(page);
+		expect(head.manifest?.href, "manifest 링크가 있음").toBeTruthy();
+		const response = await page.request.get(head.manifest?.href ?? "");
+		expect.soft(response.status(), "manifest status").toBe(200);
+		const body = await response.json();
+		expect.soft(body.name, "name").toBe(SITE_NAME);
+		expect.soft(body.short_name, "short_name").toBe(SITE_NAME);
+		expect.soft(body.description, "description").toBe(SITE_DESCRIPTION);
+		expect.soft(body.start_url, "start_url").toBe("/");
+		expect.soft(body.display, "display").toBe("standalone");
+		expect.soft(body.background_color, "background_color").toBe("#ffffff");
+		expect.soft(body.theme_color, "theme_color").toBe("#217CF9");
+		expect.soft(body.lang, "lang").toBe("ko");
+		expect
+			.soft(
+				body.icons.map(
+					(icon: { sizes: string; purpose: string }) =>
+						`${icon.sizes} ${icon.purpose}`,
+				),
+				"icons",
+			)
+			.toEqual(["192x192 any", "512x512 any", "512x512 maskable"]);
+	});
+
+	test(`${caseId("M1", 6)} 매니페스트의 아이콘 세 개가 각자 크기의 png로 200 열림`, async ({
+		page,
+	}) => {
+		await gotoAndSettle(page, "/");
+		const head = await readHead(page);
+		const manifest = await (
+			await page.request.get(head.manifest?.href ?? "")
+		).json();
+		expect(manifest.icons, "아이콘 수").toHaveLength(3);
+		for (const icon of manifest.icons as { src: string; sizes: string }[]) {
+			const response = await page.request.get(icon.src);
+			expect.soft(response.status(), `${icon.src} status`).toBe(200);
+			expect
+				.soft(response.headers()["content-type"], `${icon.src} content-type`)
+				.toBe("image/png");
+			const size = Number(icon.sizes.split("x")[0]);
+			expect
+				.soft(readPngSize(await response.body()), `${icon.src} 크기`)
+				.toEqual({ width: size, height: size });
+		}
+	});
+
+	test(`${caseId("M1", 7)} 홈과 검색 결과에 theme-color 메타 태그가 #217CF9로 있음`, async ({
+		page,
+	}) => {
+		for (const path of ["/", SEARCH_PATH]) {
+			await gotoAndSettle(page, path);
+			const head = await readHead(page);
+			expect.soft(head.theme, `${path} theme-color`).toBe("#217CF9");
+		}
+	});
 });
 
 // 검색 결과 더 보기와 주소 두 줄. 기대값은 2026-11-14 오류와 페이지 나눔 설계 5절, 6절과 캔버스 보드 S1P*에서 가져옴
