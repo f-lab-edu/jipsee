@@ -1,0 +1,39 @@
+# Jenkins 컨테이너. 서버에서 docker compose -f jenkins/compose.yaml build 후 up -d
+# 서버 jenkins/.env 변수: DOCKER_GID(getent group docker의 gid), ALERT_WEBHOOK_URL(선택, 빈 값이면 알림 없음)
+# docker.sock 마운트는 호스트 root 수준 권한이므로 포트는 127.0.0.1로만 게시하고 로그인을 요구함
+name: jipsee-jenkins
+
+services:
+  jenkins:
+    build: .
+    image: jipsee-jenkins:local
+    environment:
+      TZ: Asia/Seoul
+      JAVA_OPTS: -Xms256m -Xmx512m -Duser.timezone=Asia/Seoul
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+    # 호스트 docker 소켓을 쓰려면 소켓 그룹이 필요함
+    group_add:
+      - "${DOCKER_GID:?DOCKER_GID is required}"
+    volumes:
+      # 호스트 폴더는 uid 1000 소유로 미리 생성
+      - /var/lib/jipsee-jenkins:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      # job.env와 .env.deploy는 파일이 아닌 폴더로 마운트
+      - /opt/jipsee:/etc/jipsee:ro
+    networks:
+      - db
+    ports:
+      - "127.0.0.1:8091:8080"
+    mem_limit: 1g
+    cpus: "1"
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+networks:
+  db:
+    external: true
+    name: jipsee-db
