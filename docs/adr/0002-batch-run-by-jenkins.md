@@ -17,7 +17,7 @@
 - Jenkins가 서버 위에서 별개의 컨테이너로 돌고, 그 안에서 배치 Job 컨테이너를 따로 띄우는 구조
 - Jenkins가 Job마다 컨테이너를 실행하고 종료 코드를 결과로 사용
 - 앱 내부 스케줄러는 삭제
-- Docker 컨테이너는 스프링 부트 앱과 동일한 이미지를 사용하고, `jipsee.batch.run.job` 속성이 지정된 경우에만 `BatchJobRunner`가 Job 하나를 실행하고 종료
+- 배치 Job 컨테이너는 배치 전용 이미지 `jipsee-batch`를 사용하고, `jipsee.batch.run.job` 속성이 지정된 경우에만 `BatchJobRunner`가 Job 하나를 실행하고 종료
 
 ### 중복 실행 방지와 종료 코드
 
