@@ -113,12 +113,25 @@ button {
 	}
 }
 
-/* 1280 미만 푸터. 하단 내비게이션 바로 위에 고정함. Seed position이 반응형 값을 받지 않음 */
+/* 1280 미만 푸터. 하단 내비게이션 바로 위에 고정함(내비게이션이 없으면 아래 data-bottom-nav 규칙이 맨 아래로 내림). Seed position이 반응형 값을 받지 않음 */
 @media (max-width: 1279px) {
 	:root .footer-docked {
 		position: sticky;
 		bottom: var(--jipsee-bottom-nav-offset);
 		z-index: 1;
+	}
+}
+
+/* 하단 내비게이션을 숨긴 1단계(루트 html의 data-bottom-nav="off"). 푸터가 열의 맨 아래에 놓이므로 내비게이션 몫(탭 높이와 위 테두리 1px)을 빼고 아래 안전 영역만 남김. 안전 영역은 내비게이션 대신 푸터가 받음(bottom 0, 아래 패딩, 배경) */
+:root[data-bottom-nav="off"] {
+	--jipsee-bottom-nav-offset: env(safe-area-inset-bottom);
+}
+
+@media (max-width: 1279px) {
+	:root[data-bottom-nav="off"] .footer-docked {
+		bottom: 0;
+		padding-bottom: env(safe-area-inset-bottom);
+		background-color: var(--seed-color-bg-layer-default);
 	}
 }
 
