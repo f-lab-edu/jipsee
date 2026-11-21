@@ -26,7 +26,6 @@ erDiagram
 - lot_number가 NULL인 거래는 묶음을 이루지 않으며 같은 법정동 주변 거래 조회에만 포함
 - 묶음 이름은 묶음 안에서 계약일이 가장 늦은 거래의 house_name이며, 계약일이 같으면 rent_deal을 우선하고 그다음 id가 큰 행을 사용
 - 지번 주소는 `{시군구명} {legal_dong_name} {lot_number}`이며 시군구명은 bjd.csv에서 조회
-- building_parcel, building_register 테이블과 rent_deal, sale_deal의 building_parcel_id, match_status 컬럼은 스키마(`backend/schema`)에 남아 있으나 사용하지 않으며, 제거 여부는 별도 결정
 
 ## rent_deal
 
