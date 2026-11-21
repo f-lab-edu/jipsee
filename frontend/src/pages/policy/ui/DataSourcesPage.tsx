@@ -1,7 +1,8 @@
-import { Box, Text, VStack } from "@seed-design/react";
+import { Text, VStack } from "@seed-design/react";
 import type { DataSourceCardItem } from "@/entities/dataSource/model/dataSourceCardItem";
 import type { Session } from "@/entities/session/model/session";
 import { dataSourcesCopy } from "@/pages/policy/config/dataSourcesCopy";
+import { dataSourcesScreenStyles } from "@/pages/policy/config/dataSourcesScreenStyles";
 import { policyScreenStyles } from "@/pages/policy/config/policyStyles";
 import DataSourcesCards from "@/pages/policy/ui/DataSourcesCards";
 import DataSourcesNotice from "@/pages/policy/ui/DataSourcesNotice";
@@ -22,6 +23,7 @@ interface DataSourcesPageProps {
  *
  * - 뒤로 가기가 있는 로고 헤더 출력
  * - 제목, 임시 초안 안내, 출처 카드 목록, 한계 안내 순서로 출력
+ * - 제목 h1은 모바일과 데스크톱이 같은 요소를 쓰고 글자 크기와 위치만 반응형으로 바꿈
  * - 모바일은 하늘빛 배경 위 카드(main) 본문, 데스크톱은 하늘빛 배경 위 폭 720 열
  */
 export default function DataSourcesPage({
@@ -29,6 +31,7 @@ export default function DataSourcesPage({
 	items,
 }: DataSourcesPageProps) {
 	const style = policyScreenStyles;
+	const screen = dataSourcesScreenStyles;
 
 	return (
 		<>
@@ -38,16 +41,16 @@ export default function DataSourcesPage({
 				mobileBack={<HeaderBackButton />}
 			/>
 			<VStack as="main" data-area="main" {...style.main}>
+				<VStack data-area="data-sources-title" {...screen.titleBox}>
+					<Text as="h1" {...screen.title}>
+						{dataSourcesCopy.title}
+					</Text>
+				</VStack>
 				<ResponsiveLayout
 					testId="data-sources-body"
 					fillsHeight
 					mobile={
-						<VStack {...style.mobileBody}>
-							<Box data-area="data-sources-title-mobile">
-								<Text as="h1" {...style.mobileTitle}>
-									{dataSourcesCopy.title}
-								</Text>
-							</Box>
+						<VStack {...screen.mobileBody}>
 							<PolicyDraftNotice
 								area="data-sources"
 								layout="mobile"
@@ -58,11 +61,8 @@ export default function DataSourcesPage({
 						</VStack>
 					}
 					desktop={
-						<VStack {...style.desktopBody}>
-							<VStack data-area="data-sources-column" {...style.desktopColumn}>
-								<Text as="h1" {...style.desktopTitle}>
-									{dataSourcesCopy.title}
-								</Text>
+						<VStack {...screen.desktopBody}>
+							<VStack data-area="data-sources-column" {...screen.desktopColumn}>
 								<PolicyDraftNotice
 									area="data-sources"
 									layout="desktop"

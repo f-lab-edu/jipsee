@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 
-/** 문서 head의 제목, 메타 태그, 아이콘과 매니페스트 링크 */
+/** 문서 head의 제목, 메타 태그, 대표 주소, robots, 아이콘과 매니페스트 링크 */
 export async function readHead(page: Page) {
 	return page.evaluate(() => {
 		const readMeta = (key: string) =>
@@ -16,8 +16,17 @@ export async function readHead(page: Page) {
 				sizes: element.getAttribute("sizes"),
 			};
 		};
+		const canonicals = [...document.querySelectorAll('link[rel="canonical"]')];
+		const ogUrls = [...document.querySelectorAll('meta[property="og:url"]')];
+		const robots = [...document.querySelectorAll('meta[name="robots"]')];
 		return {
 			title: document.title,
+			canonical: canonicals[0]?.getAttribute("href") ?? null,
+			canonicalCount: canonicals.length,
+			ogUrl: ogUrls[0]?.getAttribute("content") ?? null,
+			ogUrlCount: ogUrls.length,
+			robots: robots[0]?.getAttribute("content") ?? null,
+			robotsCount: robots.length,
 			description: readMeta("description"),
 			ogTitle: readMeta("og:title"),
 			ogDescription: readMeta("og:description"),

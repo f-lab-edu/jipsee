@@ -4,6 +4,7 @@ import { getSession } from "@/entities/session/api/getSession";
 import { dataSourcesCopy } from "@/pages/policy/config/dataSourcesCopy";
 import DataSourcesPage from "@/pages/policy/ui/DataSourcesPage";
 import { toPageMetadata } from "@/shared/lib/metadata/toPageMetadata";
+import { paths } from "@/shared/routes/paths";
 
 /**
  * 데이터 출처 > 메타데이터
@@ -14,7 +15,7 @@ export async function generateMetadata(
 	_props: PageProps<"/policies/data-sources">,
 	parent: ResolvingMetadata,
 ): Promise<Metadata> {
-	return toPageMetadata(dataSourcesCopy.title, parent);
+	return toPageMetadata(dataSourcesCopy.title, parent, paths.dataSources);
 }
 
 /**

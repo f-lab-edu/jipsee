@@ -1,12 +1,9 @@
-import type { BoxProps, FlexProps, VStackProps } from "@seed-design/react";
+import type { BoxProps, VStackProps } from "@seed-design/react";
 
 export interface IntroBandStyle {
 	root: BoxProps;
 	content: VStackProps;
-	headingRow: FlexProps;
-	headingColumn: VStackProps;
 	formGroup: VStackProps;
-	desktopIllustrationCell: FlexProps;
 }
 
 export const introBandStyles: IntroBandStyle = {
@@ -24,20 +21,5 @@ export const introBandStyles: IntroBandStyle = {
 		pt: { base: "x7", lg: "x12" },
 		pb: { base: "x8", lg: "x12" },
 	},
-	headingRow: {
-		direction: { base: "column", lg: "row" },
-		gap: { base: 0, lg: "x10" },
-	},
-	headingColumn: {
-		flexGrow: 1,
-		minWidth: "0px",
-		justifyContent: "center",
-	},
 	formGroup: { gap: "x3" },
-	desktopIllustrationCell: {
-		display: { base: "none", lg: "flex" },
-		alignItems: "center",
-		width: "320px",
-		minWidth: "0px",
-	},
 };
