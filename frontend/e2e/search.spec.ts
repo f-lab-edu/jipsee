@@ -2,12 +2,14 @@
 // 검색어가 비었거나 공백뿐이면 폼이 제출되지 않음. 제목은 "{화면 제목} | 집씨" 템플릿이고 홈은 "집씨"임.
 import { expect } from "@playwright/test";
 import { caseId } from "./support/caseId";
+import { expectSingleHeading } from "./support/expectSingleHeading";
 import { gotoAndSettle } from "./support/gotoAndSettle";
 import { readHead } from "./support/readHead";
 import { readPngSize } from "./support/readPngSize";
 import {
 	BARE,
 	FULL,
+	HOME_TITLE,
 	KEYWORD,
 	NO_NAME,
 	NO_RESULT_KEYWORD,
@@ -443,6 +445,24 @@ test.describe(`모바일 ${MOBILE.width}x${MOBILE.height} light 아이콘`, () =
 		}
 	});
 });
+
+// M1-15 h1은 모바일과 데스크톱 레이아웃을 모두 그려도 DOM과 서버 HTML에 하나뿐임
+// 모바일 검색 결과는 검색창이 헤더에 있어 설계상 제목 줄이 숨겨지므로 보임과 접근성 트리 확인을 건너뜀
+for (const { label, viewport, layout } of SCREENS) {
+	test.describe(`${label} ${viewport.width}x${viewport.height} light h1`, () => {
+		test.use({ viewport, colorScheme: "light" });
+
+		for (const path of ["/", SEARCH_PATH]) {
+			test(`${caseId("M1", 15)} ${label} ${path}의 h1은 DOM과 서버 HTML에 하나뿐이고 글자는 ${HOME_TITLE}임`, async ({
+				page,
+			}) => {
+				await expectSingleHeading(page, path, HOME_TITLE, {
+					checksVisible: path === "/" || layout === "desktop",
+				});
+			});
+		}
+	});
+}
 
 // 검색 결과 더 보기와 주소 두 줄. 기대값은 2026-11-14 오류와 페이지 나눔 설계 5절, 6절과 캔버스 보드 S1P*에서 가져옴
 // 목업은 "망원동"에 48건(번호 1~48)이 걸려 20건, 20건, 8건으로 나뉨. 번호 35는 건물명과 도로명 주소가 모두 없음

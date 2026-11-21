@@ -10,7 +10,7 @@ export interface DesktopBuildingBodyStyle {
 }
 
 export const desktopBuildingBodyStyles: DesktopBuildingBodyStyle = {
-	container: { pt: "x7", pb: "x10", gap: "x6" },
+	container: { pb: "x10" },
 	grid: {
 		columns: { base: 1, lg: "minmax(0, 1fr) 380px" },
 		gap: { base: 0, lg: "x6" },

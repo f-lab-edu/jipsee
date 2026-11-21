@@ -1,10 +1,14 @@
 // S2 건물 상세 M2: 사이트 메타데이터 (제목, OG 제목)
 // 기대값은 메타데이터 작업 지시 명세에서 가져옴. 제목은 "{건물명 또는 주소} | 집씨"이고 OG 제목도 같음.
 
-import { NAMES } from "../support/buildingDetail/buildingFixtures";
+import {
+	ADDRESS_4_TEXT,
+	NAMES,
+} from "../support/buildingDetail/buildingFixtures";
 import type { T } from "../support/buildingDetail/makeT";
+import { expectSingleHeading } from "../support/expectSingleHeading";
 import { test } from "../support/test";
-import { MOBILE } from "../support/viewports";
+import { DESKTOP, MOBILE } from "../support/viewports";
 
 async function readTitles(t: T) {
 	return t.page.evaluate(() => ({
@@ -93,3 +97,27 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		}
 	});
 });
+
+// M2-05 h1은 모바일과 데스크톱 레이아웃을 모두 그려도 DOM과 서버 HTML에 하나뿐임
+for (const { label, viewport } of [
+	{ label: "모바일", viewport: MOBILE },
+	{ label: "데스크톱", viewport: DESKTOP },
+]) {
+	test.describe(`${label} ${viewport.width}x${viewport.height} light h1`, () => {
+		test.use({ viewport, colorScheme: "light" });
+
+		test(`M2-05 ${label} id 1, 2, 3, 5의 h1은 DOM과 서버 HTML에 하나뿐이고 글자는 건물명임`, async ({
+			page,
+		}) => {
+			for (const [id, name] of Object.entries(NAMES)) {
+				await expectSingleHeading(page, `/buildings/${id}`, name);
+			}
+		});
+
+		test(`M2-05 ${label} 이름이 없는 id 4의 h1은 DOM과 서버 HTML에 하나뿐이고 글자는 주소임`, async ({
+			page,
+		}) => {
+			await expectSingleHeading(page, "/buildings/4", ADDRESS_4_TEXT);
+		});
+	});
+}
