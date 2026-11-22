@@ -32,6 +32,10 @@ Packages: `org.springframework.batch.core.job.Job`, `core.job.builder.JobBuilder
 `Chunk`), with readers/writers in `infrastructure.item.database.*` and their builders in
 `infrastructure.item.database.builder.*`.
 
+Package placement: Job config, Reader, Processor, Writer, Tasklet, and scheduler go in the top-level
+`kr.jipsee.batch.<job>` package (`batch/common` for shared code, e.g. `batch/deal`). Batch code calls
+the domain's `service` and `client`, never its `repository`.
+
 Single Spring instance only: no ShedLock, `@Scheduled` is enough.
 
 ## Job & Step (Spring Batch 6 API)
@@ -232,10 +236,9 @@ finishes. `start` throws `JobInstanceAlreadyCompleteException`, `JobExecutionAlr
 ## Metadata schema in production
 
 Spring Batch needs its `BATCH_JOB_INSTANCE`, `BATCH_JOB_EXECUTION`, `BATCH_STEP_EXECUTION`, ... tables.
-This repo holds no schema SQL and no migrations for any table, including `BATCH_*`. Their schema SQL
-lives outside the repo (`$SCHEMA_DIR`) and is applied there. In every profile set
-`spring.batch.jdbc.initialize-schema: never` and keep `ddl-auto: validate`. Never add `schema-*.sql`
-files or any `BATCH_*` DDL to this repo.
+The schema SQL for every table, including `BATCH_*`, lives in `backend/schema` and is applied by Flyway
+outside Spring. In every profile set `spring.batch.jdbc.initialize-schema: never` and keep
+`ddl-auto: validate`. Never add `schema-*.sql` files under `src/main/resources`.
 
 ## Listeners: work that must run after the job, not per chunk
 
