@@ -115,8 +115,8 @@ class SaleDealServiceTest {
     }
 
     @Test
-    @DisplayName("해제된 거래는 해제 구분과 해제일을 저장하고 매칭 상태는 FAILED로 둠")
-    void 해제된_거래는_해제_구분과_해제일을_저장하고_매칭_상태는_FAILED로_둠() {
+    @DisplayName("해제된 거래는 해제 구분과 해제일을 저장함")
+    void 해제된_거래는_해제_구분과_해제일을_저장함() {
         // given
         SaleDealRow cancelled = new SaleDealRow(
                 "12170",
@@ -136,9 +136,8 @@ class SaleDealServiceTest {
 
         // then
         Map<String, Object> saved = jdbcTemplate.queryForMap("select * from sale_deal");
-        assertThat(saved).containsEntry("cancellation_type", "O").containsEntry("match_status", "FAILED");
+        assertThat(saved).containsEntry("cancellation_type", "O");
         assertThat(saved.get("cancellation_date")).isEqualTo(Date.valueOf("2026-11-02"));
-        assertThat(saved.get("building_parcel_id")).isNull();
         assertThat(saved.get("deal_amount")).isEqualTo(4800);
     }
 

@@ -34,11 +34,11 @@ public class SaleDealRepository {
                 sql, sigunguCode, dealMonth.atDay(1), dealMonth.plusMonths(1).atDay(1));
     }
 
-    /** 행을 한 번의 배치로 삽입함. 매칭 상태는 FAILED로 둠 */
+    /** 행을 한 번의 배치로 삽입함 */
     public void insertAll(List<SaleDealRow> rows) {
         String sql = "insert into sale_deal (sigungu_code, legal_dong_name, lot_number, house_name, build_year,"
-                + " exclusive_area, floor, deal_date, deal_amount, cancellation_type, cancellation_date, match_status)"
-                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'FAILED')";
+                + " exclusive_area, floor, deal_date, deal_amount, cancellation_type, cancellation_date)"
+                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         jdbcTemplate.batchUpdate(sql, rows.stream().map(SaleDealRow::toArray).toList());
     }
 }
