@@ -5,19 +5,17 @@ export interface HomeScreenStyle {
 	grid: GridProps;
 	bodyCell: GridItemProps;
 	body: VStackProps;
-	asideCell: GridItemProps;
 }
 
 export const homeScreenStyles: HomeScreenStyle = {
 	main: { flexGrow: 1 },
 	grid: {
 		flexGrow: 1,
-		columns: { base: 1, lg: "minmax(0, 1fr) 380px" },
+		columns: 1,
 		gap: { base: 0, lg: "x6" },
 		pt: { base: 0, lg: "x8" },
 		pb: { base: 0, lg: "x6" },
 	},
 	bodyCell: { display: "flex", flexDirection: "column" },
 	body: { flexGrow: 1, gap: { base: 0, lg: "x5" } },
-	asideCell: { display: { base: "none", lg: "flex" }, flexDirection: "column" },
 };

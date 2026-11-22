@@ -12,4 +12,5 @@ export const siteMetadata = {
 	locale: "ko_KR",
 	twitterCard: "summary_large_image",
 	titleTemplate: `%s | ${name}`,
+	themeColor: "#217CF9",
 } as const;

@@ -17,7 +17,7 @@ interface NearbyDealsFilterProps {
 /**
  * 주변 거래 필터 > 필터 상자
  *
- * - 반경, 기간, 유형 그룹 순서로 출력
+ * - 기간, 유형 그룹 순서로 출력
  * - 그룹 뒤에 자식을 마지막 줄로 출력
  * - 그룹을 가로로 출력하고 넘치면 줄바꿈
  * - 데스크톱은 배경 상자 안에 출력
@@ -35,15 +35,6 @@ export default function NearbyDealsFilter({
 
 	return (
 		<Box data-area={`nearby-filter-${layout}`} {...style.container}>
-			<NearbyDealsFilterGroup
-				layout={layout}
-				buildingId={buildingId}
-				condition={condition}
-				name="radius"
-				label={groups.radius}
-				options={nearbyDealsOptions.radii}
-				optionLabels={optionLabels.radius}
-			/>
 			<NearbyDealsFilterGroup
 				layout={layout}
 				buildingId={buildingId}

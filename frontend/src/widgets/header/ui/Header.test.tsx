@@ -78,24 +78,9 @@ describe("Header", () => {
 		expect(style).toContain("--seed-box-top: 0");
 	});
 
-	it("currentPath가 없으면 데스크톱 헤더에 로그인 링크를 표시하지 않음", () => {
-		render(<Header session={null} />);
-
-		expect(screen.queryByRole("link", { name: "로그인" })).toBeNull();
-	});
-
-	it("currentPath가 있으면 데스크톱 헤더에만 로그인 링크를 표시함", () => {
+	it("currentPath가 있어도 데스크톱 헤더에 로그인 링크를 표시하지 않음", () => {
 		render(<Header session={null} currentPath="/" />);
 
-		expect(
-			within(screen.getByTestId("header-desktop")).getAllByRole("link", {
-				name: "로그인",
-			}),
-		).toHaveLength(1);
-		expect(
-			within(screen.getByTestId("header-mobile")).queryByRole("link", {
-				name: "로그인",
-			}),
-		).toBeNull();
+		expect(screen.queryByRole("link", { name: "로그인" })).toBeNull();
 	});
 });

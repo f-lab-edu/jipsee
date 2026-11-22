@@ -1,6 +1,7 @@
 import { Box, Flex, Text, VStack } from "@seed-design/react";
 import SearchForm from "@/features/searchBuildings/ui/SearchForm";
 import { introBandStyles } from "@/pages/home/config/introBandStyles";
+import { introHeadingStyles } from "@/pages/home/config/introHeadingStyles";
 import { introLayoutStyles } from "@/pages/home/config/introLayoutStyles";
 import IntroIllustrationDesktop from "@/pages/home/ui/IntroIllustrationDesktop";
 import IntroIllustrationMobile from "@/pages/home/ui/IntroIllustrationMobile";
@@ -11,12 +12,14 @@ import ResponsiveLayout from "@/shared/ui/ResponsiveLayout";
  * 홈 > 소개 영역
  *
  * - 표시 여부는 판단하지 않고 호출되면 항상 출력
+ * - 제목 블록(h1과 설명)은 모바일과 데스크톱이 같은 요소를 쓰고 글자 크기만 반응형으로 바꿈
  * - 모바일은 제목 블록 오른쪽에 작은 일러스트, 데스크톱은 제목 오른쪽에 큰 일러스트 출력
  * - 검색창과 칩은 일러스트 아래까지 행 전체 폭 사용
  * - 검색창은 하나만 출력
  */
 export default function IntroBand() {
 	const style = introBandStyles;
+	const heading = introHeadingStyles;
 	const mobileStyle = introLayoutStyles.mobile;
 	const desktopStyle = introLayoutStyles.desktop;
 
@@ -28,45 +31,25 @@ export default function IntroBand() {
 				desktop={<Box {...desktopStyle.background} />}
 			/>
 			<VStack {...style.content}>
-				<Flex data-area="intro-heading" {...style.headingRow}>
-					<VStack {...style.headingColumn}>
-						<ResponsiveLayout
-							testId="intro-title"
-							mobile={
-								<Flex {...mobileStyle.titleRow}>
-									<VStack {...mobileStyle.titleBlock}>
-										<Text as="h1" {...mobileStyle.title}>
-											{introCopy.titleFirstLine} <br />
-											{introCopy.titleSecondLine}
-										</Text>
-										<Text as="p" {...mobileStyle.description}>
-											{introCopy.description}
-										</Text>
-									</VStack>
-									<Flex
-										data-area="intro-illustration-mobile"
-										{...mobileStyle.illustrationCell}
-									>
-										<IntroIllustrationMobile />
-									</Flex>
-								</Flex>
-							}
-							desktop={
-								<VStack {...desktopStyle.titleBlock}>
-									<Text as="h1" {...desktopStyle.title}>
-										{introCopy.titleFirstLine} <br />
-										{introCopy.titleSecondLine}
-									</Text>
-									<Text as="p" {...desktopStyle.description}>
-										{introCopy.description}
-									</Text>
-								</VStack>
-							}
-						/>
+				<Flex data-area="intro-heading" {...heading.row}>
+					<VStack {...heading.titleBlock}>
+						<Text as="h1" {...heading.title}>
+							{introCopy.titleFirstLine} <br />
+							{introCopy.titleSecondLine}
+						</Text>
+						<Text as="p" {...heading.description}>
+							{introCopy.description}
+						</Text>
 					</VStack>
 					<Flex
+						data-area="intro-illustration-mobile"
+						{...heading.mobileIllustrationCell}
+					>
+						<IntroIllustrationMobile />
+					</Flex>
+					<Flex
 						data-area="intro-illustration-desktop"
-						{...style.desktopIllustrationCell}
+						{...heading.desktopIllustrationCell}
 					>
 						<IntroIllustrationDesktop />
 					</Flex>

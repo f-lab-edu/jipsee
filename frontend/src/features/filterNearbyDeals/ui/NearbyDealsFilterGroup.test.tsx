@@ -17,48 +17,47 @@ vi.stubGlobal(
 	},
 );
 
-function renderRadiusGroup() {
+function renderPeriodGroup() {
 	render(
 		<NearbyDealsFilterGroup
 			layout="mobile"
 			buildingId={1}
-			condition={{ radius: 500, period: 12, type: "jeonse" }}
-			name="radius"
-			label="반경"
-			options={nearbyDealsOptions.radii}
-			optionLabels={nearbyFilterLabels.options.radius}
+			condition={{ period: 12, type: "jeonse" }}
+			name="period"
+			label="기간"
+			options={nearbyDealsOptions.periods}
+			optionLabels={nearbyFilterLabels.options.period}
 		/>,
 	);
 }
 
 describe("NearbyDealsFilterGroup", () => {
 	it("현재 조건 값을 선택 상자에 보여 줌", () => {
-		renderRadiusGroup();
+		renderPeriodGroup();
 
 		expect(
-			screen.getByRole("combobox", { name: "반경" }).textContent,
-		).toContain("500m");
+			screen.getByRole("combobox", { name: "기간" }).textContent,
+		).toContain("12개월");
 	});
 
 	it("다른 값을 고르면 바뀐 조건의 주소로 스크롤 없이 이동함", () => {
 		push.mockClear();
-		renderRadiusGroup();
+		renderPeriodGroup();
 
-		fireEvent.click(screen.getByRole("combobox", { name: "반경" }));
-		fireEvent.click(screen.getByRole("option", { name: "1km" }));
+		fireEvent.click(screen.getByRole("combobox", { name: "기간" }));
+		fireEvent.click(screen.getByRole("option", { name: "24개월" }));
 
-		expect(push).toHaveBeenCalledWith(
-			"/buildings/1?radius=1000&period=12&type=jeonse",
-			{ scroll: false },
-		);
+		expect(push).toHaveBeenCalledWith("/buildings/1?period=24&type=jeonse", {
+			scroll: false,
+		});
 	});
 
 	it("현재 값을 다시 고르면 이동하지 않음", () => {
 		push.mockClear();
-		renderRadiusGroup();
+		renderPeriodGroup();
 
-		fireEvent.click(screen.getByRole("combobox", { name: "반경" }));
-		fireEvent.click(screen.getByRole("option", { name: "500m" }));
+		fireEvent.click(screen.getByRole("combobox", { name: "기간" }));
+		fireEvent.click(screen.getByRole("option", { name: "12개월" }));
 
 		expect(push).not.toHaveBeenCalled();
 	});

@@ -2,12 +2,14 @@
 // 검색어가 비었거나 공백뿐이면 폼이 제출되지 않음. 제목은 "{화면 제목} | 집씨" 템플릿이고 홈은 "집씨"임.
 import { expect } from "@playwright/test";
 import { caseId } from "./support/caseId";
+import { expectSingleHeading } from "./support/expectSingleHeading";
 import { gotoAndSettle } from "./support/gotoAndSettle";
 import { readHead } from "./support/readHead";
 import { readPngSize } from "./support/readPngSize";
 import {
 	BARE,
 	FULL,
+	HOME_TITLE,
 	KEYWORD,
 	NO_NAME,
 	NO_RESULT_KEYWORD,
@@ -227,7 +229,240 @@ test.describe(`모바일 ${MOBILE.width}x${MOBILE.height} light 아이콘`, () =
 				.toEqual({ width: 1200, height: 630 });
 		}
 	});
+
+	test(`${caseId("M1", 5)} 홈에 매니페스트 링크가 있고 이름, 시작 경로, 표시 방식, 색, 언어가 정해진 값으로 200 열림`, async ({
+		page,
+	}) => {
+		await gotoAndSettle(page, "/");
+		const head = await readHead(page);
+		expect(head.manifest?.href, "manifest 링크가 있음").toBeTruthy();
+		const response = await page.request.get(head.manifest?.href ?? "");
+		expect.soft(response.status(), "manifest status").toBe(200);
+		const body = await response.json();
+		expect.soft(body.name, "name").toBe(SITE_NAME);
+		expect.soft(body.short_name, "short_name").toBe(SITE_NAME);
+		expect.soft(body.description, "description").toBe(SITE_DESCRIPTION);
+		expect.soft(body.start_url, "start_url").toBe("/");
+		expect.soft(body.display, "display").toBe("standalone");
+		expect.soft(body.background_color, "background_color").toBe("#ffffff");
+		expect.soft(body.theme_color, "theme_color").toBe("#217CF9");
+		expect.soft(body.lang, "lang").toBe("ko");
+		expect
+			.soft(
+				body.icons.map(
+					(icon: { sizes: string; purpose: string }) =>
+						`${icon.sizes} ${icon.purpose}`,
+				),
+				"icons",
+			)
+			.toEqual(["192x192 any", "512x512 any", "512x512 maskable"]);
+	});
+
+	test(`${caseId("M1", 6)} 매니페스트의 아이콘 세 개가 각자 크기의 png로 200 열림`, async ({
+		page,
+	}) => {
+		await gotoAndSettle(page, "/");
+		const head = await readHead(page);
+		const manifest = await (
+			await page.request.get(head.manifest?.href ?? "")
+		).json();
+		expect(manifest.icons, "아이콘 수").toHaveLength(3);
+		for (const icon of manifest.icons as { src: string; sizes: string }[]) {
+			const response = await page.request.get(icon.src);
+			expect.soft(response.status(), `${icon.src} status`).toBe(200);
+			expect
+				.soft(response.headers()["content-type"], `${icon.src} content-type`)
+				.toBe("image/png");
+			const size = Number(icon.sizes.split("x")[0]);
+			expect
+				.soft(readPngSize(await response.body()), `${icon.src} 크기`)
+				.toEqual({ width: size, height: size });
+		}
+	});
+
+	test(`${caseId("M1", 8)} 홈의 대표 주소와 og:url은 사이트 주소이고 각각 하나뿐임`, async ({
+		page,
+		baseURL,
+	}) => {
+		await gotoAndSettle(page, "/");
+		const head = await readHead(page);
+		// Next가 홈 주소는 끝의 /를 빼고 내보냄
+		expect.soft(head.canonical, "canonical").toBe(baseURL);
+		expect.soft(head.canonicalCount, "canonical 개수").toBe(1);
+		expect.soft(head.ogUrl, "og:url").toBe(baseURL);
+		expect.soft(head.ogUrlCount, "og:url 개수").toBe(1);
+	});
+
+	test(`${caseId("M1", 9)} 검색 결과에는 대표 주소가 없고 og:url은 검색어를 넣은 절대 주소임(공백이 붙은 검색어는 다듬어서 넣음)`, async ({
+		page,
+		baseURL,
+	}) => {
+		const encoded = encodeURIComponent(KEYWORD);
+		for (const query of [encoded, `%20${encoded}%20`]) {
+			await gotoAndSettle(page, `/search?keyword=${query}`);
+			const head = await readHead(page);
+			expect.soft(head.canonicalCount, `${query} canonical 개수`).toBe(0);
+			expect
+				.soft(head.ogUrl, `${query} og:url`)
+				.toBe(`${baseURL}/search?keyword=${encoded}`);
+			expect.soft(head.ogUrlCount, `${query} og:url 개수`).toBe(1);
+		}
+	});
+
+	test(`${caseId("M1", 10)} 검색 결과의 robots 메타 태그는 하나이고 noindex, follow이며 홈에는 없음`, async ({
+		page,
+	}) => {
+		await gotoAndSettle(page, `/search?keyword=${encodeURIComponent(KEYWORD)}`);
+		const search = await readHead(page);
+		expect.soft(search.robots, "검색 결과 robots").toBe("noindex, follow");
+		expect.soft(search.robotsCount, "검색 결과 robots 개수").toBe(1);
+
+		await gotoAndSettle(page, "/");
+		const home = await readHead(page);
+		expect.soft(home.robotsCount, "홈 robots 개수").toBe(0);
+	});
+
+	test(`${caseId("M1", 11)} robots.txt는 200 text/plain이고 모든 크롤러와 AI 크롤러 네 개 허용과 사이트맵 절대 주소뿐임`, async ({
+		page,
+		baseURL,
+	}) => {
+		const response = await page.request.get("/robots.txt");
+		expect.soft(response.status(), "status").toBe(200);
+		expect
+			.soft(response.headers()["content-type"], "content-type")
+			.toContain("text/plain");
+		expect
+			.soft((await response.text()).trim().split("\n"), "줄")
+			.toEqual([
+				"User-Agent: *",
+				"Allow: /",
+				"",
+				"User-Agent: GPTBot",
+				"User-Agent: ClaudeBot",
+				"User-Agent: Google-Extended",
+				"User-Agent: PerplexityBot",
+				"Allow: /",
+				"",
+				`Sitemap: ${baseURL}/sitemap.xml`,
+			]);
+	});
+
+	test(`${caseId("M1", 12)} sitemap.xml은 200 xml이고 홈과 데이터 출처의 절대 주소만 있음`, async ({
+		page,
+		baseURL,
+	}) => {
+		const response = await page.request.get("/sitemap.xml");
+		expect.soft(response.status(), "status").toBe(200);
+		expect
+			.soft(response.headers()["content-type"], "content-type")
+			.toContain("xml");
+		const body = await response.text();
+		expect
+			.soft(
+				[...body.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]),
+				"loc",
+			)
+			.toEqual([`${baseURL}/`, `${baseURL}/policies/data-sources`]);
+		expect
+			.soft(body, "수정일, 갱신 주기, 우선순위 없음")
+			.not.toMatch(/lastmod|changefreq|priority/);
+	});
+
+	test(`${caseId("M1", 13)} 홈에는 ld+json script가 하나이고 WebSite와 SearchAction 값이 정해진 대로이며 다른 페이지에는 없음`, async ({
+		page,
+		baseURL,
+	}) => {
+		const readJsonLd = () =>
+			page.evaluate(() =>
+				[
+					...document.querySelectorAll('script[type="application/ld+json"]'),
+				].map((script) => script.textContent ?? ""),
+			);
+
+		await gotoAndSettle(page, "/");
+		const home = await readJsonLd();
+		expect.soft(home, "홈 ld+json 개수").toHaveLength(1);
+		expect.soft(JSON.parse(home[0] ?? "null"), "홈 ld+json").toEqual({
+			"@context": "https://schema.org",
+			"@type": "WebSite",
+			name: SITE_NAME,
+			url: `${baseURL}/`,
+			description: SITE_DESCRIPTION,
+			inLanguage: "ko",
+			potentialAction: {
+				"@type": "SearchAction",
+				target: {
+					"@type": "EntryPoint",
+					urlTemplate: `${baseURL}/search?keyword={search_term_string}`,
+				},
+				"query-input": "required name=search_term_string",
+			},
+		});
+
+		for (const path of [
+			SEARCH_PATH,
+			"/buildings/1",
+			"/policies/data-sources",
+		]) {
+			await gotoAndSettle(page, path);
+			expect.soft(await readJsonLd(), `${path} ld+json`).toEqual([]);
+		}
+	});
+
+	test(`${caseId("M1", 14)} llms.txt는 200 text/plain이고 이름, 설명, 홈과 데이터 출처의 절대 주소 링크뿐임`, async ({
+		page,
+		baseURL,
+	}) => {
+		const response = await page.request.get("/llms.txt");
+		expect.soft(response.status(), "status").toBe(200);
+		expect
+			.soft(response.headers()["content-type"], "content-type")
+			.toBe("text/plain; charset=utf-8");
+		expect
+			.soft(await response.text(), "본문")
+			.toBe(
+				[
+					`# ${SITE_NAME}`,
+					"",
+					`> ${SITE_DESCRIPTION}`,
+					"",
+					"## 페이지",
+					"",
+					`- [${SITE_NAME}](${baseURL}/)`,
+					`- [데이터 출처](${baseURL}/policies/data-sources)`,
+					"",
+				].join("\n"),
+			);
+	});
+
+	test(`${caseId("M1", 7)} 홈과 검색 결과에 theme-color 메타 태그가 #217CF9로 있음`, async ({
+		page,
+	}) => {
+		for (const path of ["/", SEARCH_PATH]) {
+			await gotoAndSettle(page, path);
+			const head = await readHead(page);
+			expect.soft(head.theme, `${path} theme-color`).toBe("#217CF9");
+		}
+	});
 });
+
+// M1-15 h1은 모바일과 데스크톱 레이아웃을 모두 그려도 DOM과 서버 HTML에 하나뿐임
+// 모바일 검색 결과는 검색창이 헤더에 있어 설계상 제목 줄이 숨겨지므로 보임과 접근성 트리 확인을 건너뜀
+for (const { label, viewport, layout } of SCREENS) {
+	test.describe(`${label} ${viewport.width}x${viewport.height} light h1`, () => {
+		test.use({ viewport, colorScheme: "light" });
+
+		for (const path of ["/", SEARCH_PATH]) {
+			test(`${caseId("M1", 15)} ${label} ${path}의 h1은 DOM과 서버 HTML에 하나뿐이고 글자는 ${HOME_TITLE}임`, async ({
+				page,
+			}) => {
+				await expectSingleHeading(page, path, HOME_TITLE, {
+					checksVisible: path === "/" || layout === "desktop",
+				});
+			});
+		}
+	});
+}
 
 // 검색 결과 더 보기와 주소 두 줄. 기대값은 2026-11-14 오류와 페이지 나눔 설계 5절, 6절과 캔버스 보드 S1P*에서 가져옴
 // 목업은 "망원동"에 48건(번호 1~48)이 걸려 20건, 20건, 8건으로 나뉨. 번호 35는 건물명과 도로명 주소가 모두 없음

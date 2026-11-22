@@ -1,4 +1,6 @@
+import { notFound } from "next/navigation";
 import { getSession } from "@/entities/session/api/getSession";
+import { phase2RoutesEnabled } from "@/shared/config/phase2Routes";
 import PageColumn from "@/shared/ui/PageColumn";
 import BottomNav from "@/widgets/bottomNav/ui/BottomNav";
 import Footer from "@/widgets/footer/ui/Footer";
@@ -6,11 +8,16 @@ import Footer from "@/widgets/footer/ui/Footer";
 /**
  * 집사 > 레이아웃
  *
+ * - phase2RoutesEnabled가 false이면 하위 경로 전체를 404로 처리
  * - 페이지 내용 아래에 푸터 출력
  * - 모바일 질문 입력 바가 푸터 위에 놓이도록 질문 입력 바를 내용 안에 배치
  * - 1280 미만에서 열은 흰색이고, 열의 마지막 자식으로 하단 내비게이션 출력
  */
 export default async function ChatLayout({ children }: LayoutProps<"/">) {
+	if (!phase2RoutesEnabled) {
+		notFound();
+	}
+
 	const session = await getSession();
 
 	return (

@@ -11,6 +11,8 @@ import { paths } from "@/shared/routes/paths";
  * 검색 > 메타데이터
  *
  * - keyword 쿼리를 검색어로 변환해 제목 생성
+ * - og:url은 검색어를 넣은 경로이고 검색 결과는 색인하지 않으므로 대표 주소는 지정하지 않음
+ * - 검색 결과는 색인하지 않고(noindex) 링크는 따라감(follow)
  */
 export async function generateMetadata(
 	{ searchParams }: PageProps<"/search">,
@@ -18,7 +20,16 @@ export async function generateMetadata(
 ): Promise<Metadata> {
 	const { keyword } = await searchParams;
 
-	return toPageMetadata(toSearchTitle(toKeyword(keyword)), parent);
+	const searchKeyword = toKeyword(keyword);
+
+	const metadata = await toPageMetadata(
+		toSearchTitle(searchKeyword),
+		parent,
+		paths.searchWithKeyword(searchKeyword),
+		{ canonical: false },
+	);
+
+	return { ...metadata, robots: { index: false, follow: true } };
 }
 
 /**

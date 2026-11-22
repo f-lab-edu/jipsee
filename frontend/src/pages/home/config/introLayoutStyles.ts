@@ -1,19 +1,9 @@
-import type {
-	BoxProps,
-	FlexProps,
-	TextProps,
-	VStackProps,
-} from "@seed-design/react";
+import type { BoxProps, FlexProps, TextProps } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
 
 export interface IntroLayoutStyle {
 	background: BoxProps;
-	titleRow?: FlexProps;
-	titleBlock: VStackProps;
-	illustrationCell?: FlexProps;
-	title: TextProps;
-	description: TextProps;
 	chips: FlexProps;
 	chip: BoxProps;
 	chipLabel: TextProps;
@@ -29,19 +19,6 @@ export const introLayoutStyles = defineResponsiveStyles<IntroLayoutStyle>({
 			left: 0,
 			bg: "bg.layerDefault",
 		},
-		titleRow: {
-			alignItems: "flex-end",
-			justifyContent: "space-between",
-			gap: "x4",
-		},
-		titleBlock: { gap: "x2" },
-		illustrationCell: { shrink: 0 },
-		title: {
-			...typography.size24,
-			fontWeight: "bold",
-			color: "fg.neutral",
-		},
-		description: { ...typography.size14, color: "fg.neutralMuted" },
 		chips: { wrap: "wrap", gap: "x1_5" },
 		chip: {
 			display: "flex",
@@ -63,17 +40,6 @@ export const introLayoutStyles = defineResponsiveStyles<IntroLayoutStyle>({
 			borderWidth: 1,
 			borderColor: "stroke.neutralMuted",
 			borderRadius: "r5",
-		},
-		titleBlock: { gap: "x2_5" },
-		title: {
-			...typography.size34,
-			fontWeight: "bold",
-			color: "fg.neutral",
-			className: "tight-letter-spacing",
-		},
-		description: {
-			...typography.size16LineHeight24,
-			color: "fg.neutralMuted",
 		},
 		chips: { wrap: "wrap", gap: "x2" },
 		chip: {

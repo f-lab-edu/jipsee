@@ -280,6 +280,10 @@ export const nearbyDealsMock: Partial<
 		areaConditionApplied: false,
 		deals: { jeonse: fewJeonseDeals, wolse: wolseDeals.slice(0, 1) },
 	},
+	4: {
+		areaConditionApplied: true,
+		deals: { jeonse: [], wolse: [] },
+	},
 	5: {
 		areaConditionApplied: true,
 		deals: { jeonse: jeonseDeals, wolse: wolseDeals },

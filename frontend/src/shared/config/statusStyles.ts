@@ -6,6 +6,7 @@ import type {
 } from "@seed-design/react";
 import { typography } from "@/shared/config/typography";
 import { defineResponsiveStyles } from "@/shared/lib/defineResponsiveStyles";
+import { toResponsiveTypography } from "@/shared/lib/responsiveTypography/toResponsiveTypography";
 
 export interface StatusStyle {
 	body: VStackProps;
@@ -108,3 +109,44 @@ export const statusStyles = defineResponsiveStyles<StatusStyle>({
 		},
 	},
 });
+
+const titleTypography = toResponsiveTypography(
+	typography.size20,
+	typography.size22,
+);
+const descriptionTypography = toResponsiveTypography(
+	typography.size14,
+	typography.size15,
+);
+
+// 상태 화면은 모바일과 데스크톱이 같은 요소를 쓰고 값만 반응형으로 바꿈(h1 하나). 카드의 배경, 테두리, 모서리는 반응형 값을 받지 않아 theme.css의 .status-card가 1280 이상에서 그리고, 아이콘 크기(32, 36)는 .status-circle이 변수로 정함
+export const statusPanelStyles: StatusStyle = {
+	...shared,
+	body: {
+		flexGrow: 1,
+		alignItems: "center",
+		justifyContent: "center",
+		px: { base: "spacingX.globalGutter", lg: "x6" },
+		py: { base: "x6", lg: "x10" },
+	},
+	card: {
+		width: { base: "full", lg: "398px" },
+		px: { base: 0, lg: "x10" },
+		py: { base: 0, lg: "56px" },
+		className: "status-card",
+	},
+	circle: {
+		...circleShared,
+		width: { base: "72px", lg: "80px" },
+		height: { base: "72px", lg: "80px" },
+		className: "status-circle",
+	},
+	icon: { color: "fg.neutralMuted" },
+	description: { ...descriptionTypography, ...descriptionColor },
+	title: {
+		...titleTypography,
+		fontWeight: "bold",
+		align: "center",
+		color: "fg.neutral",
+	},
+};

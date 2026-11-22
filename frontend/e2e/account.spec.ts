@@ -8,6 +8,7 @@ import { TOKENS } from "./support/buildingDetail/tokens";
 import { caseId } from "./support/caseId";
 import { isDimmedAt } from "./support/dialog/isDimmedAt";
 import { gotoAndSettle } from "./support/gotoAndSettle";
+import { PHASE2_OFF, PHASE2_SKIP_REASON } from "./support/phase2Routes";
 import {
 	STUB_DELETED_SESSION,
 	STUB_ON,
@@ -18,41 +19,36 @@ import { test } from "./support/test";
 import { BOTTOM_NAV_HEIGHT, DESKTOP, MOBILE } from "./support/viewports";
 import { waitForAnimations } from "./support/waitForAnimations";
 
+test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
+
 const SCREENS = [
 	{ label: "모바일", viewport: MOBILE },
 	{ label: "데스크톱", viewport: DESKTOP },
 ];
 
-// 커밋 1: 로그인 링크에 돌아갈 경로 붙이기 (A1)
-// 쿼리 값을 인코딩한 `next`가 한 번만 인코딩된 채 붙어야 함. 검색어 `노원&x`는 검색 경로에서 한 번, `next`로 넘길 때 한 번 인코딩됨
+// 커밋 1: 1단계는 로그인 진입점이 없음 (A1)
+// 헤더에는 모든 화면에서 로그인 링크가 없음. 하단 내비게이션 셋째 탭은 헤더 밖이라 헤더 안에서만 확인함
+// href는 1단계에서 헤더가 쓰지 않고, 로그인 이후 TC가 검색 결과 케이스의 값을 가져다 씀
 const HEADER_LOGIN_CASES = [
-	{
-		what: "홈",
-		path: "/",
-		href: "/login?next=%2F",
-	},
+	{ what: "홈", path: "/", href: "/login?next=%2F" },
 	{
 		what: "검색 결과(검색어 노원&x)",
 		path: "/search?keyword=%EB%85%B8%EC%9B%90%26x",
 		href: "/login?next=%2Fsearch%3Fkeyword%3D%25EB%2585%25B8%25EC%259B%2590%2526x",
 	},
 	{
-		what: "건물 상세(반경 300, 기간 12, 전세)",
-		path: "/buildings/3?radius=300&period=12&type=jeonse",
-		href: "/login?next=%2Fbuildings%2F3%3Fradius%3D300%26period%3D12%26type%3Djeonse",
+		what: "건물 상세(기간 12, 전세)",
+		path: "/buildings/3?period=12&type=jeonse",
+		href: "/login?next=%2Fbuildings%2F3%3Fperiod%3D12%26type%3Djeonse",
 	},
 	{
-		what: "건물 상세(조건이 기본값과 다른 반경 1000, 기간 24, 월세)",
-		path: "/buildings/3?radius=1000&period=24&type=wolse",
-		href: "/login?next=%2Fbuildings%2F3%3Fradius%3D1000%26period%3D24%26type%3Dwolse",
+		what: "건물 상세(조건이 기본값과 다른 기간 24, 월세)",
+		path: "/buildings/3?period=24&type=wolse",
+		href: "/login?next=%2Fbuildings%2F3%3Fperiod%3D24%26type%3Dwolse",
 	},
 ];
 
-const CHAT_LOGIN_HREF = "/login?next=%2Fchat";
-const ASK_LOGIN_HREF = "/login?next=%2Fchat%3FbuildingId%3D3";
-
 for (const { label, viewport } of SCREENS) {
-	const isMobile = viewport === MOBILE;
 	test.describe(`${label} ${viewport.width}x${viewport.height} light`, () => {
 		test.use({ viewport, colorScheme: "light" });
 		test.skip(
@@ -60,43 +56,18 @@ for (const { label, viewport } of SCREENS) {
 			"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
 		);
 
-		for (const [index, { what, path, href }] of HEADER_LOGIN_CASES.entries()) {
-			test(`${caseId("A1", index + 1)} ${label} ${what} 헤더 로그인 링크가 ${isMobile ? "없음(하단 내비게이션 내 정보 탭이 대신함)" : href}임`, async ({
+		for (const [index, { what, path }] of HEADER_LOGIN_CASES.entries()) {
+			test(`${caseId("A1", index + 1)} ${label} ${what} 헤더에 로그인 링크가 없음`, async ({
 				page,
 			}) => {
 				await gotoAndSettle(page, path);
-				if (isMobile) {
-					// 하단 내비게이션 셋째 탭 이름이 로그인이라 헤더 안에서만 확인함
-					await expect(
-						page
-							.getByTestId("header-mobile")
-							.getByRole("link", { name: "로그인", exact: true }),
-					).toHaveCount(0);
-					return;
-				}
 				await expect(
-					page.getByRole("link", { name: "로그인", exact: true }),
-				).toHaveAttribute("href", href);
+					page
+						.locator("header")
+						.getByRole("link", { name: "로그인", exact: true }),
+				).toHaveCount(0);
 			});
 		}
-
-		test(`${caseId("A1", HEADER_LOGIN_CASES.length + 1)} ${label} 홈 챗봇 패널의 로그인하고 이용하기 링크가 ${CHAT_LOGIN_HREF}임`, async ({
-			page,
-		}) => {
-			await gotoAndSettle(page, "/");
-			await expect(
-				page.getByRole("link", { name: "로그인하고 이용하기" }),
-			).toHaveAttribute("href", CHAT_LOGIN_HREF);
-		});
-
-		test(`${caseId("A1", HEADER_LOGIN_CASES.length + 2)} ${label} 건물 상세 질문하기 링크가 ${ASK_LOGIN_HREF}임`, async ({
-			page,
-		}) => {
-			await gotoAndSettle(page, "/buildings/3");
-			await expect(
-				page.getByRole("link", { name: /이 건물에 대해 질문하기/ }),
-			).toHaveAttribute("href", ASK_LOGIN_HREF);
-		});
 	});
 }
 
@@ -906,16 +877,21 @@ for (const { label, viewport } of SCREENS) {
 			});
 
 			if (theme === "light") {
-				test(`${caseId("A5", 5)} ${label} 내 정보 링크(데스크톱은 헤더, 모바일은 하단 내비게이션 탭)에 aria-current=page가 있고 /me로 감`, async ({
+				test(`${caseId("A5", 5)} ${label} 내 정보 링크(모바일은 하단 내비게이션 탭, 데스크톱은 없음)${isMobile ? "에 aria-current=page가 있고 /me로 감" : "가 헤더에 없음"}`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, "/me");
+					if (!isMobile) {
+						// 1단계는 데스크톱 헤더에 계정 링크가 없음
+						await expect(
+							page
+								.getByTestId("header-desktop")
+								.getByRole("link", { name: ME_TEXT.title }),
+						).toHaveCount(0);
+						return;
+					}
 					// 모바일 헤더에는 계정 링크가 없고 하단 내비게이션 내 정보 탭이 대신함(2026-11-12 결정 3)
-					const link = isMobile
-						? page.locator('[data-area="bottom-nav-me"]')
-						: page
-								.getByTestId(`header-${layout}`)
-								.getByRole("link", { name: ME_TEXT.title });
+					const link = page.locator('[data-area="bottom-nav-me"]');
 					await expect(link).toHaveAttribute("aria-current", "page");
 					await expect(link).toHaveAttribute("href", "/me");
 				});
