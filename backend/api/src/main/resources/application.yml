@@ -1,0 +1,26 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  config:
+    import: classpath:jipsee-core.yml
+  profiles:
+    default: local
+
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    tags:
+      application: jipsee
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  endpoint:
+    health:
+      show-details: never

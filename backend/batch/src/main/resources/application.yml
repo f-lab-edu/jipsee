@@ -1,0 +1,22 @@
+spring:
+  config:
+    import: classpath:jipsee-core.yml
+  profiles:
+    default: local
+  main:
+    web-application-type: none
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
+
+jipsee:
+  public-data:
+    api:
+      base-url: https://apis.data.go.kr/1613000
+      service-key: ${DATA_GO_KR_KEY}
+  batch:
+    deal:
+      # 값을 바꾸면 초기 적재를 처음부터 다시 실행함
+      initial-load-end-month: 2026-10

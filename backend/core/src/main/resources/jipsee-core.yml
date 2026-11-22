@@ -1,0 +1,12 @@
+spring:
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    hikari:
+      data-source-properties:
+        rewriteBatchedStatements: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate

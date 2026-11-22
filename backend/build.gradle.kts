@@ -1,52 +1,49 @@
 plugins {
-    java
-    id("org.springframework.boot") version "4.1.1"
-    id("io.spring.dependency-management") version "1.1.7"
-    id("com.diffplug.spotless") version "8.11.0"
+    id("org.springframework.boot") version "4.1.1" apply false
+    id("io.spring.dependency-management") version "1.1.7" apply false
+    id("com.diffplug.spotless") version "8.11.0" apply false
 }
 
-group = "kr.jipsee"
-version = "0.0.1"
+subprojects {
+    apply(plugin = "java")
+    apply(plugin = "io.spring.dependency-management")
+    apply(plugin = "com.diffplug.spotless")
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
+    group = "kr.jipsee"
+    version = "0.0.1"
+
+    extensions.configure<JavaPluginExtension> {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
     }
-}
 
-repositories {
-    mavenCentral()
-}
+    repositories {
+        mavenCentral()
+    }
 
-dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-webmvc")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-batch-jdbc")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
-    runtimeOnly("com.mysql:mysql-connector-j")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-batch-jdbc-test")
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
-    testImplementation("org.testcontainers:testcontainers-mysql")
-    testImplementation("org.springframework.boot:spring-boot-starter-flyway")
-    testRuntimeOnly("org.flywaydb:flyway-mysql")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
+    extensions.configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
+        imports {
+            mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+        }
+    }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-    jvmArgs("-Duser.timezone=Asia/Seoul")
-}
+    extensions.configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+        java {
+            palantirJavaFormat("2.103.0")
+        }
+    }
 
-spotless {
-    java {
-        palantirJavaFormat("2.103.0")
+    dependencies {
+        "compileOnly"("org.projectlombok:lombok")
+        "annotationProcessor"("org.projectlombok:lombok")
+        "testImplementation"("org.springframework.boot:spring-boot-starter-test")
+        "testRuntimeOnly"("org.junit.platform:junit-platform-launcher")
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
+        jvmArgs("-Duser.timezone=Asia/Seoul")
+        environment("SCHEMA_DIR", System.getenv("SCHEMA_DIR")?.let { rootProject.file(it).absolutePath } ?: rootProject.file("schema").absolutePath)
     }
 }

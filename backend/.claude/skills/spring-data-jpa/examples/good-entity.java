@@ -1,8 +1,8 @@
 // ✅ GOOD — Long IDENTITY id, STRING enum with columnDefinition, LAZY fetch, BaseEntity, behavior methods, no setters
 // Lombok limited to @Getter + @NoArgsConstructor(PROTECTED); constructor and factory are hand-written
 
-import kr.jipsee.global.core.exception.BusinessException;
-import kr.jipsee.global.core.exception.ErrorCode;
+import kr.jipsee.global.exception.BusinessException;
+import kr.jipsee.global.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
