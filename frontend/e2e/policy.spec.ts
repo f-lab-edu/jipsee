@@ -14,6 +14,7 @@ import { parseColor } from "./support/buildingDetail/parseColor";
 import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
 import { caseId } from "./support/caseId";
+import { expectSingleHeading } from "./support/expectSingleHeading";
 import { gotoAndSettle } from "./support/gotoAndSettle";
 import {
 	isHiddenPolicyPath,
@@ -24,6 +25,7 @@ import {
 import { POLICY_TOKENS } from "./support/policy/policyTokens";
 import { readBox } from "./support/policy/readBox";
 import { readStyle } from "./support/policy/readStyle";
+import { readHead } from "./support/readHead";
 import { test } from "./support/test";
 import { DESKTOP, MOBILE } from "./support/viewports";
 import { waitForHydration } from "./support/waitForHydration";
@@ -107,6 +109,16 @@ for (const { label, viewport, layout } of SCREENS) {
 			// 테마와 상관없는 구조, 문구, 동작 TC는 라이트 한 벌만 돌림. 색을 확인하는 P5, P6-01은 두 테마로 돌림
 			if (theme === "light") {
 				// P1 라우트와 메타데이터
+				test(`${caseId("P1", 9)} ${label} ${DATA_SOURCES.path}의 h1은 DOM과 서버 HTML에 하나뿐이고 글자는 ${DATA_SOURCES.title}임`, async ({
+					page,
+				}) => {
+					await expectSingleHeading(
+						page,
+						DATA_SOURCES.path,
+						DATA_SOURCES.title,
+					);
+				});
+
 				for (const { path, title } of ALL_PAGES) {
 					test(`${caseId("P1", 1)} ${label} ${path}는 200이고 콘솔 오류가 없음`, async ({
 						page,
@@ -167,6 +179,24 @@ for (const { label, viewport, layout } of SCREENS) {
 						page,
 					}) => {
 						expect(await gotoAndSettle(page, "/policies/unknown")).toBe(404);
+					});
+				}
+
+				if (isMobile) {
+					test(`${caseId("P1", 8)} 모바일 ${DATA_SOURCES.path}의 대표 주소와 og:url은 사이트 주소의 같은 경로이고 각각 하나뿐임`, async ({
+						page,
+						baseURL,
+					}) => {
+						await gotoAndSettle(page, DATA_SOURCES.path);
+						const head = await readHead(page);
+						expect
+							.soft(head.canonical, "canonical")
+							.toBe(`${baseURL}${DATA_SOURCES.path}`);
+						expect.soft(head.canonicalCount, "canonical 개수").toBe(1);
+						expect
+							.soft(head.ogUrl, "og:url")
+							.toBe(`${baseURL}${DATA_SOURCES.path}`);
+						expect.soft(head.ogUrlCount, "og:url 개수").toBe(1);
 					});
 				}
 

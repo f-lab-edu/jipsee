@@ -6,6 +6,7 @@ import { expect } from "@playwright/test";
 import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
 import { caseId } from "./support/caseId";
+import { expectSingleHeading } from "./support/expectSingleHeading";
 import { gotoAndSettle } from "./support/gotoAndSettle";
 import { PHASE2_OFF, PHASE2_SKIP_REASON } from "./support/phase2Routes";
 import { readBox } from "./support/policy/readBox";
@@ -64,7 +65,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				page,
 			}) => {
 				expect(await gotoAndSettle(page, path)).toBe(404);
-				const status = page.getByTestId(`status-${layout}`);
+				const status = page.getByTestId("status");
 				await expect(status.getByRole("heading", { level: 1 })).toHaveText(
 					COPY.notFoundTitle,
 				);
@@ -85,11 +86,17 @@ for (const { label, viewport, layout } of SCREENS) {
 			await gotoAndSettle(page, "/nope");
 			await expect(page.getByTestId(`header-${layout}`)).toBeVisible();
 			await expect(page.getByTestId(`footer-${layout}`)).toBeVisible();
-			if (layout === "mobile") {
+			if (layout === "mobile" && !PHASE2_OFF) {
 				const nav = page.locator('[data-area="bottom-nav"]');
 				await expect(nav).toBeVisible();
 				await expect(nav.locator("[aria-current]")).toHaveCount(0);
 			}
+		});
+
+		test(`${caseId("E1", 5)} ${label} 404 화면의 h1은 DOM과 서버 HTML에 하나뿐이고 글자는 ${COPY.notFoundTitle}임`, async ({
+			page,
+		}) => {
+			await expectSingleHeading(page, "/nope", COPY.notFoundTitle);
 		});
 
 		test(`${caseId("E1", 3)} ${label} 홈으로 가기를 누르면 홈으로 이동함`, async ({
@@ -97,7 +104,7 @@ for (const { label, viewport, layout } of SCREENS) {
 		}) => {
 			await gotoAndSettle(page, "/nope");
 			await page
-				.getByTestId(`status-${layout}`)
+				.getByTestId("status")
 				.getByRole("link", { name: COPY.home })
 				.click();
 			await expect(page).toHaveURL(/\/$/);
@@ -112,7 +119,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				page,
 			}) => {
 				await gotoAndSettle(page, "/nope");
-				const status = page.getByTestId(`status-${layout}`);
+				const status = page.getByTestId("status");
 				const circle = status
 					.locator('[data-area="status-notfound"] > div')
 					.first();
@@ -193,7 +200,7 @@ for (const { label, viewport, layout } of SCREENS) {
 			page,
 		}) => {
 			await gotoAndSettle(page, "/buildings/1");
-			const status = page.getByTestId(`status-${layout}`);
+			const status = page.getByTestId("status");
 			await expect(status.getByRole("heading", { level: 1 })).toHaveText(
 				COPY.errorTitle,
 			);
@@ -212,7 +219,7 @@ for (const { label, viewport, layout } of SCREENS) {
 		}) => {
 			await gotoAndSettle(page, "/buildings/1");
 			const retry = page
-				.getByTestId(`status-${layout}`)
+				.getByTestId("status")
 				.getByRole("button", { name: COPY.retry });
 			await retry.click();
 			await waitForQuiet(page);
@@ -338,7 +345,7 @@ test.describe("기본 상태에서는 실패 안내가 없음", () => {
 		await expect(
 			page.getByTestId("partial-status-mobile").getByRole("alert"),
 		).toHaveCount(0);
-		await expect(page.getByTestId("status-mobile")).toHaveCount(0);
+		await expect(page.getByTestId("status")).toHaveCount(0);
 	});
 });
 

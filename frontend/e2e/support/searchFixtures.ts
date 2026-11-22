@@ -9,6 +9,8 @@ export const SITE_NAME = "집씨";
 export const SITE_DESCRIPTION =
 	"연립, 다세대 전월세 실거래와 건축물대장을 공공데이터 그대로 보여줘요";
 export const SEARCH_TITLE = "망원동 검색 결과 | 집씨";
+// 홈과 검색 결과 화면의 h1
+export const HOME_TITLE = "연립, 다세대 주택의 전월세 실거래가";
 
 // 목업 검색 결과의 규모와 건물. 목업은 KEYWORD에 48건(번호 1~48)을 20건씩 나누어 줌
 export const PAGE_SIZE = 20;

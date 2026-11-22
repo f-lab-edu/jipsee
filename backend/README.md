@@ -13,8 +13,6 @@ Spring Boot 4, Java 25, MySQL 8.4
 
 프로필을 지정하지 않으면 `local`로 실행함. `dev`, `prod`는 `SPRING_PROFILES_ACTIVE`와 `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`가 필요함
 
-프론트엔드 BFF는 `${API_URL}/actuator/health`를 호출함
-
 ## 스키마
 
 - 스키마 SQL은 `backend/schema`에 있고, `backend/compose.schema.yaml`의 `flyway` 서비스가 적용함. `SCHEMA_DIR`을 지정하면 다른 폴더를 씀
