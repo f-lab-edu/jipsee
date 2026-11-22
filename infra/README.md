@@ -73,7 +73,7 @@
 1. `main`에 `backend/**`나 `.github/workflows/deploy-backend.yml` 변경사항이 반영되면 `deploy-backend` 워크플로 실행. Actions 탭에서 `main`을 골라 수동으로도 실행할 수 있음
 2. ARM 러너에서 `backend/Dockerfile`의 `api`, `batch` 타깃을 각각 빌드해 `ghcr.io/f-lab-edu/jipsee-backend:<커밋 해시>`와 `ghcr.io/f-lab-edu/jipsee-batch:<커밋 해시>`로 업로드
 3. 서버에 ssh로 접속해 커밋 해시, 사용자 이름, `GITHUB_TOKEN`을 표준 입력으로 전달
-4. 서버의 `bin/remote-deploy.sh`가 두 이미지를 받고(하나라도 실패하면 배포 중단) 앱 컨테이너 교체. `/actuator/health`가 60초 안에 `UP`이 되지 않으면 직전 태그로 되돌리고 실패 처리 후 종료
+4. 서버의 `bin/remote-deploy.sh`가 두 이미지를 받고(하나라도 실패하면 배포 중단) 앱 컨테이너 교체. 관리 포트 `127.0.0.1:8081`의 `/actuator/health`가 60초 안에 `UP`이 되지 않으면 직전 태그로 되돌리고 실패 처리 후 종료
 5. 성공하면 이미지 저장소마다 지금 태그, 직전 태그, 그 밖에 가장 최근 태그 1개만 남기고 이미지 삭제
 
 ### 결과
@@ -160,7 +160,7 @@ restrict,command="/opt/jipsee/bin/remote-deploy.sh" ssh-ed25519 AAAA... jipsee-d
 
 `/opt/jipsee`에서 실행. 앱 Compose는 `IMAGE_TAG`가 필요해서 항상 `--env-file .env --env-file .env.deploy` 사용
 
-- 앱 상태: `curl -s http://127.0.0.1:8090/actuator/health`
+- 앱 상태: `curl -s http://127.0.0.1:8081/actuator/health`
 - 직전 태그로 직접 되돌리기: `cp .env.deploy.prev .env.deploy && docker compose --env-file .env --env-file .env.deploy up -d --no-deps app`
 - 스키마 적용: `docker compose -f db/compose.yaml --env-file .env --profile schema run --rm flyway`. 워크플로는 스키마를 적용하지 않음
 - `fluent-bit.conf`를 고친 뒤: `docker compose --env-file .env --env-file .env.deploy restart fluent-bit`
@@ -193,6 +193,16 @@ restrict,command="/opt/jipsee/bin/remote-deploy.sh" ssh-ed25519 AAAA... jipsee-d
 ## 포트
 
 - 앱: `127.0.0.1:8090`
+- 관리 포트: `127.0.0.1:8081`
 - MySQL: `127.0.0.1:3307`
 - DB Tool: `127.0.0.1:3307` (SSH)
 - Jenkins: `127.0.0.1:8095`. 외부 접속은 nginx `https://jenkins.jipsee.link`(로그인 필수)
+
+## 모니터링
+
+서버 `monitoring/.env` 변수
+
+- `GRAFANA_ADMIN_USER`, `GRAFANA_ADMIN_PASSWORD`: Grafana 관리자 계정
+- `JIPSEE_ALERT_WEBHOOK_URL`: Grafana 알림 웹훅, 토큰 포함 전체 URL
+
+Grafana 접속은 nginx `https://grafana.jipsee.link`에서 로그인(회원가입, 익명 접속 비활성)

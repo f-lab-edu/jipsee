@@ -1,0 +1,13 @@
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: jipsee-alerts
+    receivers:
+      - uid: jipsee-alerts
+        type: webhook
+        # 토큰 포함 전체 URL은 compose.yaml의 JIPSEE_ALERT_WEBHOOK_URL에서 주입
+        settings:
+          url: ${JIPSEE_ALERT_WEBHOOK_URL}
+          httpMethod: POST
+        disableResolveMessage: false

@@ -12,8 +12,9 @@ Return the body directly. Errors are `ProblemDetail` (see problem-details-rfc945
 ## Layers and DTOs
 
 - Controller → Service → Repository, one direction only. No Facade or UseCase layer.
-- Services return DTOs. Entities never leave the service layer.
-- DTOs are records. Response DTOs expose static `from()` / `of()` factories. No mapper library (MapStruct etc.).
+- Services (`core` module) return domain DTOs. Entities never leave the service layer, and services never throw HTTP errors. Where the lookup target must exist, the service throws `BusinessException(ErrorCode.X_NOT_FOUND)` (`kr.jipsee.global.exception`, `core`); the api handler turns it into 404. `Optional` is returned only where an empty result is a legitimate answer (search, batch lookups).
+- Controllers (`api` module, `kr.jipsee.api...`) map the domain DTO to a response DTO. Request validation (400) is done in the controller.
+- DTOs are records. Response DTOs expose static `from()` / `of()` factories that take the domain DTO. No mapper library (MapStruct etc.).
 
 ## HTTP Status Mapping
 
@@ -63,11 +64,11 @@ GET    /orders/{id}/items   → nested resource
 
 Query params: `?page=0&size=20&sort=createdAt,desc`
 
-Use Spring Data `Pageable` in controllers. The service returns `Page<OrderResponse>`:
+Use Spring Data `Pageable` in controllers. The service returns `Page<OrderSummary>` and the controller maps it to the response DTO:
 ```java
 @GetMapping
 public Page<OrderResponse> list(Pageable pageable) {
-    return orderService.findAll(pageable);
+    return orderService.findAll(pageable).map(OrderResponse::from);
 }
 ```
 
@@ -89,4 +90,4 @@ spring:
 - Agent puts exception handlers in controllers — use the single `GlobalExceptionHandler` (`@RestControllerAdvice`)
 - Agent uses UUID or a `/api/v1` prefix — ids are `Long`, paths have no version prefix
 - Agent accepts unbounded `Pageable` — set `spring.data.web.pageable.max-page-size` or one request can pull the whole table
-- Agent returns `Page<Entity>` serialized directly — exposes Hibernate internals; the service must return DTOs
+- Agent returns `Page<Entity>` serialized directly: exposes Hibernate internals; the service must return domain DTOs

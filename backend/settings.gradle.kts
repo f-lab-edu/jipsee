@@ -3,3 +3,5 @@ plugins {
 }
 
 rootProject.name = "jipsee"
+
+include("core", "api", "batch")

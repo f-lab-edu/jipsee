@@ -1,0 +1,155 @@
+package kr.jipsee.batch.deal.client;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import kr.jipsee.batch.publicdata.PublicDataApiClient;
+import kr.jipsee.batch.publicdata.PublicDataApiException;
+import kr.jipsee.batch.publicdata.PublicDataItem;
+import kr.jipsee.batch.publicdata.PublicDataPage;
+import kr.jipsee.batch.publicdata.PublicDataProperties;
+import kr.jipsee.deal.dto.SaleDealRow;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.RestClient;
+import tools.jackson.databind.json.JsonMapper;
+
+class RtmsRhTradeClientTest {
+
+    private static final JsonMapper JSON = JsonMapper.builder().build();
+    private static final YearMonth OCTOBER = YearMonth.of(2026, 10);
+
+    private MockRestServiceServer server;
+    private RtmsRhTradeClient client;
+
+    @BeforeEach
+    void setUp() {
+        RestClient.Builder builder = RestClient.builder();
+        server = MockRestServiceServer.bindTo(builder).build();
+        client = new RtmsRhTradeClient(
+                PublicDataApiClient.restClient(builder, "http://localhost/1613000"),
+                PublicDataApiClient.retryTemplate(Duration.ofMillis(1)),
+                JSON,
+                new PublicDataProperties(new PublicDataProperties.Api("http://localhost/1613000", "test-key")));
+    }
+
+    /** 거래 JSON들을 담은 정상 응답 본문 */
+    private static String pageBody(String... items) {
+        return "{\"response\":{\"header\":{\"resultCode\":\"000\"},\"body\":{\"items\":{\"item\":["
+                + String.join(",", items) + "]},\"totalCount\":" + items.length + "}}}";
+    }
+
+    private void respondWith(String... items) {
+        server.expect(request -> {}).andRespond(withSuccess(pageBody(items), MediaType.APPLICATION_JSON));
+    }
+
+    private static PublicDataItem item(String json) {
+        return PublicDataItem.of(JSON.readTree(json));
+    }
+
+    @Test
+    @DisplayName("매매 응답을 sale_deal 컬럼에 맞는 행으로 바꾸고 저장하지 않는 필드는 버림")
+    void 매매_응답을_sale_deal_컬럼에_맞는_행으로_바꾸고_저장하지_않는_필드는_버림() {
+        // given
+        String plain = """
+                {"buildYear":2007,"buyerGbn":"개인","cdealDay":" ","cdealType":" ","dealAmount":"4,800","dealDay":14,
+                 "dealMonth":10,"dealYear":2026,"dealingGbn":"중개거래","estateAgentSggNm":"전남광주 나주시",
+                 "excluUseAr":74.89,"floor":2,"houseType":"다세대","jibun":"745-5","landAr":52.78,"mhouseNm":"골든빌B",
+                 "rgstDate":" ","sggCd":12170,"slerGbn":"개인","umdNm":"이창동"}""";
+        respondWith(plain);
+
+        // when
+        PublicDataPage<SaleDealRow> page = client.fetch("12170", OCTOBER, 1);
+
+        // then
+        assertThat(page.items())
+                .containsExactly(new SaleDealRow(
+                        "12170",
+                        "이창동",
+                        "745-5",
+                        "골든빌B",
+                        2007,
+                        new BigDecimal("74.89"),
+                        2,
+                        LocalDate.of(2026, 10, 14),
+                        4800,
+                        null,
+                        null));
+    }
+
+    @Test
+    @DisplayName("해제된 거래는 해제 구분과 20YY-MM-DD로 바꾼 해제일을 담음")
+    void 해제된_거래는_해제_구분과_20YY_MM_DD로_바꾼_해제일을_담음() {
+        // given
+        PublicDataItem cancelled = item("""
+                {"buildYear":2007,"cdealDay":"26.03.15","cdealType":"O","dealAmount":4800,"dealDay":14,"dealMonth":10,
+                 "dealYear":2025,"excluUseAr":74,"floor":2,"jibun":745,"mhouseNm":" ","sggCd":12170,"umdNm":"이창동"}""");
+
+        // when
+        SaleDealRow row = RtmsRhTradeClient.toRow(cancelled);
+
+        // then
+        assertThat(row.cancellationType()).isEqualTo("O");
+        assertThat(row.cancellationDate()).isEqualTo(LocalDate.of(2026, 3, 15));
+        assertThat(row.dealAmount()).isEqualTo(4800);
+        assertThat(row.lotNumber()).isEqualTo("745");
+        assertThat(row.houseName()).isNull();
+    }
+
+    @Test
+    @DisplayName("지번이 빈 값이면 지번을 null로 담음")
+    void 지번이_빈_값이면_지번을_null로_담음() {
+        // given
+        PublicDataItem blankLot = item("""
+                {"buildYear":2020,"cdealDay":" ","cdealType":" ","dealAmount":"42,500","dealDay":19,"dealMonth":6,
+                 "dealYear":2025,"excluUseAr":50.99,"floor":5,"jibun":" ","mhouseNm":"엘림빌리지(1동)","sggCd":28177,
+                 "umdNm":"문학동"}""");
+
+        // when
+        SaleDealRow row = RtmsRhTradeClient.toRow(blankLot);
+
+        // then
+        assertThat(row.lotNumber()).isNull();
+        assertThat(row.dealAmount()).isEqualTo(42500);
+    }
+
+    @Test
+    @DisplayName("응답 행의 계약 월이 요청과 다르면 PublicDataApiException을 던짐")
+    void 응답_행의_계약_월이_요청과_다르면_PublicDataApiException을_던짐() {
+        // given
+        String otherMonth = """
+                {"dealAmount":4800,"dealDay":14,"dealMonth":9,"dealYear":2026,"excluUseAr":74,"jibun":745,
+                 "sggCd":12170,"umdNm":"이창동"}""";
+        respondWith(otherMonth);
+
+        // when
+        Throwable thrown = catchThrowable(() -> client.fetch("12170", OCTOBER, 1));
+
+        // then
+        assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("2026-09");
+    }
+
+    @Test
+    @DisplayName("응답 행의 시군구가 요청과 다르면 PublicDataApiException을 던짐")
+    void 응답_행의_시군구가_요청과_다르면_PublicDataApiException을_던짐() {
+        // given
+        String otherSigungu = """
+                {"dealAmount":4800,"dealDay":14,"dealMonth":10,"dealYear":2026,"excluUseAr":74,"jibun":745,
+                 "sggCd":11110,"umdNm":"동숭동"}""";
+        respondWith(otherSigungu);
+
+        // when
+        Throwable thrown = catchThrowable(() -> client.fetch("12170", OCTOBER, 1));
+
+        // then
+        assertThat(thrown).isInstanceOf(PublicDataApiException.class).hasMessageContaining("11110");
+    }
+}

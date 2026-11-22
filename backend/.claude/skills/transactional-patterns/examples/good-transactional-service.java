@@ -1,4 +1,4 @@
-// ✅ GOOD — class-level readOnly, method-level override, ids in / DTOs out, side effects bound to commit
+// ✅ GOOD: class-level readOnly, method-level override, ids in / domain DTOs out (BusinessException when the target must exist, no HTTP errors in core), side effects bound to commit
 
 @Service
 @Transactional(readOnly = true)
@@ -8,31 +8,29 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public OrderResponse findById(Long id) {
-        return OrderResponse.from(getOrder(id));
+    public OrderSummary findById(Long id) {
+        return orderRepository.findById(id)
+                .map(OrderSummary::from)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND)); // the api handler returns 404
     }
 
-    public Page<OrderResponse> findAll(Pageable pageable) {
-        return orderRepository.findAll(pageable).map(OrderResponse::from);
+    public Page<OrderSummary> findAll(Pageable pageable) {
+        return orderRepository.findAll(pageable).map(OrderSummary::from);
     }
 
     @Transactional
-    public OrderResponse createOrder(CreateOrderRequest request) {
-        Order order = orderRepository.save(Order.create(request.customerEmail()));
+    public OrderSummary createOrder(CreateOrderCommand command) {
+        Order order = orderRepository.save(Order.create(command.customerEmail()));
         eventPublisher.publishEvent(new OrderCreated(order.getId())); // handled after commit
-        return OrderResponse.from(order);
+        return OrderSummary.from(order);
     }
 
     @Transactional
     public void cancel(Long id) {
-        Order order = getOrder(id);
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND)); // the api handler returns 404
         order.cancel();
         eventPublisher.publishEvent(new OrderCancelled(order.getId()));
-    }
-
-    private Order getOrder(Long id) {
-        return orderRepository.findById(id)
-            .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND)); // RuntimeException: default rollback applies
     }
 }
 

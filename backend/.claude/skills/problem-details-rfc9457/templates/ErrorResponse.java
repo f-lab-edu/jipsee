@@ -1,6 +1,8 @@
-package kr.jipsee.global.core.exception;
+package kr.jipsee.api.exception;
 
+import kr.jipsee.global.exception.ErrorCode;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 
 /**
@@ -12,14 +14,14 @@ import org.springframework.http.ProblemDetail;
 public class ErrorResponse extends ProblemDetail {
     private final ErrorCode code;
 
-    private ErrorResponse(ErrorCode errorCode) {
-        super(errorCode.getStatus().value());
+    private ErrorResponse(ErrorCode errorCode, HttpStatus status) {
+        super(status.value());
         setDetail(errorCode.getDetail());
         this.code = errorCode;
     }
 
-    /** ErrorCode의 상태, detail, 상수 이름으로 오류 응답 생성 */
-    public static ErrorResponse of(ErrorCode errorCode) {
-        return new ErrorResponse(errorCode);
+    /** HTTP 상태와 ErrorCode의 detail, 상수 이름으로 오류 응답 생성 */
+    public static ErrorResponse of(ErrorCode errorCode, HttpStatus status) {
+        return new ErrorResponse(errorCode, status);
     }
 }

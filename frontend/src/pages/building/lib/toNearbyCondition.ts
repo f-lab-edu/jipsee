@@ -13,10 +13,6 @@ export function toNearbyCondition(
 	const { defaultCondition } = nearbyDealsOptions;
 
 	return {
-		radius:
-			nearbyDealsOptions.radii.find(
-				(option) => String(option) === searchParams.radius,
-			) ?? defaultCondition.radius,
 		period:
 			nearbyDealsOptions.periods.find(
 				(option) => String(option) === searchParams.period,

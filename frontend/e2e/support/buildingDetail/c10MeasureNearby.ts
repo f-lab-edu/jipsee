@@ -52,28 +52,6 @@ export type C10Area = {
 	label: C10Label | null;
 };
 
-export type C10Notice = {
-	text: string;
-	noRole?: boolean;
-	role?: string | null;
-	rect?: C10Rect;
-	bg?: string;
-	color?: string;
-	radius?: string;
-	minH?: string;
-	pad?: string;
-	align?: string;
-	gap?: string;
-	textRect?: C10Rect;
-	pRect?: C10Rect;
-	fs?: string;
-	lh?: string;
-	fw?: string;
-	tcolor?: string;
-	tag?: string;
-	svg?: C10Svg | null;
-};
-
 export type C10Measure = {
 	vw: number;
 	scrollW: number;
@@ -116,9 +94,6 @@ export type C10Measure = {
 		dir: string;
 	};
 	area?: C10Area | null;
-	notice?: C10Notice | null;
-	noteCount?: number;
-	bodyHasNotice?: boolean;
 };
 
 /** 주변 전월세 거래의 골격과 필터를 측정함. 좌표는 문서 기준(스크롤 포함)임. 페이지 안에서 실행하므로 외부 변수를 쓰지 않음 */
@@ -256,7 +231,6 @@ export function c10MeasureNearby(): C10Measure {
 	// 면적 고정 줄
 	const wk = document.createTreeWalker(section, NodeFilter.SHOW_TEXT);
 	out.area = null;
-	out.notice = null;
 	while (wk.nextNode()) {
 		const n = wk.currentNode;
 		const t = text(n);
@@ -285,49 +259,7 @@ export function c10MeasureNearby(): C10Measure {
 					: null,
 				label: labelEl ? labelOf(labelEl) : null,
 			};
-		} else if (t.startsWith("이 건물은 위치 정보가")) {
-			const note = el.closest('[role="note"]');
-			if (!note) {
-				out.notice = { text: t, noRole: true };
-				continue;
-			}
-			const nc = getComputedStyle(note);
-			const c = getComputedStyle(el);
-			const svg = note.querySelector("svg");
-			out.notice = {
-				text: t,
-				role: note.getAttribute("role"),
-				rect: R(note),
-				bg: nc.backgroundColor,
-				color: nc.color,
-				radius: nc.borderTopLeftRadius,
-				minH: nc.minHeight,
-				pad: `${nc.paddingTop} ${nc.paddingRight} ${nc.paddingBottom} ${nc.paddingLeft}`,
-				align: nc.alignItems,
-				gap: nc.columnGap,
-				textRect: TR(n),
-				pRect: R(el),
-				fs: c.fontSize,
-				lh: c.lineHeight,
-				fw: c.fontWeight,
-				tcolor: c.color,
-				tag: el.tagName,
-				svg: svg
-					? {
-							rect: R(svg),
-							color: getComputedStyle(svg).color,
-							ariaHidden: svg.getAttribute("aria-hidden"),
-						}
-					: null,
-			};
 		}
 	}
-	// 확정일자 안내(C11)와 조건 확장 안내(C12)는 위치 정보 없음 안내가 아니라서 세지 않음
-	out.noteCount = [...section.querySelectorAll('[role="note"]')].filter(
-		(n) =>
-			!(n.textContent ?? "").includes("확정일자") &&
-			!(n.textContent ?? "").includes("반경이나 기간을 넓혀 보세요"),
-	).length;
-	out.bodyHasNotice = document.body.innerText.includes("위치 정보가 없어서");
 	return out;
 }

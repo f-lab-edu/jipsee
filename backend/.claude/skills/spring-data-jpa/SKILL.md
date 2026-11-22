@@ -49,7 +49,7 @@ public class Order extends BaseEntity {
 
 ## BaseEntity
 
-Every table has `created_at` / `updated_at`. JPA entities extend `kr.jipsee.global.common.base.BaseEntity`, which fills them with Hibernate `@CreationTimestamp` / `@UpdateTimestamp`. No JPA auditing (`@EnableJpaAuditing`, `@CreatedDate`).
+Every table has `created_at` / `updated_at`. JPA entities extend `kr.jipsee.global.BaseEntity` (created when the first entity is added), which fills them with Hibernate `@CreationTimestamp` / `@UpdateTimestamp`. No JPA auditing (`@EnableJpaAuditing`, `@CreatedDate`).
 Tables written with `JdbcTemplate` leave both columns out of the INSERT; the MySQL column defaults fill them. Keep the JVM and MySQL time zones the same.
 
 ```java

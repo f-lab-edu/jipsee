@@ -5,6 +5,7 @@ export const NAMES: Record<number, string> = {
 	3: "망원하우스",
 	5: "망원맨션",
 };
+export const ADDRESS_4_TEXT = "마포구 망원동 16-2";
 export const ADDRESS_4 = /마포구 망원동 16-2$/;
 export const OK_IDS = [1, 2, 3, 4, 5];
 export const NOT_FOUND = ["999", "abc", "01", "0", "-1", "1.5", "1e3"];

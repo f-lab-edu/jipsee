@@ -4,6 +4,7 @@ import { generateThemingScript } from "@seed-design/css/theming";
 import type { Metadata, Viewport } from "next";
 import { getSession } from "@/entities/session/api/getSession";
 import SessionProvider from "@/entities/session/ui/SessionProvider";
+import { phase2RoutesEnabled } from "@/shared/config/phase2Routes";
 import { siteMetadata } from "@/shared/config/siteMetadata";
 import { getSiteUrl } from "@/shared/config/siteUrl";
 import { toOpenGraph } from "@/shared/lib/metadata/toOpenGraph";
@@ -21,13 +22,17 @@ export const metadata: Metadata = {
 };
 
 // env(safe-area-inset-bottom)가 값을 가지려면 viewport-fit=cover 필요
-export const viewport: Viewport = { viewportFit: "cover" };
+export const viewport: Viewport = {
+	viewportFit: "cover",
+	themeColor: siteMetadata.themeColor,
+};
 
 /**
  * 루트 레이아웃
  *
  * - 모든 페이지에 공통으로 적용되는 HTML 구조 출력
  * - error.tsx가 세션을 읽을 수 있도록 세션 공급자로 내용을 감쌈
+ * - phase2RoutesEnabled가 false이면 하단 내비게이션이 없으므로 data-bottom-nav="off"로 CSS가 간격을 다시 계산
  */
 export default async function RootLayout({ children }: LayoutProps<"/">) {
 	const session = await getSession();
@@ -37,6 +42,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
 			lang="ko"
 			data-seed
 			data-seed-color-mode="system"
+			data-bottom-nav={phase2RoutesEnabled ? undefined : "off"}
 			suppressHydrationWarning
 		>
 			<head>

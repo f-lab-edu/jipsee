@@ -16,10 +16,12 @@ Slice Tests        — partial Spring context (@WebMvcTest, @DataJpaTest) (20%)
 Integration Tests  — full context + real MySQL via Testcontainers  (10%)
 ```
 
-Test packages mirror main packages: `src/main/java/kr/jipsee/<domain>/service/OrderService.java`
-is tested by `src/test/java/kr/jipsee/<domain>/service/OrderServiceTest.java`. Batch code lives under the
-top-level `batch` package: `src/main/java/kr/jipsee/batch/<job>/DealKeyReader.java` is tested by
-`src/test/java/kr/jipsee/batch/<job>/DealKeyReaderTest.java`.
+Test packages mirror main packages inside each module. `core` is domain-first with no module prefix:
+`core/src/main/java/kr/jipsee/<domain>/OrderService.java` is tested by `core/src/test/java/kr/jipsee/<domain>/OrderServiceTest.java`
+(a domain with many classes may keep `dto`, `repository`, `service` subpackages). `api` and `batch` code is module-prefixed:
+`batch/src/main/java/kr/jipsee/batch/<job>/DealKeyReader.java` is tested by
+`batch/src/test/java/kr/jipsee/batch/<job>/DealKeyReaderTest.java`, and controller tests live in `api/src/test/java/kr/jipsee/api/<domain>/`. Shared integration test setup
+(Testcontainers MySQL, Flyway, `application-test.yml`) comes from `testFixtures(project(":core"))`.
 
 ## Conventions (all test levels)
 
@@ -29,7 +31,8 @@ top-level `batch` package: `src/main/java/kr/jipsee/batch/<job>/DealKeyReader.ja
 - Body is split with lowercase `// given`, `// when`, `// then` comments.
 - For exceptions, run the call under `// when` with `Throwable thrown = catchThrowable(...)`, then assert under `// then`. Use `assertThatThrownBy` under `// when & then` only if unavoidable.
 - Group cases with `@Nested` by state or feature. A nested class can carry its own Korean `@DisplayName`.
-- Services return DTOs (records such as `OrderResponse`), never entities. Stubs and assertions at the service boundary use DTOs.
+- Core services return domain DTOs (records such as `OrderSummary`), never entities. Stubs and assertions at the service boundary use domain DTOs. Controllers map them to response DTOs (`OrderResponse`).
+- A core service may throw `BusinessException` (`kr.jipsee.global.exception`) when a required target is missing; assert it with `errorCode`.
 - Entity IDs are `Long`, never `UUID`.
 
 ## Unit Tests — Services
@@ -51,17 +54,17 @@ class OrderServiceTest {
         @DisplayName("재고가 있으면 주문을 저장하고 반환함")
         void 재고가_있으면_주문을_저장하고_반환함() {
             // given
-            var request = new CreateOrderRequest("user@example.com", List.of(new OrderItemRequest(1L, 2)));
+            var command = new CreateOrderCommand("user@example.com", List.of(new OrderItemCommand(1L, 2)));
             var savedOrder = Order.create("user@example.com");
             given(orderRepository.save(any(Order.class))).willReturn(savedOrder);
             willDoNothing().given(inventoryService).reserve(any());
 
             // when
-            OrderResponse result = orderService.createOrder(request);
+            OrderSummary result = orderService.createOrder(command);
 
             // then
             assertThat(result.customerEmail()).isEqualTo("user@example.com");
-            then(inventoryService).should().reserve(request.items());
+            then(inventoryService).should().reserve(command.items());
             then(orderRepository).should().save(any(Order.class));
         }
 
@@ -69,12 +72,12 @@ class OrderServiceTest {
         @DisplayName("재고가 부족하면 OUT_OF_STOCK 오류를 던짐")
         void 재고가_부족하면_OUT_OF_STOCK_오류를_던짐() {
             // given
-            var request = new CreateOrderRequest("user@example.com", List.of());
+            var command = new CreateOrderCommand("user@example.com", List.of());
             willThrow(new BusinessException(ErrorCode.OUT_OF_STOCK))
                 .given(inventoryService).reserve(any());
 
             // when
-            Throwable thrown = catchThrowable(() -> orderService.createOrder(request));
+            Throwable thrown = catchThrowable(() -> orderService.createOrder(command));
 
             // then
             assertThat(thrown)
@@ -109,7 +112,7 @@ class OrderControllerTest {
         void 유효한_요청이면_201과_생성된_주문을_반환함() throws Exception {
             // given
             var request = new CreateOrderRequest("user@example.com", List.of());
-            given(orderService.createOrder(any())).willReturn(new OrderResponse(1L, "user@example.com"));
+            given(orderService.createOrder(any())).willReturn(new OrderSummary(1L, "user@example.com")); // the controller maps it to OrderResponse
 
             // when
             var result = mockMvc.perform(post("/orders")
@@ -234,7 +237,7 @@ class OrderIntegrationTest {
 
 ### Schema in the container
 
-- The schema SQL lives in `backend/schema` (override with `$SCHEMA_DIR`), and Spring does not run migrations. Tests apply it with Flyway (`spring.flyway.locations` in `application-test.yml`); the `flyway` service in `backend/compose.schema.yaml` applies it for local runs.
+- The schema SQL lives in `backend/schema` (override with `$SCHEMA_DIR`), and Spring does not run migrations. Tests apply it with Flyway (`spring.flyway.locations` in the `application-test.yml` of core `testFixtures`); the `flyway` service in `backend/compose.schema.yaml` applies it for local runs.
 - A fresh Testcontainers MySQL is empty. Apply the schema to the container before the Spring context starts. Never edit an applied version file; add a new one.
 - Keep `ddl-auto: validate`. Do not switch to `create` or `create-drop` to make tests pass; validation against the real schema is the point of these tests.
 

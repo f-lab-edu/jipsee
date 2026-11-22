@@ -19,11 +19,6 @@ export function readHeaderEdge(page: Page) {
 	return readEdge(page.locator('[data-area="header-mobile"] > *'));
 }
 
-/** 홈 모바일 챗봇 패널의 가장자리 값 */
-export function readChatPanelEdge(page: Page) {
-	return readEdge(page.locator('[data-area="chat-panel-mobile"]'));
-}
-
 /** 데스크톱 헤더(바깥 래퍼의 첫 자식)의 그림자 값 */
 export function readDesktopHeaderEdge(page: Page) {
 	return readEdge(page.locator('[data-area="header-desktop"] > *'));

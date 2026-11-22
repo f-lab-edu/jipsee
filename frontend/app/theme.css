@@ -113,12 +113,25 @@ button {
 	}
 }
 
-/* 1280 미만 푸터. 하단 내비게이션 바로 위에 고정함. Seed position이 반응형 값을 받지 않음 */
+/* 1280 미만 푸터. 하단 내비게이션 바로 위에 고정함(내비게이션이 없으면 아래 data-bottom-nav 규칙이 맨 아래로 내림). Seed position이 반응형 값을 받지 않음 */
 @media (max-width: 1279px) {
 	:root .footer-docked {
 		position: sticky;
 		bottom: var(--jipsee-bottom-nav-offset);
 		z-index: 1;
+	}
+}
+
+/* 하단 내비게이션을 숨긴 1단계(루트 html의 data-bottom-nav="off"). 푸터가 열의 맨 아래에 놓이므로 내비게이션 몫(탭 높이와 위 테두리 1px)을 빼고 아래 안전 영역만 남김. 안전 영역은 내비게이션 대신 푸터가 받음(bottom 0, 아래 패딩, 배경) */
+:root[data-bottom-nav="off"] {
+	--jipsee-bottom-nav-offset: env(safe-area-inset-bottom);
+}
+
+@media (max-width: 1279px) {
+	:root[data-bottom-nav="off"] .footer-docked {
+		bottom: 0;
+		padding-bottom: env(safe-area-inset-bottom);
+		background-color: var(--seed-color-bg-layer-default);
 	}
 }
 
@@ -186,6 +199,57 @@ button {
 /* 제목 자간. Seed에 letterSpacing이 없음 */
 .tight-letter-spacing {
 	letter-spacing: -0.03em;
+}
+
+/* 반응형 글자 크기. Seed Text의 fontSize와 lineHeight가 반응형 값을 받지 않아 같은 요소의 제목을 한 번만 출력하려고 씀. 값은 shared/lib/responsiveTypography가 style로 넘기는 변수이고 1280 이상에서 -lg 변수를 읽음. Seed Text 클래스보다 우선순위를 높임 */
+:root .responsive-text {
+	--seed-font-size: var(--responsive-font-size);
+	--seed-line-height: var(--responsive-line-height);
+}
+
+@media (min-width: 1280px) {
+	:root .responsive-text {
+		--seed-font-size: var(--responsive-font-size-lg);
+		--seed-line-height: var(--responsive-line-height-lg);
+	}
+}
+
+/* 1280 이상에서만 제목 자간. Seed에 letterSpacing이 없음 */
+@media (min-width: 1280px) {
+	.desktop-tight-letter-spacing {
+		letter-spacing: -0.03em;
+	}
+}
+
+/* 홈 소개 제목 줄 세로 정렬. 모바일은 일러스트를 제목 블록 아래에 맞추고 데스크톱은 가운데에 맞춤. Seed alignItems가 반응형 값을 받지 않음 */
+.intro-heading-row {
+	--seed-box-align-items: flex-end;
+}
+
+@media (min-width: 1280px) {
+	.intro-heading-row {
+		--seed-box-align-items: center;
+	}
+}
+
+/* 상태 화면 아이콘 크기. 원 안의 아이콘이 읽는 변수이고 1280 이상에서 36px임. Seed Icon size가 반응형 값을 받지 않음 */
+.status-circle {
+	--seed-icon-size: 32px;
+}
+
+@media (min-width: 1280px) {
+	.status-circle {
+		--seed-icon-size: 36px;
+	}
+}
+
+/* 상태 화면 카드. 1280 이상에서만 테두리와 흰 배경 카드. Seed bg, border, borderRadius가 반응형 값을 받지 않음 */
+@media (min-width: 1280px) {
+	:root .status-card {
+		background-color: var(--seed-color-bg-layer-default);
+		border: 1px solid var(--seed-color-stroke-neutral-muted);
+		border-radius: var(--seed-radius-r5);
+	}
 }
 
 /* 서비스명 굵기. Seed fontWeight는 bold(700)까지 */

@@ -1,6 +1,7 @@
 // S2 건물 상세 C10: 주변 전월세 거래 골격과 필터
 // 2026-11-09 피드백 9번: 필터 칩을 Seed Select 선택 상자로 바꿈. 선택 상자 문구, 선택지 목록, 선택 후 주소로 확인함
-// 기대값 출처: 설계 2절(상태표, 주요 간격 주변 필터와 면적 고정 줄과 안내 상자), 3절(문구), 7절(색), 9절(role), 4.3절과 계획 커밋 10(쿼리 처리), 캔버스 S2(Mobile|Desktop)(Default|Few|NoLoc)와 Dark* 보드
+// 기대값 출처: 설계 2절(상태표, 주요 간격 주변 필터와 면적 고정 줄과 안내 상자), 3절(문구), 7절(색), 9절(role), 4.3절과 계획 커밋 10(쿼리 처리), 캔버스 S2(Mobile|Desktop)(Default|Few)와 Dark* 보드
+// 2026-11-21 반경과 위치 정보 없음 상태를 지움(지오코딩 폐기, 같은 법정동 조회). C10-11부터 15는 위치 정보 없음 TC라 삭제함. 번호는 비워 둠. 반경 쿼리는 모르는 쿼리로 무시함
 // 건수 줄, 목록, 조건 확장 안내, 확정일자 안내, 질문하기는 이후 커밋이라 여기서 보지 않음
 
 import { c10CheckAreaRow } from "../support/buildingDetail/c10CheckAreaRow";
@@ -10,7 +11,6 @@ import { c10CheckFilterContent } from "../support/buildingDetail/c10CheckFilterC
 import { c10CheckLabelStyle } from "../support/buildingDetail/c10CheckLabelStyle";
 import { c10CheckMobileFilterLayout } from "../support/buildingDetail/c10CheckMobileFilterLayout";
 import { c10CheckMobileShell } from "../support/buildingDetail/c10CheckMobileShell";
-import { c10CheckNotice } from "../support/buildingDetail/c10CheckNotice";
 import { c10CheckOptions } from "../support/buildingDetail/c10CheckOptions";
 import { c10CheckTriggerLayout } from "../support/buildingDetail/c10CheckTriggerLayout";
 import {
@@ -55,8 +55,6 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			c10CheckLabelStyle(t, m, "모바일");
 			c10CheckMobileFilterLayout(t, m, true, "모바일");
 			c10CheckAreaRow(t, m, "모바일");
-			t.eq("모바일 note 없음", m.noteCount, 0);
-			t.eq("모바일 위치 정보 없음 문구 없음", m.bodyHasNotice, false);
 			await c10CheckOptions(t, C10_DEFAULT, "모바일");
 		});
 	});
@@ -104,7 +102,6 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			c10CheckLabelStyle(t, m, "데스크톱");
 			c10CheckDesktopFilterLayout(t, m, true, "데스크톱");
 			c10CheckAreaRow(t, m, "데스크톱");
-			t.eq("데스크톱 note 없음", m.noteCount, 0);
 			await c10CheckOptions(t, C10_DEFAULT, "데스크톱");
 		});
 	});
@@ -159,48 +156,6 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 	});
 }
 
-// 위치 정보 없음(id 4)
-for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
-	for (const [themeIndex, theme] of THEMES.entries()) {
-		test.describe(`${viewport.width}x${viewport.height} ${theme}`, () => {
-			test.use({ viewport, colorScheme: theme });
-
-			test(`${caseId("C10", 11 + 2 * layoutIndex + themeIndex)} ${name} ${theme} id 4는 제목과 위치 정보 없음 안내(role="note")만 있고 필터와 면적 줄이 없음`, async ({
-				t,
-			}) => {
-				await t.goto("/buildings/4");
-				const m = await nearbyMeasure(t);
-				if (layout === "mobile") {
-					c10CheckMobileShell(t, m, name);
-				} else {
-					c10CheckDesktopShell(t, m, name);
-				}
-				c10CheckNotice(t, m, layout, name);
-				t.eq(
-					`${name} 선택 상자 개수`,
-					(m.groups ?? []).filter((g) => g.trigger).length,
-					0,
-				);
-			});
-		});
-	}
-}
-test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
-	test.use({ viewport: MOBILE, colorScheme: "light" });
-
-	test("C10-15 위치 정보 없음 안내는 id 4에만 있고 id 1, 2, 3, 5에는 없음", async ({
-		t,
-	}) => {
-		for (const id of [1, 2, 3, 5]) {
-			await t.goto(`/buildings/${id}`);
-			const m = await nearbyMeasure(t);
-			t.eq(`id ${id} note 개수`, m.noteCount, 0);
-			t.eq(`id ${id} 위치 정보 없음 문구`, m.bodyHasNotice, false);
-			t.eq(`id ${id} 면적 줄이 아닌 안내 없음`, m.notice, null);
-		}
-	});
-});
-
 // id 중복, 레이아웃
 for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 	test.describe(`${viewport.width}x${viewport.height} light`, () => {
@@ -223,17 +178,12 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 					m.title?.id,
 					`nearby-deals-title-${layout}`,
 				);
-				const want =
-					id === 4
-						? ["nearby-deals-title-desktop", "nearby-deals-title-mobile"]
-						: ["desktop", "mobile"]
-								.flatMap((l) => [
-									`nearby-deals-title-${l}`,
-									...["period", "radius", "type"].map(
-										(n) => `nearby-filter-${n}-${l}`,
-									),
-								])
-								.sort();
+				const want = ["desktop", "mobile"]
+					.flatMap((l) => [
+						`nearby-deals-title-${l}`,
+						...["period", "type"].map((n) => `nearby-filter-${n}-${l}`),
+					])
+					.sort();
 				t.eq(`id ${id} nearby- 접두 id 목록`, m.nearbyIds, want);
 				for (const g of m.groups ?? []) {
 					t.eq(
@@ -269,7 +219,7 @@ for (const [index, [w, mobile]] of (
 			t.eq(
 				"보이는 선택 상자 개수",
 				(m.groups ?? []).filter((g) => g.trigger).length,
-				3,
+				2,
 			);
 			t.eq("필터 묶음 가로 배치", m.box?.dir, "row");
 			t.eq(
@@ -328,14 +278,6 @@ test.describe("320x700 light", () => {
 					`≤ ${m.vw - 16}`,
 				);
 			}
-			if (m.notice?.rect) {
-				t.ok(
-					`id ${id} 안내 오른쪽 끝이 화면 안`,
-					m.notice.rect.r <= m.vw - 16 + 0.5,
-					m.notice.rect.r,
-					`≤ ${m.vw - 16}`,
-				);
-			}
 			if (m.area) {
 				t.ok(
 					`id ${id} 면적 문구 오른쪽 끝이 화면 안`,
@@ -353,7 +295,7 @@ for (const [layoutIndex, [name, viewport]] of LAYOUTS.entries()) {
 	test.describe(`${viewport.width}x${viewport.height} light`, () => {
 		test.use({ viewport, colorScheme: "light" });
 
-		test(`${caseId("C10", 22 + layoutIndex)} ${name} 쿼리가 잘못된 항목만 기본값(500, 12, 전세)이 되고 나머지 조건은 유지되며 오류가 없음`, async ({
+		test(`${caseId("C10", 22 + layoutIndex)} ${name} 쿼리가 잘못된 항목만 기본값(12, 전세)이 되고 나머지 조건은 유지되며 오류가 없음`, async ({
 			t,
 		}) => {
 			for (const [label, q, change] of C10_QUERY_CASES) {
@@ -381,9 +323,7 @@ for (const [layoutIndex, [name, viewport]] of LAYOUTS.entries()) {
 			let cond: C10Cond = { ...C10_DEFAULT };
 			const steps: [keyof C10Cond, string, string, number | string][] = [
 				["type", "유형", "월세", "wolse"],
-				["radius", "반경", "1km", 1000],
 				["period", "기간", "6개월", 6],
-				["radius", "반경", "300m", 300],
 				["type", "유형", "전세", "jeonse"],
 			];
 			t.issues.length = 0;
@@ -427,22 +367,12 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test("C10-26 선택지를 고르지 않고 직접 주소로 들어가도 선택 상자가 같은 값을 보여 줌(새로고침 시 유지)", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1?radius=1000&period=24&type=wolse");
+		await t.goto("/buildings/1?period=24&type=wolse");
 		let m = await nearbyMeasure(t);
-		c10CheckFilterContent(
-			t,
-			m,
-			{ radius: 1000, period: 24, type: "wolse" },
-			"직접 진입",
-		);
+		c10CheckFilterContent(t, m, { period: 24, type: "wolse" }, "직접 진입");
 		await t.page.reload({ waitUntil: "load" });
 		await waitForHydration(t.page);
 		m = await nearbyMeasure(t);
-		c10CheckFilterContent(
-			t,
-			m,
-			{ radius: 1000, period: 24, type: "wolse" },
-			"새로고침",
-		);
+		c10CheckFilterContent(t, m, { period: 24, type: "wolse" }, "새로고침");
 	});
 });

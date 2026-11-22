@@ -16,7 +16,7 @@ export function c10CheckFilterContent(
 ) {
 	t.eq(`${label} 보이는 제목 개수`, m.visibleTitles, 1);
 	t.eq(`${label} 제목 문구`, m.title?.text, "주변 전월세 거래");
-	t.eq(`${label} 그룹 개수`, m.groups?.length, 3);
+	t.eq(`${label} 그룹 개수`, m.groups?.length, 2);
 	C10_NAMES.forEach((name, gi) => {
 		const g = m.groups?.[gi];
 		const current = C10_OPTIONS[name].find(([, value]) => value === cond[name]);

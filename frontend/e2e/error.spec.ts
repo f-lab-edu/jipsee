@@ -6,7 +6,9 @@ import { expect } from "@playwright/test";
 import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
 import { caseId } from "./support/caseId";
+import { expectSingleHeading } from "./support/expectSingleHeading";
 import { gotoAndSettle } from "./support/gotoAndSettle";
+import { PHASE2_OFF, PHASE2_SKIP_REASON } from "./support/phase2Routes";
 import { readBox } from "./support/policy/readBox";
 import { readStyle } from "./support/policy/readStyle";
 import { STUB_ON, STUB_SKIP_REASON, setStubMode } from "./support/stubBackend";
@@ -63,7 +65,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				page,
 			}) => {
 				expect(await gotoAndSettle(page, path)).toBe(404);
-				const status = page.getByTestId(`status-${layout}`);
+				const status = page.getByTestId("status");
 				await expect(status.getByRole("heading", { level: 1 })).toHaveText(
 					COPY.notFoundTitle,
 				);
@@ -84,11 +86,17 @@ for (const { label, viewport, layout } of SCREENS) {
 			await gotoAndSettle(page, "/nope");
 			await expect(page.getByTestId(`header-${layout}`)).toBeVisible();
 			await expect(page.getByTestId(`footer-${layout}`)).toBeVisible();
-			if (layout === "mobile") {
+			if (layout === "mobile" && !PHASE2_OFF) {
 				const nav = page.locator('[data-area="bottom-nav"]');
 				await expect(nav).toBeVisible();
 				await expect(nav.locator("[aria-current]")).toHaveCount(0);
 			}
+		});
+
+		test(`${caseId("E1", 5)} ${label} 404 화면의 h1은 DOM과 서버 HTML에 하나뿐이고 글자는 ${COPY.notFoundTitle}임`, async ({
+			page,
+		}) => {
+			await expectSingleHeading(page, "/nope", COPY.notFoundTitle);
 		});
 
 		test(`${caseId("E1", 3)} ${label} 홈으로 가기를 누르면 홈으로 이동함`, async ({
@@ -96,7 +104,7 @@ for (const { label, viewport, layout } of SCREENS) {
 		}) => {
 			await gotoAndSettle(page, "/nope");
 			await page
-				.getByTestId(`status-${layout}`)
+				.getByTestId("status")
 				.getByRole("link", { name: COPY.home })
 				.click();
 			await expect(page).toHaveURL(/\/$/);
@@ -111,7 +119,7 @@ for (const { label, viewport, layout } of SCREENS) {
 				page,
 			}) => {
 				await gotoAndSettle(page, "/nope");
-				const status = page.getByTestId(`status-${layout}`);
+				const status = page.getByTestId("status");
 				const circle = status
 					.locator('[data-area="status-notfound"] > div')
 					.first();
@@ -192,7 +200,7 @@ for (const { label, viewport, layout } of SCREENS) {
 			page,
 		}) => {
 			await gotoAndSettle(page, "/buildings/1");
-			const status = page.getByTestId(`status-${layout}`);
+			const status = page.getByTestId("status");
 			await expect(status.getByRole("heading", { level: 1 })).toHaveText(
 				COPY.errorTitle,
 			);
@@ -211,7 +219,7 @@ for (const { label, viewport, layout } of SCREENS) {
 		}) => {
 			await gotoAndSettle(page, "/buildings/1");
 			const retry = page
-				.getByTestId(`status-${layout}`)
+				.getByTestId("status")
 				.getByRole("button", { name: COPY.retry });
 			await retry.click();
 			await waitForQuiet(page);
@@ -228,7 +236,7 @@ for (const { label, viewport, layout } of SCREENS) {
 			"TC_BUILDING_FAILURE=buildingRateLimited일 때만 돌림",
 		);
 
-		test(`${caseId("E2", 3)} ${label} 요청 제한이면 본문만 요청 제한 안내로 바뀌고 헤더, 질문 바, 푸터는 남음`, async ({
+		test(`${caseId("E2", 3)} ${label} 요청 제한이면 본문만 요청 제한 안내로 바뀌고 헤더와 푸터는 남음`, async ({
 			page,
 		}) => {
 			expect(await gotoAndSettle(page, "/buildings/1")).toBe(200);
@@ -239,11 +247,6 @@ for (const { label, viewport, layout } of SCREENS) {
 			).toBeVisible();
 			await expect(page.getByTestId(`header-${layout}`)).toBeVisible();
 			await expect(page.getByTestId(`footer-${layout}`)).toBeVisible();
-			if (layout === "mobile") {
-				await expect(
-					page.locator('[data-area="ask-building-bar"]'),
-				).toBeVisible();
-			}
 			// 건물 정보는 그리지 않음
 			await expect(page.getByRole("heading", { level: 1 })).toHaveCount(0);
 		});
@@ -342,12 +345,13 @@ test.describe("기본 상태에서는 실패 안내가 없음", () => {
 		await expect(
 			page.getByTestId("partial-status-mobile").getByRole("alert"),
 		).toHaveCount(0);
-		await expect(page.getByTestId("status-mobile")).toHaveCount(0);
+		await expect(page.getByTestId("status")).toHaveCount(0);
 	});
 });
 
 // E4: 폼 전송 실패. 일반 텍스트 응답 대신 폼을 보낸 화면으로 303 이동하고 error 쿼리를 붙임. Origin 검사는 백엔드를 부르기 전에 하므로 백엔드와 상관없이 실패함
 test.describe("폼 전송 실패 응답", () => {
+	test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
 	test(`${caseId("E4", 1)} Origin이 없는 로그아웃 POST는 /me?error=logout-failed로 303을 반환함`, async ({
@@ -400,6 +404,7 @@ const ME_ERRORS = [
 
 for (const { label, viewport, layout } of SCREENS) {
 	test.describe(`${label} ${viewport.width}x${viewport.height} 내 정보 실패 안내`, () => {
+		test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
 		test.use({ viewport, colorScheme: "light" });
 		test.skip(!LOGGED_IN, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 
@@ -500,6 +505,7 @@ for (const { label, viewport, layout } of SCREENS) {
 }
 
 test.describe("대화 삭제 실패 안내", () => {
+	test.skip(PHASE2_OFF, PHASE2_SKIP_REASON);
 	test.skip(!LOGGED_IN, "로그인 TC는 TC_SESSION=in일 때만 돌림");
 
 	test.describe("모바일 대화 목록", () => {

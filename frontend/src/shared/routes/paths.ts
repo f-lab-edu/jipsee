@@ -1,6 +1,8 @@
 export const paths = {
 	home: "/",
 	search: "/search",
+	searchWithKeyword: (keyword: string) =>
+		`/search?keyword=${encodeURIComponent(keyword)}`,
 	login: "/login",
 	loginWithNext: (next: string) => `/login?next=${encodeURIComponent(next)}`,
 	oauthAuthorization: (segment: string) => `/oauth2/authorization/${segment}`,
@@ -19,4 +21,6 @@ export const paths = {
 	buildings: "/buildings",
 	building: (id: number) => `/buildings/${id}`,
 	buildingsSearchApi: "/api/buildings/search",
+	sitemap: "/sitemap.xml",
+	llmsText: "/llms.txt",
 } as const;

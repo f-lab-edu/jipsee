@@ -7,6 +7,7 @@ import { toNearbyCondition } from "@/pages/building/lib/toNearbyCondition";
 import BuildingPage from "@/pages/building/ui/BuildingPage";
 import { toPositiveId } from "@/shared/lib/ids/toPositiveId";
 import { toPageMetadata } from "@/shared/lib/metadata/toPageMetadata";
+import { paths } from "@/shared/routes/paths";
 
 /**
  * 건물 상세 > 메타데이터
@@ -31,7 +32,11 @@ export async function generateMetadata(
 		return {};
 	}
 
-	return toPageMetadata(toBuildingTitle(result.detail), parent);
+	return toPageMetadata(
+		toBuildingTitle(result.detail),
+		parent,
+		paths.building(buildingId),
+	);
 }
 
 /**
