@@ -149,7 +149,7 @@ restrict,command="/opt/jipsee/bin/remote-deploy.sh" ssh-ed25519 AAAA... jipsee-d
     2. 추천 플러그인 설치, 관리자 계정 생성(회원가입 비활성). Jenkins URL은 `https://jenkins.jipsee.link/`
     3. Manage Jenkins, Plugins에서 `prometheus` 플러그인 설치
     4. Manage Jenkins, Nodes, Built-In Node, Configure에서 Number of executors를 `1`로 변경
-    5. 새 Item에서 이름 `jipsee-deal-collect`, 종류 Pipeline 생성
+    5. 새 Item에서 이름 `jipsee-batch`, 종류 Pipeline 생성
        - Definition: Pipeline script from SCM, SCM: Git
        - Repository URL: `https://github.com/f-lab-edu/jipsee.git`(인증 정보 없음)
        - Branch Specifier: `*/main`
@@ -204,5 +204,24 @@ restrict,command="/opt/jipsee/bin/remote-deploy.sh" ssh-ed25519 AAAA... jipsee-d
 
 - `GRAFANA_ADMIN_USER`, `GRAFANA_ADMIN_PASSWORD`: Grafana 관리자 계정
 - `JIPSEE_ALERT_WEBHOOK_URL`: Grafana 알림 웹훅, 토큰 포함 전체 URL
+- `LOKI_S3_ENDPOINT`, `LOKI_S3_ACCESS_KEY`, `LOKI_S3_SECRET_KEY`: Loki 로그 저장소(Object Storage). 값은 `.env`의 `LOGS_S3_*`와 동일, 버킷은 `jipsee-loki`
 
 Grafana 접속은 nginx `https://grafana.jipsee.link`에서 로그인(회원가입, 익명 접속 비활성)
+
+`monitoring/exporter.my.cnf` 생성: mysqld-exporter가 MySQL에 접속하는 계정 파일
+
+1. MySQL에 계정 생성
+   ```sql
+   CREATE USER 'exporter'@'%' IDENTIFIED BY '<비밀번호>' WITH MAX_USER_CONNECTIONS 3;
+   GRANT PROCESS, REPLICATION CLIENT ON *.* TO 'exporter'@'%';
+   GRANT SELECT ON performance_schema.* TO 'exporter'@'%';
+   ```
+2. `monitoring/exporter.my.cnf` 작성
+   ```ini
+   [client]
+   user=exporter
+   password=<비밀번호>
+   host=mysql
+   port=3306
+   ```
+3. 권한 설정: `chmod 600 monitoring/exporter.my.cnf && sudo chown 65534:65534 monitoring/exporter.my.cnf`
