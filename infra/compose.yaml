@@ -37,6 +37,8 @@ services:
       - ./fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
       - /var/log/jipsee/app:/logs:ro
       - /var/lib/jipsee/fluent-bit:/state
+    networks:
+      - db
     mem_limit: 64m
     restart: unless-stopped
     logging: *logging
