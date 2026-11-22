@@ -16,7 +16,7 @@
 
 - Prometheus(15일치 지표), Loki(30일치 로그, Object Storage (Oracle의 S3) 저장), Grafana(대시보드, 로그 검색, 알림)
 - 수집은 node-exporter(서버), cadvisor(컨테이너), mysqld-exporter(MySQL), fluent-bit(앱 로그) 로 진행
-- 메모리 상한 합계 약 2.4GB
+- 메모리 상한 합계 약 2.7GB
 
 ### 알림
 
