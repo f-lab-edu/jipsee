@@ -9,7 +9,7 @@ LOG_DIR=${LOG_DIR:-/var/log/jipsee/app}
 WAIT_TIMEOUT=${WAIT_TIMEOUT:-60}
 LEGACY_IMAGE=${LEGACY_IMAGE:-jipsee-backend:latest}
 IMAGE_REPOS=(ghcr.io/f-lab-edu/jipsee-backend ghcr.io/f-lab-edu/jipsee-batch)
-HEALTH_URL=http://127.0.0.1:8090/actuator/health
+HEALTH_URL=http://127.0.0.1:8081/actuator/health
 KEEP_IMAGES=3
 
 finish() {

@@ -22,6 +22,7 @@ services:
       - db
     ports:
       - "127.0.0.1:8090:8080"
+      - "127.0.0.1:8081:8081"
     mem_limit: 1g
     restart: unless-stopped
     stop_grace_period: 60s
@@ -37,6 +38,8 @@ services:
       - ./fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
       - /var/log/jipsee/app:/logs:ro
       - /var/lib/jipsee/fluent-bit:/state
+    networks:
+      - db
     mem_limit: 64m
     restart: unless-stopped
     logging: *logging
