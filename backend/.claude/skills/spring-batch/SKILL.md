@@ -32,11 +32,12 @@ Packages: `org.springframework.batch.core.job.Job`, `core.job.builder.JobBuilder
 `Chunk`), with readers/writers in `infrastructure.item.database.*` and their builders in
 `infrastructure.item.database.builder.*`.
 
-Package placement: Job config, Reader, Processor, Writer, Tasklet, and scheduler go in the top-level
-`kr.jipsee.batch.<job>` package (`batch/common` for shared code, e.g. `batch/deal`). Batch code calls
-the domain's `service` and `client`, never its `repository`.
+Package placement: batch module code is module-prefixed (`kr.jipsee.batch...`). Job config, Reader, Processor, Writer, and Tasklet go in
+`kr.jipsee.batch.<job>` (e.g. `kr.jipsee.batch.deal`; `kr.jipsee.batch.common` for shared code). External API clients go in
+`kr.jipsee.batch.<job>.client` (e.g. `kr.jipsee.batch.deal.client`), and the shared public data call base in `kr.jipsee.batch.publicdata`.
+Batch code calls the `core` domain services (`kr.jipsee.<domain>`) and the batch clients, never a domain's `repository`.
 
-Single Spring instance only: no ShedLock, `@Scheduled` is enough.
+No in-app scheduler and no ShedLock: Jenkins starts one container per job (`BatchJobRunner` runs it and returns an exit code), and identifying job parameters block duplicate runs.
 
 ## Job & Step (Spring Batch 6 API)
 
@@ -188,7 +189,7 @@ job completion instead (see [[transactional-patterns]] and the listener below).
 
 ## Launching jobs
 
-Boot runs every `Job` bean on startup by default. For scheduled or on-demand jobs, **turn that off**
+Boot runs every `Job` bean on startup by default. For externally launched or on-demand jobs, **turn that off**
 and launch explicitly:
 
 ```yaml
@@ -204,13 +205,13 @@ spring:
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class OrderExportScheduler {
+public class OrderExportRunner implements ApplicationRunner {
 
     private final JobOperator jobOperator;
     private final Job orderExportJob;
 
-    @Scheduled(cron = "0 0 2 * * *")
-    public void runNightly() {
+    @Override
+    public void run(ApplicationArguments args) {
         JobParameters params = new JobParametersBuilder()
             .addString("status", "COMPLETED")
             .addString("runDate", LocalDate.now().toString()) // identifying and deterministic
@@ -229,7 +230,7 @@ public class OrderExportScheduler {
 ```
 
 Use `JobOperator`, not `JobLauncher`: `JobLauncher` is deprecated for removal. Boot's `JobOperator`
-runs **synchronously** by default, so `start(...)` blocks the `@Scheduled` thread until the whole job
+runs **synchronously** by default, so `start(...)` blocks the calling thread until the whole job
 finishes. `start` throws `JobInstanceAlreadyCompleteException`, `JobExecutionAlreadyRunningException`,
 `InvalidJobParametersException`, and `JobRestartException`.
 
@@ -282,5 +283,5 @@ For durable background jobs with retry, a job queue is a better fit. Match the t
 - Agent calls `.skip(...)` / `.retry(...)` without `.faultTolerant()`: it is required first; `skipLimit` defaults to 10, and listener exceptions are fatal (never skipped or retried)
 - Agent leaves jobs running on startup in a web app: set `spring.batch.job.enabled: false` and launch explicitly
 - Agent lets Batch DDL the DB or adds `schema-*.sql` / Flyway for `BATCH_*`: use `initialize-schema: never` in all profiles; the schema is applied outside the repo
-- Agent adds ShedLock or a distributed lock: single Spring instance, `@Scheduled` is enough
+- Agent adds ShedLock, a distributed lock, or an in-app `@Scheduled` trigger: Jenkins launches one container per job, and identifying job parameters block duplicate runs
 - Agent uses plain `spring-boot-starter-batch` and expects restart or duplicate guard: it is in-memory; use `spring-boot-starter-batch-jdbc`
