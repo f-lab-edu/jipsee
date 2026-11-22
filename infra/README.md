@@ -140,9 +140,10 @@ restrict,command="/opt/jipsee/bin/remote-deploy.sh" ssh-ed25519 AAAA... jipsee-d
     - 저장소의 `infra/jenkins/`의 `compose.yaml`, `Dockerfile`을 `jenkins/`로 복사하고 `jenkins/.env`에 `DOCKER_GID` 작성(`chmod 600`)
     - `docker compose -f jenkins/compose.yaml build`, `docker compose -f jenkins/compose.yaml up -d`
 12. nginx 설정
-    - `sudo certbot certonly --nginx -d jenkins.jipsee.link`로 인증서를 먼저 발급. 갱신은 `certbot.timer`가 nginx 방식으로 자동 처리
+    - `sudo certbot certonly --nginx -d jenkins.jipsee.link`로 인증서를 먼저 발급. 갱신은 `certbot.timer`가 80 포트의 챌린지 경로로 자동 처리
     - `nginx/jipsee-jenkins.conf`를 `/etc/nginx/sites-available`에 복사하고 `sites-enabled`에 링크
     - `sudo nginx -t && sudo systemctl reload nginx`
+    - `sudo certbot renew --dry-run`으로 갱신 확인
 13. Jenkins 화면 설정(처음 한 번만). `https://jenkins.jipsee.link`에 접속
     1. 잠금 해제: `docker compose -f jenkins/compose.yaml exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword`의 값 입력
     2. 추천 플러그인 설치, 관리자 계정 생성(회원가입 비활성). Jenkins URL은 `https://jenkins.jipsee.link/`
