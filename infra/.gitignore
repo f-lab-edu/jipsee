@@ -1,3 +1,5 @@
 .env
 schema/
+test/
+job.env
 monitoring/exporter.my.cnf

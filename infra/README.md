@@ -2,6 +2,8 @@
 
 실거래 수집 배치를 운영 서버에서 Docker Compose로 실행. `main`에 머지하면 GitHub Actions가 이미지를 빌드해 ghcr에 올리고, ssh로 서버에 접속해 앱 컨테이너 교체
 
+배치 Job은 서버의 Jenkins 컨테이너가 매일 04:00(KST)에 `jipsee-batch` 이미지로 실행. 호스트 Docker 소켓으로 Job 컨테이너를 직접 띄움
+
 ## 서버 폴더 구성
 
 ### `/opt/jipsee`
@@ -11,8 +13,12 @@
 - `db/schema/`: 스키마 SQL (저장소에 두지 않음)
 - `fluent-bit/fluent-bit.conf`: 이 폴더의 `fluent-bit/fluent-bit.conf`
 - `bin/remote-deploy.sh`: 이 폴더의 `remote-deploy.sh`. 배포 키로 접속하면 이 파일만 실행
+- `jenkins/compose.yaml`: 이 폴더의 `jenkins/compose.yaml`(Jenkins, 프로젝트 `jipsee-jenkins`)
+- `jenkins/Dockerfile`: 이 폴더의 `jenkins/Dockerfile`(Jenkins LTS와 `docker` CLI)
+- `jenkins/.env`: 서버에서 만드는 Jenkins 환경 변수
+- `job.env`: Job 컨테이너 환경 변수. 소유자 `ubuntu`, 그룹 1000, 권한 640(Jenkins 컨테이너 uid 1000이 그룹 권한으로 읽음)
 - `.env`: 아래 환경 변수
-  - `.env.deploy`: 지금 배포된 이미지 태그(`IMAGE_TAG`). 배포 스크립트가 기록
+  - `.env.deploy`: 지금 배포된 이미지 태그(`IMAGE_TAG`). 배포 스크립트가 기록하고 Jenkins도 이 태그로 Job 컨테이너 실행
   - `.env.deploy.prev`: 직전 배포의 이미지 태그. 롤백 시 사용
 
 ### 로그 폴더
@@ -24,6 +30,12 @@
   - `tail.db`: SQLite 파일, `jipsee.log`를 읽은 위치를 기록
   - `s3/`: 업로드 전 로그를 임시 저장
 
+### 그 밖의 경로
+
+- `/var/lib/jipsee-jenkins`: Jenkins 홈 폴더. 컨테이너의 `/var/jenkins_home`에 마운트. 소유자 1000으로 미리 생성(컨테이너 uid가 1000)
+  - 설정, 플러그인, 빌드 기록이 들어 있어 컨테이너와 이미지를 바꿔도 유지
+- `/etc/nginx/sites-available/jipsee-jenkins.conf`: 이 폴더의 `nginx/jipsee-jenkins.conf`. `sites-enabled`에 링크
+
 ### 환경 변수
 
 - `.env`: 두 Compose가 공유. 하나라도 빈 값이면 실행되지 않음
@@ -34,15 +46,25 @@
 - `DB_USERNAME`
 - `DB_PASSWORD`
 
-#### 배치
-
-- `DATA_GO_KR_KEY`: 배치 이미지(Jenkins가 실행)만 사용. 앱 컨테이너에는 전달하지 않음
-
 #### 로그 업로드
 
 - `LOGS_S3_ENDPOINT`
 - `LOGS_S3_ACCESS_KEY_ID`
 - `LOGS_S3_SECRET_ACCESS_KEY`
+
+#### Job (`job.env`)
+
+- `.env`와 별개 파일(`/opt/jipsee/job.env`). Job 컨테이너에만 전달
+- 변수 4개: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `DATA_GO_KR_KEY`
+- 값은 따옴표 없이 `KEY=값` 한 줄씩 작성. `docker run --env-file`로 전달
+- Jenkins 컨테이너가 `/opt/jipsee`를 `/etc/jipsee`로 읽기 전용 마운트해 읽음. uid 1000이 읽지 못하면 `docker run`이 종료 코드 125로 실패
+- `DB_URL`은 `compose.yaml`에 고정된 값과 같은 값 사용
+
+#### Jenkins (`jenkins/.env`)
+
+- `.env`와 별개 파일(`/opt/jipsee/jenkins/.env`). 권한 600
+- `DOCKER_GID`: 필수. 호스트 `docker` 그룹의 gid(`getent group docker | cut -d: -f3`). Jenkins 컨테이너가 호스트 Docker 소켓을 쓰려면 필요
+- `ALERT_WEBHOOK_URL`: 선택. 토큰 포함 전체 웹훅 URL. 비면 알림 없음. 성공이 아닌 Job마다 job, result, buildUrl, exitCode, build를 JSON으로 POST
 
 ## 배포
 
@@ -67,7 +89,10 @@
 
 ### 인프라 파일 변경
 
-워크플로는 서버에 파일을 올리지 않음. `compose.yaml`, `db/compose.yaml`, `fluent-bit/fluent-bit.conf`, `remote-deploy.sh`가 바뀐 PR은 머지한 뒤 서버에 직접 복사. 배포 키는 `remote-deploy.sh` 실행만 허용(`restrict,command=`)해서 파일을 올릴 수 없음
+워크플로는 서버에 파일을 올리지 않음. `compose.yaml`, `db/compose.yaml`, `fluent-bit/fluent-bit.conf`, `remote-deploy.sh`, `jenkins/compose.yaml`, `jenkins/Dockerfile`, `nginx/jipsee-jenkins.conf`가 바뀐 PR은 머지한 뒤 서버에 직접 복사. 배포 키는 `remote-deploy.sh` 실행만 허용(`restrict,command=`)해서 파일을 올릴 수 없음
+
+- `jenkins/compose.yaml`, `jenkins/Dockerfile`: 복사한 뒤 `docker compose -f jenkins/compose.yaml build`와 `up -d`
+- `jenkins/Jenkinsfile`: `main` 머지만으로 다음 빌드부터 반영되어 서버 작업 없음
 
 ## 처음 설정
 
@@ -109,6 +134,27 @@ restrict,command="/opt/jipsee/bin/remote-deploy.sh" ssh-ed25519 AAAA... jipsee-d
 7. 스키마 적용: `docker compose -f db/compose.yaml --env-file .env --profile schema run --rm flyway`
 8. Actions에서 `deploy-backend`를 `main`으로 수동 실행해 앱 실행
 9. 로그 전송 실행: `docker compose --env-file .env --env-file .env.deploy up -d --no-deps fluent-bit`. `.env.deploy`가 있어야 해서 첫 배포 뒤에 실행
+10. `job.env` 작성: 4개 변수(`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `DATA_GO_KR_KEY`). `umask 077`로 만든 뒤 `sudo chown ubuntu:1000 job.env && chmod 640 job.env`
+11. Jenkins 실행
+    - `sudo install -d -o 1000 -g 1000 -m 755 /var/lib/jipsee-jenkins`
+    - 저장소의 `infra/jenkins/`의 `compose.yaml`, `Dockerfile`을 `jenkins/`로 복사하고 `jenkins/.env`에 `DOCKER_GID` 작성(`chmod 600`)
+    - `docker compose -f jenkins/compose.yaml build`, `docker compose -f jenkins/compose.yaml up -d`
+12. nginx 설정
+    - `sudo certbot certonly --nginx -d jenkins.jipsee.link`로 인증서를 먼저 발급. 갱신은 `certbot.timer`가 80 포트의 챌린지 경로로 자동 처리
+    - `nginx/jipsee-jenkins.conf`를 `/etc/nginx/sites-available`에 복사하고 `sites-enabled`에 링크
+    - `sudo nginx -t && sudo systemctl reload nginx`
+    - `sudo certbot renew --dry-run`으로 갱신 확인
+13. Jenkins 화면 설정(처음 한 번만). `https://jenkins.jipsee.link`에 접속
+    1. 잠금 해제: `docker compose -f jenkins/compose.yaml exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword`의 값 입력
+    2. 추천 플러그인 설치, 관리자 계정 생성(회원가입 비활성). Jenkins URL은 `https://jenkins.jipsee.link/`
+    3. Manage Jenkins, Plugins에서 `prometheus` 플러그인 설치
+    4. Manage Jenkins, Nodes, Built-In Node, Configure에서 Number of executors를 `1`로 변경
+    5. 새 Item에서 이름 `jipsee-deal-collect`, 종류 Pipeline 생성
+       - Definition: Pipeline script from SCM, SCM: Git
+       - Repository URL: `https://github.com/f-lab-edu/jipsee.git`(인증 정보 없음)
+       - Branch Specifier: `*/main`
+       - Script Path: `infra/jenkins/Jenkinsfile`
+    6. Build Now로 첫 수동 빌드 실행. `Jenkinsfile`의 cron(매일 04:00 KST)이 이 빌드에서 Job에 등록됨
 
 ## 서버 운영 명령
 
@@ -119,6 +165,11 @@ restrict,command="/opt/jipsee/bin/remote-deploy.sh" ssh-ed25519 AAAA... jipsee-d
 - 스키마 적용: `docker compose -f db/compose.yaml --env-file .env --profile schema run --rm flyway`. 워크플로는 스키마를 적용하지 않음
 - `fluent-bit.conf`를 고친 뒤: `docker compose --env-file .env --env-file .env.deploy restart fluent-bit`
 - DB가 내려가 있으면 앱은 재시작을 반복하며 대기
+- Jenkins 상태: `docker compose -f jenkins/compose.yaml ps`. 로그는 `docker compose -f jenkins/compose.yaml logs --tail 100 jenkins`
+- `jenkins/compose.yaml`이나 `Dockerfile`을 고친 뒤: `docker compose -f jenkins/compose.yaml build`와 `docker compose -f jenkins/compose.yaml up -d`
+- 실행 중인 Job 컨테이너: `docker ps --filter name=jipsee-job`
+- Job 컨테이너를 `docker run`으로 직접 실행하지 않고 항상 Jenkins 빌드로 실행
+- 배치 중지: 화면에서 `jipsee-deal-collect`를 비활성화(Disable Project). 다시 켜려면 활성화
 
 ## 로그
 
@@ -145,6 +196,7 @@ restrict,command="/opt/jipsee/bin/remote-deploy.sh" ssh-ed25519 AAAA... jipsee-d
 - 관리 포트: `127.0.0.1:8081`
 - MySQL: `127.0.0.1:3307`
 - DB Tool: `127.0.0.1:3307` (SSH)
+- Jenkins: `127.0.0.1:8095`. 외부 접속은 nginx `https://jenkins.jipsee.link`(로그인 필수)
 
 ## 모니터링
 
