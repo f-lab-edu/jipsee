@@ -26,7 +26,7 @@ export const C10_DEFAULT: C10Cond = { period: 12, type: "jeonse" };
 export const C10_AREA = "이 건물 거래 면적 ±10㎡로 고정돼요";
 
 // 필터와 면적 고정 줄이 있는 건물
-export const C10_FILTER_IDS = [1, 2, 3, 4, 5];
+export const C10_FILTER_IDS = [1, 2, 4, 5];
 
 // 쿼리 처리(Review Focus 2): 항목 하나가 잘못되어도 그 항목만 기본값이고 나머지는 유지. 모르는 쿼리(옛 링크의 radius)는 무시
 export const C10_QUERY_CASES: [string, string, Partial<C10Cond>][] = [

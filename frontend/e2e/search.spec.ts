@@ -467,7 +467,7 @@ for (const { label, viewport, layout } of SCREENS) {
 }
 
 // 검색 결과 더 보기와 주소 두 줄. 기대값은 2026-11-14 오류와 페이지 나눔 설계 5절, 6절과 캔버스 보드 S1P*에서 가져옴
-// 목업은 "망원동"에 48건(번호 1~48)이 걸려 20건, 20건, 8건으로 나뉨. 번호 35는 건물명과 도로명 주소가 모두 없음
+// 목업은 "망원동"에 47건(번호 1, 2, 4~48)이 걸려 20건, 20건, 7건으로 나뉨. 번호 35는 건물명과 도로명 주소가 모두 없음
 const MORE_LAYOUTS = [
 	{ label: "모바일", viewport: MOBILE, layout: "mobile" },
 	{ label: "데스크톱", viewport: DESKTOP, layout: "desktop" },
@@ -527,7 +527,7 @@ for (const { label, viewport, layout } of MORE_LAYOUTS) {
 				.poll(() =>
 					page.evaluate(() => document.activeElement?.getAttribute("href")),
 				)
-				.toBe(buildingPath(PAGE_SIZE + 1));
+				.toBe(buildingPath(PAGE_SIZE + 2));
 			await expect(announcement).toHaveText(`${PAGE_SIZE}건을 더 불러왔어요`);
 			expect.soft(await announcement.getAttribute("aria-live")).toBe("polite");
 			expect.soft(await announcement.getAttribute("role")).toBe("status");

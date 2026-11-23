@@ -30,7 +30,7 @@ describe("GET /api/buildings/search", () => {
 
 		expect(response.status).toBe(200);
 		expect(body.buildings).toHaveLength(20);
-		expect(body.buildings[0].id).toBe("11440-망원동-45-1");
+		expect(body.buildings[0].id).toBe("11440-망원동-46-1");
 		expect(body.hasNext).toBe(true);
 	});
 

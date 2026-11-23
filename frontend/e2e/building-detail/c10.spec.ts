@@ -163,7 +163,7 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 		test(`${caseId("C10", 16 + layoutIndex)} ${name}에서 주변 거래 id가 레이아웃마다 한 번씩만 있고(-mobile, -desktop) 보이는 것은 ${layout}뿐이며 그룹이 자기 라벨을 가리킴`, async ({
 			t,
 		}) => {
-			for (const id of [1, 3, 4]) {
+			for (const id of [1, 4]) {
 				await t.goto(buildingPath(id));
 				const m = await nearbyMeasure(t);
 				t.eq(`id ${id} 문서 안 중복 id`, m.dupIds, []);
@@ -239,10 +239,10 @@ for (const [index, [w, mobile]] of (
 test.describe("1280x900 light", () => {
 	test.use({ viewport: { width: 1280, height: 900 }, colorScheme: "light" });
 
-	test("C10-20 1280px에서 id 1, 3, 4의 주변 거래가 가로 스크롤 없이 들어옴", async ({
+	test("C10-20 1280px에서 id 1, 4의 주변 거래가 가로 스크롤 없이 들어옴", async ({
 		t,
 	}) => {
-		for (const id of [1, 3, 4]) {
+		for (const id of [1, 4]) {
 			await t.goto(buildingPath(id));
 			const m = await nearbyMeasure(t);
 			t.ok(
@@ -257,10 +257,10 @@ test.describe("1280x900 light", () => {
 test.describe("320x700 light", () => {
 	test.use({ viewport: { width: 320, height: 700 }, colorScheme: "light" });
 
-	test("C10-21 320px에서 id 1, 3, 4의 주변 거래가 가로 스크롤 없이 들어오고 선택 상자가 모두 화면 안에 있음", async ({
+	test("C10-21 320px에서 id 1, 4의 주변 거래가 가로 스크롤 없이 들어오고 선택 상자가 모두 화면 안에 있음", async ({
 		t,
 	}) => {
-		for (const id of [1, 3, 4]) {
+		for (const id of [1, 4]) {
 			await t.goto(buildingPath(id));
 			const m = await nearbyMeasure(t);
 			t.ok(

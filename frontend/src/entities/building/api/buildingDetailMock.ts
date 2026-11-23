@@ -88,12 +88,6 @@ export const buildingDetailMock: BuildingDetail[] = [
 		deals: sharedDeals,
 	},
 	{
-		id: "11440-망원동-15-1",
-		name: "망원하우스",
-		address: "마포구 망원동 15-1",
-		deals: [],
-	},
-	{
 		id: "11440-망원동-16-2",
 		name: null,
 		address: "마포구 망원동 16-2",

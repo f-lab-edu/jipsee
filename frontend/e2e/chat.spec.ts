@@ -61,8 +61,8 @@ test.describe("로그아웃 접근 제어", () => {
 		{ number: 1, path: "/chat", next: "%2Fchat" },
 		{
 			number: 2,
-			path: chatBuildingPath(3),
-			next: encodeURIComponent(chatBuildingPath(3)),
+			path: chatBuildingPath(1),
+			next: encodeURIComponent(chatBuildingPath(1)),
 		},
 		{ number: 3, path: "/chat/history", next: "%2Fchat%2Fhistory" },
 		{ number: 4, path: "/chat/1", next: "%2Fchat%2F1" },

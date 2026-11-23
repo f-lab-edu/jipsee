@@ -23,6 +23,7 @@ export type C12State = {
 // 2026-11-21 모바일 secM은 캔버스 값에서 62를 뺌. 캔버스는 필터 그룹 셋이 두 줄로 줄바꿈되고, 반경을 지워 그룹 둘이 한 줄에 들어오므로 한 줄(선택 상자 52 + 행 간격 10)이 줄어듦. 데스크톱은 한 줄 그대로라 같음
 // 2026-11-23 건축물대장 표제부 UI 제거로 건물 정보 섹션이 외부 링크 영역만 남아 모바일 y가 줄고(id 2 1910 -> 1062, id 3 1132 -> 277), 면적 고정 줄이 모든 건물에 보여 id 3의 섹션 높이가 모바일 +30, 데스크톱 +32 늘어나고, 이전 건물 거래 제거로 거래 이력이 제목만 남는 id 3은 섹션 위쪽 y가 모바일 277, 데스크톱 270이 됨
 // 2026-11-24 유사 건물 범례 항목 제거로 모바일 범례가 한 줄이 되어 id 2의 모바일 y가 26 줄어듦(1088 -> 1062)
+// 2026-11-24 거래가 없는 id 3(망원하우스) 목업 제거로 id 3 상태 삭제
 // secM과 secD는 캔버스 섹션 높이(모바일), 캔버스 높이에 카드 위아래 테두리 2를 더한 값(데스크톱). y는 캔버스 섹션 위쪽 좌표
 export const C12_ID2_WOLSE: C12State = {
 	id: 2,
@@ -33,17 +34,6 @@ export const C12_ID2_WOLSE: C12State = {
 	yM: 1062,
 	yD: 995,
 	label: "id 2 월세",
-};
-export const C12_ID3_WOLSE: C12State = {
-	id: 3,
-	q: "?type=wolse",
-	title: "조건에 맞는 거래 1건",
-	count: 1,
-	secM: 467,
-	secD: 525,
-	yM: 277,
-	yD: 270,
-	label: "id 3 월세",
 };
 export const C12_STATES: C12State[] = [
 	{ id: 1, q: "", title: null, label: "id 1 전세" },
@@ -59,18 +49,6 @@ export const C12_STATES: C12State[] = [
 		label: "id 2 전세",
 	},
 	C12_ID2_WOLSE,
-	{
-		id: 3,
-		q: "",
-		title: "조건에 맞는 거래 2건",
-		count: 2,
-		secM: 540,
-		secD: 578,
-		yM: 277,
-		yD: 270,
-		label: "id 3 전세",
-	},
-	C12_ID3_WOLSE,
 	{ id: 4, q: "", title: C12_NONE, label: "id 4 전세" },
 	{ id: 4, q: "?type=wolse", title: C12_NONE, label: "id 4 월세" },
 	{ id: 5, q: "", title: null, label: "id 5 전세" },

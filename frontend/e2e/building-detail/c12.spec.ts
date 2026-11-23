@@ -8,7 +8,6 @@ import { c12CheckSection } from "../support/buildingDetail/c12CheckSection";
 import {
 	C12_BODY,
 	C12_ID2_WOLSE,
-	C12_ID3_WOLSE,
 	C12_STATES,
 } from "../support/buildingDetail/c12Fixtures";
 import { c12Notices } from "../support/buildingDetail/c12Notices";
@@ -47,7 +46,7 @@ for (const layout of LAYOUTS) {
 	test.describe(`${viewport.width}x${viewport.height} light`, () => {
 		test.use({ viewport, colorScheme: "light" });
 
-		test(`${layout.stateId} ${name} id 1부터 5의 전세와 월세에서 건수가 3 미만일 때만 조건 확장 안내가 있고 제목이 건수와 같음`, async ({
+		test(`${layout.stateId} ${name} id 1, 2, 4, 5의 전세와 월세에서 건수가 3 미만일 때만 조건 확장 안내가 있고 제목이 건수와 같음`, async ({
 			t,
 		}) => {
 			for (const st of C12_STATES) {
@@ -89,9 +88,9 @@ for (const layout of LAYOUTS) {
 	});
 }
 
-// 모양 확인 대상: id 2와 id 3의 전세, id 3의 월세 (섹션 크기가 있는 전세 상태와 id 3 월세)
+// 모양 확인 대상: 섹션 크기가 있는 전세 상태(id 2)
 const SHAPE_STATES = C12_STATES.filter(
-	(s) => (s.secM !== undefined && s.q === "") || (s.id === 3 && s.q !== ""),
+	(s) => s.secM !== undefined && s.q === "",
 );
 
 for (const theme of THEMES) {
@@ -100,7 +99,7 @@ for (const theme of THEMES) {
 		test.describe(`${viewport.width}x${viewport.height} ${theme}`, () => {
 			test.use({ viewport, colorScheme: theme });
 
-			test(`${layout.shapeIds[theme]} ${name} ${theme} id 3 전세와 월세, id 2의 조건 확장 안내 모양, 색, 위치, 섹션 크기가 설계와 같음`, async ({
+			test(`${layout.shapeIds[theme]} ${name} ${theme} id 2의 조건 확장 안내 모양, 색, 위치, 섹션 크기가 설계와 같음`, async ({
 				t,
 			}) => {
 				for (const st of SHAPE_STATES) {
@@ -119,22 +118,17 @@ for (const theme of THEMES) {
 test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "dark" });
 
-	test("C12-09 id 2의 월세에서도 0건 안내 제목이 같고 모바일 다크에서 id 3 월세의 색이 다크 토큰임", async ({
-		t,
-	}) => {
+	test("C12-09 id 2의 월세에서도 0건 안내 제목이 같음", async ({ t }) => {
 		await t.goto(`${buildingPath(2)}?type=wolse`);
 		const m = await nearbyMeasure(t);
 		c12CheckNotice(t, m, "mobile", C12_ID2_WOLSE, "모바일 다크 id 2 월세");
-		await t.goto(`${buildingPath(3)}?type=wolse`);
-		const m3 = await nearbyMeasure(t);
-		c12CheckNotice(t, m3, "mobile", C12_ID3_WOLSE, "모바일 다크 id 3 월세");
 	});
 });
 
 test.describe("320x700 light", () => {
 	test.use({ viewport: { width: 320, height: 700 }, colorScheme: "light" });
 
-	test("C12-10 320px에서 id 2와 id 3 전세, 월세의 조건 확장 안내가 가로 스크롤 없이 섹션 안에 한 줄씩 들어옴", async ({
+	test("C12-10 320px에서 id 2 전세, 월세의 조건 확장 안내가 가로 스크롤 없이 섹션 안에 한 줄씩 들어옴", async ({
 		t,
 	}) => {
 		for (const st of C12_STATES.filter((s) => s.title)) {

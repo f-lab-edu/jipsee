@@ -28,6 +28,7 @@ interface NearbyDealsSectionProps {
  * - 필터 상자 마지막 줄에 면적 고정 줄 출력
  * - 필터 아래에 건수 줄, 조건 확장 안내, 주변 거래 목록, 확정일자 안내 순서로 출력
  * - 조건 확장 안내는 건수가 기준보다 적을 때만 출력
+ * - 건수는 조건에 맞는 전체 건수(totalCount)를 사용
  * - 건수가 0이어도 건수 줄과 확정일자 안내는 출력하고 목록만 출력하지 않음
  * - 모바일은 흰 영역, 데스크톱은 테두리가 있는 카드로 출력
  *
@@ -44,7 +45,7 @@ export default function NearbyDealsSection({
 	const style = nearbyDealsSectionStyles[layout];
 	const titleId = `nearby-deals-title-${layout}`;
 
-	const noticeTitle = toNearbyNoticeTitle(result.deals.length);
+	const noticeTitle = toNearbyNoticeTitle(result.totalCount);
 
 	return (
 		<VStack
@@ -65,7 +66,7 @@ export default function NearbyDealsSection({
 			</NearbyDealsFilter>
 			<NearbyDealsSummary
 				layout={layout}
-				count={result.deals.length}
+				count={result.totalCount}
 				baseMonth={rentDealBaseMonth}
 			/>
 			{noticeTitle && <NearbyDealsNotice layout={layout} title={noticeTitle} />}

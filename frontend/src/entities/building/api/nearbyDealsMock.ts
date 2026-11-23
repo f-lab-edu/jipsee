@@ -236,38 +236,11 @@ const wolseDeals: NearbyDeal[] = [
 	},
 ];
 
-const fewJeonseDeals: NearbyDeal[] = [
-	{
-		id: 1,
-		type: "jeonse",
-		buildingName: "한강빌라",
-		month: { year: 2026, month: 4 },
-		contract: "new",
-		exclusiveArea: 36,
-		amount: 21000,
-		monthlyRent: null,
-	},
-	{
-		id: 2,
-		type: "jeonse",
-		buildingName: "성산빌라",
-		month: { year: 2025, month: 12 },
-		contract: "new",
-		exclusiveArea: 39,
-		amount: 22500,
-		monthlyRent: null,
-	},
-];
-
 export const nearbyDealsMock: Partial<
 	Record<string, { jeonse: NearbyDeal[]; wolse: NearbyDeal[] }>
 > = {
 	"11440-망원동-12-3": { jeonse: jeonseDeals, wolse: wolseDeals },
 	"11440-망원동-12-5": { jeonse: [], wolse: [] },
-	"11440-망원동-15-1": {
-		jeonse: fewJeonseDeals,
-		wolse: wolseDeals.slice(0, 1),
-	},
 	"11440-망원동-16-2": { jeonse: [], wolse: [] },
 	"11440-망원동-17-4": { jeonse: jeonseDeals, wolse: wolseDeals },
 };
