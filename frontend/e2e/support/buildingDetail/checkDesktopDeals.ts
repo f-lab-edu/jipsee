@@ -14,38 +14,23 @@ export function checkDesktopDeals(
 	tk: C6Tokens,
 	rowX: number,
 	rowW: number,
-	isPrev = false,
 ) {
 	t.ok("거래 이력 섹션이 보임", m.found, m.found, "있음");
-	if (isPrev) {
-		t.eq(
-			"이전 건물 table role, aria-label, 머리 없음",
-			[
-				m.table?.label,
-				m.table?.rowRoles,
-				m.table?.headerCount,
-				m.table?.cellCount,
-			],
-			["이전 건물 거래", exp.length, 0, exp.length * 4],
-		);
-		t.eq("머리 행 없음", m.header ?? null, null);
-	} else {
-		t.eq(
-			"table role과 aria-label",
-			[
-				m.table?.label,
-				m.table?.rowRoles,
-				m.table?.headerCount,
-				m.table?.cellCount,
-			],
-			["현재 건물 거래", exp.length + 1, 4, exp.length * 4],
-		);
-		t.eq(
-			"desktop 표 머리 문구와 순서",
-			m.header?.cells.map((c) => c.text),
-			DEAL_COLUMNS,
-		);
-	}
+	t.eq(
+		"table role과 aria-label",
+		[
+			m.table?.label,
+			m.table?.rowRoles,
+			m.table?.headerCount,
+			m.table?.cellCount,
+		],
+		["현재 건물 거래", exp.length + 1, 4, exp.length * 4],
+	);
+	t.eq(
+		"desktop 표 머리 문구와 순서",
+		m.header?.cells.map((c) => c.text),
+		DEAL_COLUMNS,
+	);
 	t.eq("데스크톱 표 행 수", m.rows.length, exp.length);
 	const h = m.header;
 	if (h) {

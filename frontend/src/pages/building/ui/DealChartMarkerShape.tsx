@@ -16,7 +16,6 @@ interface DealChartMarkerShapeProps {
  * - 기본은 전세는 원, 매매는 45도 돌린 둥근 네모
  * - 갱신은 안쪽을 비운 굵은 테두리, 해제는 안쪽을 비운 점선 테두리
  * - 유사 건물은 사이를 비운 두 겹 고리가 있는 원
- * - 이전 건물은 바깥에 점 모양 고리가 있는 원
  *
  * @param diameter 테두리를 포함한 마커 지름
  */
@@ -44,20 +43,6 @@ export default function DealChartMarkerShape({
 					fill={style.layerFill}
 				/>
 				<circle cx="0" cy="0" r={radius} fill="currentColor" />
-			</g>
-		);
-	}
-
-	if (markerKind === "previous") {
-		return (
-			<g>
-				<circle cx="0" cy="0" r={radius} fill="currentColor" />
-				<circle
-					cx="0"
-					cy="0"
-					r={radius + style.previousRingOffset}
-					{...style.previousRing}
-				/>
 			</g>
 		);
 	}

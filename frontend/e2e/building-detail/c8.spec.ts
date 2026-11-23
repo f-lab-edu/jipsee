@@ -1,7 +1,7 @@
 // S2 건물 상세 C8 거래 이력: 점 그래프
 // 기대값 출처: 설계 5절, 캔버스 보드 S2(Mobile|Desktop)(Default|NoLoc|Few)와 DarkS2... 보드의 점, 축 계산식과 측정값
 // 캔버스 계산식: 끝 연도는 실거래 기준 월의 연도(목업 기준 월 2026.09), 시작 연도는 점 중 가장 이른 연도(설계 12절 8번), 가로 비율 ((연 - 시작) * 12 + 월 - 1) / ((끝 - 시작 + 1) * 12 - 1), 세로는 금액 최솟값 - 1000과 최댓값 + 1000을 2000 단위로 내림, 올림
-// 마커 종류, 범례, 이전 건물 영역은 C9 케이스에서 봄(커밋 9 반영: 점 측정을 마커 단위로 바꿈). 월세만 있는 건물은 목업에 없어 시험하지 않음
+// 마커 종류, 범례는 C9 케이스에서 봄(커밋 9 반영: 점 측정을 마커 단위로 바꿈). 월세만 있는 건물은 목업에 없어 시험하지 않음
 // 캔버스 점 상자는 border-bottom 1px 때문에 161/221이고 앱은 160/220임. x축 선 0.5px 차이와 데스크톱 카드 border 때문에 안쪽 폭이 2px 좁은 것은 결정이라 기대값에 반영함
 
 import {
@@ -90,11 +90,10 @@ function c8Expect(deals: ChartDeal[]) {
 			xPct: pct(d.y, d.m),
 			yPct: ((yMax - d.amt) / (yMax - yMin)) * 100,
 			kind: d.kind,
-			prev: !!d.prev,
 		})),
 		yLabels: [won(yMax), won((yMax + yMin) / 2), won(yMin)],
 		ticks,
-		label: `거래 금액 점 그래프, 전세 ${jeonse}건, 매매 ${deals.length - jeonse}건${deals.some((d) => !d.prev) ? "" : ", 현재 건물 거래 없음"}`,
+		label: `거래 금액 점 그래프, 전세 ${jeonse}건, 매매 ${deals.length - jeonse}건`,
 	};
 }
 
@@ -120,11 +119,7 @@ function checkChartPoints(
 		// 커밋 9: 마커 종류별로 도형이 여러 개이므로 안쪽 점 지름(core)과 첫 도형 모양, currentColor를 봄
 		t.near(`점 ${i} 크기(안쪽 점 지름)`, a.core, L.d, 1);
 		t.eq(`점 ${i} 모양`, a.shapes[0]?.tag, sale ? "rect" : "circle");
-		t.color(
-			`점 ${i} 색`,
-			a.color,
-			C8_COLORS[theme][p.prev ? "previous" : p.kind],
-		);
+		t.color(`점 ${i} 색`, a.color, C8_COLORS[theme][p.kind]);
 	});
 }
 
@@ -276,7 +271,7 @@ for (const [layoutIndex, [name, vp]] of LAYOUTS.entries()) {
 		test(`${caseId("C8", 25 + layoutIndex)} ${name}에서 id별 그래프 role=img의 aria-label이 캔버스 chartLabel과 같음`, async ({
 			t,
 		}) => {
-			for (const id of [1, 2, 3, 4, 5]) {
+			for (const id of [1, 2, 4, 5]) {
 				await t.goto(buildingPath(id));
 				const m = await t.page.evaluate(measureChart);
 				t.eq(`id ${id} aria-label`, m.aria, c8Expect(dealsOf(id)).label);
@@ -335,13 +330,12 @@ for (const [index, [name, vp, dy]] of (
 	test.describe(`${vp.width}x${vp.height} light`, () => {
 		test.use({ viewport: vp, colorScheme: "light" });
 
-		test(`${caseId("C8", 30 + index)} ${name}에서 x 연도 줄 아래 끝과 다음 목록 첫 글자 사이 간격이 캔버스와 같음 (id 1과 4는 ${dy}, id 3은 이전 건물 거래 제목까지 22)`, async ({
+		test(`${caseId("C8", 30 + index)} ${name}에서 x 연도 줄 아래 끝과 다음 목록 첫 글자 사이 간격이 캔버스와 같음 (id 1과 4는 ${dy})`, async ({
 			t,
 		}) => {
 			for (const [id, expectDy, text] of [
 				[1, dy, "2026.08"],
 				[4, dy, "2026.03"],
-				[3, 22, "이전 건물 거래"],
 			] as const) {
 				await t.goto(buildingPath(id));
 				const m = await t.page.evaluate(measureChart);
@@ -366,12 +360,11 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 test.describe("320x700 light", () => {
 	test.use({ viewport: { width: 320, height: 700 }, colorScheme: "light" });
 
-	test("C8-33 320px에서 id 1, 3, 4의 그래프가 가로 스크롤 없이 들어오고 점이 6개, 1개, 3개임", async ({
+	test("C8-33 320px에서 id 1, 4의 그래프가 가로 스크롤 없이 들어오고 점이 6개, 3개임", async ({
 		t,
 	}) => {
 		for (const [id, n] of [
 			[1, 6],
-			[3, 1],
 			[4, 3],
 		] as const) {
 			await t.goto(buildingPath(id));

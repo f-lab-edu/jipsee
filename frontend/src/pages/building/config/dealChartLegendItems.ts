@@ -32,10 +32,4 @@ export const dealChartLegendItems: DealChartLegendItem[] = [
 		markerKind: "similar",
 		colorKey: "neutralMuted",
 	},
-	{
-		label: dealChartCopy.previous,
-		dealType: "jeonse",
-		markerKind: "previous",
-		colorKey: "previous",
-	},
 ];

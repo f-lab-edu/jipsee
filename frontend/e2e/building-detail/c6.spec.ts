@@ -1,6 +1,6 @@
 // S2 건물 상세 C6 거래 이력: 현재 건물 거래 목록
 // 기대값 출처: 설계 2절(글자 크기, 주요 간격 거래 목록 행), 3절(거래 이력 문구), 7절(색), 9절(role), 12절 29번, 캔버스 보드 S2(Mobile|Desktop)(Default|NoLoc|Few)와 Dark* 보드
-// 점 그래프와 이전 건물 거래, 주변 전월세 거래는 이후 커밋이라 여기서 보지 않음. 그래서 제목 아래 간격 같은 절대 위치는 검사하지 않고 목록 안의 상대 위치만 봄
+// 점 그래프와 주변 전월세 거래는 이후 커밋이라 여기서 보지 않음. 그래서 제목 아래 간격 같은 절대 위치는 검사하지 않고 목록 안의 상대 위치만 봄
 
 import { c6CheckDesktopSection } from "../support/buildingDetail/c6CheckDesktopSection";
 import { c6CheckMobileSection } from "../support/buildingDetail/c6CheckMobileSection";
@@ -26,7 +26,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		t,
 	}) => {
 		await t.goto(buildingPath(1));
-		const m = await t.page.evaluate(measureDeals, "current" as const);
+		const m = await t.page.evaluate(measureDeals);
 		const tk = C6_TOKENS.light;
 		c6CheckMobileSection(t, m, tk, MOBILE_COLUMN.x, MOBILE_COLUMN.width);
 		t.eq("ul 하나", m.ulCount, 1);
@@ -39,7 +39,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			t,
 		}) => {
 			await t.goto(buildingPath(id));
-			const m = await t.page.evaluate(measureDeals, "current" as const);
+			const m = await t.page.evaluate(measureDeals);
 			checkMobileDeals(
 				t,
 				m,
@@ -55,7 +55,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		t,
 	}) => {
 		await t.goto(`${buildingPath(1)}?type=wolse`);
-		const m = await t.page.evaluate(measureDeals, "current" as const);
+		const m = await t.page.evaluate(measureDeals);
 		t.eq("li 7개", m.liCount, 7);
 		checkMobileDeals(
 			t,
@@ -70,7 +70,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		t,
 	}) => {
 		await t.goto(buildingPath(3));
-		const m = await t.page.evaluate(measureDeals, "current" as const);
+		const m = await t.page.evaluate(measureDeals);
 		c6CheckMobileSection(
 			t,
 			m,
@@ -90,7 +90,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 		t,
 	}) => {
 		await t.goto(buildingPath(1));
-		const m = await t.page.evaluate(measureDeals, "current" as const);
+		const m = await t.page.evaluate(measureDeals);
 		const tk = C6_TOKENS.dark;
 		c6CheckMobileSection(t, m, tk, MOBILE_COLUMN.x, MOBILE_COLUMN.width);
 		checkMobileDeals(t, m, DEALS[1], tk, MOBILE_COLUMN.x, MOBILE_COLUMN.width);
@@ -99,7 +99,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 		t,
 	}) => {
 		await t.goto(buildingPath(4));
-		const m = await t.page.evaluate(measureDeals, "current" as const);
+		const m = await t.page.evaluate(measureDeals);
 		checkMobileDeals(
 			t,
 			m,
@@ -113,7 +113,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 		t,
 	}) => {
 		await t.goto(buildingPath(3));
-		const m = await t.page.evaluate(measureDeals, "current" as const);
+		const m = await t.page.evaluate(measureDeals);
 		c6CheckMobileSection(
 			t,
 			m,
@@ -132,7 +132,7 @@ test.describe("320x700 light", () => {
 	}) => {
 		for (const id of [1, 4]) {
 			await t.goto(buildingPath(id));
-			const m = await t.page.evaluate(measureDeals, "current" as const);
+			const m = await t.page.evaluate(measureDeals);
 			t.ok(
 				`id ${id} 가로 스크롤`,
 				m.scrollW <= m.vw,
@@ -157,7 +157,7 @@ test.describe("768x900 light", () => {
 		t,
 	}) => {
 		await t.goto(buildingPath(1));
-		const m = await t.page.evaluate(measureDeals, "current" as const);
+		const m = await t.page.evaluate(measureDeals);
 		// 카드가 없어 열 폭 720을 그대로 씀(2026-11-13 흰 세로 열)
 		t.near("섹션 w (열 720)", m.section?.rect.w, 720, 1);
 		t.eq("table 없음", m.table, null);
@@ -181,7 +181,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 		t,
 	}) => {
 		await t.goto(buildingPath(1));
-		const m = await t.page.evaluate(measureDeals, "current" as const);
+		const m = await t.page.evaluate(measureDeals);
 		const tk = C6_TOKENS.light;
 		c6CheckDesktopSection(t, m, tk);
 		t.eq("ul 없음(데스크톱은 table)", m.ulCount, 0);
@@ -193,7 +193,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 			t,
 		}) => {
 			await t.goto(buildingPath(id));
-			const m = await t.page.evaluate(measureDeals, "current" as const);
+			const m = await t.page.evaluate(measureDeals);
 			checkDesktopDeals(t, m, DEALS[id], C6_TOKENS.light, 177, 682);
 			checkDealsBottom(t, m, 29);
 		});
@@ -202,7 +202,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 		t,
 	}) => {
 		await t.goto(`${buildingPath(1)}?type=wolse`);
-		const m = await t.page.evaluate(measureDeals, "current" as const);
+		const m = await t.page.evaluate(measureDeals);
 		checkDesktopDeals(t, m, DEALS[1], C6_TOKENS.light, 177, 682);
 	});
 });
@@ -213,7 +213,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} dark`, () => {
 		t,
 	}) => {
 		await t.goto(buildingPath(1));
-		const m = await t.page.evaluate(measureDeals, "current" as const);
+		const m = await t.page.evaluate(measureDeals);
 		const tk = C6_TOKENS.dark;
 		c6CheckDesktopSection(t, m, tk);
 		checkDesktopDeals(t, m, DEALS[1], tk, 177, 682);
@@ -222,7 +222,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} dark`, () => {
 		t,
 	}) => {
 		await t.goto(buildingPath(4));
-		const m = await t.page.evaluate(measureDeals, "current" as const);
+		const m = await t.page.evaluate(measureDeals);
 		checkDesktopDeals(t, m, DEALS[4], C6_TOKENS.dark, 177, 682);
 	});
 });
@@ -234,7 +234,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			t,
 		}) => {
 			await t.goto(buildingPath(3));
-			const m = await t.page.evaluate(measureDeals, "current" as const);
+			const m = await t.page.evaluate(measureDeals);
 			c6CheckDesktopSection(t, m, C6_TOKENS[theme]);
 			t.eq("현재 건물 거래 table 없음", m.table, null);
 			t.eq("행 없음", m.rows.length, 0);
@@ -258,7 +258,7 @@ for (const [index, [name, viewport, layout]] of (
 		}) => {
 			for (const id of [1, 3]) {
 				await t.goto(buildingPath(id));
-				const m = await t.page.evaluate(measureDeals, "current" as const);
+				const m = await t.page.evaluate(measureDeals);
 				t.eq(`id ${id} 문서 안 중복 id`, m.dupIds, []);
 				for (const l of ["mobile", "desktop"]) {
 					const x = m.titleIds[l];
@@ -295,7 +295,7 @@ for (const [index, [w, mobile]] of (
 			t,
 		}) => {
 			await t.goto(buildingPath(1));
-			const m = await t.page.evaluate(measureDeals, "current" as const);
+			const m = await t.page.evaluate(measureDeals);
 			t.eq("보이는 거래 이력 섹션 개수", m.visibleSections, 1);
 			t.eq(
 				"보이는 섹션 제목 id",

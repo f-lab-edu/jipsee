@@ -5,7 +5,6 @@ export type ChartDeal = {
 	m: number;
 	kind: "jeonse" | "sale";
 	amt: number;
-	prev?: boolean;
 };
 
 // 점 그래프 끝 연도. 실거래 기준 월의 연도이며 목업 기준 월은 2026.09임
@@ -15,12 +14,10 @@ export const C8_COLORS = {
 	light: {
 		jeonse: "rgb(33, 124, 249)",
 		sale: "rgb(155, 120, 33)",
-		previous: "rgb(134, 139, 148)",
 	},
 	dark: {
 		jeonse: "rgb(30, 130, 235)",
 		sale: "rgb(202, 144, 28)",
-		previous: "rgb(176, 179, 186)",
 	},
 };
 
@@ -38,15 +35,13 @@ export const C8_DEALS: Record<string, ChartDeal[]> = {
 		{ y: 2024, m: 10, kind: "jeonse", amt: 17000 },
 		{ y: 2023, m: 5, kind: "jeonse", amt: 16000 },
 	],
-	few: [{ y: 2012, m: 3, kind: "jeonse", amt: 9000, prev: true }],
 };
 
 export const C8_SET: Record<number, string> = {
 	1: "default",
 	2: "default",
-	3: "few",
 	4: "noloc",
 	5: "default",
 };
 
-export const C8_ID_LIST = [1, 4, 3];
+export const C8_ID_LIST = [1, 4];

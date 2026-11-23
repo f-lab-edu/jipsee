@@ -1,8 +1,8 @@
-// S2 건물 상세 C9 거래 이력: 마커 종류, 범례, 이전 건물 영역, 거래 없음 알약
-// 기대값 출처: 설계 3절(범례 문구), 5절(마커별 모양, 이전 건물 영역 폭), 7절(색), 캔버스 보드 S2(Mobile|Desktop)(Default|NoLoc|Few)와 DarkS2... 보드의 측정값
-// 캔버스가 마커 종류를 CSS로 그리는 방식: 갱신은 배경색 원에 3px 실선 테두리, 해제는 배경색 원에 2px 점선 테두리, 유사 건물은 채운 원에 2px 간격 두 겹 고리(box-shadow 2px, 4px), 이전 건물은 회색 원에 2px 점 윤곽선(outline-offset 2px)
-// 점선과 점 윤곽선의 간격은 브라우저가 그리는 방식이라 숫자로 비교하지 않고 눈으로 봄(dasharray가 있는지, 이전 건물 고리의 linecap이 round인지만 설계 5절대로 확인함)
-// 알려진 차이(결정): 데스크톱 카드 border로 안쪽 폭이 2px 좁고, 캔버스 그래프 상자는 border-bottom 때문에 161/221이고 앱은 160/220이며, 캔버스 알약 고리는 box-shadow 1px(바깥)이고 앱은 border 1px이라 바깥 크기는 같음
+// S2 건물 상세 C9 거래 이력: 마커 종류, 범례
+// 기대값 출처: 설계 3절(범례 문구), 5절(마커별 모양), 7절(색), 캔버스 보드 S2(Mobile|Desktop)(Default|NoLoc)와 DarkS2... 보드의 측정값
+// 캔버스가 마커 종류를 CSS로 그리는 방식: 갱신은 배경색 원에 3px 실선 테두리, 해제는 배경색 원에 2px 점선 테두리, 유사 건물은 채운 원에 2px 간격 두 겹 고리(box-shadow 2px, 4px)
+// 점선의 간격은 브라우저가 그리는 방식이라 숫자로 비교하지 않고 눈으로 봄(dasharray가 있는지만 설계 5절대로 확인함)
+// 알려진 차이(결정): 데스크톱 카드 border로 안쪽 폭이 2px 좁고, 캔버스 그래프 상자는 border-bottom 때문에 161/221이고 앱은 160/220이며
 
 import {
 	C8_COLORS,
@@ -12,11 +12,9 @@ import {
 	type ChartDeal,
 } from "../support/buildingDetail/c8Fixtures";
 import { c8FullChart } from "../support/buildingDetail/c8FullChart";
-import { c9CheckBandAndPill } from "../support/buildingDetail/c9CheckBandAndPill";
 import { c9CheckLegend } from "../support/buildingDetail/c9CheckLegend";
 import { c9CheckMarkerShape } from "../support/buildingDetail/c9CheckMarkerShape";
 import {
-	C9_BAND_PCT,
 	C9_KINDS,
 	C9_LAYOUT,
 	type MarkerKind,
@@ -67,7 +65,7 @@ for (const [layoutIndex, [name, vp, layout]] of LAYOUTS.entries()) {
 						const a = full.points[i];
 						const kind = kinds[i];
 						if (!a || !kind) return;
-						const color = C8_COLORS[theme][p.prev ? "previous" : p.kind];
+						const color = C8_COLORS[theme][p.kind];
 						c9CheckMarkerShape(
 							t,
 							`점 ${i}(${kind})`,
@@ -121,7 +119,7 @@ for (const [layoutIndex, [name, vp, layout]] of LAYOUTS.entries()) {
 		test.use({ viewport: vp, colorScheme: "light" });
 
 		for (const [idIndex, id] of C8_ID_LIST.entries()) {
-			test(`${caseId("C9", 14 + layoutIndex * (N + 1) + idIndex)} ${name} id ${id}의 범례 항목 여섯 개와 보조 문구의 문구, 순서, 위치, 마커, 색이 캔버스와 같음`, async ({
+			test(`${caseId("C9", 14 + layoutIndex * (N + 1) + idIndex)} ${name} id ${id}의 범례 항목 다섯 개와 보조 문구의 문구, 순서, 위치, 마커, 색이 캔버스와 같음`, async ({
 				t,
 			}) => {
 				await t.goto(buildingPath(id));
@@ -175,7 +173,7 @@ for (const [index, [w, layout]] of (
 			t.eq("보이는 보조 문구 개수", m.legendVisibleCount, 1);
 			t.near("범례 마커 폭", m.legend?.items[0]?.marker?.w, L.legendD, 0.5);
 			t.near("그래프 첫 마커 안쪽 점 지름", m.points?.[0]?.core, L.d, 0.5);
-			t.eq("보조 문구와 항목 수", m.legend?.items.length, 7);
+			t.eq("보조 문구와 항목 수", m.legend?.items.length, 6);
 		});
 	});
 }
@@ -214,8 +212,7 @@ for (const [layoutIndex, [name, vp, layout]] of LAYOUTS.entries()) {
 					1.5,
 				);
 				let nextText = "2026.08";
-				if (id === 3) nextText = "이전 건물 거래";
-				else if (id === 4) nextText = "2026.03";
+				if (id === 4) nextText = "2026.03";
 				t.eq("다음 글자", full.dateAfter?.text, nextText);
 				t.near(
 					"다음 글자 위쪽(제목 위쪽 기준)",
@@ -234,68 +231,14 @@ for (const [layoutIndex, [name, vp, layout]] of LAYOUTS.entries()) {
 	});
 }
 
-// 이전 건물 영역과 알약: id 3(이전 건물 2012.03 하나, 현재 건물 거래 없음)에만 있음
-for (const [layoutIndex, [name, vp, layout]] of LAYOUTS.entries()) {
-	for (const [themeIndex, theme] of THEMES.entries()) {
-		test.describe(`${vp.width}x${vp.height} ${theme}`, () => {
-			test.use({ viewport: vp, colorScheme: theme });
-
-			test(`${caseId("C9", 31 + layoutIndex * 3 + themeIndex)} ${name} ${theme} id 3의 이전 건물 영역(폭 13.12%, 채움, 점선, 글자)과 거래 없음 알약이 캔버스와 같음`, async ({
-				t,
-			}) => {
-				await t.goto(buildingPath(3));
-				const m = await t.page.evaluate(measureChart);
-				t.ok("그래프가 있음", m.found, m.found, "있음");
-				const full = c8FullChart(t, m);
-				if (full) c9CheckBandAndPill(t, full, layout, theme);
-			});
-		});
-	}
-	test.describe(`${vp.width}x${vp.height} light`, () => {
-		test.use({ viewport: vp, colorScheme: "light" });
-
-		test(`${caseId("C9", 33 + layoutIndex * 3)} ${name} id 1과 4에는 이전 건물 영역과 알약이 없음`, async ({
-			t,
-		}) => {
-			for (const id of [1, 4]) {
-				await t.goto(buildingPath(id));
-				const m = await t.page.evaluate(measureChart);
-				t.eq(`id ${id} 이전 건물 영역`, m.band, null);
-				t.eq(`id ${id} 알약`, m.pill, null);
-				t.ok(
-					`id ${id} aria-label에 현재 건물 거래 없음이 없음`,
-					!String(m.aria).includes("현재 건물 거래 없음"),
-					m.aria,
-					"없음",
-				);
-			}
-		});
-	});
-}
-test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
-	test.use({ viewport: MOBILE, colorScheme: "light" });
-
-	test("C9-37 id 3의 aria-label에 현재 건물 거래 없음이 있고 알약 문구가 텍스트로 있음", async ({
-		t,
-	}) => {
-		await t.goto(buildingPath(3));
-		const m = await t.page.evaluate(measureChart);
-		t.eq(
-			"aria-label",
-			m.aria,
-			"거래 금액 점 그래프, 전세 1건, 매매 0건, 현재 건물 거래 없음",
-		);
-		t.eq("보이는 알약 문구", m.pill?.text, "현재 건물 거래가 없어요");
-	});
-});
 // 320px: 범례가 줄바꿈되어 가로 스크롤이 없고 모든 항목이 화면 안에 들어옴
 test.describe("320x700 light", () => {
 	test.use({ viewport: { width: 320, height: 700 }, colorScheme: "light" });
 
-	test("C9-38 320px에서 id 1, 3, 4의 범례 항목이 모두 화면 안에 있고 가로 스크롤이 없으며 id 3의 영역과 알약이 그래프 안에 있음", async ({
+	test("C9-38 320px에서 id 1, 4의 범례 항목이 모두 화면 안에 있고 가로 스크롤이 없음", async ({
 		t,
 	}) => {
-		for (const id of [1, 3, 4]) {
+		for (const id of [1, 4]) {
 			await t.goto(buildingPath(id));
 			const m = await t.page.evaluate(measureChart);
 			t.ok(
@@ -304,30 +247,13 @@ test.describe("320x700 light", () => {
 				m.scrollW,
 				`문서 폭 ≤ ${m.vw}`,
 			);
-			t.eq(`id ${id} 범례 항목 수`, m.legend?.items.length, 7);
+			t.eq(`id ${id} 범례 항목 수`, m.legend?.items.length, 6);
 			for (const it of m.legend?.items ?? []) {
 				t.ok(
 					`id ${id} "${it.text}" 오른쪽 끝이 화면 안`,
 					it.right <= m.vw - 16 + 1,
 					it.right,
 					`≤ ${m.vw - 16}`,
-				);
-			}
-			if (id === 3) {
-				t.near(
-					"영역 폭 13.12%",
-					m.band && m.box ? (m.band.w / m.box.w) * 100 : Number.NaN,
-					C9_BAND_PCT,
-					0.1,
-				);
-				t.ok(
-					"알약이 그래프 안(양쪽)",
-					!!m.pill &&
-						!!m.box &&
-						m.pill.x >= -1 &&
-						m.pill.x + m.pill.w <= m.box.w + 1,
-					m.pill && [m.pill.x, m.pill.w],
-					`0 ≤ x, x + w ≤ ${m.box?.w}`,
 				);
 			}
 		}

@@ -87,33 +87,18 @@ export const buildingDetailMock: BuildingDetail[] = [
 		name: "망원빌라",
 		address: "마포구 망원동 12-3",
 		deals: sharedDeals,
-		previousDeals: [],
 	},
 	{
 		id: "11440-망원동-12-5",
 		name: "망원빌라 2차",
 		address: "마포구 망원동 12-5",
 		deals: sharedDeals,
-		previousDeals: [],
 	},
 	{
 		id: "11440-망원동-15-1",
 		name: "망원하우스",
 		address: "마포구 망원동 15-1",
 		deals: [],
-		previousDeals: [
-			{
-				id: 1,
-				month: { year: 2012, month: 3 },
-				type: "jeonse",
-				contract: "new",
-				exclusiveArea: 50,
-				amount: 9000,
-				monthlyRent: null,
-				cancelled: false,
-				similarBuilding: false,
-			},
-		],
 	},
 	{
 		id: "11440-망원동-16-2",
@@ -154,13 +139,11 @@ export const buildingDetailMock: BuildingDetail[] = [
 				similarBuilding: false,
 			},
 		],
-		previousDeals: [],
 	},
 	{
 		id: "11440-망원동-17-4",
 		name: "망원맨션",
 		address: "마포구 망원동 17-4",
 		deals: sharedDeals,
-		previousDeals: [],
 	},
 ];

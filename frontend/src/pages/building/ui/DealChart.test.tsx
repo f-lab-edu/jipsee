@@ -24,26 +24,14 @@ const wolse: BuildingDeal = {
 
 describe("DealChart", () => {
 	it("월세 거래만 있으면 그래프를 출력하지 않음", () => {
-		render(
-			<DealChart
-				layout="mobile"
-				deals={[wolse]}
-				previousDeals={[]}
-				endYear={2026}
-			/>,
-		);
+		render(<DealChart layout="mobile" deals={[wolse]} endYear={2026} />);
 
 		expect(screen.queryByRole("img")).toBeNull();
 	});
 
 	it("전세 거래가 있으면 읽기 문구가 있는 그래프를 하나 출력함", () => {
 		render(
-			<DealChart
-				layout="mobile"
-				deals={[jeonse, wolse]}
-				previousDeals={[]}
-				endYear={2026}
-			/>,
+			<DealChart layout="mobile" deals={[jeonse, wolse]} endYear={2026} />,
 		);
 
 		expect(screen.getAllByRole("img")).toHaveLength(1);

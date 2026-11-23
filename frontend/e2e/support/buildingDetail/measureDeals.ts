@@ -88,33 +88,10 @@ export type DealsMeasure = {
 		cells: ({ text: string; t: RelRect } & DealStyle)[];
 	};
 	rows: DealRow[];
-	block?: {
-		domTotal: number;
-		visibleCount: number;
-		bodyHasDescription: boolean;
-		parentIsSection?: boolean;
-		isLastChildOfSection?: boolean;
-		afterTitle?: boolean;
-		padTop?: string;
-		gap?: string;
-		headingGap?: string;
-		rect?: Rect;
-		h3?: { text: string; tag: string; rect: Rect } & DealStyle;
-		p?: ({ text: string; tag: string; rect: Rect } & DealStyle) | null;
-		list?: {
-			tag: string;
-			role: string | null;
-			label: string | null;
-			rect: Rect;
-		} | null;
-		text?: string;
-	};
 };
 
-/** 보이는 거래 이력 섹션과 거래 목록을 측정함. scope가 "prev"면 이전 건물 거래 블록 안만, "current"면 블록 밖만 봄. 페이지 안에서 실행하므로 외부 변수를 쓰지 않음 */
-export function measureDeals(
-	scope: "current" | "prev" = "current",
-): DealsMeasure {
+/** 보이는 거래 이력 섹션과 거래 목록을 측정함. 페이지 안에서 실행하므로 외부 변수를 쓰지 않음 */
+export function measureDeals(): DealsMeasure {
 	const text = (node: Node | null | undefined) =>
 		(node?.textContent ?? "").trim();
 	const vis = (e: Element | null | undefined) =>
@@ -231,17 +208,7 @@ export function measureDeals(
 			}
 		: null;
 
-	// 이전 건물 거래 블록은 섹션의 직접 자식이고 제목(h3)의 할아버지임
-	const prevH3 = [...sec.querySelectorAll("h3")].find(
-		(h) => text(h) === "이전 건물 거래",
-	);
-	const prevBlock = prevH3?.parentElement?.parentElement ?? null;
-	const scopeOk = (e: Element) =>
-		scope === "prev"
-			? !!prevBlock && prevBlock.contains(e)
-			: !(prevBlock?.contains(e) ?? false);
-	const table =
-		[...sec.querySelectorAll('[role="table"]')].find(scopeOk) ?? null;
+	const table = sec.querySelector('[role="table"]');
 	out.table = table
 		? {
 				label: table.getAttribute("aria-label"),
@@ -251,7 +218,7 @@ export function measureDeals(
 				cellCount: table.querySelectorAll('[role="cell"]').length,
 			}
 		: null;
-	const uls = [...sec.querySelectorAll("ul")].filter(scopeOk);
+	const uls = [...sec.querySelectorAll("ul")];
 	out.ulLabels = uls.map((u) => u.getAttribute("aria-label"));
 	out.ulCount = uls.length;
 	out.liCount = uls.reduce((n, u) => n + u.children.length, 0);
@@ -383,55 +350,5 @@ export function measureDeals(
 		}
 		return o;
 	});
-	// 이전 건물 거래 블록 (보이는 것 기준)
-	const h3s = [...document.querySelectorAll("h3")].filter(
-		(h) => text(h) === "이전 건물 거래",
-	);
-	out.block = {
-		domTotal: h3s.length,
-		visibleCount: h3s.filter(vis).length,
-		bodyHasDescription: (document.body.textContent ?? "").includes(
-			"재건축 전 건물에서 있었던 거래예요",
-		),
-	};
-	if (prevBlock && prevH3 && vis(prevH3)) {
-		const bc = getComputedStyle(prevBlock);
-		const hw = prevH3.parentElement as HTMLElement;
-		const hwc = getComputedStyle(hw);
-		const pEl = prevH3.nextElementSibling;
-		const listEl = hw.nextElementSibling;
-		Object.assign(out.block, {
-			parentIsSection: prevBlock.parentElement === sec,
-			isLastChildOfSection: sec.lastElementChild === prevBlock,
-			afterTitle:
-				!!h2 &&
-				!!(
-					h2.compareDocumentPosition(prevBlock) &
-					Node.DOCUMENT_POSITION_FOLLOWING
-				),
-			padTop: bc.paddingTop,
-			gap: bc.rowGap,
-			headingGap: hwc.rowGap,
-			rect: R(prevBlock),
-			h3: {
-				text: text(prevH3),
-				tag: prevH3.tagName,
-				rect: R(prevH3),
-				...sty(prevH3),
-			},
-			p: pEl
-				? { text: text(pEl), tag: pEl.tagName, rect: R(pEl), ...sty(pEl) }
-				: null,
-			list: listEl
-				? {
-						tag: listEl.tagName,
-						role: listEl.getAttribute("role"),
-						label: listEl.getAttribute("aria-label"),
-						rect: R(listEl),
-					}
-				: null,
-			text: prevBlock.textContent,
-		});
-	}
 	return out;
 }

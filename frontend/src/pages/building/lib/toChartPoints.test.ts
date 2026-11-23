@@ -6,10 +6,9 @@ import { toChartDeals } from "@/pages/building/lib/toChartDeals";
 import { toChartPoints } from "@/pages/building/lib/toChartPoints";
 
 const defaultBuilding = buildingDetailMock[0];
-const fewDealsBuilding = buildingDetailMock[2];
 
 function toPoints(building: BuildingDetail) {
-	const chartDeals = toChartDeals(building.deals, building.previousDeals);
+	const chartDeals = toChartDeals(building.deals);
 	const axis = toChartAxis(chartDeals, 2026);
 
 	if (axis === null) {
@@ -55,24 +54,10 @@ describe("toChartPoints", () => {
 		expect(kinds).toContainEqual(["jeonse", 5, "similar"]);
 	});
 
-	it("이전 건물 거래의 마커 종류는 이전 건물임", () => {
-		expect(toPoints(fewDealsBuilding)[0]?.markerKind).toBe("previous");
-	});
-
-	it("거래 적음 건물의 이전 건물 점 위치가 캔버스 계산과 같음", () => {
-		const points = toPoints(fewDealsBuilding);
-
-		expect(points).toHaveLength(1);
-		expect(points[0]?.xPercent).toBeCloseTo(1.12, 2);
-		expect(points[0]?.yPercent).toBe(50);
-		expect(points[0]?.fromPreviousBuilding).toBe(true);
-	});
-
 	it("월세 거래만 있으면 점이 없음", () => {
 		const wolseOnly: BuildingDetail = {
 			...defaultBuilding,
 			deals: defaultBuilding.deals.filter(({ type }) => type === "wolse"),
-			previousDeals: [],
 		};
 
 		expect(toPoints(wolseOnly)).toEqual([]);
