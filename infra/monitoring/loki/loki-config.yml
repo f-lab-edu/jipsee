@@ -52,7 +52,7 @@ compactor:
   delete_request_store: s3
 
 limits_config:
-  retention_period: 720h
+  retention_period: 2160h
   # Loki 3.x가 자동으로 붙이는 service_name 레이블 제외
   discover_service_name: []
 

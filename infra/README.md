@@ -7,14 +7,14 @@
 | `/opt/jipsee/compose.yaml` | 앱, fluent-bit Compose (프로젝트 `jipsee`) |
 | `/opt/jipsee/db/compose.yaml` | MySQL, Flyway Compose (프로젝트 `jipsee-db`) |
 | `/opt/jipsee/db/schema/` | 스키마 SQL (저장소 미포함) |
-| `/opt/jipsee/fluent-bit/fluent-bit.conf` | fluent-bit 설정 |
+| `/opt/jipsee/fluent-bit/fluent-bit.conf`, `parsers.conf` | fluent-bit 설정, 파서 |
 | `/opt/jipsee/bin/remote-deploy.sh` | 배포 키로 실행되는 유일한 스크립트 |
 | `/opt/jipsee/jenkins/` | `compose.yaml`, `Dockerfile`, `.env` (Jenkins, 프로젝트 `jipsee-jenkins`) |
 | `/opt/jipsee/.env.deploy`, `.env.deploy.prev` | 현재, 직전 이미지 태그 (배포 스크립트 기록, 롤백용) |
 | `/opt/jipsee/job.env` | Job 컨테이너 환경 변수 (소유자 `ubuntu`, 그룹 1000, 권한 640) |
 | `/opt/jipsee/monitoring/` | `compose.yaml`, `.env`, `exporter.my.cnf` (mysqld-exporter 접속 계정) |
 | `/var/log/jipsee/app` | 앱 로그 `jipsee.log` (7일 보관), 실패 로그 `deploy-failed-<커밋 앞 7자리>.log` |
-| `/var/lib/jipsee/fluent-bit` | fluent-bit 상태 (`tail.db`, `s3/`) |
+| `/var/lib/jipsee/fluent-bit` | fluent-bit 상태 (`tail.db`, `storage/`) |
 | `/var/lib/jipsee-jenkins` | Jenkins 홈 (컨테이너 `/var/jenkins_home`) |
 | `/etc/nginx/sites-available/jipsee-jenkins.conf`, `jipsee-grafana.conf` | nginx 설정 (`sites-enabled`에 링크) |
 
@@ -22,7 +22,7 @@
 
 | 파일 | 변수 |
 |---|---|
-| `/opt/jipsee/.env` | `MYSQL_ROOT_PASSWORD`, `DB_USERNAME`, `DB_PASSWORD`, `LOGS_S3_ENDPOINT`, `LOGS_S3_ACCESS_KEY_ID`, `LOGS_S3_SECRET_ACCESS_KEY` |
+| `/opt/jipsee/.env` | `MYSQL_ROOT_PASSWORD`, `DB_USERNAME`, `DB_PASSWORD` |
 | `.env.deploy` | `IMAGE_TAG` |
 | `job.env` | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `DATA_GO_KR_KEY` (`KEY=값`, 따옴표 없음, `docker run --env-file`) |
 | `jenkins/.env` | `DOCKER_GID` (필수), `ALERT_WEBHOOK_URL` (선택) |
@@ -38,7 +38,13 @@
 
 ## 수동 복사 파일 규칙
 
-- `compose.yaml`, `db/compose.yaml`, `fluent-bit/fluent-bit.conf`, `remote-deploy.sh`, `jenkins/compose.yaml`, `jenkins/Dockerfile`, `nginx/jipsee-jenkins.conf`, `nginx/jipsee-grafana.conf`, `monitoring/compose.yaml` 변경 시 머지 후 서버에 직접 복사 (`jenkins/Jenkinsfile`은 서버 작업 없음)
+- `compose.yaml`, `db/compose.yaml`, `fluent-bit/fluent-bit.conf`, `fluent-bit/parsers.conf`, `remote-deploy.sh`, `jenkins/compose.yaml`, `jenkins/Dockerfile`, `nginx/jipsee-jenkins.conf`, `nginx/jipsee-grafana.conf`, `monitoring/compose.yaml` 변경 시 머지 후 서버에 직접 복사 (`jenkins/Jenkinsfile`은 서버 작업 없음)
+
+## 로그 전송
+
+- fluent-bit가 앱 로그를 Loki로 전송. Loki가 유일한 로그 저장소이며 90일 보관
+- 여러 줄 로그(스택 트레이스)는 한 건으로 묶이고 `level` 키가 붙음
+- 기존 `tail.db`를 그대로 사용하므로 과거 로그는 Loki에 보내지 않고 적용 시점부터 적재
 
 ## 최초 설정
 
@@ -49,7 +55,7 @@
 5. 서버 `/opt/jipsee`: `docker compose -p jipsee down`, `mkdir -p db && mv schema db/schema`
 6. 폴더 생성: `sudo install -d -o 1000 -g ubuntu -m 775 /var/log/jipsee/app`, `sudo install -d -m 755 /var/lib/jipsee/fluent-bit`, `sudo install -d -o 1000 -g 1000 -m 755 /var/lib/jipsee-jenkins`
 7. 저장소 `infra/` 파일을 같은 경로로 복사, `chmod 755 bin/remote-deploy.sh`, `backend/schema/*.sql`을 `db/schema`로 복사
-8. `.env` 작성 (`LOGS_S3_*` 포함)
+8. `.env` 작성
 9. DB: `docker compose -f db/compose.yaml --env-file .env up -d mysql`, 스키마: `docker compose -f db/compose.yaml --env-file .env --profile schema run --rm flyway`
 10. Actions에서 `deploy-backend`를 `main`으로 수동 실행
 11. 로그 전송: `docker compose --env-file .env --env-file .env.deploy up -d --no-deps fluent-bit`
@@ -76,7 +82,7 @@
 
 - 앱 상태: `curl -s http://127.0.0.1:8082/actuator/health`
 - 수동 롤백: `cp .env.deploy.prev .env.deploy && docker compose --env-file .env --env-file .env.deploy up -d --no-deps app`
-- `fluent-bit.conf` 수정 후: `docker compose --env-file .env --env-file .env.deploy restart fluent-bit`
+- `fluent-bit.conf`, `parsers.conf` 수정 후: `docker compose --env-file .env --env-file .env.deploy restart fluent-bit`
 - Jenkins 상태: `docker compose -f jenkins/compose.yaml ps`, 로그 `docker compose -f jenkins/compose.yaml logs --tail 100 jenkins`
 - Jenkins 파일 수정 후: `docker compose -f jenkins/compose.yaml build`, `docker compose -f jenkins/compose.yaml up -d`
 - Job 컨테이너: `docker ps --filter name=jipsee-job` (직접 `docker run` 금지, Jenkins 빌드로만 실행)
