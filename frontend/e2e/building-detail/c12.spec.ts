@@ -16,6 +16,7 @@ import { c12Total } from "../support/buildingDetail/c12Total";
 import type { T } from "../support/buildingDetail/makeT";
 import { measureNearbyDeals } from "../support/buildingDetail/measureNearbyDeals";
 import type { Theme } from "../support/buildingDetail/tokens";
+import { buildingPath } from "../support/buildingId";
 import { test } from "../support/test";
 import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
 
@@ -51,7 +52,7 @@ for (const layout of LAYOUTS) {
 		}) => {
 			for (const st of C12_STATES) {
 				t.issues.length = 0;
-				await t.goto(`/buildings/${st.id}${st.q}`);
+				await t.goto(`${buildingPath(st.id)}${st.q}`);
 				const m = await nearbyMeasure(t);
 				const l = `${name} ${st.label}`;
 				t.eq(`${l} 섹션이 보임`, m.found, true);
@@ -103,7 +104,7 @@ for (const theme of THEMES) {
 				t,
 			}) => {
 				for (const st of SHAPE_STATES) {
-					await t.goto(`/buildings/${st.id}${st.q}`);
+					await t.goto(`${buildingPath(st.id)}${st.q}`);
 					const m = await nearbyMeasure(t);
 					const l = `${name} ${theme} ${st.label}`;
 					c12CheckNotice(t, m, kind, st, l);
@@ -121,10 +122,10 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 	test("C12-09 id 2의 월세에서도 0건 안내 제목이 같고 모바일 다크에서 id 3 월세의 색이 다크 토큰임", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/2?type=wolse");
+		await t.goto(`${buildingPath(2)}?type=wolse`);
 		const m = await nearbyMeasure(t);
 		c12CheckNotice(t, m, "mobile", C12_ID2_WOLSE, "모바일 다크 id 2 월세");
-		await t.goto("/buildings/3?type=wolse");
+		await t.goto(`${buildingPath(3)}?type=wolse`);
 		const m3 = await nearbyMeasure(t);
 		c12CheckNotice(t, m3, "mobile", C12_ID3_WOLSE, "모바일 다크 id 3 월세");
 	});
@@ -137,7 +138,7 @@ test.describe("320x700 light", () => {
 		t,
 	}) => {
 		for (const st of C12_STATES.filter((s) => s.title)) {
-			await t.goto(`/buildings/${st.id}${st.q}`);
+			await t.goto(`${buildingPath(st.id)}${st.q}`);
 			const m = await nearbyMeasure(t);
 			const l = `${st.label} 320`;
 			const nan = Number.NaN;

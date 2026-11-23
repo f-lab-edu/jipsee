@@ -6,7 +6,7 @@ import AskBuildingButton from "@/features/askChatbot/ui/AskBuildingButton";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 
 interface AskBuildingCardProps {
-	buildingId: number;
+	buildingId: string;
 	session: Nullable<Session>;
 }
 

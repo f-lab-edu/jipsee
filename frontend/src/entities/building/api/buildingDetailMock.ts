@@ -113,7 +113,7 @@ const sharedDeals: BuildingDeal[] = [
 
 export const buildingDetailMock: BuildingDetail[] = [
 	{
-		id: 1,
+		id: "11440-망원동-12-3",
 		name: "망원빌라",
 		address: "마포구 망원동 12-3",
 		dongs: sharedDongs,
@@ -121,7 +121,7 @@ export const buildingDetailMock: BuildingDetail[] = [
 		previousDeals: [],
 	},
 	{
-		id: 2,
+		id: "11440-망원동-12-5",
 		name: "망원빌라 2차",
 		address: "마포구 망원동 12-5",
 		dongs: sharedDongs,
@@ -129,7 +129,7 @@ export const buildingDetailMock: BuildingDetail[] = [
 		previousDeals: [],
 	},
 	{
-		id: 3,
+		id: "11440-망원동-15-1",
 		name: "망원하우스",
 		address: "마포구 망원동 15-1",
 		dongs: [
@@ -163,7 +163,7 @@ export const buildingDetailMock: BuildingDetail[] = [
 		],
 	},
 	{
-		id: 4,
+		id: "11440-망원동-16-2",
 		name: null,
 		address: "마포구 망원동 16-2",
 		dongs: [
@@ -219,7 +219,7 @@ export const buildingDetailMock: BuildingDetail[] = [
 		previousDeals: [],
 	},
 	{
-		id: 5,
+		id: "11440-망원동-17-4",
 		name: "망원맨션",
 		address: "마포구 망원동 17-4",
 		dongs: sharedDongs.map((dong) => ({ ...dong, useApprovalYear: null })),

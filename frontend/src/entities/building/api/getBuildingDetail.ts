@@ -14,7 +14,7 @@ import type { BuildingDetailResult } from "@/entities/building/model/buildingDet
  * - 한 요청 안에서 같은 id를 여러 번 불러도 한 번만 조회하도록 cache로 감쌈
  */
 export const getBuildingDetail = cache(
-	async (id: number): Promise<BuildingDetailResult> => {
+	async (id: string): Promise<BuildingDetailResult> => {
 		const failure = await readBuildingMockFailure();
 
 		if (failure === "buildingFailed") {

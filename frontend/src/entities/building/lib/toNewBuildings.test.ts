@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import { toNewBuildings } from "@/entities/building/lib/toNewBuildings";
 import type { BuildingSummary } from "@/entities/building/model/buildingSummary";
 
-function createBuilding(id: number): BuildingSummary {
+function createBuilding(lot: number): BuildingSummary {
 	return {
-		id,
+		id: `11440-망원동-${lot}-1`,
 		name: null,
-		lotAddress: `마포구 망원동 ${id}-1`,
+		lotAddress: `마포구 망원동 ${lot}-1`,
 		roadAddress: null,
 		useApprovalYear: null,
 		latestNewJeonseMonth: null,

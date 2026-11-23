@@ -2,9 +2,11 @@
 // 기대값: 설계 문서(2026-11-08-s4-s5-account-design.md) 5절의 로그인 링크 표와 캔버스 S4, S5 보드. 2026-11-09 피드백이 설계 문서와 다르면 피드백을 따름
 // 로그인 상태는 TC_SESSION=in일 때 쿠키로 정함(e2e/support/mockStorageState.ts). 앱 소스는 고치지 않음. 기본 실행은 로그아웃 TC만 돎
 // S5 TC는 로그인 제공자를 TC_PROVIDER(google, kakao, naver. 기본 kakao)로 정함. 제공자별 TC는 그 값과 맞을 때만 돎
+
 import { expect, type Page } from "@playwright/test";
 import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
+import { buildingPath } from "./support/buildingId";
 import { caseId } from "./support/caseId";
 import { isDimmedAt } from "./support/dialog/isDimmedAt";
 import { gotoAndSettle } from "./support/gotoAndSettle";
@@ -38,12 +40,12 @@ const HEADER_LOGIN_CASES = [
 	},
 	{
 		what: "건물 상세(기간 12, 전세)",
-		path: "/buildings/3?period=12&type=jeonse",
+		path: `${buildingPath(3)}?period=12&type=jeonse`,
 		href: "/login?next=%2Fbuildings%2F3%3Fperiod%3D12%26type%3Djeonse",
 	},
 	{
 		what: "건물 상세(조건이 기본값과 다른 기간 24, 월세)",
-		path: "/buildings/3?period=24&type=wolse",
+		path: `${buildingPath(3)}?period=24&type=wolse`,
 		href: "/login?next=%2Fbuildings%2F3%3Fperiod%3D24%26type%3Dwolse",
 	},
 ];

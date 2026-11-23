@@ -11,6 +11,7 @@ import {
 import type { T } from "../support/buildingDetail/makeT";
 import { sameColor } from "../support/buildingDetail/sameColor";
 import type { Theme } from "../support/buildingDetail/tokens";
+import { buildingPath } from "../support/buildingId";
 import { caseId } from "../support/caseId";
 import { PHASE2_OFF } from "../support/phase2Routes";
 import { SEARCH_PATH } from "../support/searchFixtures";
@@ -29,7 +30,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 		test(`${caseId("C3", 1 + index)} /buildings/${id}는 200을 반환함`, async ({
 			t,
 		}) => {
-			t.eq("status", await t.goto(`/buildings/${id}`), 200);
+			t.eq("status", await t.goto(buildingPath(id)), 200);
 		});
 	}
 	for (const [index, seg] of NOT_FOUND.entries()) {
@@ -58,7 +59,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test("C3-13 브라우저 탭 제목은 건물명 | 집씨임 (C11 메타데이터 명세로 갱신)", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		t.eq("document.title", (await t.measure()).title, "망원빌라 | 집씨");
 	});
 });
@@ -71,7 +72,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		t,
 	}) => {
 		for (const [id, name] of Object.entries(NAMES)) {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(Number(id)));
 			const m = await t.measure();
 			t.eq(`id ${id} h1 개수`, m.h1s.length, 1);
 			t.eq(`id ${id} h1 글자`, m.h1s[0]?.text, name);
@@ -91,7 +92,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test("C3-15 모바일에서 건물명이 없으면 본문 카드 첫 줄 제목이 주소이고 부제가 없음 (2026-11-09 피드백 7번)", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/4");
+		await t.goto(buildingPath(4));
 		const m = await t.measure();
 		t.eq("h1 개수", m.h1s.length, 1);
 		t.ok(
@@ -114,7 +115,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 		t,
 	}) => {
 		for (const [id, name] of Object.entries(NAMES)) {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(Number(id)));
 			const m = await t.measure();
 			t.eq(`id ${id} h1 글자`, m.h1s[0]?.text, name);
 			t.ok(
@@ -128,7 +129,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test("C3-17 데스크톱에서 건물명이 없으면 제목이 주소이고 주소 부제가 없음", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/4");
+		await t.goto(buildingPath(4));
 		const m = await t.measure();
 		t.ok(
 			"h1 글자",
@@ -154,7 +155,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 				process.env.TC_SESSION === "in",
 				"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
 			);
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await t.measure();
 			t.eq("보이는 레이아웃의 헤더 개수", m.headerCount, 1);
 			// 높이는 로고 줄 56에 아래 테두리 1을 더한 값임(2026-11-13 헤더 구분선)
@@ -197,7 +198,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		test(`${caseId("C3", 19 + 2 * themeIndex)} 모바일 헤더의 배경과 제목 색이 토큰과 같음 (${theme}, 2026-11-09 피드백 7번)`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await t.measure();
 			t.color(
 				"헤더 배경이 흰 열 배경 bg.layerDefault(2026-11-13)",
@@ -221,7 +222,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 				process.env.TC_SESSION === "in",
 				"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
 			);
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await t.measure();
 			t.near("헤더 높이", m.header?.h, 65, 0);
 			t.eq("로고 링크 개수", m.logoVisible, 1);
@@ -237,7 +238,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		test(`${caseId("C3", 23 + 4 * themeIndex)} 데스크톱 제목 줄의 뒤로 가기 원형, 제목, 주소 크기와 위치가 캔버스와 같음 (${theme})`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await t.measure();
 			t.eq("보이는 뒤로 가기 버튼 개수", m.backs.length, 1);
 			const b = m.backs[0];
@@ -290,7 +291,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		test(`${caseId("C3", 24 + 4 * themeIndex)} 데스크톱 제목 줄의 원형 배경, 제목 색, 주소 색이 토큰과 같음 (${theme})`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await t.measure();
 			t.color(
 				"원형 배경 bg.layerDefault",
@@ -303,7 +304,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		test(`${caseId("C3", 25 + 4 * themeIndex)} 데스크톱에서 건물명이 없으면 주소 부제 없이 제목 줄이 같은 크기를 유지함 (${theme})`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/4");
+			await t.goto(buildingPath(4));
 			const m = await t.measure();
 			t.eq("주소 부제", m.addr ?? null, null);
 			t.near("h1 x", m.h1s[0]?.rect.x, (m.backs[0]?.rect.r ?? Number.NaN) + 12);
@@ -329,7 +330,7 @@ for (const [index, [w, expected]] of [
 		test(`${caseId("C3", 30 + index)} ${w}px에서 컬럼 폭이 ${label}임`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await t.measure();
 			t.near("컬럼 폭", m.column?.w, expected);
 			t.near(
@@ -348,7 +349,7 @@ test.describe("1279x900 light", () => {
 	test("C3-37 1279px와 1280px 사이에서 모바일과 데스크톱 레이아웃이 한 번에 바뀌고 하나만 보임", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const step = async (label: string, w: number, expectDesktop: boolean) => {
 			await t.page.setViewportSize({ width: w, height: 900 });
 			await waitForFrames(t.page);
@@ -386,7 +387,7 @@ async function s1FooterBg(t: T) {
 
 // 배경
 async function bgNarrow(t: T) {
-	await t.goto("/buildings/1");
+	await t.goto(buildingPath(1));
 	const m = await t.measure();
 	t.color(
 		"헤더 배경 bg.layerDefault(2026-11-13 흰 열)",
@@ -428,7 +429,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		test(`${caseId("C3", 70 + themeIndex)} 390px에서 main이 좌우 여백 0, border 0, 모서리 0으로 열 폭 390을 그대로 씀 (${theme})`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const card = await t.page.evaluate(() => {
 				const el = document.querySelector("main");
 				if (!el) return null;
@@ -468,7 +469,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		test(`${caseId("C3", 40 + 2 * themeIndex)} 768px에서 페이지 바깥만 하늘빛이고 흰 열 안의 헤더, 본문, 푸터는 흰색이며 컬럼은 border가 없음 (${theme})`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await t.measure();
 			t.ok(
 				"하늘빛 토큰이 흰색과 다름",
@@ -495,7 +496,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		test(`${caseId("C3", 41 + 2 * themeIndex)} 1440px에서 페이지는 하늘빛이고 헤더와 푸터는 흰 배경임 (${theme})`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await t.measure();
 			t.ok(
 				"하늘빛 토큰이 흰색과 다름",
@@ -529,7 +530,7 @@ for (const [index, [w, h, id, bar]] of [
 		test(`${caseId("C3", 44 + index)} ${w}x${h}에서 본문이 짧으면 푸터가 화면 맨 아래에 붙음${bar ? " (내비게이션 위)" : ""}`, async ({
 			t,
 		}) => {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(id));
 			const m = await t.measure();
 			t.near("푸터 아래 끝", m.footer?.b, m.vh - bar);
 			t.ok(
@@ -551,7 +552,7 @@ for (const [index, w] of [320, 390, 768, 1280, 1440].entries()) {
 			t,
 		}) => {
 			for (const id of [1, 4]) {
-				await t.goto(`/buildings/${id}`);
+				await t.goto(buildingPath(id));
 				const m = await t.measure();
 				t.ok(
 					`id ${id} 가로 스크롤`,
@@ -578,7 +579,7 @@ for (const [index, [label, viewport]] of (
 			t,
 		}) => {
 			for (const id of OK_IDS) {
-				await t.goto(`/buildings/${id}`);
+				await t.goto(buildingPath(id));
 				t.eq(`id ${id} 중복 id`, (await t.measure()).dupIds, []);
 			}
 		});
@@ -586,7 +587,7 @@ for (const [index, [label, viewport]] of (
 			t,
 		}) => {
 			for (const id of OK_IDS) {
-				await t.goto(`/buildings/${id}`);
+				await t.goto(buildingPath(id));
 				const m = await t.measure();
 				t.eq(`id ${id} 보이는 h1`, m.h1s.length, 1);
 				t.eq(`id ${id} main`, m.mainCount, 1);
@@ -670,7 +671,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 			process.env.TC_SESSION === "in",
 			"로그아웃 TC는 TC_SESSION이 없을 때만 돌림",
 		);
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await t.measure();
 		t.eq("로그인", m.loginVisible, 0);
 		t.eq("내 정보", m.myInfoVisible, 0);
@@ -693,7 +694,7 @@ for (const [index, [label, viewport, theme]] of (
 			t,
 		}) => {
 			const routes = [
-				...OK_IDS.map((i) => `/buildings/${i}`),
+				...OK_IDS.map((i) => buildingPath(i)),
 				...NOT_FOUND.map((s) => `/buildings/${s}`),
 			];
 			for (const r of routes) {
@@ -713,7 +714,7 @@ for (const [index, w] of [1280, 1440].entries()) {
 		test(`${caseId("C3", 64 + index)} ${w}px에서 49자 공백 없는 제목이 한 줄로 말줄임되고 주소는 줄어들지 않음`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const before = await t.measure();
 			const h1 = t.page.locator("main h1:visible");
 			await h1.evaluate((e) => {
@@ -758,7 +759,7 @@ for (const [index, viewport] of [MOBILE, DESKTOP].entries()) {
 		test(`${caseId("C3", 66 + index)} ${viewport.width}px에서 스크롤해도 헤더가 위 0에 붙어 있고 sticky, z-index 1, 불투명 배경을 가짐 (2026-11-09 피드백 8번)`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			await t.page.evaluate(() => window.scrollTo(0, 600));
 			await waitForFrames(t.page);
 			const m = await t.page.evaluate(() => {

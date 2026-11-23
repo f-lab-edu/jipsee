@@ -6,6 +6,7 @@ import {
 	NAMES,
 } from "../support/buildingDetail/buildingFixtures";
 import type { T } from "../support/buildingDetail/makeT";
+import { buildingPath } from "../support/buildingId";
 import { expectSingleHeading } from "../support/expectSingleHeading";
 import { test } from "../support/test";
 import { DESKTOP, MOBILE } from "../support/viewports";
@@ -46,7 +47,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		t,
 	}) => {
 		for (const [id, name] of Object.entries(NAMES)) {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(Number(id)));
 			const h = await readTitles(t);
 			t.eq(`id ${id} title`, h.title, `${name} | 집씨`);
 			t.eq(`id ${id} og:title`, h.ogTitle, `${name} | 집씨`);
@@ -63,7 +64,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test("M2-02 이름이 없는 id 4의 제목과 OG 제목은 주소 | 집씨", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/4");
+		await t.goto(buildingPath(4));
 		const h = await readTitles(t);
 		t.eq("title 형식", /^.*마포구 망원동 16-2 \| 집씨$/.test(h.title), true);
 		t.eq("og:title이 title과 같음", h.ogTitle, h.title);
@@ -80,10 +81,10 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		baseURL,
 	}) => {
 		for (const id of [1, 4]) {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(id));
 			const h = await readTitles(t);
-			t.eq(`id ${id} canonical`, h.canonical, `${baseURL}/buildings/${id}`);
-			t.eq(`id ${id} og:url`, h.ogUrl, `${baseURL}/buildings/${id}`);
+			t.eq(`id ${id} canonical`, h.canonical, `${baseURL}${buildingPath(id)}`);
+			t.eq(`id ${id} og:url`, h.ogUrl, `${baseURL}${buildingPath(id)}`);
 		}
 	});
 
@@ -110,14 +111,14 @@ for (const { label, viewport } of [
 			page,
 		}) => {
 			for (const [id, name] of Object.entries(NAMES)) {
-				await expectSingleHeading(page, `/buildings/${id}`, name);
+				await expectSingleHeading(page, buildingPath(Number(id)), name);
 			}
 		});
 
 		test(`M2-05 ${label} 이름이 없는 id 4의 h1은 DOM과 서버 HTML에 하나뿐이고 글자는 주소임`, async ({
 			page,
 		}) => {
-			await expectSingleHeading(page, "/buildings/4", ADDRESS_4_TEXT);
+			await expectSingleHeading(page, buildingPath(4), ADDRESS_4_TEXT);
 		});
 	});
 }

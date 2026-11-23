@@ -15,6 +15,7 @@ import {
 } from "../support/buildingDetail/c4Layout";
 import { c4MobileGeometry } from "../support/buildingDetail/c4MobileGeometry";
 import type { Theme } from "../support/buildingDetail/tokens";
+import { buildingPath } from "../support/buildingId";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
 import {
@@ -34,7 +35,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test("C4-01 모바일 건물 정보 섹션의 제목, 주소, padding, 의미 구조가 설계와 같음 (id 1)", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await t.measureInfo();
 		t.ok(
 			"건물 정보 섹션이 보임",
@@ -111,7 +112,7 @@ for (const [index, id] of OK_IDS.entries()) {
 		test(`${caseId("C4", 2 + index)} 모바일 id ${id}의 동 카드 순서, 항목 라벨과 값, 2열 grid 위치와 크기가 설계와 같음`, async ({
 			t,
 		}) => {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(id));
 			const m = await t.measureInfo();
 			t.ok("건물 정보 섹션이 보임", m.found, m.found, "있음");
 			const g = c4MobileGeometry(m, id, MOBILE_COLUMN.x, MOBILE_COLUMN.width);
@@ -142,7 +143,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		test(`${caseId("C4", 7 + themeIndex)} 모바일 건물 정보의 배경, 카드 border, 글자 색이 토큰과 같음 (${theme})`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await t.measureInfo();
 			t.color(
 				"섹션 배경 bg.layerDefault",
@@ -185,7 +186,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test("C4-09 id 5는 모든 동에서 사용승인 항목만 빠지고 나머지는 id 1과 같음 (모바일)", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/5");
+		await t.goto(buildingPath(5));
 		const m = await t.measureInfo();
 		t.eq("동 카드 개수", m.cards?.length, 2);
 		for (const [i, c] of (m.cards ?? []).entries()) {
@@ -213,7 +214,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test("C4-10 id 4는 세대수 0과 내진설계 빈 값이 숨겨지고 승강기 0은 없음으로 나옴 (모바일)", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/4");
+		await t.goto(buildingPath(4));
 		const m = await t.measureInfo();
 		const c = m.cards?.[0];
 		const labels = c?.items.map((it) => it.dt?.text) ?? [];
@@ -251,7 +252,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test("C4-11 id 3은 동이 하나이고 내진설계 미적용과 연면적 612.0㎡가 나옴 (모바일)", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/3");
+		await t.goto(buildingPath(3));
 		const m = await t.measureInfo();
 		t.eq("동 카드 개수", m.cards?.length, 1);
 		const byLabel = (label: string) =>
@@ -269,7 +270,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		t,
 	}) => {
 		for (const id of OK_IDS) {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(id));
 			const m = await t.measureInfo();
 			const md = await t.measure();
 			t.eq(`id ${id} 중복 id`, md.dupIds, []);
@@ -290,7 +291,7 @@ test.describe(`768x900 light`, () => {
 	test("C4-13 768px 태블릿에서 모바일 레이아웃의 건물 정보가 폭 720 열 안에서 같은 구조로 나옴", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await t.measureInfo();
 		t.ok("건물 정보 섹션이 보임", m.found, m.found, "있음");
 		// 열 720 가운데 x 24, 카드가 없어 열 폭을 그대로 씀(2026-11-13 흰 세로 열)
@@ -320,7 +321,7 @@ test.describe(`320x700 light`, () => {
 		t,
 	}) => {
 		for (const id of OK_IDS) {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(id));
 			const m = await t.measureInfo();
 			t.ok(
 				`id ${id} 가로 스크롤 없음`,
@@ -367,7 +368,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test("C4-15 데스크톱 aside가 오른쪽 380 열에 하나만 있고 건물 정보 카드의 border와 padding이 설계와 같음", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await t.measureInfo();
 		t.ok("건물 정보 섹션이 보임", m.found, m.found, "있음");
 		t.eq("보이는 건물 정보 제목 개수", m.visibleInfoTitles, 1);
@@ -431,7 +432,7 @@ for (const [index, id] of OK_IDS.entries()) {
 		test(`${caseId("C4", 16 + index)} 데스크톱 id ${id}의 aside 동 카드 순서, 항목 라벨과 값, 2열 grid 위치와 크기가 설계와 같음`, async ({
 			t,
 		}) => {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(id));
 			const m = await t.measureInfo();
 			t.ok("건물 정보 섹션이 보임", m.found, m.found, "있음");
 			const g = c4DesktopGeometry(m);
@@ -453,7 +454,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		test(`${caseId("C4", 21 + themeIndex)} 데스크톱 aside 건물 정보의 배경, border, 카드 border, 글자 색이 토큰과 같음 (${theme})`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await t.measureInfo();
 			t.color(
 				"섹션 배경 bg.layerDefault",
@@ -500,7 +501,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test("C4-23 id 5는 데스크톱 aside에서도 사용승인 항목만 빠짐", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/5");
+		await t.goto(buildingPath(5));
 		const m = await t.measureInfo();
 		for (const [i, c] of (m.cards ?? []).entries()) {
 			const labels = c.items.map((it) => it.dt?.text);
@@ -526,7 +527,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test("C4-24 id 4는 데스크톱 aside에서 세대수와 내진설계 항목이 숨겨지고 제목 줄은 주소 하나뿐임", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/4");
+		await t.goto(buildingPath(4));
 		const m = await t.measureInfo();
 		const labels = m.cards?.[0]?.items.map((it) => it.dt?.text) ?? [];
 		t.ok("세대수 항목 없음", !labels.includes("세대수"), labels, "없음");
@@ -546,7 +547,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test("C4-25 스크롤하면 aside가 고정 헤더 65 아래 24(위 89)에 붙어 따라오고 aside 요소는 sticky와 내부 스크롤 값을 가짐", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const info = await t.page.evaluate(() => {
 			const a = document.querySelector("aside");
 			if (!a) return null;
@@ -601,7 +602,7 @@ test.describe(`1279x900 light`, () => {
 	test("C4-26 1279px와 1280px 사이에서 건물 정보가 모바일에서 데스크톱 aside로 한 번에 바뀜", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const step = async (label: string, w: number, desktop: boolean) => {
 			await t.page.setViewportSize({ width: w, height: 900 });
 			await waitForFrames(t.page);
@@ -627,7 +628,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 		t,
 	}) => {
 		for (const id of OK_IDS) {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(id));
 			const md = await t.measure();
 			const m = await t.measureInfo();
 			t.eq(`id ${id} 중복 id`, md.dupIds, []);
@@ -642,7 +643,7 @@ test.describe(`1280x900 light`, () => {
 		t,
 	}) => {
 		for (const id of OK_IDS) {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(id));
 			const m = await t.measureInfo();
 			t.ok(
 				`id ${id} 가로 스크롤 없음`,

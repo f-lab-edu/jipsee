@@ -2,7 +2,7 @@ import type { YearMonth } from "@/shared/lib/dates/yearMonth";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 
 export type BuildingSummary = {
-	id: number;
+	id: string;
 	name: Nullable<string>;
 	lotAddress: string;
 	// null이면 도로명 주소가 없음

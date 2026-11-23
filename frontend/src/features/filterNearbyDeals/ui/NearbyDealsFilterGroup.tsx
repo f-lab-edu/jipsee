@@ -23,7 +23,7 @@ import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
 
 interface NearbyDealsFilterGroupProps<Name extends keyof NearbyDealsCondition> {
 	layout: ResponsiveVariant;
-	buildingId: number;
+	buildingId: string;
 	condition: NearbyDealsCondition;
 	name: Name;
 	label: string;

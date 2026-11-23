@@ -10,7 +10,7 @@ import BuildingStatusScreen from "@/pages/building/ui/BuildingStatusScreen";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 
 interface BuildingPageProps {
-	buildingId: number;
+	buildingId: string;
 	condition: NearbyDealsCondition;
 	session: Nullable<Session>;
 }

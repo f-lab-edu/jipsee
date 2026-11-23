@@ -15,7 +15,7 @@ import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
 
 interface NearbyDealsSectionProps {
 	layout: ResponsiveVariant;
-	buildingId: number;
+	buildingId: string;
 	condition: NearbyDealsCondition;
 	result: NearbyDealsResult;
 	rentDealBaseMonth: YearMonth;

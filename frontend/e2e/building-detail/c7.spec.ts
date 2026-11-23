@@ -11,6 +11,7 @@ import { checkDesktopDeals } from "../support/buildingDetail/checkDesktopDeals";
 import { checkMobileDeals } from "../support/buildingDetail/checkMobileDeals";
 import { measureDeals } from "../support/buildingDetail/measureDeals";
 import type { Theme } from "../support/buildingDetail/tokens";
+import { buildingPath } from "../support/buildingId";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
 import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
@@ -30,7 +31,7 @@ for (const [layoutIndex, [name, viewport, layout]] of (
 			test(`${caseId("C7", 1 + layoutIndex * 2 + themeIndex)} ${name} ${theme}에서 id 3의 이전 건물 거래 블록이 캔버스 보드와 같음 (제목, 설명, 간격, 1건 행, 머리 행과 배지 없음)`, async ({
 				t,
 			}) => {
-				await t.goto("/buildings/3");
+				await t.goto(buildingPath(3));
 				const m = await t.page.evaluate(measureDeals, "prev" as const);
 				const tk = C6_TOKENS[theme];
 				t.ok("거래 이력 섹션이 보임", m.found, m.found, "있음");
@@ -81,7 +82,7 @@ for (const [idIndex, id] of [1, 2, 4, 5].entries()) {
 			test(`${caseId("C7", 5 + idIndex * 2 + layoutIndex)} ${name} id ${id}에는 이전 건물 거래 블록이 없음`, async ({
 				t,
 			}) => {
-				await t.goto(`/buildings/${id}`);
+				await t.goto(buildingPath(id));
 				const m = await t.page.evaluate(measureDeals, "prev" as const);
 				t.eq(
 					"이전 건물 거래 제목 (DOM 전체, 숨은 레이아웃 포함)",
@@ -108,7 +109,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test("C7-13 id 3은 두 레이아웃 DOM에 이전 건물 거래 제목이 하나씩만 있고 보이는 것은 하나임", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/3");
+		await t.goto(buildingPath(3));
 		const m = await t.page.evaluate(measureDeals, "prev" as const);
 		t.eq("DOM 안 제목 개수 (모바일, 데스크톱)", m.block?.domTotal, 2);
 		t.eq("보이는 제목 개수", m.block?.visibleCount, 1);
@@ -117,7 +118,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test("C7-17 id 3의 현재 건물 거래 목록은 이전 건물 블록 때문에 생기지 않음 (현재 범위 ul, table 없음)", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/3");
+		await t.goto(buildingPath(3));
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		t.eq(
 			"현재 건물 ul, li, table 없음",
@@ -138,7 +139,7 @@ for (const [index, [w, mobile]] of (
 		test(`${caseId("C7", 14 + index)} ${w}px에서 이전 건물 거래가 ${mobile ? "모바일 목록(ul)" : "데스크톱 표(table, 이전 건물 거래 라벨)"} 하나만 보임`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/3");
+			await t.goto(buildingPath(3));
 			const m = await t.page.evaluate(measureDeals, "prev" as const);
 			t.eq("보이는 이전 건물 거래 제목 개수", m.block?.visibleCount, 1);
 			t.eq("보이는 ul 개수", m.ulCount, mobile ? 1 : 0);
@@ -163,7 +164,7 @@ test.describe("320x700 light", () => {
 	test("C7-16 320px에서 id 3의 이전 건물 거래 목록이 가로 스크롤 없이 들어오고 금액 칸이 행 폭의 55%를 넘지 않음", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/3");
+		await t.goto(buildingPath(3));
 		const m = await t.page.evaluate(measureDeals, "prev" as const);
 		t.ok("가로 스크롤 없음", m.scrollW <= m.vw, m.scrollW, `문서 폭 ≤ ${m.vw}`);
 		checkMobileDeals(

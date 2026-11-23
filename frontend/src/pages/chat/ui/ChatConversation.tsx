@@ -7,7 +7,7 @@ import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 
 interface ChatConversationProps {
 	chatId: Nullable<number>;
-	buildingId: Nullable<number>;
+	buildingId: Nullable<string>;
 	initialMessages: ChatMessage[];
 	isLimitReached: boolean;
 }

@@ -36,7 +36,7 @@ function renderSection(
 	render(
 		<NearbyDealsSection
 			layout={layout}
-			buildingId={1}
+			buildingId="11440-망원동-12-3"
 			condition={condition}
 			result={result}
 			rentDealBaseMonth={rentDealBaseMonth}

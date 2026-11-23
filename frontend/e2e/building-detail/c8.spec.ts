@@ -19,6 +19,7 @@ import {
 	measureChart,
 } from "../support/buildingDetail/measureChart";
 import { type Theme, TOKENS } from "../support/buildingDetail/tokens";
+import { buildingPath } from "../support/buildingId";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
 import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
@@ -136,7 +137,7 @@ for (const [layoutIndex, [name, vp, layout]] of LAYOUTS.entries()) {
 				test(`${caseId("C8", 1 + layoutIndex * 2 * N + themeIndex * N + idIndex)} ${name} ${theme} id ${id}의 점 개수, 중심 좌표, 크기, 색이 캔버스와 같음 (${dealsOf(id).length}개)`, async ({
 					t,
 				}) => {
-					await t.goto(`/buildings/${id}`);
+					await t.goto(buildingPath(id));
 					const m = await t.page.evaluate(measureChart);
 					t.ok("그래프가 있음", m.found, m.found, "있음");
 					const full = c8FullChart(t, m);
@@ -154,7 +155,7 @@ for (const [layoutIndex, [name, vp, layout]] of LAYOUTS.entries()) {
 			test(`${caseId("C8", 2 * 2 * N + 1 + layoutIndex * N + idIndex)} ${name} id ${id}의 y 값 세 개와 x 연도 글자의 문구, 위치, 글자 모양이 캔버스와 같음`, async ({
 				t,
 			}) => {
-				await t.goto(`/buildings/${id}`);
+				await t.goto(buildingPath(id));
 				const m = await t.page.evaluate(measureChart);
 				t.ok("그래프가 있음", m.found, m.found, "있음");
 				const full = c8FullChart(t, m);
@@ -208,7 +209,7 @@ for (const [layoutIndex, [name, vp]] of LAYOUTS.entries()) {
 		test(`${caseId("C8", 3 * 2 * N + 1 + layoutIndex)} ${name} 다크 id 1의 y 값과 x 연도 글자 색이 fg.neutralMuted임`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await t.page.evaluate(measureChart);
 			t.ok("그래프가 있음", m.found, m.found, "있음");
 			for (const l of [...(m.yLabels ?? []), ...(m.xLabels ?? [])]) {
@@ -225,7 +226,7 @@ for (const [layoutIndex, [name, vp, layout]] of LAYOUTS.entries()) {
 			test(`${caseId("C8", 21 + layoutIndex * 2 + themeIndex)} ${name} ${theme} id 1의 열 폭, 열 간격, 그래프 높이, 점선 격자, x축 선, x 연도 줄이 캔버스와 같음`, async ({
 				t,
 			}) => {
-				await t.goto("/buildings/1");
+				await t.goto(buildingPath(1));
 				const m = await t.page.evaluate(measureChart);
 				t.ok("그래프가 있음", m.found, m.found, "있음");
 				const full = c8FullChart(t, m);
@@ -276,7 +277,7 @@ for (const [layoutIndex, [name, vp]] of LAYOUTS.entries()) {
 			t,
 		}) => {
 			for (const id of [1, 2, 3, 4, 5]) {
-				await t.goto(`/buildings/${id}`);
+				await t.goto(buildingPath(id));
 				const m = await t.page.evaluate(measureChart);
 				t.eq(`id ${id} aria-label`, m.aria, c8Expect(dealsOf(id)).label);
 				t.eq(`id ${id} 점 개수`, m.points?.length, dealsOf(id).length);
@@ -290,7 +291,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test("C8-27 그래프는 두 레이아웃 DOM에 하나씩 있고 보이는 것은 하나임", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await t.page.evaluate(measureChart);
 		t.eq("DOM 안 그래프 개수", m.domCount, 2);
 		t.eq("보이는 그래프 개수", m.visibleCount, 1);
@@ -308,7 +309,7 @@ for (const [index, [w, layout]] of (
 		test(`${caseId("C8", 28 + index)} ${w}px에서 그래프가 ${layout === "mobile" ? "모바일" : "데스크톱"} 크기로 하나만 보임`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await t.page.evaluate(measureChart);
 			const L = C8_LAYOUT[layout];
 			t.eq("보이는 그래프 개수", m.visibleCount, 1);
@@ -342,7 +343,7 @@ for (const [index, [name, vp, dy]] of (
 				[4, dy, "2026.03"],
 				[3, 22, "이전 건물 거래"],
 			] as const) {
-				await t.goto(`/buildings/${id}`);
+				await t.goto(buildingPath(id));
 				const m = await t.page.evaluate(measureChart);
 				t.eq(`id ${id} 다음 글자`, m.firstAfter?.text, text);
 				t.near(`id ${id} 간격`, m.firstAfter?.dy, expectDy, 1);
@@ -356,7 +357,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test("C8-32 ?type=wolse가 붙어도 id 1의 그래프는 기본과 같음", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1?type=wolse");
+		await t.goto(`${buildingPath(1)}?type=wolse`);
 		const m = await t.page.evaluate(measureChart);
 		t.eq("점 개수", m.points?.length, 6);
 		t.eq("aria-label", m.aria, c8Expect(C8_DEALS.default ?? []).label);
@@ -373,7 +374,7 @@ test.describe("320x700 light", () => {
 			[3, 1],
 			[4, 3],
 		] as const) {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(id));
 			const m = await t.page.evaluate(measureChart);
 			t.ok(
 				`id ${id} 가로 스크롤 없음`,

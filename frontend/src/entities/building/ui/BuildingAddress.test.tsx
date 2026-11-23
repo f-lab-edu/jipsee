@@ -4,7 +4,7 @@ import type { BuildingSummary } from "@/entities/building/model/buildingSummary"
 import BuildingAddress from "@/entities/building/ui/BuildingAddress";
 
 const building: BuildingSummary = {
-	id: 1,
+	id: "11440-망원동-12-3",
 	name: "망원빌라",
 	lotAddress: "마포구 망원동 12-3",
 	roadAddress: "마포구 월드컵로25길 12",

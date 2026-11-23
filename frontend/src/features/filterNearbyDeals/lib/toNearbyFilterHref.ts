@@ -9,7 +9,7 @@ import { paths } from "@/shared/routes/paths";
  * @param change 현재 조건에서 바꿀 항목
  */
 export function toNearbyFilterHref(
-	buildingId: number,
+	buildingId: string,
 	condition: NearbyDealsCondition,
 	change: Partial<NearbyDealsCondition>,
 ): string {

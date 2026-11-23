@@ -12,7 +12,7 @@ import Footer from "@/widgets/footer/ui/Footer";
 import BuildingHeader from "@/widgets/header/ui/BuildingHeader";
 
 interface BuildingStatusScreenProps {
-	buildingId: number;
+	buildingId: string;
 	session: Nullable<Session>;
 }
 

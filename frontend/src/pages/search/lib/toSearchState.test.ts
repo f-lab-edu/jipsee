@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { toSearchState } from "@/pages/search/lib/toSearchState";
 
 const building = {
-	id: 1,
+	id: "11440-망원동-12-3",
 	name: "망원 한강 아파트",
 	lotAddress: "서울 마포구 망원동 1",
 	roadAddress: null,

@@ -2,10 +2,12 @@
 // 기대값: 설계 문서(2026-11-12-mobile-nav-card-design.md) 3, 6, 9, 10절과 캔버스 Col*Mobile, Col*Tablet 보드
 // 안전 영역 높이는 브라우저에서 값이 0이라 확인하지 않음
 // /me는 로그인 상태에서만 열려 TC_SESSION=in일 때만 돌림. 로그인 상태는 쿠키로 정함(e2e/support/mockStorageState.ts). 로그아웃 전제 TC는 TC_SESSION=in이면 건너뜀
+
 import { expect } from "@playwright/test";
 import { readColumn } from "./support/bottomNav/readColumn";
 import { readDesktopHeaderEdge } from "./support/bottomNav/readHeaderEdge";
 import { scrollToEnd } from "./support/bottomNav/scrollToEnd";
+import { buildingPath } from "./support/buildingId";
 import { caseId } from "./support/caseId";
 import { gotoAndSettle } from "./support/gotoAndSettle";
 import {
@@ -46,7 +48,7 @@ const TABS = [
 const CURRENT_CASES = [
 	{ path: "/", tab: "bottom-nav-home", value: "page" },
 	{ path: SEARCH_PATH, tab: "bottom-nav-home", value: "true" },
-	{ path: "/buildings/1", tab: "bottom-nav-home", value: "true" },
+	{ path: buildingPath(1), tab: "bottom-nav-home", value: "true" },
 	{ path: "/login", tab: null, value: null },
 	{ path: "/policies/terms", tab: null, value: null },
 ] as const;
@@ -54,7 +56,7 @@ const CURRENT_CASES = [
 const COLUMN_PATHS = [
 	{ name: "홈", path: "/" },
 	{ name: "검색 결과", path: SEARCH_PATH },
-	{ name: "건물 상세", path: "/buildings/1" },
+	{ name: "건물 상세", path: buildingPath(1) },
 	{ name: "로그인", path: "/login" },
 	{ name: "이용약관", path: "/policies/terms" },
 	{ name: "개인정보처리방침", path: "/policies/privacy" },
@@ -65,7 +67,7 @@ const COLUMN_PATHS = [
 const STACK_PATHS = [
 	{ name: "홈", path: "/", bar: null },
 	{ name: "검색 결과", path: SEARCH_PATH, bar: null },
-	{ name: "건물 상세", path: "/buildings/1", bar: null },
+	{ name: "건물 상세", path: buildingPath(1), bar: null },
 	{ name: "로그인", path: "/login", bar: null },
 	{ name: "이용약관", path: "/policies/terms", bar: null },
 	{ name: "개인정보처리방침", path: "/policies/privacy", bar: null },
@@ -147,7 +149,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 					page,
 				}) => {
 					test.skip(PHASE2_OFF, PHASE1_BOTTOM_NAV_SKIP_REASON);
-					await gotoAndSettle(page, "/buildings/1");
+					await gotoAndSettle(page, buildingPath(1));
 					for (const ratio of [0, 0.5, 1]) {
 						await page.evaluate(
 							(r) =>
@@ -288,7 +290,7 @@ for (const { label, viewport, columnWidth, columnX } of SMALL_SCREENS) {
 					page,
 				}) => {
 					test.skip(PHASE2_OFF, PHASE1_POLICY_SKIP_REASON);
-					await gotoAndSettle(page, "/buildings/1");
+					await gotoAndSettle(page, buildingPath(1));
 					const footerLinks = page.locator('[data-area="footer-mobile"] a');
 					await expect
 						.soft(footerLinks)

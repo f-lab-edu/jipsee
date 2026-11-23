@@ -9,7 +9,8 @@ export const paths = {
 	logoutAction: "/api/auth/logout",
 	withdrawAction: "/api/account/withdraw",
 	chat: "/chat",
-	chatWithBuilding: (id: number) => `/chat?buildingId=${id}`,
+	chatWithBuilding: (id: string) =>
+		`/chat?buildingId=${encodeURIComponent(id)}`,
 	chatDetail: (id: number) => `/chat/${id}`,
 	chatHistory: "/chat/history",
 	chatMessagesApi: "/api/chats/messages",
@@ -19,7 +20,7 @@ export const paths = {
 	terms: "/policies/terms",
 	privacy: "/policies/privacy",
 	buildings: "/buildings",
-	building: (id: number) => `/buildings/${id}`,
+	building: (id: string) => `/buildings/${encodeURIComponent(id)}`,
 	buildingsSearchApi: "/api/buildings/search",
 	sitemap: "/sitemap.xml",
 	llmsText: "/llms.txt",

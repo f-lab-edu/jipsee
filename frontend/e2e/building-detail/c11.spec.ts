@@ -24,6 +24,7 @@ import {
 import { c11Measure } from "../support/buildingDetail/c11Measure";
 import { c11MeasureLongName } from "../support/buildingDetail/c11MeasureLongName";
 import type { Theme } from "../support/buildingDetail/tokens";
+import { buildingPath } from "../support/buildingId";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
 import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
@@ -46,7 +47,7 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 		}) => {
 			for (const s of C11_STATES) {
 				t.issues.length = 0;
-				const status = await t.goto(`/buildings/${s.id}${s.q}`);
+				const status = await t.goto(`${buildingPath(s.id)}${s.q}`);
 				const l = `${name} ${s.label}`;
 				t.eq(`${l} 상태 코드`, status, 200);
 				const m = await c11Measure(t);
@@ -76,7 +77,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		test(`${caseId("C11", 5 + 2 * themeIndex)} 모바일 ${theme} id 1은 건수 줄, 14개 목록 항목, 구분 칩, 확정일자 안내의 크기, 색, 간격이 설계와 같음`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await c11Measure(t);
 			c11CheckSummary(t, m, "mobile", 14, "모바일");
 			c11CheckRowsContent(t, m, "mobile", C11_J, "모바일");
@@ -97,7 +98,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		test(`${caseId("C11", 6 + 2 * themeIndex)} 데스크톱 ${theme} id 1은 건수 줄, table 머리와 14개 행, 구분 칩, 확정일자 안내의 크기, 색, 열 위치, 간격이 설계와 같음`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await c11Measure(t);
 			c11CheckSummary(t, m, "desktop", 14, "데스크톱");
 			c11CheckRowsContent(t, m, "desktop", C11_J, "데스크톱");
@@ -121,7 +122,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test("C11-09 모바일 월세는 9개 항목의 금액이 보증금 / 월 형식이고 한 줄에 행 폭의 55% 안에 들어감", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1?type=wolse");
+		await t.goto(`${buildingPath(1)}?type=wolse`);
 		const m = await c11Measure(t);
 		c11CheckSummary(t, m, "mobile", 9, "모바일 월세");
 		c11CheckRowsContent(t, m, "mobile", C11_W, "모바일 월세");
@@ -143,7 +144,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test("C11-10 데스크톱 월세는 9개 행의 금액이 보증금 / 월 형식이고 오른쪽 정렬로 한 줄에 들어감", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1?type=wolse");
+		await t.goto(`${buildingPath(1)}?type=wolse`);
 		const m = await c11Measure(t);
 		c11CheckSummary(t, m, "desktop", 9, "데스크톱 월세");
 		c11CheckRowsContent(t, m, "desktop", C11_W, "데스크톱 월세");
@@ -165,7 +166,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 	test("C11-11 모바일 다크 월세에서도 금액과 구분 칩, 안내 색이 다크 토큰과 같음", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1?type=wolse");
+		await t.goto(`${buildingPath(1)}?type=wolse`);
 		const m = await c11Measure(t);
 		c11CheckSummary(t, m, "mobile", 9, "다크 월세");
 		c11CheckMobileRows(t, m, "다크 월세");
@@ -185,7 +186,7 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 				["", 2, C11_FJ],
 				["?type=wolse", 1, C11_FW],
 			] as const) {
-				await t.goto(`/buildings/3${q}`);
+				await t.goto(`${buildingPath(3)}${q}`);
 				const m = await c11Measure(t);
 				const l = `${name} id 3 ${q ? "월세" : "전세"}`;
 				c11CheckSummary(t, m, layout, count, l);
@@ -217,7 +218,7 @@ for (const [index, [name, viewport, layout, theme]] of (
 			t,
 		}) => {
 			for (const q of ["", "?type=wolse"]) {
-				await t.goto(`/buildings/2${q}`);
+				await t.goto(`${buildingPath(2)}${q}`);
 				const m = await c11Measure(t);
 				const l = `${name} id 2 ${q ? "월세" : "전세"}`;
 				c11CheckSummary(t, m, layout, 0, l);
@@ -247,7 +248,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test("C11-18 데스크톱 목록은 이름이 주변 전월세 거래인 table이고 머리 행과 14개 행, 행마다 cell 5개이며 ul이 보이지 않음", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await c11Measure(t);
 		t.eq("보이는 table 개수", m.tables, 1);
 		t.eq("table 이름", m.tableLabel, "주변 전월세 거래");
@@ -269,7 +270,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test("C11-19 모바일 목록은 ul 아래 li 14개이고 table과 머리 행이 보이지 않음", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await c11Measure(t);
 		t.eq("보이는 ul 개수", m.ul, 1);
 		t.eq("li 개수", m.lis.length, 14);
@@ -287,7 +288,7 @@ for (const [layoutIndex, [name, viewport]] of LAYOUTS.entries()) {
 			t,
 		}) => {
 			for (const id of [1, 2, 3]) {
-				await t.goto(`/buildings/${id}`);
+				await t.goto(buildingPath(id));
 				const m = await c11Measure(t);
 				t.eq(`${name} id ${id} align-items`, m.summary?.ai, "baseline");
 				t.near(
@@ -316,7 +317,7 @@ test.describe("320x700 light", () => {
 			[3, ""],
 			[3, "?type=wolse"],
 		] as const) {
-			await t.goto(`/buildings/${id}${q}`);
+			await t.goto(`${buildingPath(id)}${q}`);
 			const m = await c11Measure(t);
 			const l = `id ${id}${q ? " 월세" : ""}`;
 			t.ok(
@@ -368,7 +369,7 @@ test.describe("768x900 light", () => {
 	test("C11-23 768px 태블릿에서 모바일 구조의 목록이 폭 720 열 안에서 같은 행 모양으로 나옴", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await c11Measure(t);
 		// 카드가 없어 열 폭 720을 그대로 씀(2026-11-13 흰 세로 열)
 		t.near("섹션 w(열 720)", m.section.w, 720, 1);
@@ -384,7 +385,7 @@ test.describe("1279x900 light", () => {
 	test("C11-24 1279px와 1280px 사이에서 목록이 ul(14개 li)에서 table(머리 + 14개 행)로 한 번에 바뀌고 하나만 보임", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const step = async (label: string, w: number, desktop: boolean) => {
 			await t.page.setViewportSize({ width: w, height: 900 });
 			await waitForFrames(t.page);
@@ -424,7 +425,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			[5, ""],
 		] as const) {
 			t.issues.length = 0;
-			await t.goto(`/buildings/${id}${q}`);
+			await t.goto(`${buildingPath(id)}${q}`);
 			const m = await c11Measure(t);
 			t.eq(`id ${id}${q ? " 월세" : ""} 중복 id`, m.dupIds, []);
 			for (const i of t.issues) t.fail(`id ${id}${q ? " 월세" : ""}: ${i}`);
@@ -441,7 +442,7 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 			test(`${caseId("C11", 26 + layoutIndex * C11_LONG_NAMES.length + nameIndex)} ${name} 목록의 건물명이 ${label}이면 한 줄로 말줄임되고 옆 칸과 페이지 폭을 넘지 않음`, async ({
 				t,
 			}) => {
-				await t.goto("/buildings/1");
+				await t.goto(buildingPath(1));
 				const m = await c11MeasureLongName(t, layout, longName);
 				t.eq("첫 행을 찾음", m.found, true);
 				if (!m.found) return;

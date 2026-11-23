@@ -11,6 +11,7 @@ import { checkDesktopDeals } from "../support/buildingDetail/checkDesktopDeals";
 import { checkMobileDeals } from "../support/buildingDetail/checkMobileDeals";
 import { measureDeals } from "../support/buildingDetail/measureDeals";
 import type { Theme } from "../support/buildingDetail/tokens";
+import { buildingPath } from "../support/buildingId";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
 import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
@@ -24,7 +25,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test(`${caseId("C6", 1)} 모바일 id 1은 거래 이력 섹션 제목, 앞 띠, aria-labelledby와 7건의 목록 항목이 설계와 같음`, async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		const tk = C6_TOKENS.light;
 		c6CheckMobileSection(t, m, tk, MOBILE_COLUMN.x, MOBILE_COLUMN.width);
@@ -37,7 +38,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		test(`${caseId("C6", 2 + index)} 모바일 id ${id}의 거래 목록이 캔버스 보드와 같음 (${DEALS[id].length}건)`, async ({
 			t,
 		}) => {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(id));
 			const m = await t.page.evaluate(measureDeals, "current" as const);
 			checkMobileDeals(
 				t,
@@ -53,7 +54,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test(`${caseId("C6", 5)} 모바일 id 1에 ?type=wolse가 붙어도 거래 이력 목록이 기본과 같음`, async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1?type=wolse");
+		await t.goto(`${buildingPath(1)}?type=wolse`);
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		t.eq("li 7개", m.liCount, 7);
 		checkMobileDeals(
@@ -68,7 +69,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test(`${caseId("C6", 8)} 모바일 id 3은 거래 이력 제목만 있고 현재 건물 거래 목록이 없음 (거래 0건)`, async ({
 		t,
 	}) => {
-		await t.goto("/buildings/3");
+		await t.goto(buildingPath(3));
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		c6CheckMobileSection(
 			t,
@@ -88,7 +89,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 	test(`${caseId("C6", 6)} 모바일 다크에서 id 1의 거래 이력 색이 다크 토큰과 같음`, async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		const tk = C6_TOKENS.dark;
 		c6CheckMobileSection(t, m, tk, MOBILE_COLUMN.x, MOBILE_COLUMN.width);
@@ -97,7 +98,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 	test(`${caseId("C6", 7)} 모바일 다크에서 id 4의 거래 목록이 다크 토큰과 같음 (3건)`, async ({
 		t,
 	}) => {
-		await t.goto("/buildings/4");
+		await t.goto(buildingPath(4));
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		checkMobileDeals(
 			t,
@@ -111,7 +112,7 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 	test(`${caseId("C6", 9)} 모바일 다크에서 id 3도 거래 이력 제목만 있고 목록이 없음`, async ({
 		t,
 	}) => {
-		await t.goto("/buildings/3");
+		await t.goto(buildingPath(3));
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		c6CheckMobileSection(
 			t,
@@ -130,7 +131,7 @@ test.describe("320x700 light", () => {
 		t,
 	}) => {
 		for (const id of [1, 4]) {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(id));
 			const m = await t.page.evaluate(measureDeals, "current" as const);
 			t.ok(
 				`id ${id} 가로 스크롤`,
@@ -155,7 +156,7 @@ test.describe("768x900 light", () => {
 	test("C6-11 768px 태블릿에서 모바일 레이아웃의 거래 목록이 폭 720 열 안에서 같은 구조로 나옴", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		// 카드가 없어 열 폭 720을 그대로 씀(2026-11-13 흰 세로 열)
 		t.near("섹션 w (열 720)", m.section?.rect.w, 720, 1);
@@ -179,7 +180,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test("C6-12 데스크톱 id 1은 거래 이력 카드, 제목, table 머리와 7개 행이 설계와 같음", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		const tk = C6_TOKENS.light;
 		c6CheckDesktopSection(t, m, tk);
@@ -191,7 +192,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 		test(`${caseId("C6", 13 + index)} 데스크톱 id ${id}의 거래 표가 캔버스 보드와 같음 (${DEALS[id].length}건)`, async ({
 			t,
 		}) => {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(id));
 			const m = await t.page.evaluate(measureDeals, "current" as const);
 			checkDesktopDeals(t, m, DEALS[id], C6_TOKENS.light, 177, 682);
 			checkDealsBottom(t, m, 29);
@@ -200,7 +201,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test("C6-16 데스크톱 id 1에 ?type=wolse가 붙어도 거래 표가 기본과 같음", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1?type=wolse");
+		await t.goto(`${buildingPath(1)}?type=wolse`);
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		checkDesktopDeals(t, m, DEALS[1], C6_TOKENS.light, 177, 682);
 	});
@@ -211,7 +212,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} dark`, () => {
 	test("C6-17 데스크톱 다크에서 id 1의 거래 이력 색이 다크 토큰과 같음", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		const tk = C6_TOKENS.dark;
 		c6CheckDesktopSection(t, m, tk);
@@ -220,7 +221,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} dark`, () => {
 	test("C6-18 데스크톱 다크에서 id 4의 거래 표가 다크 토큰과 같음 (3건)", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/4");
+		await t.goto(buildingPath(4));
 		const m = await t.page.evaluate(measureDeals, "current" as const);
 		checkDesktopDeals(t, m, DEALS[4], C6_TOKENS.dark, 177, 682);
 	});
@@ -232,7 +233,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 		test(`${caseId("C6", 19 + themeIndex)} 데스크톱 id 3은 거래 이력 제목만 있고 표가 없음 (${theme})`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/3");
+			await t.goto(buildingPath(3));
 			const m = await t.page.evaluate(measureDeals, "current" as const);
 			c6CheckDesktopSection(t, m, C6_TOKENS[theme]);
 			t.eq("현재 건물 거래 table 없음", m.table, null);
@@ -256,7 +257,7 @@ for (const [index, [name, viewport, layout]] of (
 			t,
 		}) => {
 			for (const id of [1, 3]) {
-				await t.goto(`/buildings/${id}`);
+				await t.goto(buildingPath(id));
 				const m = await t.page.evaluate(measureDeals, "current" as const);
 				t.eq(`id ${id} 문서 안 중복 id`, m.dupIds, []);
 				for (const l of ["mobile", "desktop"]) {
@@ -293,7 +294,7 @@ for (const [index, [w, mobile]] of (
 		test(`${caseId("C6", 23 + index)} ${w}px에서 거래 이력이 ${mobile ? "모바일 목록(ul)" : "데스크톱 표(table)"} 하나만 보임`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await t.page.evaluate(measureDeals, "current" as const);
 			t.eq("보이는 거래 이력 섹션 개수", m.visibleSections, 1);
 			t.eq(

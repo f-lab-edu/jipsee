@@ -3,7 +3,7 @@ import type { BuildingDong } from "@/entities/building/model/buildingDong";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 
 export type BuildingDetail = {
-	id: number;
+	id: string;
 	name: Nullable<string>;
 	address: string;
 	dongs: BuildingDong[];
