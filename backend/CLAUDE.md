@@ -33,6 +33,8 @@ Gradle 멀티 모듈(`core`, `api`, `batch`)로 구성함. 패키지 루트는 `
 - 다른 도메인의 리포지토리에 직접 접근하지 않고, 그 도메인의 서비스를 거침.
 - 배럴 파일이나 다시 내보내는 방식의 간접 참조를 만들지 않음. 클래스를 정의한 곳에서 바로 import함.
 - 커밋하기 전에 `./gradlew build`를 실행하여 검증.
+- `rest-api-conventions` 스킬의 예외: 건물 id는 `Long` 대신 `{sigungu_code}-{legal_dong_name}-{lot_number}` 형식의 `String` 자연 키 사용(ADR 0005)
+- `rest-api-conventions` 스킬의 예외: 페이지 나눔은 `Pageable` 대신 `page` 쿼리(0부터)와 고정 20건 상수를 사용하고, 한 건 더 조회해 `hasNext` 판정(ADR 0008)
 
 ## 스키마
 
