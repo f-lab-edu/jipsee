@@ -93,6 +93,7 @@ class CollectStatusRepositoryTest {
             // given
             insert("RENT_DEAL", LocalDateTime.of(2026, 11, 19, 4, 2));
             insert("BUILDING_REGISTER", LocalDateTime.of(2026, 11, 19, 4, 3));
+            insert("LAW", LocalDateTime.of(2026, 11, 19, 4, 5));
 
             // when
             List<CollectStatusRow> rows = collectStatusRepository.findAll();

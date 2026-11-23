@@ -39,7 +39,7 @@ class DataSourceControllerTest {
             given(collectStatusService.findAll())
                     .willReturn(List.of(
                             new DataSourceStatus("RENT_DEAL", YearMonth.of(2026, 11)),
-                            new DataSourceStatus("SALE_DEAL", YearMonth.of(2026, 11))));
+                            new DataSourceStatus("SALE_DEAL", YearMonth.of(2026, 12))));
 
             // when
             ResultActions result = mockMvc.perform(get("/data-sources"));
@@ -53,7 +53,10 @@ class DataSourceControllerTest {
                     .andExpect(jsonPath("$[0].baseMonth.year").isNumber())
                     .andExpect(jsonPath("$[0].baseMonth.year").value(2026))
                     .andExpect(jsonPath("$[0].baseMonth.month").isNumber())
-                    .andExpect(jsonPath("$[0].baseMonth.month").value(11));
+                    .andExpect(jsonPath("$[0].baseMonth.month").value(11))
+                    .andExpect(jsonPath("$[1].source").value("SALE_DEAL"))
+                    .andExpect(jsonPath("$[1].baseMonth.year").value(2026))
+                    .andExpect(jsonPath("$[1].baseMonth.month").value(12));
         }
 
         @Test

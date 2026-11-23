@@ -37,7 +37,7 @@ class CollectStatusServiceTest {
             given(collectStatusRepository.findAll())
                     .willReturn(List.of(
                             new CollectStatusRow("RENT_DEAL", LocalDateTime.of(2026, 11, 19, 4, 2)),
-                            new CollectStatusRow("SALE_DEAL", LocalDateTime.of(2026, 11, 19, 4, 4))));
+                            new CollectStatusRow("SALE_DEAL", LocalDateTime.of(2026, 12, 1, 0, 0))));
 
             // when
             List<DataSourceStatus> result = collectStatusService.findAll();
@@ -46,7 +46,7 @@ class CollectStatusServiceTest {
             assertThat(result)
                     .containsExactly(
                             new DataSourceStatus("RENT_DEAL", YearMonth.of(2026, 11)),
-                            new DataSourceStatus("SALE_DEAL", YearMonth.of(2026, 11)));
+                            new DataSourceStatus("SALE_DEAL", YearMonth.of(2026, 12)));
         }
 
         @Test
