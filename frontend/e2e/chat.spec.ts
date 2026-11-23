@@ -3,11 +3,13 @@
 // 로그인 TC는 TC_SESSION=in일 때만 돌림. 로그아웃 TC는 TC_SESSION=in이면 건너뜀. 로그인 상태는 쿠키로 정하므로 앱 소스는 고치지 않음(e2e/support/mockStorageState.ts)
 // 시나리오 TC는 TC_CHAT(dailyLimit, noHistory)으로 시나리오를 정함. 오류 TC는 요청을 가로채 오류 응답을 주므로 normal에서 돎
 // 확인 창 폭은 S5 탈퇴 확인 창과 같은 Seed 기본값 480임(설계 문서는 400으로 적었으나 S5 TC가 480으로 정함)
+
 import { expect, type Page } from "@playwright/test";
 import { parseShadow } from "./support/bottomNav/parseShadow";
 import { readHeaderEdge } from "./support/bottomNav/readHeaderEdge";
 import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
+import { buildingPath, chatBuildingPath } from "./support/buildingId";
 import { caseId } from "./support/caseId";
 import { CHAT_SCENARIO, LOGGED_IN } from "./support/chat/chatScenario";
 import { CHAT_COLORS, CHAT_TEXT } from "./support/chat/chatTexts";
@@ -59,8 +61,8 @@ test.describe("로그아웃 접근 제어", () => {
 		{ number: 1, path: "/chat", next: "%2Fchat" },
 		{
 			number: 2,
-			path: "/chat?buildingId=3",
-			next: "%2Fchat%3FbuildingId%3D3",
+			path: chatBuildingPath(3),
+			next: encodeURIComponent(chatBuildingPath(3)),
 		},
 		{ number: 3, path: "/chat/history", next: "%2Fchat%2Fhistory" },
 		{ number: 4, path: "/chat/1", next: "%2Fchat%2F1" },
@@ -170,7 +172,7 @@ for (const theme of LIGHT_ONLY) {
 		test(`${caseId("CH2", 3)} /chat?buildingId=1은 ○○빌라 기준 칩과 건물 기준 예시 질문 두 개를 보이고 칩은 링크나 버튼이 아님`, async ({
 			page,
 		}) => {
-			await gotoAndSettle(page, "/chat?buildingId=1");
+			await gotoAndSettle(page, chatBuildingPath(1));
 			const chip = page.locator('[data-area="chat-building-chip"]');
 			await expect(chip).toHaveText("○○빌라 기준");
 			await expect(chip.locator("a, button")).toHaveCount(0);
@@ -183,7 +185,7 @@ for (const theme of LIGHT_ONLY) {
 		test(`${caseId("CH2", 4)} 건물 기준 대화에서 새 대화를 누르면 /chat으로 가고 칩이 없음`, async ({
 			page,
 		}) => {
-			await gotoAndSettle(page, "/chat?buildingId=1");
+			await gotoAndSettle(page, chatBuildingPath(1));
 			await page.getByRole("link", { name: "새 대화" }).click();
 			await page.waitForURL(/\/chat$/);
 			await expect(
@@ -255,7 +257,7 @@ test.describe("질문 전송과 스트리밍", () => {
 		await sendQuestion(page, CHAT_TEXT.question);
 		await waitForAnswer(page);
 		const link = page.getByRole("link", { name: "○○빌라 상세" });
-		await expect(link).toHaveAttribute("href", "/buildings/1");
+		await expect(link).toHaveAttribute("href", buildingPath(1));
 		expect((await readBox(link)).height).toBeGreaterThanOrEqual(44);
 	});
 
@@ -322,7 +324,7 @@ test.describe("질문 전송과 스트리밍", () => {
 		await expect(page.locator(".chat-caret")).toHaveCount(0);
 	});
 
-	for (const path of ["/chat", "/chat?buildingId=1"]) {
+	for (const path of ["/chat", chatBuildingPath(1)]) {
 		test(`${caseId("CH3", 11)} ${path}에서 스트리밍 중에 새 대화를 누르면 /chat의 빈 대화로 초기화되고 끊긴 답변은 나중에도 붙지 않음`, async ({
 			page,
 		}) => {
@@ -1270,7 +1272,7 @@ for (const theme of THEMES) {
 				.toHaveCSS("border-top-color", colors.strokeWeak);
 		});
 
-		for (const [index, path] of ["/chat", "/chat?buildingId=1"].entries()) {
+		for (const [index, path] of ["/chat", chatBuildingPath(1)].entries()) {
 			test(`${caseId("CH10", 5 + index + (theme === "light" ? 0 : 2))} ${theme} ${path}에서는 항목이 선택되지 않고 새 대화 버튼이 파란 테두리, brandWeak 채움, aria-current임`, async ({
 				page,
 			}) => {
@@ -1323,7 +1325,7 @@ test.describe("데스크톱 레일 동작", () => {
 		expect
 			.soft(assistant.width, "답변 말풍선 최대 폭")
 			.toBeLessThanOrEqual(720 * 0.82 + 1);
-		await gotoAndSettle(page, "/chat?buildingId=1");
+		await gotoAndSettle(page, chatBuildingPath(1));
 		const chip = await readBox(
 			page.locator('[data-area="chat-building-chip"]'),
 		);
@@ -1566,7 +1568,7 @@ test.describe("접근성", () => {
 	for (const path of [
 		"/chat",
 		"/chat/1",
-		"/chat?buildingId=1",
+		chatBuildingPath(1),
 		"/chat/history",
 	]) {
 		test(`${caseId("CH9", 2)} ${path}에 겹치는 id가 없음`, async ({ page }) => {
@@ -1595,7 +1597,7 @@ test.describe("접근성", () => {
 			.click();
 		await expect(page.getByRole("dialog")).toHaveCount(1);
 		await page.getByRole("button", { name: "취소" }).click();
-		await gotoAndSettle(page, "/chat?buildingId=1");
+		await gotoAndSettle(page, chatBuildingPath(1));
 	});
 });
 

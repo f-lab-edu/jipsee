@@ -260,32 +260,14 @@ const fewJeonseDeals: NearbyDeal[] = [
 ];
 
 export const nearbyDealsMock: Partial<
-	Record<
-		number,
-		{
-			areaConditionApplied: boolean;
-			deals: { jeonse: NearbyDeal[]; wolse: NearbyDeal[] };
-		}
-	>
+	Record<string, { jeonse: NearbyDeal[]; wolse: NearbyDeal[] }>
 > = {
-	1: {
-		areaConditionApplied: true,
-		deals: { jeonse: jeonseDeals, wolse: wolseDeals },
+	"11440-망원동-12-3": { jeonse: jeonseDeals, wolse: wolseDeals },
+	"11440-망원동-12-5": { jeonse: [], wolse: [] },
+	"11440-망원동-15-1": {
+		jeonse: fewJeonseDeals,
+		wolse: wolseDeals.slice(0, 1),
 	},
-	2: {
-		areaConditionApplied: true,
-		deals: { jeonse: [], wolse: [] },
-	},
-	3: {
-		areaConditionApplied: false,
-		deals: { jeonse: fewJeonseDeals, wolse: wolseDeals.slice(0, 1) },
-	},
-	4: {
-		areaConditionApplied: true,
-		deals: { jeonse: [], wolse: [] },
-	},
-	5: {
-		areaConditionApplied: true,
-		deals: { jeonse: jeonseDeals, wolse: wolseDeals },
-	},
+	"11440-망원동-16-2": { jeonse: [], wolse: [] },
+	"11440-망원동-17-4": { jeonse: jeonseDeals, wolse: wolseDeals },
 };

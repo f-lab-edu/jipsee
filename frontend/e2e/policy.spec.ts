@@ -62,7 +62,7 @@ const DRAFT_NOTICE =
 const DATA_SOURCES_DRAFT_NOTICE =
 	"임시로 적은 안내예요. 정식 안내가 나오면 내용이 바뀔 수 있어요";
 
-// 카드 세 장의 데이터명, 제공 기관, 원본 링크는 고정 값 설정(dataSourceInfos)에서, 기준 월은 목업 기준 월에서 가져옴. 문구가 본문 문서 3.2절 표와 같은지는 단위 테스트(dataSourceInfos.test.ts)가 확인함
+// 카드 두 장의 데이터명, 제공 기관, 원본 링크는 고정 값 설정(dataSourceInfos)에서, 기준 월은 목업 기준 월에서 가져옴. 문구가 본문 문서 3.2절 표와 같은지는 단위 테스트(dataSourceInfos.test.ts)가 확인함
 const BASE_MONTHS = new Map(
 	dataSourceBaseMonthsMock.map((row) => [row.source, row.baseMonth]),
 );
@@ -354,11 +354,11 @@ for (const { label, viewport, layout } of SCREENS) {
 				const cards = (page: Page) =>
 					page.locator(`[data-area^="data-source-card-${layout}-"]`);
 
-				test(`${caseId("P4", 1)} ${label} 카드가 전월세, 매매, 표제부 순서로 세 장이고 다른 출처 카드는 없음`, async ({
+				test(`${caseId("P4", 1)} ${label} 카드가 전월세, 매매 순서로 두 장이고 다른 출처 카드는 없음`, async ({
 					page,
 				}) => {
 					await gotoAndSettle(page, DATA_SOURCES.path);
-					await expect(cards(page)).toHaveCount(3);
+					await expect(cards(page)).toHaveCount(2);
 					await expect(cards(page).locator("h2")).toHaveText(
 						CARDS.map((card) => card.name),
 					);

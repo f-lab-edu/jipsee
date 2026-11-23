@@ -18,11 +18,7 @@ export function checkDealRowStyle(
 	metaFs: string,
 	metaLh: string,
 ) {
-	const expLabels = [
-		exp.type,
-		...(exp.cancelled ? ["해제"] : []),
-		...(exp.similar ? ["유사 건물"] : []),
-	];
+	const expLabels = [exp.type, ...(exp.cancelled ? ["해제"] : [])];
 	t.eq(
 		`${label} 배지 문구와 순서`,
 		row.badges.map((b) => b.text),
@@ -81,36 +77,6 @@ export function checkDealRowStyle(
 					`${label} 해제 배지 고리 stroke.criticalWeak`,
 					ring,
 					hexToRgb(tk.criticalWeak),
-				);
-			}
-		}
-	}
-	if (exp.similar) {
-		const b = row.badges[exp.cancelled ? 2 : 1];
-		if (b) {
-			t.color(
-				`${label} 유사 건물 배지 글자 fg.neutralMuted`,
-				b.color,
-				hexToRgb(tk.fgMuted),
-			);
-			t.eq(
-				`${label} 유사 건물 배지 글자 12/16 bold`,
-				[b.fs, b.lh, b.fw],
-				["12px", "16px", "700"],
-			);
-			t.eq(`${label} 유사 건물 배지 배경 없음`, b.bg, "rgba(0, 0, 0, 0)");
-			const ring = ringOf(b.shadow);
-			t.ok(
-				`${label} 유사 건물 배지 고리 1px inset`,
-				!!ring,
-				b.shadow,
-				"색 0 0 0 1px inset",
-			);
-			if (ring) {
-				t.color(
-					`${label} 유사 건물 배지 고리 stroke.neutralWeak`,
-					ring,
-					hexToRgb(tk.strokeWeak),
 				);
 			}
 		}

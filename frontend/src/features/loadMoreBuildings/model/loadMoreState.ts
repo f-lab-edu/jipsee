@@ -9,5 +9,5 @@ export type LoadMoreState = {
 	nextPage: number;
 	status: LoadMoreStatus;
 	// 마지막으로 새로 붙은 건물. sequence는 불러올 때마다 1씩 늘어 같은 건수도 다시 알리게 함
-	added: Nullable<{ firstId: number; count: number; sequence: number }>;
+	added: Nullable<{ firstId: string; count: number; sequence: number }>;
 };

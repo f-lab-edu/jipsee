@@ -4,7 +4,6 @@ export type DealExpectation = {
 	type: string;
 	kind: string;
 	cancelled?: boolean;
-	similar?: boolean;
 	area: string;
 	amount: string;
 };

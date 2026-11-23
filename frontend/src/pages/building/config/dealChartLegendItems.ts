@@ -26,16 +26,4 @@ export const dealChartLegendItems: DealChartLegendItem[] = [
 		markerKind: "cancelled",
 		colorKey: "neutralMuted",
 	},
-	{
-		label: dealChartCopy.similar,
-		dealType: "jeonse",
-		markerKind: "similar",
-		colorKey: "neutralMuted",
-	},
-	{
-		label: dealChartCopy.previous,
-		dealType: "jeonse",
-		markerKind: "previous",
-		colorKey: "previous",
-	},
 ];

@@ -25,7 +25,7 @@ interface BuildingDealListProps {
  *
  * @param label 데스크톱 표의 이름
  * @param showsHeader 거짓이면 데스크톱 표의 머리 행을 그리지 않음
- * @param showsStatusBadges 거짓이면 해제와 유사 건물 배지를 그리지 않음
+ * @param showsStatusBadges 거짓이면 해제 배지를 그리지 않음
  */
 export default function BuildingDealList({
 	layout,

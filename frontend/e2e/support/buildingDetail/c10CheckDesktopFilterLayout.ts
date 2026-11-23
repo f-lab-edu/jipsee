@@ -6,7 +6,6 @@ import type { T } from "./makeT";
 export function c10CheckDesktopFilterLayout(
 	t: T,
 	m: C10Measure,
-	hasArea: boolean,
 	label: string,
 ) {
 	const tk = C6_TOKENS[t.theme];
@@ -87,41 +86,32 @@ export function c10CheckDesktopFilterLayout(
 			`≈ ${gr.label?.rect.w}`,
 		);
 	});
-	if (hasArea) {
-		const boxH = 16 + 40 + 12 + 20 + 16;
-		t.near(
-			`${label} 필터 상자 높이(16 + 40 + 12 + 20 + 16)`,
-			m.box?.rect.h,
-			boxH,
-			1,
-		);
-		t.near(
-			`${label} 면적 줄이 첫 줄 아래 12(다음 줄로 줄바꿈)`,
-			(m.area?.label?.rect.y ?? Number.NaN) - 2,
-			(g0?.rect.y ?? Number.NaN) + 40 + 12,
-			1.5,
-		);
-		t.near(
-			`${label} 면적 라벨 x가 첫 그룹 x와 같음`,
-			m.area?.label?.rect.x,
-			g0?.rect.x,
-			1,
-		);
-		t.ok(
-			`${label} 면적 라벨 칸이 글자 폭 그대로(36 아님)`,
-			Math.abs(
-				(m.area?.label?.cellW ?? Number.NaN) -
-					(m.area?.label?.rect.w ?? Number.NaN),
-			) <= 1,
-			m.area?.label?.cellW,
-			`≈ ${m.area?.label?.rect.w}`,
-		);
-	} else {
-		t.near(
-			`${label} 필터 상자 높이(16 + 40 + 16)`,
-			m.box?.rect.h,
-			16 + 40 + 16,
-			1,
-		);
-	}
+	const boxH = 16 + 40 + 12 + 20 + 16;
+	t.near(
+		`${label} 필터 상자 높이(16 + 40 + 12 + 20 + 16)`,
+		m.box?.rect.h,
+		boxH,
+		1,
+	);
+	t.near(
+		`${label} 면적 줄이 첫 줄 아래 12(다음 줄로 줄바꿈)`,
+		(m.area?.label?.rect.y ?? Number.NaN) - 2,
+		(g0?.rect.y ?? Number.NaN) + 40 + 12,
+		1.5,
+	);
+	t.near(
+		`${label} 면적 라벨 x가 첫 그룹 x와 같음`,
+		m.area?.label?.rect.x,
+		g0?.rect.x,
+		1,
+	);
+	t.ok(
+		`${label} 면적 라벨 칸이 글자 폭 그대로(36 아님)`,
+		Math.abs(
+			(m.area?.label?.cellW ?? Number.NaN) -
+				(m.area?.label?.rect.w ?? Number.NaN),
+		) <= 1,
+		m.area?.label?.cellW,
+		`≈ ${m.area?.label?.rect.w}`,
+	);
 }

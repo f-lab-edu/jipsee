@@ -5,7 +5,6 @@ import { toChartAxis } from "@/pages/building/lib/toChartAxis";
 import { toChartDeals } from "@/pages/building/lib/toChartDeals";
 
 const defaultBuilding = buildingDetailMock[0];
-const fewDealsBuilding = buildingDetailMock[2];
 
 const baseDeal: BuildingDeal = {
 	id: 1,
@@ -16,7 +15,6 @@ const baseDeal: BuildingDeal = {
 	amount: 25000,
 	monthlyRent: null,
 	cancelled: false,
-	similarBuilding: false,
 };
 
 function toYearWidthDeals(startYear: number): BuildingDeal[] {
@@ -25,10 +23,7 @@ function toYearWidthDeals(startYear: number): BuildingDeal[] {
 
 describe("toChartAxis", () => {
 	it("기본 건물의 축을 계산함", () => {
-		const axis = toChartAxis(
-			toChartDeals(defaultBuilding.deals, defaultBuilding.previousDeals),
-			2026,
-		);
+		const axis = toChartAxis(toChartDeals(defaultBuilding.deals), 2026);
 
 		expect(axis?.yMin).toBe(20000);
 		expect(axis?.yMax).toBe(32000);
@@ -40,25 +35,8 @@ describe("toChartAxis", () => {
 		]);
 	});
 
-	it("거래 적음 건물의 축을 계산함", () => {
-		const axis = toChartAxis(
-			toChartDeals(fewDealsBuilding.deals, fewDealsBuilding.previousDeals),
-			2026,
-		);
-
-		expect(axis?.yMin).toBe(8000);
-		expect(axis?.yMax).toBe(10000);
-		expect(axis?.startYear).toBe(2012);
-		expect(axis?.xTicks.map(({ year }) => year)).toEqual([
-			2012, 2015, 2018, 2021, 2024,
-		]);
-	});
-
 	it("눈금 위치는 눈금 연도 1월의 비율임", () => {
-		const axis = toChartAxis(
-			toChartDeals(defaultBuilding.deals, defaultBuilding.previousDeals),
-			2026,
-		);
+		const axis = toChartAxis(toChartDeals(defaultBuilding.deals), 2026);
 
 		expect(axis?.xTicks[0]?.xPercent).toBe(0);
 		expect(axis?.xTicks[1]?.xPercent).toBeCloseTo((12 / 47) * 100, 5);
@@ -69,7 +47,7 @@ describe("toChartAxis", () => {
 	});
 
 	it("연도 폭이 5 이하이면 1년 간격으로 눈금을 둠", () => {
-		const axis = toChartAxis(toChartDeals(toYearWidthDeals(2022), []), 2026);
+		const axis = toChartAxis(toChartDeals(toYearWidthDeals(2022)), 2026);
 
 		expect(axis?.xTicks.map(({ year }) => year)).toEqual([
 			2022, 2023, 2024, 2025, 2026,
@@ -77,14 +55,8 @@ describe("toChartAxis", () => {
 	});
 
 	it("연도 폭이 6 이상 10 이하이면 2년 간격으로 눈금을 둠", () => {
-		const sixYears = toChartAxis(
-			toChartDeals(toYearWidthDeals(2021), []),
-			2026,
-		);
-		const tenYears = toChartAxis(
-			toChartDeals(toYearWidthDeals(2017), []),
-			2026,
-		);
+		const sixYears = toChartAxis(toChartDeals(toYearWidthDeals(2021)), 2026);
+		const tenYears = toChartAxis(toChartDeals(toYearWidthDeals(2017)), 2026);
 
 		expect(sixYears?.xTicks.map(({ year }) => year)).toEqual([
 			2021, 2023, 2025,
@@ -95,7 +67,7 @@ describe("toChartAxis", () => {
 	});
 
 	it("연도 폭이 11 이상이면 3년 간격으로 눈금을 둠", () => {
-		const axis = toChartAxis(toChartDeals(toYearWidthDeals(2016), []), 2026);
+		const axis = toChartAxis(toChartDeals(toYearWidthDeals(2016)), 2026);
 
 		expect(axis?.xTicks.map(({ year }) => year)).toEqual([
 			2016, 2019, 2022, 2025,

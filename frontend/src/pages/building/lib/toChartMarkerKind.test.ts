@@ -11,41 +11,26 @@ const plainDeal: BuildingDeal = {
 	amount: 25000,
 	monthlyRent: null,
 	cancelled: false,
-	similarBuilding: false,
 };
 
 describe("toChartMarkerKind", () => {
 	it("해당하는 조건이 없으면 기본 종류를 반환함", () => {
-		expect(toChartMarkerKind(plainDeal, false)).toBe("default");
+		expect(toChartMarkerKind(plainDeal)).toBe("default");
 	});
 
 	it("계약이 갱신이면 갱신 종류를 반환함", () => {
-		expect(
-			toChartMarkerKind({ ...plainDeal, contract: "renewal" }, false),
-		).toBe("renewal");
-	});
-
-	it("이전 건물 거래이면서 해제된 거래는 이전 건물 종류를 반환함", () => {
-		expect(toChartMarkerKind({ ...plainDeal, cancelled: true }, true)).toBe(
-			"previous",
+		expect(toChartMarkerKind({ ...plainDeal, contract: "renewal" })).toBe(
+			"renewal",
 		);
 	});
 
-	it("해제되고 유사 건물인 거래는 해제 종류를 반환함", () => {
+	it("해제되고 갱신인 거래는 해제 종류를 반환함", () => {
 		expect(
-			toChartMarkerKind(
-				{ ...plainDeal, cancelled: true, similarBuilding: true },
-				false,
-			),
+			toChartMarkerKind({
+				...plainDeal,
+				cancelled: true,
+				contract: "renewal",
+			}),
 		).toBe("cancelled");
-	});
-
-	it("유사 건물이면서 갱신인 거래는 유사 건물 종류를 반환함", () => {
-		expect(
-			toChartMarkerKind(
-				{ ...plainDeal, similarBuilding: true, contract: "renewal" },
-				false,
-			),
-		).toBe("similar");
 	});
 });

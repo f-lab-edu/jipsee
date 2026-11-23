@@ -41,7 +41,9 @@ describe("searchBuildings", () => {
 
 		expect(result.kind).toBe("found");
 		if (result.kind === "found") {
-			expect(result.buildings.map((building) => building.id)).toContain(1);
+			expect(result.buildings.map((building) => building.id)).toContain(
+				"11440-망원동-12-3",
+			);
 		}
 	});
 

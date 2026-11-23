@@ -15,8 +15,6 @@ const OPTIONAL_KEYS = [
 	"svg",
 	"points",
 	"lines",
-	"band",
-	"pill",
 	"legendDomCount",
 	"legendVisibleCount",
 	"h2Top",

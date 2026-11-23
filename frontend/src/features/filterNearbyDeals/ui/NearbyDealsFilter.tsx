@@ -9,7 +9,7 @@ import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
 
 interface NearbyDealsFilterProps {
 	layout: ResponsiveVariant;
-	buildingId: number;
+	buildingId: string;
 	condition: NearbyDealsCondition;
 	children?: ReactNode;
 }

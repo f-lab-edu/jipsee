@@ -30,7 +30,7 @@ describe("GET /api/buildings/search", () => {
 
 		expect(response.status).toBe(200);
 		expect(body.buildings).toHaveLength(20);
-		expect(body.buildings[0].id).toBe(21);
+		expect(body.buildings[0].id).toBe("11440-망원동-45-1");
 		expect(body.hasNext).toBe(true);
 	});
 
@@ -38,7 +38,7 @@ describe("GET /api/buildings/search", () => {
 		const response = await GET(createRequest("keyword=망원동"));
 		const body = await response.json();
 
-		expect(body.buildings[0].id).toBe(1);
+		expect(body.buildings[0].id).toBe("11440-망원동-12-3");
 	});
 
 	it("요청 제한이면 429와 RATE_LIMITED를 반환함", async () => {

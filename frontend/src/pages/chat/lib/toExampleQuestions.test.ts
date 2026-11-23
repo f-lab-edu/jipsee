@@ -4,7 +4,9 @@ import { toExampleQuestions } from "@/pages/chat/lib/toExampleQuestions";
 
 describe("toExampleQuestions", () => {
 	it("건물 기준 대화이면 건물 기준 예시 질문을 반환함", () => {
-		expect(toExampleQuestions(1)).toBe(chatCopy.buildingExampleQuestions);
+		expect(toExampleQuestions("11440-망원동-12-3")).toBe(
+			chatCopy.buildingExampleQuestions,
+		);
 	});
 
 	it("건물이 없으면 일반 예시 질문을 반환함", () => {

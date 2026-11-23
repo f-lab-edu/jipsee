@@ -1,35 +1,5 @@
 import type { BuildingDeal } from "@/entities/building/model/buildingDeal";
 import type { BuildingDetail } from "@/entities/building/model/buildingDetail";
-import type { BuildingDong } from "@/entities/building/model/buildingDong";
-
-const sharedDongs: BuildingDong[] = [
-	{
-		name: "가동",
-		useApprovalYear: 2003,
-		householdCount: 12,
-		floorCount: 5,
-		totalFloorArea: 842.5,
-		structureName: "철근콘크리트구조",
-		earthquakeDesignApplied: true,
-		elevatorCount: 1,
-		selfPropelledParkingIndoorCount: 6,
-		selfPropelledParkingOutdoorCount: 2,
-		etcPurpose: "다세대주택",
-	},
-	{
-		name: "나동",
-		useApprovalYear: 2003,
-		householdCount: 6,
-		floorCount: 4,
-		totalFloorArea: 410.2,
-		structureName: "철근콘크리트구조",
-		earthquakeDesignApplied: true,
-		elevatorCount: 0,
-		selfPropelledParkingIndoorCount: 0,
-		selfPropelledParkingOutdoorCount: 3,
-		etcPurpose: "다세대주택",
-	},
-];
 
 const sharedDeals: BuildingDeal[] = [
 	{
@@ -41,7 +11,6 @@ const sharedDeals: BuildingDeal[] = [
 		amount: 25000,
 		monthlyRent: null,
 		cancelled: false,
-		similarBuilding: false,
 	},
 	{
 		id: 2,
@@ -52,7 +21,6 @@ const sharedDeals: BuildingDeal[] = [
 		amount: 3000,
 		monthlyRent: 50,
 		cancelled: false,
-		similarBuilding: false,
 	},
 	{
 		id: 3,
@@ -63,7 +31,6 @@ const sharedDeals: BuildingDeal[] = [
 		amount: 31000,
 		monthlyRent: null,
 		cancelled: true,
-		similarBuilding: false,
 	},
 	{
 		id: 4,
@@ -74,7 +41,6 @@ const sharedDeals: BuildingDeal[] = [
 		amount: 24000,
 		monthlyRent: null,
 		cancelled: false,
-		similarBuilding: false,
 	},
 	{
 		id: 5,
@@ -85,7 +51,6 @@ const sharedDeals: BuildingDeal[] = [
 		amount: 23000,
 		monthlyRent: null,
 		cancelled: false,
-		similarBuilding: true,
 	},
 	{
 		id: 6,
@@ -96,7 +61,6 @@ const sharedDeals: BuildingDeal[] = [
 		amount: 30500,
 		monthlyRent: null,
 		cancelled: false,
-		similarBuilding: false,
 	},
 	{
 		id: 7,
@@ -107,80 +71,32 @@ const sharedDeals: BuildingDeal[] = [
 		amount: 22000,
 		monthlyRent: null,
 		cancelled: false,
-		similarBuilding: false,
 	},
 ];
 
 export const buildingDetailMock: BuildingDetail[] = [
 	{
-		id: 1,
+		id: "11440-망원동-12-3",
 		name: "망원빌라",
 		address: "마포구 망원동 12-3",
-		dongs: sharedDongs,
 		deals: sharedDeals,
-		previousDeals: [],
 	},
 	{
-		id: 2,
+		id: "11440-망원동-12-5",
 		name: "망원빌라 2차",
 		address: "마포구 망원동 12-5",
-		dongs: sharedDongs,
 		deals: sharedDeals,
-		previousDeals: [],
 	},
 	{
-		id: 3,
+		id: "11440-망원동-15-1",
 		name: "망원하우스",
 		address: "마포구 망원동 15-1",
-		dongs: [
-			{
-				name: "가동",
-				useApprovalYear: 2019,
-				householdCount: 8,
-				floorCount: 5,
-				totalFloorArea: 612.0,
-				structureName: "철근콘크리트구조",
-				earthquakeDesignApplied: false,
-				elevatorCount: 0,
-				selfPropelledParkingIndoorCount: 0,
-				selfPropelledParkingOutdoorCount: 4,
-				etcPurpose: "근린생활시설",
-			},
-		],
 		deals: [],
-		previousDeals: [
-			{
-				id: 1,
-				month: { year: 2012, month: 3 },
-				type: "jeonse",
-				contract: "new",
-				exclusiveArea: 50,
-				amount: 9000,
-				monthlyRent: null,
-				cancelled: false,
-				similarBuilding: false,
-			},
-		],
 	},
 	{
-		id: 4,
+		id: "11440-망원동-16-2",
 		name: null,
 		address: "마포구 망원동 16-2",
-		dongs: [
-			{
-				name: "가동",
-				useApprovalYear: 1998,
-				householdCount: 0,
-				floorCount: 4,
-				totalFloorArea: 356.8,
-				structureName: "연와조",
-				earthquakeDesignApplied: null,
-				elevatorCount: 0,
-				selfPropelledParkingIndoorCount: 0,
-				selfPropelledParkingOutdoorCount: 2,
-				etcPurpose: "다세대주택",
-			},
-		],
 		deals: [
 			{
 				id: 1,
@@ -191,7 +107,6 @@ export const buildingDetailMock: BuildingDetail[] = [
 				amount: 18000,
 				monthlyRent: null,
 				cancelled: false,
-				similarBuilding: false,
 			},
 			{
 				id: 2,
@@ -202,7 +117,6 @@ export const buildingDetailMock: BuildingDetail[] = [
 				amount: 17000,
 				monthlyRent: null,
 				cancelled: false,
-				similarBuilding: false,
 			},
 			{
 				id: 3,
@@ -213,17 +127,13 @@ export const buildingDetailMock: BuildingDetail[] = [
 				amount: 16000,
 				monthlyRent: null,
 				cancelled: false,
-				similarBuilding: false,
 			},
 		],
-		previousDeals: [],
 	},
 	{
-		id: 5,
+		id: "11440-망원동-17-4",
 		name: "망원맨션",
 		address: "마포구 망원동 17-4",
-		dongs: sharedDongs.map((dong) => ({ ...dong, useApprovalYear: null })),
 		deals: sharedDeals,
-		previousDeals: [],
 	},
 ];

@@ -11,7 +11,7 @@ import { paths } from "@/shared/routes/paths";
 
 interface UseChatConversationOptions {
 	chatId: Nullable<number>;
-	buildingId: Nullable<number>;
+	buildingId: Nullable<string>;
 	initialMessages: ChatMessage[];
 	isLimitReached: boolean;
 	firstQuestion: Nullable<string>;

@@ -31,12 +31,27 @@ const sharedLink: BoxProps = {
 export const externalLinksStyles = defineResponsiveStyles<ExternalLinksStyle>({
 	mobile: {
 		...shared,
-		container: { columns: 2, gap: "x2" },
+		container: {
+			columns: 2,
+			gap: "x2",
+			bg: "bg.layerDefault",
+			pt: "x5",
+			px: "spacingX.globalGutter",
+			pb: "x6",
+		},
 		link: { ...sharedLink, px: "x3_5", gap: "x1_5" },
 	},
 	desktop: {
 		...shared,
-		container: { columns: 1, gap: "x2" },
+		container: {
+			columns: 1,
+			gap: "x2",
+			bg: "bg.layerDefault",
+			p: "x6",
+			borderRadius: "r5",
+			borderWidth: 1,
+			borderColor: "stroke.neutralMuted",
+		},
 		link: { ...sharedLink, px: "x4" },
 	},
 });

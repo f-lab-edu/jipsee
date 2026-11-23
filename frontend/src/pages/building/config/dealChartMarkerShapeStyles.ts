@@ -1,5 +1,3 @@
-import type { SVGProps } from "react";
-
 type OutlinedShapeStyle = {
 	fill: string;
 	stroke?: string;
@@ -16,11 +14,6 @@ export interface DealChartMarkerShapeStyle {
 		cancelled: OutlinedShapeStyle;
 	};
 	dashOffsets: { jeonse: number; sale: number };
-	layerFill: string;
-	similarMiddleRingOffset: number;
-	similarOuterRingOffset: number;
-	previousRingOffset: number;
-	previousRing: SVGProps<SVGCircleElement>;
 }
 
 const layerFill = "var(--seed-color-bg-layer-default)";
@@ -39,16 +32,4 @@ export const dealChartMarkerShapeStyles: DealChartMarkerShapeStyle = {
 		},
 	},
 	dashOffsets: { jeonse: -0.55, sale: -0.05 },
-	layerFill,
-	similarMiddleRingOffset: 2,
-	similarOuterRingOffset: 4,
-	previousRingOffset: 3,
-	previousRing: {
-		fill: "none",
-		stroke: "currentColor",
-		strokeWidth: 2,
-		strokeDasharray: "0.1 0.9",
-		pathLength: 16,
-		strokeLinecap: "round",
-	},
 };

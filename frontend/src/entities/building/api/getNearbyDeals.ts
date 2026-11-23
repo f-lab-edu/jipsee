@@ -11,17 +11,14 @@ import type { NearbyDealsResult } from "@/entities/building/model/nearbyDealsRes
  * - 백엔드가 없어 목업이 조회를 대신함
  */
 export async function getNearbyDeals(
-	buildingId: number,
+	buildingId: string,
 	condition: NearbyDealsCondition,
 ): Promise<NearbyDealsResult> {
 	const nearby = nearbyDealsMock[buildingId];
 
 	if (!nearby) {
-		return { areaConditionApplied: false, deals: [] };
+		return { deals: [] };
 	}
 
-	return {
-		areaConditionApplied: nearby.areaConditionApplied,
-		deals: nearby.deals[condition.type],
-	};
+	return { deals: nearby[condition.type] };
 }

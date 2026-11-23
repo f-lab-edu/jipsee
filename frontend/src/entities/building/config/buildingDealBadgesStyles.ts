@@ -8,7 +8,6 @@ export interface BuildingDealBadgesStyle {
 	statusLabel: TextProps;
 	byType: Record<BuildingDeal["type"], { badge: BoxProps; label: TextProps }>;
 	cancelled: { badge: BoxProps; label: TextProps };
-	similarBuilding: { badge: BoxProps; label: TextProps };
 }
 
 const badge: BoxProps = {
@@ -42,12 +41,5 @@ export const buildingDealBadgesStyles: BuildingDealBadgesStyle = {
 			boxShadow: "inset 0 0 0 1px var(--seed-color-stroke-critical-weak)",
 		},
 		label: { color: "palette.red800" },
-	},
-	similarBuilding: {
-		badge: {
-			...badge,
-			boxShadow: "inset 0 0 0 1px var(--seed-color-stroke-neutral-weak)",
-		},
-		label: { color: "fg.neutralMuted" },
 	},
 };

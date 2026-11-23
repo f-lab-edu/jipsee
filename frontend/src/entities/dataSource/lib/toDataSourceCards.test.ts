@@ -32,7 +32,6 @@ describe("toDataSourceCards", () => {
 		expect(cards.map((card) => card.source)).toEqual([
 			"RENT_DEAL",
 			"SALE_DEAL",
-			"BUILDING_REGISTER",
 		]);
 	});
 });

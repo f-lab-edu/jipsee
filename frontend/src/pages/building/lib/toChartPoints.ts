@@ -15,11 +15,10 @@ export function toChartPoints(
 	chartDeals: ChartDeal[],
 	axis: ChartAxis,
 ): ChartPoint[] {
-	return chartDeals.map(({ deal, dealType, fromPreviousBuilding }) => ({
+	return chartDeals.map(({ deal, dealType }) => ({
 		dealId: deal.id,
-		fromPreviousBuilding,
 		dealType,
-		markerKind: toChartMarkerKind(deal, fromPreviousBuilding),
+		markerKind: toChartMarkerKind(deal),
 		xPercent: toMonthPercent(deal.month, axis.startYear, axis.total),
 		yPercent: ((axis.yMax - deal.amount) / (axis.yMax - axis.yMin)) * 100,
 	}));

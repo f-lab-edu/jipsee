@@ -18,7 +18,7 @@ interface ChatPageProps {
 	session: Session;
 	currentPath: string;
 	chatId: Nullable<number>;
-	buildingId: Nullable<number>;
+	buildingId: Nullable<string>;
 	buildingName: Nullable<string>;
 	initialMessages: ChatMessage[];
 	isLimitReached: boolean;

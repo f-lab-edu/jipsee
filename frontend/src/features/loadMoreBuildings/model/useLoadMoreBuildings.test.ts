@@ -10,13 +10,16 @@ vi.mock("@/entities/building/api/fetchBuildingSearchPage", () => ({
 
 const fetchPage = vi.mocked(fetchBuildingSearchPage);
 
-function createBuilding(id: number): BuildingSummary {
+function toId(lot: number) {
+	return `11440-망원동-${lot}-1`;
+}
+
+function createBuilding(lot: number): BuildingSummary {
 	return {
-		id,
-		name: `건물 ${id}`,
-		lotAddress: `마포구 망원동 ${id}-1`,
+		id: toId(lot),
+		name: `건물 ${lot}`,
+		lotAddress: `마포구 망원동 ${lot}-1`,
 		roadAddress: null,
-		useApprovalYear: null,
 		latestNewJeonseMonth: null,
 	};
 }
@@ -56,9 +59,16 @@ describe("useLoadMoreBuildings", () => {
 
 		expect(fetchPage).toHaveBeenCalledWith("망원동", 1);
 		expect(result.current.buildings.map((building) => building.id)).toEqual([
-			1, 2, 3, 4,
+			toId(1),
+			toId(2),
+			toId(3),
+			toId(4),
 		]);
-		expect(result.current.added).toEqual({ firstId: 3, count: 2, sequence: 1 });
+		expect(result.current.added).toEqual({
+			firstId: toId(3),
+			count: 2,
+			sequence: 1,
+		});
 		expect(result.current.status).toBe("idle");
 	});
 
@@ -72,9 +82,15 @@ describe("useLoadMoreBuildings", () => {
 		await act(() => result.current.loadMore());
 
 		expect(result.current.buildings.map((building) => building.id)).toEqual([
-			1, 2, 3,
+			toId(1),
+			toId(2),
+			toId(3),
 		]);
-		expect(result.current.added).toEqual({ firstId: 3, count: 1, sequence: 1 });
+		expect(result.current.added).toEqual({
+			firstId: toId(3),
+			count: 1,
+			sequence: 1,
+		});
 	});
 
 	it("응답의 hasNext가 false이면 hasNext를 false로 바꿈", async () => {
@@ -102,7 +118,11 @@ describe("useLoadMoreBuildings", () => {
 		await act(() => result.current.loadMore());
 
 		expect(fetchPage).toHaveBeenNthCalledWith(2, "망원동", 2);
-		expect(result.current.added).toEqual({ firstId: 4, count: 1, sequence: 2 });
+		expect(result.current.added).toEqual({
+			firstId: toId(4),
+			count: 1,
+			sequence: 2,
+		});
 	});
 
 	it("불러오는 중에 다시 부르면 요청하지 않음", async () => {

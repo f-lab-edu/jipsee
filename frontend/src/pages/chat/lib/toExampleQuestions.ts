@@ -8,7 +8,7 @@ import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
  * - 그 밖에는 일반 예시 질문 반환
  */
 export function toExampleQuestions(
-	buildingId: Nullable<number>,
+	buildingId: Nullable<string>,
 ): readonly string[] {
 	if (buildingId !== null) {
 		return chatCopy.buildingExampleQuestions;

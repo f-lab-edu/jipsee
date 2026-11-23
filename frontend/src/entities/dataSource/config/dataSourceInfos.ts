@@ -21,14 +21,6 @@ export const dataSourceInfos: readonly DataSourceInfo[] = [
 		hidden: false,
 	},
 	{
-		source: "BUILDING_REGISTER",
-		name: "건축물대장 표제부",
-		provider: "국토교통부 건축HUB",
-		updateCycle: "매월",
-		originalUrl: "https://www.data.go.kr/data/15134735/openapi.do",
-		hidden: false,
-	},
-	{
 		source: "LAW",
 		name: "법령",
 		provider: "법제처",

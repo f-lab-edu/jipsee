@@ -5,6 +5,7 @@ import { c5CheckLinkLayout } from "../support/buildingDetail/c5CheckLinkLayout";
 import { c5CheckLinkTheme } from "../support/buildingDetail/c5CheckLinkTheme";
 import { LINKS } from "../support/buildingDetail/c5Links";
 import { c5MeasureLinks } from "../support/buildingDetail/c5MeasureLinks";
+import { buildingPath } from "../support/buildingId";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
 import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
@@ -17,10 +18,10 @@ const VIEWPORTS = [
 test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
-	test("C5-01 모바일 id 1의 외부 링크 두 개가 건축물대장 기준 월 줄 아래 2열로 나오고 크기와 스타일이 캔버스와 같음", async ({
+	test("C5-01 모바일 id 1의 외부 링크 두 개가 2열로 나오고 크기와 스타일이 캔버스와 같음", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await t.page.evaluate(c5MeasureLinks);
 		c5CheckLinkCommon(t, m, "모바일");
 		c5CheckLinkLayout(t, m, "모바일", true);
@@ -37,7 +38,7 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} light`, () => {
 	test("C5-02 데스크톱 id 1의 외부 링크 두 개가 aside 안에 세로로 쌓이고 크기와 스타일이 캔버스와 같음", async ({
 		t,
 	}) => {
-		await t.goto("/buildings/1");
+		await t.goto(buildingPath(1));
 		const m = await t.page.evaluate(c5MeasureLinks);
 		c5CheckLinkCommon(t, m, "데스크톱");
 		c5CheckLinkLayout(t, m, "데스크톱", false);
@@ -64,7 +65,7 @@ for (const [index, [name, vp]] of VIEWPORTS.entries()) {
 		test(`${caseId("C5", 3 + index)} ${name} 다크 모드에서 링크 배경이 bg.neutralWeak(#2b2e35)이고 글자와 아이콘이 fg.neutral임`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const m = await t.page.evaluate(c5MeasureLinks);
 			t.eq("링크 개수", m.links.length, 2);
 			t.color("다크 토큰 bg.neutralWeak", m.tokenBg, "rgb(43, 46, 53)");
@@ -79,7 +80,7 @@ for (const [index, [name, vp]] of VIEWPORTS.entries()) {
 		test(`${caseId("C5", 5 + index)} ${name}에서 건물명과 위치가 없는 id 4도 외부 링크 두 개를 보여줌`, async ({
 			t,
 		}) => {
-			await t.goto("/buildings/4");
+			await t.goto(buildingPath(4));
 			const m = await t.page.evaluate(c5MeasureLinks);
 			c5CheckLinkCommon(t, m, `${name} id 4`);
 			c5CheckLinkLayout(t, m, `${name} id 4`, vp === MOBILE);
@@ -93,7 +94,7 @@ for (const [index, id] of [2, 3, 5].entries()) {
 		test(`${caseId("C5", 7 + index)} 모바일에서 id ${id}도 외부 링크 두 개를 같은 순서와 href로 보여줌`, async ({
 			t,
 		}) => {
-			await t.goto(`/buildings/${id}`);
+			await t.goto(buildingPath(id));
 			const m = await t.page.evaluate(c5MeasureLinks);
 			c5CheckLinkCommon(t, m, `id ${id}`);
 		});
@@ -114,10 +115,10 @@ for (const [index, [name, vp]] of VIEWPORTS.entries()) {
 					body: "<title>stub</title><p>stub</p>",
 				}),
 			);
-			await t.goto("/buildings/1");
+			await t.goto(buildingPath(1));
 			const before = t.page.url();
 			for (const link of LINKS) {
-				const loc = t.page.locator("section a:visible", {
+				const loc = t.page.locator('[data-area^="external-links-"] a:visible', {
 					hasText: link.text,
 				});
 				t.eq(`${link.text} 보이는 링크 개수`, await loc.count(), 1);

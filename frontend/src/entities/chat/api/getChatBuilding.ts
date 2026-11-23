@@ -10,7 +10,7 @@ import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
  * - 백엔드가 없어 목업이 조회를 대신함
  */
 export async function getChatBuilding(
-	id: number,
+	id: string,
 ): Promise<Nullable<ChatBuildingLink>> {
 	return chatMockBuildings.find((building) => building.id === id) ?? null;
 }

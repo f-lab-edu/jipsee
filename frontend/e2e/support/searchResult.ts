@@ -1,4 +1,5 @@
 import type { Locator, Page } from "@playwright/test";
+import { buildingPath } from "./buildingId";
 
 type ResultLayout = "mobile" | "desktop";
 
@@ -27,6 +28,6 @@ export function searchResult(page: Page, layout: ResultLayout) {
 /** 건물 번호가 같은 검색 결과 행 */
 export function itemOf(items: Locator, id: number) {
 	return items.filter({
-		has: items.page().locator(`a[href="/buildings/${id}"]`),
+		has: items.page().locator(`a[href="${buildingPath(id)}"]`),
 	});
 }

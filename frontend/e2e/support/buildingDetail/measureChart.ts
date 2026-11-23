@@ -78,45 +78,6 @@ export type ChartMeasure = {
 		sw: string;
 		stroke: string;
 	}[];
-	band?: {
-		x: number;
-		y: number;
-		w: number;
-		h: number;
-		fill: string;
-		edgeX: number;
-		edgeStroke: string;
-		edgeSw: string;
-		edgeDash: string;
-		label: {
-			text: string;
-			x: number;
-			y: number;
-			fs: string;
-			lh: string;
-			fw: string;
-			color: string;
-		};
-	} | null;
-	pill?: {
-		text: string;
-		x: number;
-		y: number;
-		w: number;
-		h: number;
-		cx: number;
-		cy: number;
-		bg: string;
-		border: string;
-		radius: string;
-		pad: string;
-		fs: string;
-		lh: string;
-		fw: string;
-		color: string;
-		textX: number;
-		textY: number;
-	} | null;
 	legendDomCount?: number;
 	legendVisibleCount?: number;
 	h2Top?: number;
@@ -272,72 +233,6 @@ export function measureChart(): ChartMeasure {
 			stroke: c.stroke,
 		};
 	});
-	// 이전 건물 영역: 그래프 상자 직계 div 중 rect를 가진 것. 알약: 안내 문구 p
-	const bandEl = [...box.children].find(
-		(e) => e.tagName === "DIV" && e.querySelector("rect"),
-	);
-	out.band = null;
-	if (bandEl) {
-		const rr = R(bandEl);
-		const rc = bandEl.querySelector("rect");
-		const ln = bandEl.querySelector("line");
-		const lab = [...bandEl.querySelectorAll("p, span")].find((e) => text(e));
-		if (rc && ln && lab) {
-			const lc = getComputedStyle(ln);
-			const lt = TR(lab);
-			const ls = getComputedStyle(lab);
-			out.band = {
-				x: rr.x - br.x,
-				y: rr.y - br.y,
-				w: rr.w,
-				h: rr.h,
-				fill: getComputedStyle(rc).fill,
-				edgeX: R(ln).x - br.x + R(ln).w / 2,
-				edgeStroke: lc.stroke,
-				edgeSw: lc.strokeWidth,
-				edgeDash: lc.strokeDasharray,
-				label: {
-					text: text(lab),
-					x: lt.x - rr.x,
-					y: lt.y - rr.y,
-					fs: ls.fontSize,
-					lh: ls.lineHeight,
-					fw: ls.fontWeight,
-					color: ls.color,
-				},
-			};
-		}
-	}
-	const pillText = [...box.querySelectorAll("p")].find(
-		(e) => text(e) === "현재 건물 거래가 없어요",
-	);
-	out.pill = null;
-	if (pillText?.parentElement) {
-		const pb = pillText.parentElement;
-		const pr = R(pb);
-		const pc = getComputedStyle(pb);
-		const tc = getComputedStyle(pillText);
-		const pt = TR(pillText);
-		out.pill = {
-			text: text(pillText),
-			x: pr.x - br.x,
-			y: pr.y - br.y,
-			w: pr.w,
-			h: pr.h,
-			cx: pr.x + pr.w / 2 - br.x,
-			cy: pr.y + pr.h / 2 - br.y,
-			bg: pc.backgroundColor,
-			border: `${pc.borderTopWidth} ${pc.borderTopStyle} ${pc.borderTopColor}`,
-			radius: pc.borderTopLeftRadius,
-			pad: pc.padding,
-			fs: tc.fontSize,
-			lh: tc.lineHeight,
-			fw: tc.fontWeight,
-			color: tc.color,
-			textX: pt.x - pr.x,
-			textY: pt.y - pr.y,
-		};
-	}
 	// 범례: 그래프 격자 바로 위 형제. 항목마다 글자와 마커
 	const noteText = "월세는 목록에서 확인해요";
 	const noteEls = [...document.querySelectorAll("*")].filter(
@@ -407,7 +302,7 @@ export function measureChart(): ChartMeasure {
 		}
 		legendOut.items.push(item);
 	}
-	// 그래프 아래 처음 나오는 날짜나 "이전 건물 거래" 글자까지의 거리
+	// 그래프 아래 처음 나오는 날짜 글자까지의 거리
 	const xb = R(xRow).b;
 	const findAfter = () => {
 		const wk = document.createTreeWalker(sec, NodeFilter.SHOW_TEXT);
@@ -415,7 +310,7 @@ export function measureChart(): ChartMeasure {
 			const t = text(wk.currentNode);
 			const e = wk.currentNode.parentElement;
 			if (!e || !vis(e) || R(e).y < xb - 0.5) continue;
-			if (/^\d{4}\.\d{2}$/.test(t) || t === "이전 건물 거래") {
+			if (/^\d{4}\.\d{2}$/.test(t)) {
 				return { text: t, y: TR(e).y };
 			}
 		}

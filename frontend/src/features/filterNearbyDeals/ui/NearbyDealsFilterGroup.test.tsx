@@ -21,7 +21,7 @@ function renderPeriodGroup() {
 	render(
 		<NearbyDealsFilterGroup
 			layout="mobile"
-			buildingId={1}
+			buildingId="11440-망원동-12-3"
 			condition={{ period: 12, type: "jeonse" }}
 			name="period"
 			label="기간"
@@ -47,9 +47,12 @@ describe("NearbyDealsFilterGroup", () => {
 		fireEvent.click(screen.getByRole("combobox", { name: "기간" }));
 		fireEvent.click(screen.getByRole("option", { name: "24개월" }));
 
-		expect(push).toHaveBeenCalledWith("/buildings/1?period=24&type=jeonse", {
-			scroll: false,
-		});
+		expect(push).toHaveBeenCalledWith(
+			"/buildings/11440-%EB%A7%9D%EC%9B%90%EB%8F%99-12-3?period=24&type=jeonse",
+			{
+				scroll: false,
+			},
+		);
 	});
 
 	it("현재 값을 다시 고르면 이동하지 않음", () => {

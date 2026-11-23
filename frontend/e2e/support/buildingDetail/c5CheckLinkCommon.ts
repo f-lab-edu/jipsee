@@ -3,7 +3,7 @@ import type { LinksMeasure } from "./c5MeasureLinks";
 import type { T } from "./makeT";
 
 export function c5CheckLinkCommon(t: T, m: LinksMeasure, label: string) {
-	t.ok(`${label} 건물 정보 섹션이 보임`, m.found, m.found, "있음");
+	t.ok(`${label} 외부 링크 영역이 보임`, m.found, m.found, "있음");
 	t.eq(
 		`${label} 문서에서 보이는 외부 링크 개수 (숨은 레이아웃 제외)`,
 		m.allAnchors,
@@ -39,17 +39,5 @@ export function c5CheckLinkCommon(t: T, m: LinksMeasure, label: string) {
 		);
 		t.near(`${label} ${l.text} 아이콘 w`, l.svg?.w, 16, 0.1);
 		t.near(`${label} ${l.text} 아이콘 h`, l.svg?.h, 16, 0.1);
-		t.ok(
-			`${label} ${l.text} 건축물대장 기준 월 줄 뒤에 있음`,
-			l.afterBase === true,
-			l.afterBase,
-			"true",
-		);
-		t.ok(
-			`${label} ${l.text} 기준 월 줄 아래에 위치`,
-			!!m.base && l.rect.y >= m.base.rect.b - 0.5,
-			`${l.rect.y} vs ${m.base?.rect.b}`,
-			"링크 위쪽 ≥ 기준 월 줄 아래쪽",
-		);
 	}
 }

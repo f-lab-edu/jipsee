@@ -2,9 +2,11 @@
 // 기대값: 설계 문서(2026-11-14-error-and-paging-design.md) 3, 4절과 캔버스 "오류와 404" 페이지의 Err* 보드. 미정 항목(7절)은 추천안을 따름
 // 실제 429와 호출 실패는 목업 스위치로 만듦. 로그아웃과 탈퇴의 백엔드 응답은 가짜 백엔드(support/stubBackend.ts)가 정함. 일부 실패와 요청 제한 TC는 쿠키 jipsee-mock-building(TC_BUILDING_FAILURE가 mockStorageState로 넣음)이 같은 값일 때만 돎. 기본값은 none
 // 폼 실패 안내 TC는 로그인한 상태(TC_SESSION=in, 쿠키 jipsee-mock-session)에서만 돌림. 그 밖의 TC는 로그인 여부와 상관없이 돎
+
 import { expect } from "@playwright/test";
 import { sameColor } from "./support/buildingDetail/sameColor";
 import { TOKENS } from "./support/buildingDetail/tokens";
+import { buildingPath } from "./support/buildingId";
 import { caseId } from "./support/caseId";
 import { expectSingleHeading } from "./support/expectSingleHeading";
 import { gotoAndSettle } from "./support/gotoAndSettle";
@@ -199,7 +201,7 @@ for (const { label, viewport, layout } of SCREENS) {
 		test(`${caseId("E2", 1)} ${label} 조회가 실패하면 헤더, 푸터는 남고 일반 오류 화면에 다시 시도와 홈으로 가기가 나옴`, async ({
 			page,
 		}) => {
-			await gotoAndSettle(page, "/buildings/1");
+			await gotoAndSettle(page, buildingPath(1));
 			const status = page.getByTestId("status");
 			await expect(status.getByRole("heading", { level: 1 })).toHaveText(
 				COPY.errorTitle,
@@ -217,7 +219,7 @@ for (const { label, viewport, layout } of SCREENS) {
 		test(`${caseId("E2", 2)} ${label} 다시 시도를 눌러도 계속 실패하면 같은 오류 화면이 다시 나오고 버튼이 다시 눌림`, async ({
 			page,
 		}) => {
-			await gotoAndSettle(page, "/buildings/1");
+			await gotoAndSettle(page, buildingPath(1));
 			const retry = page
 				.getByTestId("status")
 				.getByRole("button", { name: COPY.retry });
@@ -239,7 +241,7 @@ for (const { label, viewport, layout } of SCREENS) {
 		test(`${caseId("E2", 3)} ${label} 요청 제한이면 본문만 요청 제한 안내로 바뀌고 헤더와 푸터는 남음`, async ({
 			page,
 		}) => {
-			expect(await gotoAndSettle(page, "/buildings/1")).toBe(200);
+			expect(await gotoAndSettle(page, buildingPath(1))).toBe(200);
 			const partial = page.getByTestId(`partial-status-${layout}`);
 			await expect(partial.getByRole("alert")).toHaveText(COPY.rateTitle);
 			await expect(
@@ -341,7 +343,7 @@ test.describe("기본 상태에서는 실패 안내가 없음", () => {
 		await expect(
 			page.getByTestId("partial-status-mobile").getByRole("alert"),
 		).toHaveCount(0);
-		await gotoAndSettle(page, "/buildings/1");
+		await gotoAndSettle(page, buildingPath(1));
 		await expect(
 			page.getByTestId("partial-status-mobile").getByRole("alert"),
 		).toHaveCount(0);

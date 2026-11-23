@@ -20,7 +20,6 @@ interface BuildingScreenProps {
 	detail: BuildingDetail;
 	condition: NearbyDealsCondition;
 	nearby: NearbyDealsResult;
-	registerBaseMonth: YearMonth;
 	rentDealBaseMonth: YearMonth;
 	session: Nullable<Session>;
 }
@@ -37,7 +36,6 @@ export default function BuildingScreen({
 	detail,
 	condition,
 	nearby,
-	registerBaseMonth,
 	rentDealBaseMonth,
 	session,
 }: BuildingScreenProps) {
@@ -58,7 +56,6 @@ export default function BuildingScreen({
 							detail={detail}
 							condition={condition}
 							nearby={nearby}
-							registerBaseMonth={registerBaseMonth}
 							rentDealBaseMonth={rentDealBaseMonth}
 						/>
 					}
@@ -67,7 +64,6 @@ export default function BuildingScreen({
 							detail={detail}
 							condition={condition}
 							nearby={nearby}
-							registerBaseMonth={registerBaseMonth}
 							rentDealBaseMonth={rentDealBaseMonth}
 						/>
 					}

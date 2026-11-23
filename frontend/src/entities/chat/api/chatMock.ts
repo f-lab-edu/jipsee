@@ -4,13 +4,13 @@ import type { ChatBuildingLink } from "@/entities/chat/model/chatBuildingLink";
 // 답변 글자 조각 사이 지연. 첫 조각이 오기 전 점 세 개 단계도 이 간격만큼 보임
 export const chatMockStreamDelayMs = 400;
 
-// 건물 상세 목업(id 1부터 5)과 같은 id. 1번은 시안에서 쓰는 이름임
+// 건물 상세 목업 다섯 건과 같은 id. 첫 건물은 시안에서 쓰는 이름임
 export const chatMockBuildings: ChatBuildingLink[] = [
-	{ id: 1, name: "○○빌라" },
-	{ id: 2, name: "망원빌라 2차" },
-	{ id: 3, name: "망원하우스" },
-	{ id: 4, name: "마포구 망원동 16-2" },
-	{ id: 5, name: "망원맨션" },
+	{ id: "11440-망원동-12-3", name: "○○빌라" },
+	{ id: "11440-망원동-12-5", name: "망원빌라 2차" },
+	{ id: "11440-망원동-15-1", name: "망원하우스" },
+	{ id: "11440-망원동-16-2", name: "마포구 망원동 16-2" },
+	{ id: "11440-망원동-17-4", name: "망원맨션" },
 ];
 
 export const chatMockAnswers = {
@@ -23,7 +23,7 @@ export const chatMockAnswers = {
 		sources: [
 			{ label: "출처: 국토교통부 실거래가", baseLabel: "2026년 9월 기준" },
 		],
-		buildings: [{ id: 1, name: "○○빌라" }],
+		buildings: [{ id: "11440-망원동-12-3", name: "○○빌라" }],
 	},
 	renewal: {
 		lines: ["계약 만료 6개월 전부터 2개월 전까지 행사할 수 있습니다."],

@@ -1,6 +1,8 @@
 // 기대값은 구현이 아니라 설계 문서(2026-11-01-stage1-search-design.md)와 메타데이터 작업 지시 명세에서 가져옴.
 // 검색어가 비었거나 공백뿐이면 폼이 제출되지 않음. 제목은 "{화면 제목} | 집씨" 템플릿이고 홈은 "집씨"임.
+
 import { expect } from "@playwright/test";
+import { buildingIdOf, buildingPath } from "./support/buildingId";
 import { caseId } from "./support/caseId";
 import { expectSingleHeading } from "./support/expectSingleHeading";
 import { gotoAndSettle } from "./support/gotoAndSettle";
@@ -401,7 +403,7 @@ test.describe(`모바일 ${MOBILE.width}x${MOBILE.height} light 아이콘`, () =
 
 		for (const path of [
 			SEARCH_PATH,
-			"/buildings/1",
+			buildingPath(1),
 			"/policies/data-sources",
 		]) {
 			await gotoAndSettle(page, path);
@@ -525,7 +527,7 @@ for (const { label, viewport, layout } of MORE_LAYOUTS) {
 				.poll(() =>
 					page.evaluate(() => document.activeElement?.getAttribute("href")),
 				)
-				.toBe(`/buildings/${PAGE_SIZE + 1}`);
+				.toBe(buildingPath(PAGE_SIZE + 1));
 			await expect(announcement).toHaveText(`${PAGE_SIZE}건을 더 불러왔어요`);
 			expect.soft(await announcement.getAttribute("aria-live")).toBe("polite");
 			expect.soft(await announcement.getAttribute("role")).toBe("status");
@@ -609,7 +611,7 @@ for (const { label, viewport, layout } of MORE_LAYOUTS) {
 			await page.route(SEARCH_API, async (route) => {
 				const response = await route.fetch();
 				const body = await response.json();
-				body.buildings[0] = { ...body.buildings[0], id: 1 };
+				body.buildings[0] = { ...body.buildings[0], id: buildingIdOf(1) };
 				await route.fulfill({ response, json: body });
 			});
 			const { items, moreButton, announcement } = searchResult(page, layout);

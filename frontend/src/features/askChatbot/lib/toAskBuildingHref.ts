@@ -9,7 +9,7 @@ import { paths } from "@/shared/routes/paths";
  * - 로그인했으면 건물 번호를 쿼리로 담은 채팅 경로 반환
  */
 export function toAskBuildingHref(
-	buildingId: number,
+	buildingId: string,
 	session: Nullable<Session>,
 ): string {
 	if (session) {

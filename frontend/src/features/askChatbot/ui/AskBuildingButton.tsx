@@ -9,7 +9,7 @@ import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
 
 interface AskBuildingButtonProps {
-	buildingId: number;
+	buildingId: string;
 	session: Nullable<Session>;
 	layout: ResponsiveVariant;
 }
