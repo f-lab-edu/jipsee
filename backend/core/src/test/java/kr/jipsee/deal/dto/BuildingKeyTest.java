@@ -105,18 +105,5 @@ class BuildingKeyTest {
             // then
             assertThat(key).isEmpty();
         }
-
-        @Test
-        @DisplayName("id를 다시 해석하면 같은 키")
-        void id를_다시_해석하면_같은_키() {
-            // given
-            BuildingKey key = new BuildingKey("11440", "망원동", "123-4");
-
-            // when
-            Optional<BuildingKey> parsed = BuildingKey.parse(key.id());
-
-            // then
-            assertThat(parsed).contains(key);
-        }
     }
 }

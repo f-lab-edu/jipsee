@@ -80,6 +80,7 @@ class BuildingServiceTest {
 
             // then
             assertThat(info.key()).isEqualTo(stored);
+            assertThat(info.name()).isNull();
             assertThat(info.address()).isEqualTo("마포구 망원동 519");
         }
 
@@ -98,22 +99,6 @@ class BuildingServiceTest {
                     .isInstanceOf(BusinessException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BUILDING_NOT_FOUND);
             then(regionService).should(never()).sigunguName(any());
-        }
-
-        @Test
-        @DisplayName("글자가 있는 이름이 없으면 name이 null")
-        void 글자가_있는_이름이_없으면_name이_null() {
-            // given
-            BuildingKey key = new BuildingKey("11440", "망원동", "519");
-            given(buildingRepository.findHistory(key))
-                    .willReturn(Optional.of(new DealHistory(key, null, List.of(deal(1)))));
-            given(regionService.sigunguName("11440")).willReturn("마포구");
-
-            // when
-            BuildingInfo info = buildingService.find(key);
-
-            // then
-            assertThat(info.name()).isNull();
         }
     }
 }

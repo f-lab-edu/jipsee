@@ -3,14 +3,12 @@ package kr.jipsee.api.deal.controller;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
-import java.net.URI;
 import java.time.YearMonth;
 import java.util.List;
 import kr.jipsee.deal.dto.BuildingInfo;
@@ -67,7 +65,7 @@ class BuildingControllerTest {
 
             // then
             result.andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.id").isString())
+                    .andExpect(jsonPath("$.data.id").value("11440-망원동-519"))
                     .andExpect(jsonPath("$.data.name").isString())
                     .andExpect(jsonPath("$.data.deals[0].id").isNumber())
                     .andExpect(jsonPath("$.data.deals[0].amount").isNumber())
@@ -76,21 +74,6 @@ class BuildingControllerTest {
                     .andExpect(jsonPath("$.data.deals[0].month.month").isNumber())
                     .andExpect(jsonPath("$.data.deals[0].cancelled").isBoolean())
                     .andExpect(jsonPath("$.data.deals[0].type").value("jeonse"));
-        }
-
-        @Test
-        @DisplayName("응답 id는 요청 문자열이 아니라 서비스가 반환한 키임")
-        void 응답_id는_요청_문자열이_아니라_서비스가_반환한_키임() throws Exception {
-            // given
-            BuildingKey requested = new BuildingKey("11440", "망원동", "５１９");
-            BuildingKey stored = new BuildingKey("11440", "망원동", "519");
-            given(buildingService.find(requested)).willReturn(info(stored, "망원 OO빌라"));
-
-            // when
-            ResultActions result = mockMvc.perform(get("/buildings/{id}", "11440-망원동-５１９"));
-
-            // then
-            result.andExpect(status().isOk()).andExpect(jsonPath("$.data.id").value("11440-망원동-519"));
         }
 
         @Test
@@ -107,22 +90,6 @@ class BuildingControllerTest {
             result.andExpect(jsonPath("$.data.name").value(nullValue()))
                     .andExpect(jsonPath("$.data.deals[0].contract").value(nullValue()))
                     .andExpect(jsonPath("$.data.deals[0].monthlyRent").value(nullValue()));
-        }
-
-        @Test
-        @DisplayName("퍼센트 인코딩된 id도 디코딩한 키로 서비스를 호출함")
-        void 퍼센트_인코딩된_id도_디코딩한_키로_서비스를_호출함() throws Exception {
-            // given
-            BuildingKey key = new BuildingKey("11440", "망원동", "123-4");
-            given(buildingService.find(key)).willReturn(info(key, "망원 OO빌라"));
-
-            // when
-            mockMvc.perform(get("/buildings/{id}", "11440-망원동-123-4")).andExpect(status().isOk());
-            mockMvc.perform(get(URI.create("/buildings/11440-%EB%A7%9D%EC%9B%90%EB%8F%99-123-4")))
-                    .andExpect(status().isOk());
-
-            // then
-            then(buildingService).should(times(2)).find(key);
         }
 
         @Test

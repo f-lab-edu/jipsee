@@ -22,7 +22,7 @@ class HouseNamesTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"망원 OO빌라", "A동", "101동"})
+    @ValueSource(strings = {"망원 OO빌라", "A동", "101동", "Hill House"})
     @DisplayName("글자가 있는 값은 그대로 반환함")
     void 글자가_있는_값은_그대로_반환함(String houseName) {
         // when
