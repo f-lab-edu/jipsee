@@ -24,7 +24,7 @@ export function checkDesktopDeals(
 			m.table?.headerCount,
 			m.table?.cellCount,
 		],
-		["현재 건물 거래", exp.length + 1, 4, exp.length * 4],
+		["거래 목록", exp.length + 1, 4, exp.length * 4],
 	);
 	t.eq(
 		"desktop 표 머리 문구와 순서",

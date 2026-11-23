@@ -303,11 +303,7 @@ for (const [index, [w, mobile]] of (
 				mobile ? "deal-history-title-mobile" : "deal-history-title-desktop",
 			);
 			t.eq("보이는 ul 개수", m.ulCount, mobile ? 1 : 0);
-			t.eq(
-				"보이는 table",
-				m.table?.label ?? null,
-				mobile ? null : "현재 건물 거래",
-			);
+			t.eq("보이는 table", m.table?.label ?? null, mobile ? null : "거래 목록");
 			t.eq("행 수", m.rows.length, 7);
 			t.ok(
 				"가로 스크롤 없음",
