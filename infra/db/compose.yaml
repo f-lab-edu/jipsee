@@ -24,6 +24,8 @@ services:
       - --skip-log-bin
       # 데이터와 인덱스 약 1.3GB가 메모리에 들어가도록 버퍼 풀 3GB, 컨테이너 메모리 4GB
       - --innodb-buffer-pool-size=3G
+      # FULLTEXT ngram 검색에서 짧은 불용어 토큰이 제외되지 않도록 함
+      - --innodb-ft-enable-stopword=OFF
     volumes:
       - mysql-data:/var/lib/mysql
     ports:
