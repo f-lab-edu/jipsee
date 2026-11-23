@@ -25,7 +25,7 @@ interface NearbyDealsSectionProps {
  * 건물 상세 > 주변 전월세 거래 영역
  *
  * - 제목 아래에 필터 출력
- * - 면적 조건을 적용했을 때만 필터 상자 마지막 줄에 면적 고정 줄 출력
+ * - 필터 상자 마지막 줄에 면적 고정 줄 출력
  * - 필터 아래에 건수 줄, 조건 확장 안내, 주변 거래 목록, 확정일자 안내 순서로 출력
  * - 조건 확장 안내는 건수가 기준보다 적을 때만 출력
  * - 건수가 0이어도 건수 줄과 확정일자 안내는 출력하고 목록만 출력하지 않음
@@ -61,7 +61,7 @@ export default function NearbyDealsSection({
 				buildingId={buildingId}
 				condition={condition}
 			>
-				{result.areaConditionApplied && <AreaFixedRow layout={layout} />}
+				<AreaFixedRow layout={layout} />
 			</NearbyDealsFilter>
 			<NearbyDealsSummary
 				layout={layout}

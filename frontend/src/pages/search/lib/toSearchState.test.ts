@@ -6,7 +6,6 @@ const building = {
 	name: "망원 한강 아파트",
 	lotAddress: "서울 마포구 망원동 1",
 	roadAddress: null,
-	useApprovalYear: 2010,
 	latestNewJeonseMonth: null,
 };
 

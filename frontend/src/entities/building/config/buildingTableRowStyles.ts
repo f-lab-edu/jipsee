@@ -12,8 +12,6 @@ export interface BuildingTableRowStyle {
 	buildingCell: BoxProps;
 	link: VStackProps;
 	name: TextProps;
-	useApprovalCell: BoxProps;
-	useApproval: TextProps;
 	latestCell: BoxProps;
 	latestDate: TextProps;
 	badge: BoxProps;
@@ -33,8 +31,6 @@ export const buildingTableRowStyles: BuildingTableRowStyle = {
 	buildingCell: { display: "flex", px: "x8", py: "x3_5" },
 	link: { gap: "x0_5", className: "stretched-link" },
 	name: { ...typography.size16, fontWeight: "bold", color: "fg.neutral" },
-	useApprovalCell: { display: "flex", px: "x4", py: "x3_5" },
-	useApproval: { ...typography.size14, color: "fg.neutral" },
 	latestCell: { display: "flex", px: "x4", py: "x3_5" },
 	latestDate: {
 		...typography.size14,

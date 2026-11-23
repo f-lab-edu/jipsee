@@ -14,19 +14,17 @@ export type LinkMeasure = {
 	jc: string;
 	label: { fs: string; fw: string; color: string; left: number } | null;
 	svg: (Rect & { color: string }) | null;
-	afterBase: boolean | null;
 	parent: { rowGap: string; colGap: string; linkCount: number } | null;
 };
 
 export type LinksMeasure = {
 	found: boolean;
 	tokenBg?: string;
-	base?: { text: string; rect: Rect } | null;
 	allAnchors?: number;
 	links: LinkMeasure[];
 };
 
-/** 보이는 건물 정보 섹션 안의 외부 링크를 측정함. 페이지 안에서 실행하므로 외부 변수를 쓰지 않음 */
+/** 보이는 외부 링크 영역 안의 링크를 측정함. 페이지 안에서 실행하므로 외부 변수를 쓰지 않음 */
 export function c5MeasureLinks(): LinksMeasure {
 	const text = (node: Node | null | undefined) =>
 		(node?.textContent ?? "").trim();
@@ -39,9 +37,9 @@ export function c5MeasureLinks(): LinksMeasure {
 		return { x: r.x, y: r.y, w: r.width, h: r.height, r: r.right, b: r.bottom };
 	};
 	const out: LinksMeasure = { found: false, links: [] };
-	const sec = [...document.querySelectorAll("section")]
-		.filter(vis)
-		.find((s) => text(s.querySelector("h2")) === "건물 정보");
+	const sec = [
+		...document.querySelectorAll('[data-area^="external-links-"]'),
+	].find(vis);
 	if (!sec) return out;
 	out.found = true;
 	const probe = document.createElement("div");
@@ -49,12 +47,6 @@ export function c5MeasureLinks(): LinksMeasure {
 	document.body.appendChild(probe);
 	out.tokenBg = getComputedStyle(probe).backgroundColor;
 	probe.remove();
-	const base = [...sec.querySelectorAll("*")]
-		.filter(
-			(e) => e.children.length === 0 && /^건축물대장 .* 기준$/.test(text(e)),
-		)
-		.pop();
-	out.base = base ? { text: text(base), rect: R(base) } : null;
 	out.allAnchors = [...document.querySelectorAll("a")].filter(
 		(a) => vis(a) && ["공시가격알리미", "안심전세 앱"].includes(text(a)),
 	).length;
@@ -90,9 +82,6 @@ export function c5MeasureLinks(): LinksMeasure {
 					}
 				: null,
 			svg: svg ? { ...R(svg), color: getComputedStyle(svg).color } : null,
-			afterBase: base
-				? !!(base.compareDocumentPosition(a) & Node.DOCUMENT_POSITION_FOLLOWING)
-				: null,
 			parent: parent
 				? {
 						rowGap: getComputedStyle(parent).rowGap,

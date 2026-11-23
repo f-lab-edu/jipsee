@@ -2,7 +2,6 @@ import { expect, type Page } from "@playwright/test";
 import { collectConsoleIssues } from "../collectConsoleIssues";
 import { gotoAndSettle } from "../gotoAndSettle";
 import { type BuildingMeasure, measure } from "./measure";
-import { type InfoMeasure, measureInfo } from "./measureInfo";
 import { sameColor } from "./sameColor";
 import { type Theme, TOKENS } from "./tokens";
 
@@ -30,7 +29,6 @@ export type T = {
 	ok: (label: string, cond: boolean, actual: unknown, expected: string) => void;
 	goto: (path: string) => Promise<number>;
 	measure: () => Promise<BuildingMeasure>;
-	measureInfo: () => Promise<InfoMeasure>;
 };
 
 /** 원본 TC 스크립트의 t 객체에 해당함. 검사는 모두 expect.soft로 모아서 테스트 끝에서 한꺼번에 실패시킴 */
@@ -75,6 +73,5 @@ export function makeT(page: Page, theme: Theme): T {
 		},
 		goto: (path) => gotoAndSettle(page, path),
 		measure: () => page.evaluate(measure),
-		measureInfo: () => page.evaluate(measureInfo),
 	};
 }

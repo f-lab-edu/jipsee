@@ -17,7 +17,6 @@ interface BuildingTableRowProps {
  * 건물 > 표 행
  *
  * - 건물 칸에 건물 상세 링크 출력, 건물명이 없으면 지번 주소로 대체
- * - 사용승인 연도가 없으면 사용승인 칸은 빈 상태 유지
  * - 건물 칸 링크의 누르는 영역을 행 전체로 넓힘
  * - 화살표 링크 이름은 건물명 뒤에 상세 추가
  *
@@ -39,11 +38,6 @@ export default function BuildingTableRow({
 						<BuildingAddress building={building} variant="desktop" />
 					</Link>
 				</VStack>
-			</Box>
-			<Box role="cell" {...style.useApprovalCell}>
-				{building.useApprovalYear !== null && (
-					<Text {...style.useApproval}>{building.useApprovalYear}년</Text>
-				)}
 			</Box>
 			<Box role="cell" {...style.latestCell}>
 				<BuildingTableLatestJeonse building={building} />

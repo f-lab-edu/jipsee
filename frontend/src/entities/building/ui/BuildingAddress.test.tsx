@@ -8,7 +8,6 @@ const building: BuildingSummary = {
 	name: "망원빌라",
 	lotAddress: "마포구 망원동 12-3",
 	roadAddress: "마포구 월드컵로25길 12",
-	useApprovalYear: 2003,
 	latestNewJeonseMonth: null,
 };
 

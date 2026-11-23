@@ -8,7 +8,6 @@ const wolseCondition = { ...jeonseCondition, type: "wolse" } as const;
 describe("getNearbyDeals", () => {
 	it("거래가 없는 건물이면 빈 목록을 반환함", async () => {
 		expect(await getNearbyDeals("11440-망원동-16-2", jeonseCondition)).toEqual({
-			areaConditionApplied: true,
 			deals: [],
 		});
 	});
@@ -16,7 +15,6 @@ describe("getNearbyDeals", () => {
 	it("목업에 없는 id를 조회하면 빈 목록을 반환함", async () => {
 		expect(await getNearbyDeals("11440-망원동-999-9", jeonseCondition)).toEqual(
 			{
-				areaConditionApplied: false,
 				deals: [],
 			},
 		);

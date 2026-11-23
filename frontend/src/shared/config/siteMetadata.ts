@@ -7,8 +7,7 @@ const name = "집씨";
  */
 export const siteMetadata = {
 	name,
-	description:
-		"연립, 다세대 전월세 실거래와 건축물대장을 공공데이터 그대로 보여줘요",
+	description: "연립, 다세대 전월세 실거래를 공공데이터 그대로 보여줘요",
 	locale: "ko_KR",
 	twitterCard: "summary_large_image",
 	titleTemplate: `%s | ${name}`,

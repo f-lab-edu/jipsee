@@ -47,7 +47,6 @@ function renderSection(
 describe("NearbyDealsSection", () => {
 	it("거래가 있으면 건수 줄과 모바일 목록 항목과 확정일자 안내를 출력함", () => {
 		renderSection("mobile", {
-			areaConditionApplied: false,
 			deals: threeDeals,
 		});
 
@@ -63,7 +62,6 @@ describe("NearbyDealsSection", () => {
 
 	it("거래가 기준보다 적으면 건수 줄 아래에 조건 확장 안내를 출력함", () => {
 		renderSection("mobile", {
-			areaConditionApplied: false,
 			deals: [jeonse, { ...jeonse, id: 2 }],
 		});
 
@@ -77,7 +75,6 @@ describe("NearbyDealsSection", () => {
 
 	it("거래가 있으면 데스크톱에서 머리 행과 거래 행을 가진 표를 출력함", () => {
 		renderSection("desktop", {
-			areaConditionApplied: false,
 			deals: threeDeals,
 		});
 
@@ -89,7 +86,6 @@ describe("NearbyDealsSection", () => {
 
 	it("거래가 0건이어도 건수 줄과 확정일자 안내를 출력하고 목록은 출력하지 않음", () => {
 		renderSection("mobile", {
-			areaConditionApplied: true,
 			deals: [],
 		});
 

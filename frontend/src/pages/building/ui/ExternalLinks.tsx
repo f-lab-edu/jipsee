@@ -12,9 +12,10 @@ interface ExternalLinksProps {
  * 건물 상세 > 외부 링크 영역
  *
  * - 링크는 새 탭에서 열기
+ * - 모바일은 흰 영역, 데스크톱은 테두리가 있는 카드로 출력
  * - 모바일은 2열, 데스크톱은 세로 1열로 출력
  *
- * @param layout 열 수와 링크 안쪽 여백 결정
+ * @param layout 영역 모양, 열 수, 링크 안쪽 여백 결정
  */
 export default function ExternalLinks({ layout }: ExternalLinksProps) {
 	const style = externalLinksStyles[layout];

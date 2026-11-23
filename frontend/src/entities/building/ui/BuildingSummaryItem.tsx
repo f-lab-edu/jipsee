@@ -1,7 +1,7 @@
 import { Box, Flex, Icon, Text, VStack } from "@seed-design/react";
 import Link from "next/link";
 import { buildingSummaryItemStyles } from "@/entities/building/config/buildingSummaryItemStyles";
-import { toBuildingSummaryDetail } from "@/entities/building/lib/toBuildingSummaryDetail";
+import { toJeonseDetail } from "@/entities/building/lib/toJeonseDetail";
 import type { BuildingSummary } from "@/entities/building/model/buildingSummary";
 import BuildingAddress from "@/entities/building/ui/BuildingAddress";
 import { paths } from "@/shared/routes/paths";
@@ -29,7 +29,7 @@ export default function BuildingSummaryItem({
 					<Text {...style.name}>{building.name ?? building.lotAddress}</Text>
 					<BuildingAddress building={building} variant="mobile" />
 					<Box {...style.detailCell}>
-						<Text {...style.detail}>{toBuildingSummaryDetail(building)}</Text>
+						<Text {...style.detail}>{toJeonseDetail(building)}</Text>
 					</Box>
 				</VStack>
 				<Box {...style.chevronCell}>

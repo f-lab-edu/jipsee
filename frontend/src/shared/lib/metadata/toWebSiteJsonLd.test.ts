@@ -8,8 +8,7 @@ describe("toWebSiteJsonLd", () => {
 			"@type": "WebSite",
 			name: "집씨",
 			url: "https://jipsee.example/",
-			description:
-				"연립, 다세대 전월세 실거래와 건축물대장을 공공데이터 그대로 보여줘요",
+			description: "연립, 다세대 전월세 실거래를 공공데이터 그대로 보여줘요",
 			inLanguage: "ko",
 			potentialAction: {
 				"@type": "SearchAction",

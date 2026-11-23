@@ -20,7 +20,6 @@ function createBuilding(lot: number): BuildingSummary {
 		name: `건물 ${lot}`,
 		lotAddress: `마포구 망원동 ${lot}-1`,
 		roadAddress: null,
-		useApprovalYear: null,
 		latestNewJeonseMonth: null,
 	};
 }

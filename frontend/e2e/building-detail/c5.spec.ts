@@ -18,7 +18,7 @@ const VIEWPORTS = [
 test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
-	test("C5-01 모바일 id 1의 외부 링크 두 개가 건축물대장 기준 월 줄 아래 2열로 나오고 크기와 스타일이 캔버스와 같음", async ({
+	test("C5-01 모바일 id 1의 외부 링크 두 개가 2열로 나오고 크기와 스타일이 캔버스와 같음", async ({
 		t,
 	}) => {
 		await t.goto(buildingPath(1));
@@ -118,7 +118,7 @@ for (const [index, [name, vp]] of VIEWPORTS.entries()) {
 			await t.goto(buildingPath(1));
 			const before = t.page.url();
 			for (const link of LINKS) {
-				const loc = t.page.locator("section a:visible", {
+				const loc = t.page.locator('[data-area^="external-links-"] a:visible', {
 					hasText: link.text,
 				});
 				t.eq(`${link.text} 보이는 링크 개수`, await loc.count(), 1);

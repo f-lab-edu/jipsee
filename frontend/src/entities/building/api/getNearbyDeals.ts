@@ -17,11 +17,8 @@ export async function getNearbyDeals(
 	const nearby = nearbyDealsMock[buildingId];
 
 	if (!nearby) {
-		return { areaConditionApplied: false, deals: [] };
+		return { deals: [] };
 	}
 
-	return {
-		areaConditionApplied: nearby.areaConditionApplied,
-		deals: nearby.deals[condition.type],
-	};
+	return { deals: nearby[condition.type] };
 }

@@ -14,7 +14,6 @@ import { c10CheckMobileShell } from "../support/buildingDetail/c10CheckMobileShe
 import { c10CheckOptions } from "../support/buildingDetail/c10CheckOptions";
 import { c10CheckTriggerLayout } from "../support/buildingDetail/c10CheckTriggerLayout";
 import {
-	C10_AREA_IDS,
 	C10_DEFAULT,
 	C10_FILTER_IDS,
 	C10_QUERY_CASES,
@@ -54,7 +53,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			c10CheckFilterContent(t, m, C10_DEFAULT, "모바일");
 			c10CheckTriggerLayout(t, m, "mobile", "모바일");
 			c10CheckLabelStyle(t, m, "모바일");
-			c10CheckMobileFilterLayout(t, m, true, "모바일");
+			c10CheckMobileFilterLayout(t, m, "모바일");
 			c10CheckAreaRow(t, m, "모바일");
 			await c10CheckOptions(t, C10_DEFAULT, "모바일");
 		});
@@ -101,7 +100,7 @@ for (const [themeIndex, theme] of THEMES.entries()) {
 			c10CheckFilterContent(t, m, C10_DEFAULT, "데스크톱");
 			c10CheckTriggerLayout(t, m, "desktop", "데스크톱");
 			c10CheckLabelStyle(t, m, "데스크톱");
-			c10CheckDesktopFilterLayout(t, m, true, "데스크톱");
+			c10CheckDesktopFilterLayout(t, m, "데스크톱");
 			c10CheckAreaRow(t, m, "데스크톱");
 			await c10CheckOptions(t, C10_DEFAULT, "데스크톱");
 		});
@@ -133,24 +132,23 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} dark`, () => {
 	});
 });
 
-// 면적 고정 줄 유무
+// 면적 고정 줄
 for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 	test.describe(`${viewport.width}x${viewport.height} light`, () => {
 		test.use({ viewport, colorScheme: "light" });
 
-		test(`${caseId("C10", 9 + layoutIndex)} ${name} 면적 고정 줄은 id ${C10_AREA_IDS.join(", ")}에만 있고 id 3에는 없으며 id 3의 필터는 그대로임`, async ({
+		test(`${caseId("C10", 9 + layoutIndex)} ${name} 면적 고정 줄이 모든 건물에 있음`, async ({
 			t,
 		}) => {
 			for (const id of C10_FILTER_IDS) {
 				await t.goto(buildingPath(id));
 				const m = await nearbyMeasure(t);
-				const has = C10_AREA_IDS.includes(id);
-				t.eq(`id ${id} 면적 고정 줄`, !!m.area, has);
+				t.eq(`id ${id} 면적 고정 줄`, !!m.area, true);
 				c10CheckFilterContent(t, m, C10_DEFAULT, `id ${id}`);
 				if (layout === "mobile") {
-					c10CheckMobileFilterLayout(t, m, has, `id ${id}`);
+					c10CheckMobileFilterLayout(t, m, `id ${id}`);
 				} else {
-					c10CheckDesktopFilterLayout(t, m, has, `id ${id}`);
+					c10CheckDesktopFilterLayout(t, m, `id ${id}`);
 				}
 			}
 		});

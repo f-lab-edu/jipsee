@@ -3,12 +3,7 @@ import type { C10Measure } from "./c10MeasureNearby";
 import type { T } from "./makeT";
 
 // 2026-11-09 피드백 9번: 그룹을 가로로 놓고 넘치면 줄바꿈함(행 간격 10, 열 간격 16)
-export function c10CheckMobileFilterLayout(
-	t: T,
-	m: C10Measure,
-	hasArea: boolean,
-	label: string,
-) {
+export function c10CheckMobileFilterLayout(t: T, m: C10Measure, label: string) {
 	const g = m.groups ?? [];
 	const x0 = MOBILE_COLUMN.x + 16;
 	const lastGroupBottom = Math.max(...g.map((gr) => gr.rect.b));
@@ -67,33 +62,24 @@ export function c10CheckMobileFilterLayout(
 			}
 		}
 	});
-	if (hasArea) {
-		t.near(
-			`${label} 면적 줄이 그룹 아래 10`,
-			(m.area?.label?.rect.y ?? Number.NaN) - 2 - lastGroupBottom,
-			10,
-			1.5,
-		);
-		t.near(`${label} 면적 라벨 칸 폭 36`, m.area?.label?.cellW, 36, 0.5);
-		t.near(`${label} 면적 라벨 x`, m.area?.label?.rect.x, x0, 0.5);
-		t.near(
-			`${label} 잠금 아이콘 x(카드 안쪽 16 + 36 + 8)`,
-			m.area?.svg?.rect.x,
-			x0 + 36 + 8,
-			1,
-		);
-		t.near(
-			`${label} 필터 묶음 아래 끝이 면적 줄 아래 끝(그룹 아래 + 10 + 20)`,
-			m.box?.rect.b,
-			lastGroupBottom + 10 + 20,
-			1.5,
-		);
-	} else {
-		t.near(
-			`${label} 필터 묶음 아래 끝이 마지막 그룹 아래 끝`,
-			m.box?.rect.b,
-			lastGroupBottom,
-			1,
-		);
-	}
+	t.near(
+		`${label} 면적 줄이 그룹 아래 10`,
+		(m.area?.label?.rect.y ?? Number.NaN) - 2 - lastGroupBottom,
+		10,
+		1.5,
+	);
+	t.near(`${label} 면적 라벨 칸 폭 36`, m.area?.label?.cellW, 36, 0.5);
+	t.near(`${label} 면적 라벨 x`, m.area?.label?.rect.x, x0, 0.5);
+	t.near(
+		`${label} 잠금 아이콘 x(카드 안쪽 16 + 36 + 8)`,
+		m.area?.svg?.rect.x,
+		x0 + 36 + 8,
+		1,
+	);
+	t.near(
+		`${label} 필터 묶음 아래 끝이 면적 줄 아래 끝(그룹 아래 + 10 + 20)`,
+		m.box?.rect.b,
+		lastGroupBottom + 10 + 20,
+		1.5,
+	);
 }
