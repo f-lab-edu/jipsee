@@ -1,4 +1,4 @@
-import type { DataSourceBaseMonthRow } from "@/entities/dataSource/api/dataSourceBaseMonthRow";
+import type { DataSourceResponse } from "@/entities/dataSource/api/dataSourceResponse";
 import { dataSourceInfos } from "@/entities/dataSource/config/dataSourceInfos";
 import type { DataSourceCardItem } from "@/entities/dataSource/model/dataSourceCardItem";
 
@@ -11,7 +11,7 @@ import type { DataSourceCardItem } from "@/entities/dataSource/model/dataSourceC
  * - 고정 값에 없는 출처의 행은 무시
  */
 export function toDataSourceCards(
-	rows: readonly DataSourceBaseMonthRow[],
+	rows: readonly DataSourceResponse[],
 ): DataSourceCardItem[] {
 	return dataSourceInfos
 		.filter((info) => !info.hidden)

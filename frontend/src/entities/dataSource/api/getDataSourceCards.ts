@@ -5,8 +5,8 @@ import type { DataSourceCardItem } from "@/entities/dataSource/model/dataSourceC
 /**
  * 데이터 출처 > 출처 카드 목록 조회
  *
- * - 백엔드가 없어 출처별 기준 월 목업을 고정 값과 합쳐 반환
+ * - 백엔드가 없어 백엔드 응답과 같은 형태의 출처별 기준 월 목업을 고정 값과 합쳐 반환
  */
 export async function getDataSourceCards(): Promise<DataSourceCardItem[]> {
-	return toDataSourceCards(dataSourceBaseMonthsMock);
+	return toDataSourceCards(dataSourceBaseMonthsMock.data);
 }

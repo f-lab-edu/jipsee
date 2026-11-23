@@ -64,7 +64,7 @@ const DATA_SOURCES_DRAFT_NOTICE =
 
 // 카드 두 장의 데이터명, 제공 기관, 원본 링크는 고정 값 설정(dataSourceInfos)에서, 기준 월은 목업 기준 월에서 가져옴. 문구가 본문 문서 3.2절 표와 같은지는 단위 테스트(dataSourceInfos.test.ts)가 확인함
 const BASE_MONTHS = new Map(
-	dataSourceBaseMonthsMock.map((row) => [row.source, row.baseMonth]),
+	dataSourceBaseMonthsMock.data.map((row) => [row.source, row.baseMonth]),
 );
 const CARDS = dataSourceInfos
 	.filter((info) => !info.hidden)

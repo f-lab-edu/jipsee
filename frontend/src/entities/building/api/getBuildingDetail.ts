@@ -1,6 +1,7 @@
 import { cache } from "react";
-import { buildingDetailMock } from "@/entities/building/api/buildingDetailMock";
+import { findBuildingDetailMock } from "@/entities/building/api/findBuildingDetailMock";
 import { readBuildingMockFailure } from "@/entities/building/api/readBuildingMockFailure";
+import { toBuildingDetail } from "@/entities/building/lib/toBuildingDetail";
 import type { BuildingDetailResult } from "@/entities/building/model/buildingDetailResult";
 
 /**
@@ -10,7 +11,7 @@ import type { BuildingDetailResult } from "@/entities/building/model/buildingDet
  * - 그 밖의 호출 실패는 오류를 던져 오류 경계(error.tsx)가 화면 전체를 오류로 바꿈
  * - id가 같은 건물이 있으면 found와 상세 반환
  * - 없으면 notFound 반환
- * - 백엔드가 없어 목업이 조회를 대신하고, 요청 제한과 호출 실패는 목업 스위치로 만듦
+ * - 백엔드가 없어 백엔드 응답과 같은 형태의 목업이 조회를 대신하고, 요청 제한과 호출 실패는 목업 스위치로 만듦
  * - 한 요청 안에서 같은 id를 여러 번 불러도 한 번만 조회하도록 cache로 감쌈
  */
 export const getBuildingDetail = cache(
@@ -25,12 +26,12 @@ export const getBuildingDetail = cache(
 			return { kind: "rateLimited" };
 		}
 
-		const detail = buildingDetailMock.find((building) => building.id === id);
+		const body = findBuildingDetailMock(id);
 
-		if (detail === undefined) {
+		if (body === null) {
 			return { kind: "notFound" };
 		}
 
-		return { kind: "found", detail };
+		return { kind: "found", detail: toBuildingDetail(body) };
 	},
 );

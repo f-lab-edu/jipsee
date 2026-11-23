@@ -1,7 +1,9 @@
-import type { BuildingDeal } from "@/entities/building/model/buildingDeal";
-import type { BuildingDetail } from "@/entities/building/model/buildingDetail";
+import type {
+	BuildingDealResponse,
+	BuildingDetailResponse,
+} from "@/entities/building/api/buildingDetailResponse";
 
-const sharedDeals: BuildingDeal[] = [
+const sharedDeals: BuildingDealResponse[] = [
 	{
 		id: 1,
 		month: { year: 2026, month: 8 },
@@ -74,7 +76,7 @@ const sharedDeals: BuildingDeal[] = [
 	},
 ];
 
-export const buildingDetailMock: BuildingDetail[] = [
+export const buildingDetailMock: BuildingDetailResponse[] = [
 	{
 		id: "11440-망원동-12-3",
 		name: "망원빌라",
