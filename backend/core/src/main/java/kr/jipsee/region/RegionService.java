@@ -9,9 +9,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class RegionService {
     private final List<String> sigunguCodes;
+    private final Map<String, String> sigunguNames;
 
     public RegionService(LegalDongCsvRepository repository) {
         Map<String, String> candidates = readCandidates(repository.findAll());
+        this.sigunguNames = candidates;
         this.sigunguCodes = candidates.keySet().stream()
                 .filter(code -> !hasChildDistrict(code, candidates))
                 .sorted()
@@ -45,5 +47,10 @@ public class RegionService {
     /** 하위 구가 있는 시를 뺀 시군구 코드 5자리를 오름차순으로 반환 */
     public List<String> sigunguCodes() {
         return sigunguCodes;
+    }
+
+    /** 시군구 코드 5자리의 시군구명을 반환. 모르는 코드는 null 반환 */
+    public String sigunguName(String sigunguCode) {
+        return sigunguNames.get(sigunguCode);
     }
 }
