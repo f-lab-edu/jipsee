@@ -11,7 +11,6 @@ const plainDeal: BuildingDeal = {
 	amount: 25000,
 	monthlyRent: null,
 	cancelled: false,
-	similarBuilding: false,
 };
 
 describe("toChartMarkerKind", () => {
@@ -25,23 +24,13 @@ describe("toChartMarkerKind", () => {
 		);
 	});
 
-	it("해제되고 유사 건물인 거래는 해제 종류를 반환함", () => {
+	it("해제되고 갱신인 거래는 해제 종류를 반환함", () => {
 		expect(
 			toChartMarkerKind({
 				...plainDeal,
 				cancelled: true,
-				similarBuilding: true,
-			}),
-		).toBe("cancelled");
-	});
-
-	it("유사 건물이면서 갱신인 거래는 유사 건물 종류를 반환함", () => {
-		expect(
-			toChartMarkerKind({
-				...plainDeal,
-				similarBuilding: true,
 				contract: "renewal",
 			}),
-		).toBe("similar");
+		).toBe("cancelled");
 	});
 });

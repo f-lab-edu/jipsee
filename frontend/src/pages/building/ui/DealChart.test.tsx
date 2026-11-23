@@ -12,7 +12,6 @@ const jeonse: BuildingDeal = {
 	amount: 25000,
 	monthlyRent: null,
 	cancelled: false,
-	similarBuilding: false,
 };
 const wolse: BuildingDeal = {
 	...jeonse,

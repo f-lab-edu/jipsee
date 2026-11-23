@@ -13,7 +13,6 @@ const wolse: BuildingDeal = {
 	amount: 3000,
 	monthlyRent: 50,
 	cancelled: false,
-	similarBuilding: false,
 };
 const baseDetail: BuildingDetail = {
 	id: "11440-망원동-12-3",

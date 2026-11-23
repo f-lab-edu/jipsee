@@ -11,7 +11,6 @@ const sharedDeals: BuildingDeal[] = [
 		amount: 25000,
 		monthlyRent: null,
 		cancelled: false,
-		similarBuilding: false,
 	},
 	{
 		id: 2,
@@ -22,7 +21,6 @@ const sharedDeals: BuildingDeal[] = [
 		amount: 3000,
 		monthlyRent: 50,
 		cancelled: false,
-		similarBuilding: false,
 	},
 	{
 		id: 3,
@@ -33,7 +31,6 @@ const sharedDeals: BuildingDeal[] = [
 		amount: 31000,
 		monthlyRent: null,
 		cancelled: true,
-		similarBuilding: false,
 	},
 	{
 		id: 4,
@@ -44,7 +41,6 @@ const sharedDeals: BuildingDeal[] = [
 		amount: 24000,
 		monthlyRent: null,
 		cancelled: false,
-		similarBuilding: false,
 	},
 	{
 		id: 5,
@@ -55,7 +51,6 @@ const sharedDeals: BuildingDeal[] = [
 		amount: 23000,
 		monthlyRent: null,
 		cancelled: false,
-		similarBuilding: true,
 	},
 	{
 		id: 6,
@@ -66,7 +61,6 @@ const sharedDeals: BuildingDeal[] = [
 		amount: 30500,
 		monthlyRent: null,
 		cancelled: false,
-		similarBuilding: false,
 	},
 	{
 		id: 7,
@@ -77,7 +71,6 @@ const sharedDeals: BuildingDeal[] = [
 		amount: 22000,
 		monthlyRent: null,
 		cancelled: false,
-		similarBuilding: false,
 	},
 ];
 
@@ -114,7 +107,6 @@ export const buildingDetailMock: BuildingDetail[] = [
 				amount: 18000,
 				monthlyRent: null,
 				cancelled: false,
-				similarBuilding: false,
 			},
 			{
 				id: 2,
@@ -125,7 +117,6 @@ export const buildingDetailMock: BuildingDetail[] = [
 				amount: 17000,
 				monthlyRent: null,
 				cancelled: false,
-				similarBuilding: false,
 			},
 			{
 				id: 3,
@@ -136,7 +127,6 @@ export const buildingDetailMock: BuildingDetail[] = [
 				amount: 16000,
 				monthlyRent: null,
 				cancelled: false,
-				similarBuilding: false,
 			},
 		],
 	},

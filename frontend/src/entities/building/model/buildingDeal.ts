@@ -14,5 +14,4 @@ export type BuildingDeal = {
 	// 월세만 값이 있음
 	monthlyRent: Nullable<number>;
 	cancelled: boolean;
-	similarBuilding: boolean;
 };

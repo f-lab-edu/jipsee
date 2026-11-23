@@ -14,9 +14,6 @@ export interface DealChartMarkerShapeStyle {
 		cancelled: OutlinedShapeStyle;
 	};
 	dashOffsets: { jeonse: number; sale: number };
-	layerFill: string;
-	similarMiddleRingOffset: number;
-	similarOuterRingOffset: number;
 }
 
 const layerFill = "var(--seed-color-bg-layer-default)";
@@ -35,7 +32,4 @@ export const dealChartMarkerShapeStyles: DealChartMarkerShapeStyle = {
 		},
 	},
 	dashOffsets: { jeonse: -0.55, sale: -0.05 },
-	layerFill,
-	similarMiddleRingOffset: 2,
-	similarOuterRingOffset: 4,
 };

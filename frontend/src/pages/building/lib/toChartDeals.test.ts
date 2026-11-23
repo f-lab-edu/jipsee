@@ -11,7 +11,6 @@ const jeonse: BuildingDeal = {
 	amount: 25000,
 	monthlyRent: null,
 	cancelled: false,
-	similarBuilding: false,
 };
 const wolse: BuildingDeal = { ...jeonse, id: 2, type: "wolse" };
 const sale: BuildingDeal = { ...jeonse, id: 3, type: "sale" };

@@ -15,7 +15,6 @@ interface DealChartMarkerShapeProps {
  * - 색은 `currentColor`로 지정
  * - 기본은 전세는 원, 매매는 45도 돌린 둥근 네모
  * - 갱신은 안쪽을 비운 굵은 테두리, 해제는 안쪽을 비운 점선 테두리
- * - 유사 건물은 사이를 비운 두 겹 고리가 있는 원
  *
  * @param diameter 테두리를 포함한 마커 지름
  */
@@ -26,26 +25,6 @@ export default function DealChartMarkerShape({
 }: DealChartMarkerShapeProps) {
 	const style = dealChartMarkerShapeStyles;
 	const radius = diameter / 2;
-
-	if (markerKind === "similar") {
-		return (
-			<g>
-				<circle
-					cx="0"
-					cy="0"
-					r={radius + style.similarOuterRingOffset}
-					fill="currentColor"
-				/>
-				<circle
-					cx="0"
-					cy="0"
-					r={radius + style.similarMiddleRingOffset}
-					fill={style.layerFill}
-				/>
-				<circle cx="0" cy="0" r={radius} fill="currentColor" />
-			</g>
-		);
-	}
 
 	const outlined = style.outlined[markerKind];
 	const inset = outlined.strokeWidth / 2;

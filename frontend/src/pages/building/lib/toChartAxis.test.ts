@@ -15,7 +15,6 @@ const baseDeal: BuildingDeal = {
 	amount: 25000,
 	monthlyRent: null,
 	cancelled: false,
-	similarBuilding: false,
 };
 
 function toYearWidthDeals(startYear: number): BuildingDeal[] {

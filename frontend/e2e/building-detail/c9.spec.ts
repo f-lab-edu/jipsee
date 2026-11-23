@@ -1,6 +1,6 @@
 // S2 건물 상세 C9 거래 이력: 마커 종류, 범례
 // 기대값 출처: 설계 3절(범례 문구), 5절(마커별 모양), 7절(색), 캔버스 보드 S2(Mobile|Desktop)(Default|NoLoc)와 DarkS2... 보드의 측정값
-// 캔버스가 마커 종류를 CSS로 그리는 방식: 갱신은 배경색 원에 3px 실선 테두리, 해제는 배경색 원에 2px 점선 테두리, 유사 건물은 채운 원에 2px 간격 두 겹 고리(box-shadow 2px, 4px)
+// 캔버스가 마커 종류를 CSS로 그리는 방식: 갱신은 배경색 원에 3px 실선 테두리, 해제는 배경색 원에 2px 점선 테두리
 // 점선의 간격은 브라우저가 그리는 방식이라 숫자로 비교하지 않고 눈으로 봄(dasharray가 있는지만 설계 5절대로 확인함)
 // 알려진 차이(결정): 데스크톱 카드 border로 안쪽 폭이 2px 좁고, 캔버스 그래프 상자는 border-bottom 때문에 161/221이고 앱은 160/220이며
 
@@ -86,7 +86,7 @@ for (const [layoutIndex, [name, vp, layout]] of LAYOUTS.entries()) {
 test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "light" });
 
-	test("C9-13 모바일 id 2와 5의 마커 종류가 id 1과 같음(기본, 해제, 갱신, 유사 건물, 기본, 기본)", async ({
+	test("C9-13 모바일 id 2와 5의 마커 종류가 id 1과 같음(기본, 해제, 갱신, 기본, 기본, 기본)", async ({
 		t,
 	}) => {
 		for (const id of [2, 5]) {
@@ -119,7 +119,7 @@ for (const [layoutIndex, [name, vp, layout]] of LAYOUTS.entries()) {
 		test.use({ viewport: vp, colorScheme: "light" });
 
 		for (const [idIndex, id] of C8_ID_LIST.entries()) {
-			test(`${caseId("C9", 14 + layoutIndex * (N + 1) + idIndex)} ${name} id ${id}의 범례 항목 다섯 개와 보조 문구의 문구, 순서, 위치, 마커, 색이 캔버스와 같음`, async ({
+			test(`${caseId("C9", 14 + layoutIndex * (N + 1) + idIndex)} ${name} id ${id}의 범례 항목 네 개와 보조 문구의 문구, 순서, 위치, 마커, 색이 캔버스와 같음`, async ({
 				t,
 			}) => {
 				await t.goto(buildingPath(id));
@@ -173,7 +173,7 @@ for (const [index, [w, layout]] of (
 			t.eq("보이는 보조 문구 개수", m.legendVisibleCount, 1);
 			t.near("범례 마커 폭", m.legend?.items[0]?.marker?.w, L.legendD, 0.5);
 			t.near("그래프 첫 마커 안쪽 점 지름", m.points?.[0]?.core, L.d, 0.5);
-			t.eq("보조 문구와 항목 수", m.legend?.items.length, 6);
+			t.eq("보조 문구와 항목 수", m.legend?.items.length, 5);
 		});
 	});
 }
@@ -247,7 +247,7 @@ test.describe("320x700 light", () => {
 				m.scrollW,
 				`문서 폭 ≤ ${m.vw}`,
 			);
-			t.eq(`id ${id} 범례 항목 수`, m.legend?.items.length, 6);
+			t.eq(`id ${id} 범례 항목 수`, m.legend?.items.length, 5);
 			for (const it of m.legend?.items ?? []) {
 				t.ok(
 					`id ${id} "${it.text}" 오른쪽 끝이 화면 안`,

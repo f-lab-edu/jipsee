@@ -25,12 +25,7 @@ export function c9CheckMarkerShape(
 	const sh = m.shapes;
 	const sale = deal === "sale";
 	t.color(`${label} 색(currentColor)`, m.color, color);
-	t.near(
-		`${label} 바깥 지름`,
-		m.outer,
-		expectOuter ?? (kind === "similar" ? d + 8 : d),
-		0.6,
-	);
+	t.near(`${label} 바깥 지름`, m.outer, expectOuter ?? d, 0.6);
 	const rectOrCircle = (
 		s: Shape,
 		sw: number,
@@ -68,20 +63,5 @@ export function c9CheckMarkerShape(
 	} else if (kind === "cancelled") {
 		t.eq(`${label} 도형 개수`, sh.length, 1);
 		if (first) rectOrCircle(first, 2, layer, color, true);
-	} else if (kind === "similar") {
-		t.eq(`${label} 도형 개수`, sh.length, 3);
-		const rings: [number, string][] = [
-			[d / 2 + 4, color],
-			[d / 2 + 2, layer],
-			[d / 2, color],
-		];
-		rings.forEach(([r, fill], i) => {
-			const ring = sh[i];
-			if (!ring) return;
-			t.eq(`${label} 고리 ${i} 도형`, ring.tag, "circle");
-			t.near(`${label} 고리 ${i} 반지름`, ring.r, r, 0.1);
-			t.color(`${label} 고리 ${i} 채움`, ring.fill, fill);
-			t.eq(`${label} 고리 ${i} 테두리 없음`, ring.sw, 0);
-		});
 	}
 }

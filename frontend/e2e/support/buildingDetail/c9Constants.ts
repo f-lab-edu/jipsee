@@ -6,26 +6,26 @@ export const C9_LAYOUT = {
 	mobile: {
 		d: 12,
 		legendD: 10,
-		// 본문 카드가 없어져 범례 폭이 358로 넓어지면 항목 다섯 개가 한 줄에 들어오고 보조 문구만 둘째 줄 왼쪽 끝에 놓임(2026-11-13 흰 세로 열)
-		textX: [16, 68.17, 120.34, 172.52, 224.69],
-		textY: [1, 1, 1, 1, 1],
-		noteX: 0,
-		noteY: 27,
-		legendH: 44,
+		// 유사 건물과 이전 건물 항목이 없어져 항목 네 개와 보조 문구가 한 줄에 들어옴. 보조 문구 x는 해제 글자 끝 + 14, 둘째 줄이 없어져 범례 높이와 아래 요소 y가 26 줄어듦(2026-11-24)
+		textX: [16, 68.17, 120.34, 172.52],
+		textY: [1, 1, 1, 1],
+		noteX: 208.69,
+		noteY: 1,
+		legendH: 18,
 		legendTop: 40,
 		gridGap: 12,
-		boxTop: 96,
-		xRowBottom: 281,
-		firstDate: { 1: 342, 4: 342 } as Record<number, number>,
-		sectionBottom: { 1: 860, 4: 552 } as Record<number, number>,
+		boxTop: 70,
+		xRowBottom: 254,
+		firstDate: { 1: 315, 4: 315 } as Record<number, number>,
+		sectionBottom: { 1: 833, 4: 525 } as Record<number, number>,
 		boxH: 160,
 	},
 	desktop: {
 		d: 14,
 		legendD: 12,
-		textX: [18, 72.17, 126.34, 180.52, 234.69],
-		textY: [1, 1, 1, 1, 1],
-		noteX: 296.45,
+		textX: [18, 72.17, 126.34, 180.52],
+		textY: [1, 1, 1, 1],
+		noteX: 216.69,
 		noteY: 1,
 		legendH: 18,
 		legendTop: 47,
@@ -38,15 +38,15 @@ export const C9_LAYOUT = {
 	},
 };
 
-export type MarkerKind = "default" | "cancelled" | "renewal" | "similar";
+export type MarkerKind = "default" | "cancelled" | "renewal";
 
-// 캔버스 B.default, B.noloc의 마커 종류 (점 순서는 C8_DEALS와 같음). 캔버스 mod(): 해제, 유사 건물, 갱신 순
+// 캔버스 B.default, B.noloc의 마커 종류 (점 순서는 C8_DEALS와 같음). 캔버스 mod(): 해제, 갱신 순
 export const C9_KINDS: Record<string, MarkerKind[]> = {
-	default: ["default", "cancelled", "renewal", "similar", "default", "default"],
+	default: ["default", "cancelled", "renewal", "default", "default", "default"],
 	noloc: ["default", "renewal", "default"],
 };
 
-// 설계 3절 범례 항목 순서와 캔버스 legend 배열의 모양과 색(C_J, C_S, C_N, C_N, C_N)
+// 설계 3절 범례 항목 순서와 캔버스 legend 배열의 모양과 색(C_J, C_S, C_N, C_N)
 export const C9_LEGEND_ITEMS: {
 	text: string;
 	deal: "jeonse" | "sale";
@@ -57,7 +57,6 @@ export const C9_LEGEND_ITEMS: {
 	{ text: "매매", deal: "sale", kind: "default", color: "sale" },
 	{ text: "갱신", deal: "jeonse", kind: "renewal", color: "muted" },
 	{ text: "해제", deal: "jeonse", kind: "cancelled", color: "muted" },
-	{ text: "유사 건물", deal: "jeonse", kind: "similar", color: "muted" },
 ];
 
 export const C9_NOTE = "월세는 목록에서 확인해요";

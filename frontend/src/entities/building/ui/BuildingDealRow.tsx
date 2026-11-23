@@ -19,7 +19,7 @@ interface BuildingDealRowProps {
  * - 해제된 거래는 금액에 취소선과 흐린 색 적용
  *
  * @param columns 머리 행과 같은 열 정의
- * @param showsStatusBadges 거짓이면 해제와 유사 건물 배지를 그리지 않음
+ * @param showsStatusBadges 거짓이면 해제 배지를 그리지 않음
  */
 export default function BuildingDealRow({
 	deal,

@@ -13,9 +13,9 @@ interface BuildingDealBadgesProps {
  * 건물 > 거래 배지
  *
  * - 거래 유형별 색으로 구분 배지 출력
- * - 해제와 유사 건물 배지는 상태 배지를 보일 때만 출력
+ * - 해제 배지는 상태 배지를 보일 때만 출력
  *
- * @param showsStatusBadges 거짓이면 해제와 유사 건물 배지를 그리지 않음
+ * @param showsStatusBadges 거짓이면 해제 배지를 그리지 않음
  */
 export default function BuildingDealBadges({
 	deal,
@@ -35,13 +35,6 @@ export default function BuildingDealBadges({
 				<Box {...style.cancelled.badge}>
 					<Text {...style.statusLabel} {...style.cancelled.label}>
 						{buildingDealCopy.cancelled}
-					</Text>
-				</Box>
-			)}
-			{showsStatusBadges && deal.similarBuilding && (
-				<Box {...style.similarBuilding.badge}>
-					<Text {...style.statusLabel} {...style.similarBuilding.label}>
-						{buildingDealCopy.similarBuilding}
 					</Text>
 				</Box>
 			)}

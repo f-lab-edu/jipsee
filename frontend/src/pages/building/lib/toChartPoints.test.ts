@@ -51,7 +51,7 @@ describe("toChartPoints", () => {
 		expect(kinds).toContainEqual(["jeonse", 1, "default"]);
 		expect(kinds).toContainEqual(["sale", 3, "cancelled"]);
 		expect(kinds).toContainEqual(["jeonse", 4, "renewal"]);
-		expect(kinds).toContainEqual(["jeonse", 5, "similar"]);
+		expect(kinds).toContainEqual(["jeonse", 5, "default"]);
 	});
 
 	it("월세 거래만 있으면 점이 없음", () => {

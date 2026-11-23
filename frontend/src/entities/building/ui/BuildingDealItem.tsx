@@ -17,7 +17,7 @@ interface BuildingDealItemProps {
  * - 왼쪽에 배지 줄과 계약 월, 전용면적, 오른쪽에 금액 출력
  * - 해제된 거래는 금액에 취소선과 흐린 색 적용
  *
- * @param showsStatusBadges 거짓이면 해제와 유사 건물 배지를 그리지 않음
+ * @param showsStatusBadges 거짓이면 해제 배지를 그리지 않음
  */
 export default function BuildingDealItem({
 	deal,

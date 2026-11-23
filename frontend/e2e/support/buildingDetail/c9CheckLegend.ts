@@ -74,7 +74,7 @@ export function c9CheckLegend(
 			);
 		}
 	});
-	const note = lg.items[5];
+	const note = lg.items[4];
 	if (note) {
 		t.near("보조 문구 왼쪽", note.x, L.noteX, 1);
 		t.near("보조 문구 위쪽", note.y, L.noteY, 1);
@@ -87,8 +87,8 @@ export function c9CheckLegend(
 		t.eq("보조 문구는 마커가 없음", note.marker, null);
 		if (layout === "desktop") {
 			t.near(
-				"보조 문구는 같은 줄에서 유사 건물 글자 끝과 14 떨어짐",
-				note.x - (lg.items[4]?.r ?? Number.NaN),
+				"보조 문구는 같은 줄에서 해제 글자 끝과 14 떨어짐",
+				note.x - (lg.items[3]?.r ?? Number.NaN),
 				14,
 				1,
 			);

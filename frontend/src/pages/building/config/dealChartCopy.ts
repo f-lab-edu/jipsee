@@ -6,7 +6,6 @@ export const dealChartCopy = {
 	sale: "매매",
 	renewal: buildingDealCopy.contractLabels.renewal,
 	cancelled: buildingDealCopy.cancelled,
-	similar: buildingDealCopy.similarBuilding,
 	legendNote: "월세는 목록에서 확인해요",
 	countUnit: "건",
 } as const;

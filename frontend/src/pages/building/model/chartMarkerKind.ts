@@ -1,1 +1,1 @@
-export type ChartMarkerKind = "cancelled" | "similar" | "renewal" | "default";
+export type ChartMarkerKind = "cancelled" | "renewal" | "default";

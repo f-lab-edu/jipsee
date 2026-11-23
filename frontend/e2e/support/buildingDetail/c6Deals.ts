@@ -35,7 +35,6 @@ export const DEALS_DEFAULT: DealExpectation[] = [
 		date: "2024.09",
 		type: "신규 전세",
 		kind: "jeonse",
-		similar: true,
 		area: "40㎡",
 		amount: "2억 3,000만원",
 	},
