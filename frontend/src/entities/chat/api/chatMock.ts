@@ -4,11 +4,10 @@ import type { ChatBuildingLink } from "@/entities/chat/model/chatBuildingLink";
 // 답변 글자 조각 사이 지연. 첫 조각이 오기 전 점 세 개 단계도 이 간격만큼 보임
 export const chatMockStreamDelayMs = 400;
 
-// 건물 상세 목업 다섯 건과 같은 id. 첫 건물은 시안에서 쓰는 이름임
+// 건물 상세 목업 네 건과 같은 id. 첫 건물은 시안에서 쓰는 이름임
 export const chatMockBuildings: ChatBuildingLink[] = [
 	{ id: "11440-망원동-12-3", name: "○○빌라" },
 	{ id: "11440-망원동-12-5", name: "망원빌라 2차" },
-	{ id: "11440-망원동-15-1", name: "망원하우스" },
 	{ id: "11440-망원동-16-2", name: "마포구 망원동 16-2" },
 	{ id: "11440-망원동-17-4", name: "망원맨션" },
 ];

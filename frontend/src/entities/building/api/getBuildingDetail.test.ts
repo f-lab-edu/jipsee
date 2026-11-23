@@ -13,11 +13,11 @@ describe("getBuildingDetail", () => {
 	});
 
 	it("목업에 있는 id를 조회하면 found와 그 id의 상세를 반환함", async () => {
-		const result = await getBuildingDetail("11440-망원동-15-1");
+		const result = await getBuildingDetail("11440-망원동-12-3");
 
 		expect(result.kind).toBe("found");
 		expect(result.kind === "found" && result.detail.id).toBe(
-			"11440-망원동-15-1",
+			"11440-망원동-12-3",
 		);
 	});
 

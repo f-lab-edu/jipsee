@@ -31,7 +31,7 @@ describe("searchBuildings", () => {
 
 		expect(result.kind).toBe("found");
 		if (result.kind === "found") {
-			expect(result.buildings).toHaveLength(8);
+			expect(result.buildings).toHaveLength(7);
 			expect(result.hasNext).toBe(false);
 		}
 	});

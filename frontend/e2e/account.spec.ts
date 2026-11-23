@@ -40,12 +40,12 @@ const HEADER_LOGIN_CASES = [
 	},
 	{
 		what: "건물 상세(기간 12, 전세)",
-		path: `${buildingPath(3)}?period=12&type=jeonse`,
+		path: `${buildingPath(1)}?period=12&type=jeonse`,
 		href: "/login?next=%2Fbuildings%2F3%3Fperiod%3D12%26type%3Djeonse",
 	},
 	{
 		what: "건물 상세(조건이 기본값과 다른 기간 24, 월세)",
-		path: `${buildingPath(3)}?period=24&type=wolse`,
+		path: `${buildingPath(1)}?period=24&type=wolse`,
 		href: "/login?next=%2Fbuildings%2F3%3Fperiod%3D24%26type%3Dwolse",
 	},
 ];

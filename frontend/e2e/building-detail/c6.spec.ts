@@ -10,13 +10,10 @@ import { checkDealsBottom } from "../support/buildingDetail/checkDealsBottom";
 import { checkDesktopDeals } from "../support/buildingDetail/checkDesktopDeals";
 import { checkMobileDeals } from "../support/buildingDetail/checkMobileDeals";
 import { measureDeals } from "../support/buildingDetail/measureDeals";
-import type { Theme } from "../support/buildingDetail/tokens";
 import { buildingPath } from "../support/buildingId";
 import { caseId } from "../support/caseId";
 import { test } from "../support/test";
 import { DESKTOP, MOBILE, MOBILE_COLUMN } from "../support/viewports";
-
-const THEMES: Theme[] = ["light", "dark"];
 
 // ---- 모바일 ----
 test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
@@ -66,22 +63,6 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			MOBILE_COLUMN.width,
 		);
 	});
-	test(`${caseId("C6", 8)} 모바일 id 3은 거래 이력 제목만 있고 현재 건물 거래 목록이 없음 (거래 0건)`, async ({
-		t,
-	}) => {
-		await t.goto(buildingPath(3));
-		const m = await t.page.evaluate(measureDeals);
-		c6CheckMobileSection(
-			t,
-			m,
-			C6_TOKENS.light,
-			MOBILE_COLUMN.x,
-			MOBILE_COLUMN.width,
-		);
-		t.eq("현재 건물 거래 ul 없음", m.ulCount, 0);
-		t.eq("li 없음", m.liCount, 0);
-		t.eq("table 없음", m.table, null);
-	});
 });
 test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 	test.use({ viewport: MOBILE, colorScheme: "dark" });
@@ -108,20 +89,6 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 			MOBILE_COLUMN.x,
 			MOBILE_COLUMN.width,
 		);
-	});
-	test(`${caseId("C6", 9)} 모바일 다크에서 id 3도 거래 이력 제목만 있고 목록이 없음`, async ({
-		t,
-	}) => {
-		await t.goto(buildingPath(3));
-		const m = await t.page.evaluate(measureDeals);
-		c6CheckMobileSection(
-			t,
-			m,
-			C6_TOKENS.dark,
-			MOBILE_COLUMN.x,
-			MOBILE_COLUMN.width,
-		);
-		t.eq("현재 건물 거래 ul 없음", m.ulCount, 0);
 	});
 });
 test.describe("320x700 light", () => {
@@ -226,22 +193,6 @@ test.describe(`${DESKTOP.width}x${DESKTOP.height} dark`, () => {
 		checkDesktopDeals(t, m, DEALS[4], C6_TOKENS.dark, 177, 682);
 	});
 });
-for (const [themeIndex, theme] of THEMES.entries()) {
-	test.describe(`${DESKTOP.width}x${DESKTOP.height} ${theme}`, () => {
-		test.use({ viewport: DESKTOP, colorScheme: theme });
-
-		test(`${caseId("C6", 19 + themeIndex)} 데스크톱 id 3은 거래 이력 제목만 있고 표가 없음 (${theme})`, async ({
-			t,
-		}) => {
-			await t.goto(buildingPath(3));
-			const m = await t.page.evaluate(measureDeals);
-			c6CheckDesktopSection(t, m, C6_TOKENS[theme]);
-			t.eq("현재 건물 거래 table 없음", m.table, null);
-			t.eq("행 없음", m.rows.length, 0);
-			t.eq("머리 행 없음", m.header ?? null, null);
-		});
-	});
-}
 
 // ---- 공통: id, 레이아웃 전환 ----
 for (const [index, [name, viewport, layout]] of (
@@ -256,7 +207,7 @@ for (const [index, [name, viewport, layout]] of (
 		test(`${caseId("C6", 21 + index)} ${name}에서 두 레이아웃의 거래 이력 제목 id가 각각 한 번씩만 있고 섹션이 자기 제목을 가리킴`, async ({
 			t,
 		}) => {
-			for (const id of [1, 3]) {
+			for (const id of [1]) {
 				await t.goto(buildingPath(id));
 				const m = await t.page.evaluate(measureDeals);
 				t.eq(`id ${id} 문서 안 중복 id`, m.dupIds, []);

@@ -9,6 +9,8 @@ describe("getNearbyDeals", () => {
 	it("거래가 없는 건물이면 빈 목록을 반환함", async () => {
 		expect(await getNearbyDeals("11440-망원동-16-2", jeonseCondition)).toEqual({
 			deals: [],
+			hasNext: false,
+			totalCount: 0,
 		});
 	});
 
@@ -16,6 +18,8 @@ describe("getNearbyDeals", () => {
 		expect(await getNearbyDeals("11440-망원동-999-9", jeonseCondition)).toEqual(
 			{
 				deals: [],
+				hasNext: false,
+				totalCount: 0,
 			},
 		);
 	});
@@ -25,6 +29,8 @@ describe("getNearbyDeals", () => {
 			const result = await getNearbyDeals("11440-망원동-12-3", condition);
 
 			expect(result.deals.length).toBeGreaterThan(0);
+			expect(result.totalCount).toBe(result.deals.length);
+			expect(result.hasNext).toBe(false);
 			expect(result.deals.every((deal) => deal.type === condition.type)).toBe(
 				true,
 			);

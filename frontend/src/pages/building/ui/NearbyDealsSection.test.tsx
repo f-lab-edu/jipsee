@@ -48,6 +48,8 @@ describe("NearbyDealsSection", () => {
 	it("거래가 있으면 건수 줄과 모바일 목록 항목과 확정일자 안내를 출력함", () => {
 		renderSection("mobile", {
 			deals: threeDeals,
+			hasNext: false,
+			totalCount: 3,
 		});
 
 		expect(screen.getByText("3건")).toBeTruthy();
@@ -63,6 +65,8 @@ describe("NearbyDealsSection", () => {
 	it("거래가 기준보다 적으면 건수 줄 아래에 조건 확장 안내를 출력함", () => {
 		renderSection("mobile", {
 			deals: [jeonse, { ...jeonse, id: 2 }],
+			hasNext: false,
+			totalCount: 2,
 		});
 
 		const notes = screen.getAllByRole("note");
@@ -73,9 +77,23 @@ describe("NearbyDealsSection", () => {
 		expect(screen.getAllByRole("listitem")).toHaveLength(2);
 	});
 
+	it("건수 줄은 목록에 담긴 건수가 아니라 totalCount를 출력함", () => {
+		renderSection("mobile", {
+			deals: threeDeals,
+			hasNext: true,
+			totalCount: 35,
+		});
+
+		expect(screen.getByText("35건")).toBeTruthy();
+		expect(screen.getAllByRole("listitem")).toHaveLength(3);
+		expect(screen.getAllByRole("note")).toHaveLength(1);
+	});
+
 	it("거래가 있으면 데스크톱에서 머리 행과 거래 행을 가진 표를 출력함", () => {
 		renderSection("desktop", {
 			deals: threeDeals,
+			hasNext: false,
+			totalCount: 3,
 		});
 
 		const table = screen.getByRole("table", { name: "주변 전월세 거래" });
@@ -87,6 +105,8 @@ describe("NearbyDealsSection", () => {
 	it("거래가 0건이어도 건수 줄과 확정일자 안내를 출력하고 목록은 출력하지 않음", () => {
 		renderSection("mobile", {
 			deals: [],
+			hasNext: false,
+			totalCount: 0,
 		});
 
 		expect(screen.getByText("0건")).toBeTruthy();

@@ -87,7 +87,7 @@ for (const [index, [name, vp]] of VIEWPORTS.entries()) {
 		});
 	});
 }
-for (const [index, id] of [2, 3, 5].entries()) {
+for (const [index, id] of [2, 5].entries()) {
 	test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 		test.use({ viewport: MOBILE, colorScheme: "light" });
 

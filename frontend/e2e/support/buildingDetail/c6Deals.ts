@@ -79,11 +79,10 @@ export const DEALS_NOLOC: DealExpectation[] = [
 	},
 ];
 
-/** 건물 id별 현재 건물 거래. id 3은 현재 건물 거래가 없음 */
+/** 건물 id별 현재 건물 거래 */
 export const DEALS: Record<number, DealExpectation[]> = {
 	1: DEALS_DEFAULT,
 	2: DEALS_DEFAULT,
-	3: [],
 	4: DEALS_NOLOC,
 	5: DEALS_DEFAULT,
 };

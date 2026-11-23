@@ -12,8 +12,6 @@ import { c11CheckRowsContent } from "../support/buildingDetail/c11CheckRowsConte
 import { c11CheckSummary } from "../support/buildingDetail/c11CheckSummary";
 import { c11Confirmed } from "../support/buildingDetail/c11Confirmed";
 import {
-	C11_FJ,
-	C11_FW,
 	C11_HEADS,
 	C11_J,
 	C11_LONG_NAMES,
@@ -42,7 +40,7 @@ for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
 	test.describe(`${viewport.width}x${viewport.height} light`, () => {
 		test.use({ viewport, colorScheme: "light" });
 
-		test(`${caseId("C11", 1 + layoutIndex)} ${name} id 1, 2, 3, 4, 5의 전세와 월세에서 건수, 기준 월, 행 순서와 내용, 확정일자 안내가 설계와 같음`, async ({
+		test(`${caseId("C11", 1 + layoutIndex)} ${name} id 1, 2, 4, 5의 전세와 월세에서 건수, 기준 월, 행 순서와 내용, 확정일자 안내가 설계와 같음`, async ({
 			t,
 		}) => {
 			for (const s of C11_STATES) {
@@ -174,34 +172,6 @@ test.describe(`${MOBILE.width}x${MOBILE.height} dark`, () => {
 	});
 });
 
-// 거래 적음(id 3): 2행과 1행. 조건 확장 안내는 C12에서 봄
-for (const [layoutIndex, [name, viewport, layout]] of LAYOUTS.entries()) {
-	test.describe(`${viewport.width}x${viewport.height} light`, () => {
-		test.use({ viewport, colorScheme: "light" });
-
-		test(`${caseId("C11", 12 + layoutIndex)} ${name} id 3은 전세 2행, 월세 1행으로 건수 줄과 목록, 확정일자 안내의 모양과 위치가 설계와 같음`, async ({
-			t,
-		}) => {
-			for (const [q, count, rows] of [
-				["", 2, C11_FJ],
-				["?type=wolse", 1, C11_FW],
-			] as const) {
-				await t.goto(`${buildingPath(3)}${q}`);
-				const m = await c11Measure(t);
-				const l = `${name} id 3 ${q ? "월세" : "전세"}`;
-				c11CheckSummary(t, m, layout, count, l);
-				c11CheckRowsContent(t, m, layout, [...rows], l);
-				if (layout === "mobile") {
-					c11CheckMobileRows(t, m, l);
-				} else {
-					c11CheckDesktopRows(t, m, l);
-				}
-				c11CheckNotice(t, m, layout, l);
-			}
-		});
-	});
-}
-
 // 0건(id 2): 건수 줄과 확정일자 안내만
 for (const [index, [name, viewport, layout, theme]] of (
 	[
@@ -284,10 +254,10 @@ for (const [layoutIndex, [name, viewport]] of LAYOUTS.entries()) {
 	test.describe(`${viewport.width}x${viewport.height} light`, () => {
 		test.use({ viewport, colorScheme: "light" });
 
-		test(`${caseId("C11", 20 + layoutIndex)} ${name} 건수 줄은 계산된 align-items가 baseline이고 건수와 기준 월의 기준선이 같음(id 1, 2, 3)`, async ({
+		test(`${caseId("C11", 20 + layoutIndex)} ${name} 건수 줄은 계산된 align-items가 baseline이고 건수와 기준 월의 기준선이 같음(id 1, 2)`, async ({
 			t,
 		}) => {
-			for (const id of [1, 2, 3]) {
+			for (const id of [1, 2]) {
 				await t.goto(buildingPath(id));
 				const m = await c11Measure(t);
 				t.eq(`${name} id ${id} align-items`, m.summary?.ai, "baseline");
@@ -307,15 +277,13 @@ for (const [layoutIndex, [name, viewport]] of LAYOUTS.entries()) {
 test.describe("320x700 light", () => {
 	test.use({ viewport: { width: 320, height: 700 }, colorScheme: "light" });
 
-	test("C11-22 320px에서 id 1 전세와 월세, id 2, id 3은 가로 스크롤이 없고 목록 금액이 행 안쪽에 들어옴", async ({
+	test("C11-22 320px에서 id 1 전세와 월세, id 2는 가로 스크롤이 없고 목록 금액이 행 안쪽에 들어옴", async ({
 		t,
 	}) => {
 		for (const [id, q] of [
 			[1, ""],
 			[1, "?type=wolse"],
 			[2, ""],
-			[3, ""],
-			[3, "?type=wolse"],
 		] as const) {
 			await t.goto(`${buildingPath(id)}${q}`);
 			const m = await c11Measure(t);
@@ -419,8 +387,6 @@ test.describe(`${MOBILE.width}x${MOBILE.height} light`, () => {
 			[1, ""],
 			[1, "?type=wolse"],
 			[2, ""],
-			[3, ""],
-			[3, "?type=wolse"],
 			[4, ""],
 			[5, ""],
 		] as const) {

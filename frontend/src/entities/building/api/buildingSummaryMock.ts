@@ -16,13 +16,6 @@ const detailBuildings: BuildingSummary[] = [
 		latestNewJeonseMonth: { year: 2026, month: 6 },
 	},
 	{
-		id: "11440-망원동-15-1",
-		name: "망원하우스",
-		lotAddress: "마포구 망원동 15-1",
-		roadAddress: "마포구 월드컵로27길 30",
-		latestNewJeonseMonth: null,
-	},
-	{
 		id: "11440-망원동-16-2",
 		name: null,
 		lotAddress: "마포구 망원동 16-2",
@@ -38,7 +31,7 @@ const detailBuildings: BuildingSummary[] = [
 	},
 ];
 
-// 페이지 나눔 확인용 건물. 7의 배수는 건물명이 없고 5의 배수는 도로명 주소가 없음. 둘 다 없는 건물은 35
+// 페이지 나눔 확인용 건물. 번호는 상세 목업과 이어서 6부터 시작함. 7의 배수는 건물명이 없고 5의 배수는 도로명 주소가 없음. 둘 다 없는 건물은 35
 const pagingBuildings: BuildingSummary[] = Array.from(
 	{ length: 43 },
 	(_, index) => {
