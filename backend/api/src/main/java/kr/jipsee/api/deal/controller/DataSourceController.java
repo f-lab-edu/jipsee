@@ -1,6 +1,7 @@
 package kr.jipsee.api.deal.controller;
 
 import java.util.List;
+import kr.jipsee.api.common.ApiResponse;
 import kr.jipsee.api.deal.dto.DataSourceResponse;
 import kr.jipsee.deal.service.CollectStatusService;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +17,9 @@ public class DataSourceController {
 
     /** 출처별 기준 월 조회 */
     @GetMapping("/data-sources")
-    public List<DataSourceResponse> getDataSources() {
-        return collectStatusService.findAll().stream()
+    public ApiResponse<List<DataSourceResponse>> getDataSources() {
+        return ApiResponse.of(collectStatusService.findAll().stream()
                 .map(DataSourceResponse::from)
-                .toList();
+                .toList());
     }
 }

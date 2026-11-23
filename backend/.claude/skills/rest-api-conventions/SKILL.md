@@ -7,7 +7,7 @@ description: >
 
 # REST API Conventions
 
-Return the body directly. Errors are `ProblemDetail` (see problem-details-rfc9457).
+Wrap every success body as `ApiResponse.of(payload)` (`kr.jipsee.api.common`), serialized as `{ "data": ... }`. There are no `code`, `message` or `success` fields; the status is the HTTP status. Errors stay `ProblemDetail` (see problem-details-rfc9457) and are not wrapped.
 
 ## Layers and DTOs
 
@@ -64,11 +64,11 @@ GET    /orders/{id}/items   → nested resource
 
 Query params: `?page=0&size=20&sort=createdAt,desc`
 
-Use Spring Data `Pageable` in controllers. The service returns `Page<OrderSummary>` and the controller maps it to the response DTO:
+Use Spring Data `Pageable` in controllers. The service returns `Page<OrderSummary>` and the controller maps it to the response DTO and wraps it, so the JSON above sits under `data`:
 ```java
 @GetMapping
-public Page<OrderResponse> list(Pageable pageable) {
-    return orderService.findAll(pageable).map(OrderResponse::from);
+public ApiResponse<Page<OrderResponse>> list(Pageable pageable) {
+    return ApiResponse.of(orderService.findAll(pageable).map(OrderResponse::from));
 }
 ```
 
@@ -85,7 +85,7 @@ spring:
 ```
 
 ## Gotchas
-- Agent wraps responses in an envelope — return the body directly; errors are `ProblemDetail`
+- Agent returns the success body bare, or adds `code`/`message`/`success` fields: wrap as `ApiResponse.of(payload)` -> `{ "data": ... }` only; errors stay `ProblemDetail`
 - Agent uses `ResponseEntity<Map<String, Object>>` for errors — use `ProblemDetail`
 - Agent puts exception handlers in controllers — use the single `GlobalExceptionHandler` (`@RestControllerAdvice`)
 - Agent uses UUID or a `/api/v1` prefix — ids are `Long`, paths have no version prefix
