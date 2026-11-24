@@ -2,6 +2,7 @@ package kr.jipsee.deal.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import kr.jipsee.deal.dto.CollectSource;
 import kr.jipsee.deal.dto.CollectStatusRow;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,12 +23,13 @@ public class CollectStatusRepository {
 
     /** RENT_DEAL, SALE_DEAL 출처의 마지막 수집 시각을 출처 순으로 조회 */
     public List<CollectStatusRow> findAll() {
-        String sql = "select source, loaded_at from collect_status"
-                + " where source in ('RENT_DEAL', 'SALE_DEAL') order by source";
+        String sql = "select source, loaded_at from collect_status" + " where source in (?, ?) order by source";
 
         return jdbcTemplate.query(
                 sql,
                 (rs, rowNum) ->
-                        new CollectStatusRow(rs.getString("source"), rs.getObject("loaded_at", LocalDateTime.class)));
+                        new CollectStatusRow(rs.getString("source"), rs.getObject("loaded_at", LocalDateTime.class)),
+                CollectSource.RENT_DEAL,
+                CollectSource.SALE_DEAL);
     }
 }
