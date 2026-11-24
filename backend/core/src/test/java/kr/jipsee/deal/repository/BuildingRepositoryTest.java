@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Optional;
 import kr.jipsee.TestcontainersConfiguration;
 import kr.jipsee.deal.dto.BuildingKey;
+import kr.jipsee.deal.dto.ContractType;
 import kr.jipsee.deal.dto.DealHistory;
+import kr.jipsee.deal.dto.DealType;
 import kr.jipsee.deal.dto.GroupDeal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -240,7 +242,7 @@ class BuildingRepositoryTest {
 
             // then
             assertThat(deal.month()).isEqualTo(YearMonth.of(2026, 9));
-            assertThat(deal.type()).isEqualTo("jeonse");
+            assertThat(deal.type()).isEqualTo(DealType.JEONSE);
             assertThat(deal.monthlyRent()).isNull();
             assertThat(deal.amount()).isEqualTo(30000);
             assertThat(deal.cancelled()).isFalse();
@@ -257,16 +259,16 @@ class BuildingRepositoryTest {
             GroupDeal deal = history(KEY).deals().get(0);
 
             // then
-            assertThat(deal.type()).isEqualTo("wolse");
+            assertThat(deal.type()).isEqualTo(DealType.WOLSE);
             assertThat(deal.monthlyRent()).isEqualTo(50);
         }
 
         @ParameterizedTest
         @CsvSource(
-                value = {"신규,new", "갱신,renewal", "기타,NULL"},
+                value = {"신규,NEW", "갱신,RENEWAL", "기타,NULL"},
                 nullValues = "NULL")
         @DisplayName("계약 구분을 new, renewal, null로 변환함")
-        void 계약_구분을_new_renewal_null로_변환함(String contractType, String expected) {
+        void 계약_구분을_new_renewal_null로_변환함(String contractType, ContractType expected) {
             // given
             insertRent(1, KEY, null, SEP_15, 0, contractType);
 
@@ -290,7 +292,8 @@ class BuildingRepositoryTest {
             // then
             assertThat(deals)
                     .extracting(GroupDeal::id, GroupDeal::type, GroupDeal::amount, GroupDeal::cancelled)
-                    .containsExactlyInAnyOrder(tuple(1L, "sale", 90000, true), tuple(2L, "sale", 90000, false));
+                    .containsExactlyInAnyOrder(
+                            tuple(1L, DealType.SALE, 90000, true), tuple(2L, DealType.SALE, 90000, false));
             assertThat(deals).allSatisfy(deal -> {
                 assertThat(deal.contract()).isNull();
                 assertThat(deal.monthlyRent()).isNull();

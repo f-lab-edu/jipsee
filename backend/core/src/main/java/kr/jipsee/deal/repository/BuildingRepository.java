@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import kr.jipsee.deal.dto.BuildingKey;
+import kr.jipsee.deal.dto.ContractType;
 import kr.jipsee.deal.dto.DealHistory;
+import kr.jipsee.deal.dto.DealType;
 import kr.jipsee.deal.dto.GroupDeal;
 import kr.jipsee.deal.dto.HouseNames;
 import lombok.RequiredArgsConstructor;
@@ -68,8 +70,8 @@ public class BuildingRepository {
         GroupDeal deal = new GroupDeal(
                 rs.getLong("id"),
                 YearMonth.from(rs.getObject("deal_date", LocalDate.class)),
-                rs.getString("type"),
-                rs.getString("contract"),
+                DealType.fromCode(rs.getString("type")),
+                ContractType.fromCode(rs.getString("contract")),
                 rs.getBigDecimal("exclusive_area"),
                 rs.getInt("amount"),
                 rs.getObject("monthly_rent", Integer.class),

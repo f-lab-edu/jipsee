@@ -20,8 +20,8 @@ public record BuildingDealResponse(
         return new BuildingDealResponse(
                 deal.id(),
                 YearMonthResponse.from(deal.month()),
-                deal.type(),
-                deal.contract(),
+                deal.type().code(),
+                deal.contract() == null ? null : deal.contract().code(),
                 deal.exclusiveArea(),
                 deal.amount(),
                 deal.monthlyRent(),

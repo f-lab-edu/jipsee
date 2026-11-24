@@ -14,6 +14,7 @@ import java.util.Optional;
 import kr.jipsee.deal.dto.BuildingInfo;
 import kr.jipsee.deal.dto.BuildingKey;
 import kr.jipsee.deal.dto.DealHistory;
+import kr.jipsee.deal.dto.DealType;
 import kr.jipsee.deal.dto.GroupDeal;
 import kr.jipsee.deal.repository.BuildingRepository;
 import kr.jipsee.global.exception.BusinessException;
@@ -40,7 +41,8 @@ class BuildingServiceTest {
     BuildingService buildingService;
 
     private static GroupDeal deal(long id) {
-        return new GroupDeal(id, YearMonth.of(2026, 9), "jeonse", null, new BigDecimal("59.99"), 30000, null, false);
+        return new GroupDeal(
+                id, YearMonth.of(2026, 9), DealType.JEONSE, null, new BigDecimal("59.99"), 30000, null, false);
     }
 
     @Nested

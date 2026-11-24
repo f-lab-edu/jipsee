@@ -7,8 +7,8 @@ import java.time.YearMonth;
 public record GroupDeal(
         long id,
         YearMonth month,
-        String type,
-        String contract,
+        DealType type,
+        ContractType contract,
         BigDecimal exclusiveArea,
         int amount,
         Integer monthlyRent,

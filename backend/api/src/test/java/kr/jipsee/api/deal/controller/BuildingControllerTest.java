@@ -13,6 +13,7 @@ import java.time.YearMonth;
 import java.util.List;
 import kr.jipsee.deal.dto.BuildingInfo;
 import kr.jipsee.deal.dto.BuildingKey;
+import kr.jipsee.deal.dto.DealType;
 import kr.jipsee.deal.dto.GroupDeal;
 import kr.jipsee.deal.service.BuildingService;
 import kr.jipsee.global.exception.BusinessException;
@@ -37,8 +38,8 @@ class BuildingControllerTest {
     BuildingService buildingService;
 
     private static BuildingInfo info(BuildingKey key, String name) {
-        GroupDeal deal =
-                new GroupDeal(7, YearMonth.of(2026, 9), "jeonse", null, new BigDecimal("59.99"), 30000, null, false);
+        GroupDeal deal = new GroupDeal(
+                7, YearMonth.of(2026, 9), DealType.JEONSE, null, new BigDecimal("59.99"), 30000, null, false);
         return new BuildingInfo(key, name, "마포구 " + key.legalDongName() + " " + key.lotNumber(), List.of(deal));
     }
 
