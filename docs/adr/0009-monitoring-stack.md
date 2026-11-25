@@ -14,9 +14,13 @@
 
 ### 같은 서버에 모니터링 스택 구성
 
-- Prometheus(15일치 지표), Loki(30일치 로그, Object Storage (Oracle의 S3) 저장), Grafana(대시보드, 로그 검색, 알림)
+- Prometheus(15일치 지표), Loki(90일치 로그, Object Storage (Oracle의 S3) 저장), Grafana(대시보드, 로그 검색, 알림)
 - 수집은 node-exporter(서버), cadvisor(컨테이너), mysqld-exporter(MySQL), fluent-bit(앱 로그) 로 진행
 - 메모리 상한 합계 약 2.7GB
+
+### 로그는 Loki 단일 저장소
+
+- 기존 Object Storage 원본 아카이브(`jipsee-logs`) 전송을 제거하고 Loki에만 90일 보관
 
 ### 알림
 
@@ -25,10 +29,12 @@
 
 ## 대안
 
+- Loki와 S3 원본 이중 보관: 일반 앱 로그에는 이중 보관이 필요하지 않아 채택하지 않음
 - Grafana Cloud 무료 플랜: 직접 구성 경험을 위해 채택하지 않음
 - 별도 VM에 Grafana 분리: 비용 때문에 채택하지 않음
 
 ## 결과
 
 - 같은 서버라서 서버 전체가 죽으면 알림 불가
+- 원본 아카이브가 없어 Loki 저장소(`jipsee-loki`)가 손상되면 로그를 복구할 수단 없음
 - 분산 추적과 nginx 접근 로그는 범위 밖
