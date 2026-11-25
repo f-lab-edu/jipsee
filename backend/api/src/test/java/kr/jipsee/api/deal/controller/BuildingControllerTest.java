@@ -55,8 +55,8 @@ class BuildingControllerTest {
     class GetBuilding {
 
         @Test
-        @DisplayName("응답의 id와 name은 문자열, 숫자 필드는 숫자, cancelled는 boolean임")
-        void 응답의_id와_name은_문자열_숫자_필드는_숫자_cancelled는_boolean임() throws Exception {
+        @DisplayName("응답의 id와 name은 문자열, 거래 id는 {type}-{id}, 숫자 필드는 숫자, cancelled는 boolean임")
+        void 응답의_id와_name은_문자열_거래_id는_type_id_숫자_필드는_숫자_cancelled는_boolean임() throws Exception {
             // given
             BuildingKey key = new BuildingKey("11440", "망원동", "519");
             given(buildingService.find(key)).willReturn(info(key, "망원 OO빌라"));
@@ -68,13 +68,33 @@ class BuildingControllerTest {
             result.andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.id").value("11440-망원동-519"))
                     .andExpect(jsonPath("$.data.name").isString())
-                    .andExpect(jsonPath("$.data.deals[0].id").isNumber())
+                    .andExpect(jsonPath("$.data.deals[0].id").value("jeonse-7"))
                     .andExpect(jsonPath("$.data.deals[0].amount").isNumber())
                     .andExpect(jsonPath("$.data.deals[0].exclusiveArea").isNumber())
                     .andExpect(jsonPath("$.data.deals[0].month.year").isNumber())
                     .andExpect(jsonPath("$.data.deals[0].month.month").isNumber())
                     .andExpect(jsonPath("$.data.deals[0].cancelled").isBoolean())
                     .andExpect(jsonPath("$.data.deals[0].type").value("jeonse"));
+        }
+
+        @Test
+        @DisplayName("원본 id가 같은 전월세 거래와 매매 거래는 서로 다른 id를 가짐")
+        void 원본_id가_같은_전월세_거래와_매매_거래는_서로_다른_id를_가짐() throws Exception {
+            // given
+            BuildingKey key = new BuildingKey("11440", "망원동", "519");
+            GroupDeal rent = new GroupDeal(
+                    7, YearMonth.of(2026, 9), DealType.WOLSE, null, new BigDecimal("59.99"), 1000, 50, false);
+            GroupDeal sale = new GroupDeal(
+                    7, YearMonth.of(2026, 9), DealType.SALE, null, new BigDecimal("59.99"), 90000, null, false);
+            given(buildingService.find(key))
+                    .willReturn(new BuildingInfo(key, "망원 OO빌라", "마포구 망원동 519", List.of(rent, sale)));
+
+            // when
+            ResultActions result = mockMvc.perform(get("/buildings/{id}", "11440-망원동-519"));
+
+            // then
+            result.andExpect(jsonPath("$.data.deals[0].id").value("wolse-7"))
+                    .andExpect(jsonPath("$.data.deals[1].id").value("sale-7"));
         }
 
         @Test
