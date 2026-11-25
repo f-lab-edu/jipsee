@@ -1,0 +1,1 @@
+40 18 * * * ubuntu /opt/jipsee/backup/backup.sh >> /var/log/jipsee-backup.log 2>&1

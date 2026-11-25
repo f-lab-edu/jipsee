@@ -40,6 +40,13 @@
 
 - `compose.yaml`, `db/compose.yaml`, `fluent-bit/fluent-bit.conf`, `fluent-bit/parsers.conf`, `remote-deploy.sh`, `jenkins/compose.yaml`, `jenkins/Dockerfile`, `nginx/jipsee-jenkins.conf`, `nginx/jipsee-grafana.conf`, `monitoring/compose.yaml` 변경 시 머지 후 서버에 직접 복사 (`jenkins/Jenkinsfile`은 서버 작업 없음)
 
+## DB 백업
+
+- 서버 설치: `backup/backup.sh`를 `/opt/jipsee/backup/`에 복사 (700), `backup.env.example`로 `backup.env` 작성 (600, 디렉터리 700), `backup/jipsee-backup.cron`을 `/etc/cron.d/jipsee-backup`에 복사 (root, 644), `/var/log/jipsee-backup.log` 생성 (소유자 `ubuntu`)
+- 일정: 매일 18:40 UTC (03:40 KST), 버킷 `jipsee-db-backup`의 `mysql/`에 최근 7개 보관
+- 수동 실행: `/opt/jipsee/backup/backup.sh`
+- 실측: 덤프 약 30초, gz 약 133MiB, 복원 약 58분 (FULLTEXT ngram 재생성), 복원 테스트 2026-11-24 통과
+
 ## 로그 전송
 
 - fluent-bit가 앱 로그를 Loki로 전송. Loki가 유일한 로그 저장소이며 90일 보관
