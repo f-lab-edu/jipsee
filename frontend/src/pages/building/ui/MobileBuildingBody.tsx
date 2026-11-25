@@ -6,12 +6,13 @@ import ExternalLinks from "@/pages/building/ui/ExternalLinks";
 import NearbyDealsSection from "@/pages/building/ui/NearbyDealsSection";
 import SectionDivider from "@/pages/building/ui/SectionDivider";
 import type { YearMonth } from "@/shared/lib/dates/yearMonth";
+import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 
 interface MobileBuildingBodyProps {
 	detail: BuildingDetail;
 	condition: NearbyDealsCondition;
 	nearby: NearbyDealsResult;
-	rentDealBaseMonth: YearMonth;
+	rentDealBaseMonth: Nullable<YearMonth>;
 }
 
 /**

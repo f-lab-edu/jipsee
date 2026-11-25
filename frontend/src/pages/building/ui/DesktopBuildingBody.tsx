@@ -7,13 +7,14 @@ import DealHistorySection from "@/pages/building/ui/DealHistorySection";
 import ExternalLinks from "@/pages/building/ui/ExternalLinks";
 import NearbyDealsSection from "@/pages/building/ui/NearbyDealsSection";
 import type { YearMonth } from "@/shared/lib/dates/yearMonth";
+import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import ContentContainer from "@/shared/ui/ContentContainer";
 
 interface DesktopBuildingBodyProps {
 	detail: BuildingDetail;
 	condition: NearbyDealsCondition;
 	nearby: NearbyDealsResult;
-	rentDealBaseMonth: YearMonth;
+	rentDealBaseMonth: Nullable<YearMonth>;
 }
 
 /**

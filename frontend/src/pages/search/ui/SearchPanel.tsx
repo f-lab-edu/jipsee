@@ -3,11 +3,12 @@ import SearchForm from "@/features/searchBuildings/ui/SearchForm";
 import { searchPanelStyles } from "@/pages/search/config/searchPanelStyles";
 import { introCopy } from "@/shared/config/introCopy";
 import type { YearMonth } from "@/shared/lib/dates/yearMonth";
+import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import BaseMonthNotice from "@/widgets/searchGuide/ui/BaseMonthNotice";
 
 interface SearchPanelProps {
 	keyword: string;
-	baseMonth: YearMonth;
+	baseMonth: Nullable<YearMonth>;
 	showsNoticeOnMobile: boolean;
 	invalid: boolean;
 }

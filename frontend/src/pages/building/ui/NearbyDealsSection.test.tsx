@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import type { NearbyDeal } from "@/entities/building/model/nearbyDeal";
 import type { NearbyDealsResult } from "@/entities/building/model/nearbyDealsResult";
 import NearbyDealsSection from "@/pages/building/ui/NearbyDealsSection";
+import type { YearMonth } from "@/shared/lib/dates/yearMonth";
+import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
@@ -32,6 +34,7 @@ const rentDealBaseMonth = { year: 2026, month: 9 };
 function renderSection(
 	layout: "mobile" | "desktop",
 	result: NearbyDealsResult,
+	baseMonth: Nullable<YearMonth> = rentDealBaseMonth,
 ) {
 	render(
 		<NearbyDealsSection
@@ -39,7 +42,7 @@ function renderSection(
 			buildingId="11440-망원동-12-3"
 			condition={condition}
 			result={result}
-			rentDealBaseMonth={rentDealBaseMonth}
+			rentDealBaseMonth={baseMonth}
 		/>,
 	);
 }
@@ -60,6 +63,17 @@ describe("NearbyDealsSection", () => {
 		expect(screen.getByText("2026.09 기준")).toBeTruthy();
 		expect(screen.getAllByRole("listitem")).toHaveLength(3);
 		expect(screen.getAllByRole("note")).toHaveLength(1);
+	});
+
+	it("기준 월이 없으면 건수 줄에서 기준 월 글자만 출력하지 않음", () => {
+		renderSection(
+			"mobile",
+			{ deals: threeDeals, hasNext: false, totalCount: 3 },
+			null,
+		);
+
+		expect(screen.getByText("3건")).toBeTruthy();
+		expect(screen.queryByText(/기준$/)).toBeNull();
 	});
 
 	it("거래가 기준보다 적으면 건수 줄 아래에 조건 확장 안내를 출력함", () => {

@@ -3,12 +3,13 @@ import { nearbyDealsCopy } from "@/pages/building/config/nearbyDealsCopy";
 import { nearbyDealsSummaryStyles } from "@/pages/building/config/nearbyDealsSummaryStyles";
 import { formatYearMonth } from "@/shared/lib/dates/formatYearMonth";
 import type { YearMonth } from "@/shared/lib/dates/yearMonth";
+import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
 
 interface NearbyDealsSummaryProps {
 	layout: ResponsiveVariant;
 	count: number;
-	baseMonth: YearMonth;
+	baseMonth: Nullable<YearMonth>;
 }
 
 /**
@@ -16,6 +17,7 @@ interface NearbyDealsSummaryProps {
  *
  * - 왼쪽에 "조건에 맞는 거래", 굵은 건수, "을 찾았어요", 오른쪽에 실거래 기준 월 출력
  * - 양끝 정렬에 기준선 정렬을 적용
+ * - 기준 월이 없으면 기준 월 글자를 출력하지 않음
  *
  * @param layout 글자 크기와 위쪽 여백 결정
  * @param baseMonth 실거래 기준 월
@@ -36,9 +38,11 @@ export default function NearbyDealsSummary({
 				</Text>
 				{nearbyDealsCopy.summarySuffix}
 			</Text>
-			<Text {...style.baseMonth}>
-				{`${formatYearMonth(baseMonth)} ${nearbyDealsCopy.baseMonthSuffix}`}
-			</Text>
+			{baseMonth && (
+				<Text {...style.baseMonth}>
+					{`${formatYearMonth(baseMonth)} ${nearbyDealsCopy.baseMonthSuffix}`}
+				</Text>
+			)}
 		</HStack>
 	);
 }

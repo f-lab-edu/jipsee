@@ -1,10 +1,11 @@
 import type { YearMonth } from "@/shared/lib/dates/yearMonth";
+import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import ResponsiveLayout from "@/shared/ui/ResponsiveLayout";
 import { searchGuideStyles } from "@/widgets/searchGuide/config/searchGuideStyles";
 import SearchGuideContent from "@/widgets/searchGuide/ui/SearchGuideContent";
 
 interface SearchGuideProps {
-	baseMonth: YearMonth;
+	baseMonth: Nullable<YearMonth>;
 }
 
 /**
