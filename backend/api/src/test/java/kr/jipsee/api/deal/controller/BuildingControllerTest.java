@@ -16,6 +16,7 @@ import java.time.YearMonth;
 import java.util.List;
 import kr.jipsee.deal.dto.BuildingInfo;
 import kr.jipsee.deal.dto.BuildingKey;
+import kr.jipsee.deal.dto.ContractType;
 import kr.jipsee.deal.dto.DealType;
 import kr.jipsee.deal.dto.GroupDeal;
 import kr.jipsee.deal.dto.NearbyDealItem;
@@ -133,10 +134,10 @@ class BuildingControllerTest {
         private static final BuildingKey KEY = new BuildingKey("11440", "망원동", "519");
         private static final String ID = "11440-망원동-519";
 
-        private NearbyDeals nearby(String contract, Integer monthlyRent) {
+        private NearbyDeals nearby(ContractType contract, Integer monthlyRent) {
             NearbyDealItem item = new NearbyDealItem(
                     5,
-                    "jeonse",
+                    DealType.JEONSE,
                     "망원 OO빌라",
                     YearMonth.of(2026, 9),
                     contract,

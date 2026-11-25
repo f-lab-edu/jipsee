@@ -6,10 +6,10 @@ import java.time.YearMonth;
 /** 건물명 대체를 마친 주변 거래 한 건 */
 public record NearbyDealItem(
         long id,
-        String type,
+        DealType type,
         String buildingName,
         YearMonth month,
-        String contract,
+        ContractType contract,
         BigDecimal exclusiveArea,
         int amount,
         Integer monthlyRent) {}

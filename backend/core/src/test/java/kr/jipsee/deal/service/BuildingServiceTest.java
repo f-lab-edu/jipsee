@@ -145,7 +145,7 @@ class BuildingServiceTest {
         private static NearbyDealRow row(long id, String houseName, String lotNumber) {
             return new NearbyDealRow(
                     id,
-                    "jeonse",
+                    DealType.JEONSE,
                     YearMonth.of(2026, 9),
                     null,
                     new BigDecimal("59.99"),

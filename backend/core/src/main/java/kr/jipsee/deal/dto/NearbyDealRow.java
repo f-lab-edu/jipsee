@@ -9,9 +9,9 @@ import java.time.YearMonth;
  */
 public record NearbyDealRow(
         long id,
-        String type,
+        DealType type,
         YearMonth month,
-        String contract,
+        ContractType contract,
         BigDecimal exclusiveArea,
         int amount,
         Integer monthlyRent,

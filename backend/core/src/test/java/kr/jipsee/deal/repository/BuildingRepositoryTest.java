@@ -579,19 +579,19 @@ class BuildingRepositoryTest {
             NearbyDealRow wolse = list(false, 0).get(0);
 
             // then
-            assertThat(jeonse.type()).isEqualTo("jeonse");
+            assertThat(jeonse.type()).isEqualTo(DealType.JEONSE);
             assertThat(jeonse.monthlyRent()).isNull();
             assertThat(jeonse.amount()).isEqualTo(30000);
-            assertThat(wolse.type()).isEqualTo("wolse");
+            assertThat(wolse.type()).isEqualTo(DealType.WOLSE);
             assertThat(wolse.monthlyRent()).isEqualTo(50);
         }
 
         @ParameterizedTest
         @CsvSource(
-                value = {"신규,new", "갱신,renewal", "기타,NULL"},
+                value = {"신규,NEW", "갱신,RENEWAL", "기타,NULL"},
                 nullValues = "NULL")
         @DisplayName("계약 구분을 new, renewal, null로 변환함")
-        void 계약_구분을_new_renewal_null로_변환함(String contractType, String expected) {
+        void 계약_구분을_new_renewal_null로_변환함(String contractType, ContractType expected) {
             // given
             insertRentWith(1, KEY, null, SEP_15, "59.99", 0, contractType);
 

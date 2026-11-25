@@ -5,6 +5,7 @@ import kr.jipsee.api.common.ApiResponse;
 import kr.jipsee.api.deal.dto.BuildingDetailResponse;
 import kr.jipsee.api.deal.dto.NearbyDealsResponse;
 import kr.jipsee.deal.dto.BuildingKey;
+import kr.jipsee.deal.dto.DealType;
 import kr.jipsee.deal.service.BuildingService;
 import kr.jipsee.global.exception.BusinessException;
 import kr.jipsee.global.exception.ErrorCode;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BuildingController {
 
     private static final Set<Integer> PERIODS = Set.of(6, 12, 24);
-    private static final Set<String> TYPES = Set.of("jeonse", "wolse");
+    private static final Set<DealType> TYPES = Set.of(DealType.JEONSE, DealType.WOLSE);
 
     private final BuildingService buildingService;
 
@@ -39,13 +40,22 @@ public class BuildingController {
             @RequestParam(defaultValue = "12") int period,
             @RequestParam(defaultValue = "jeonse") String type,
             @RequestParam(defaultValue = "0") int page) {
-        if (!PERIODS.contains(period) || !TYPES.contains(type) || page < 0) {
+        DealType dealType = parseDealType(type);
+        if (!PERIODS.contains(period) || !TYPES.contains(dealType) || page < 0) {
             throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
 
         BuildingKey key = BuildingKey.parse(id).orElseThrow(() -> new BusinessException(ErrorCode.BUILDING_NOT_FOUND));
 
-        return ApiResponse.of(
-                NearbyDealsResponse.from(buildingService.findNearbyDeals(key, period, "jeonse".equals(type), page)));
+        return ApiResponse.of(NearbyDealsResponse.from(
+                buildingService.findNearbyDeals(key, period, dealType == DealType.JEONSE, page)));
+    }
+
+    private DealType parseDealType(String type) {
+        try {
+            return DealType.fromCode(type);
+        } catch (IllegalArgumentException e) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
     }
 }

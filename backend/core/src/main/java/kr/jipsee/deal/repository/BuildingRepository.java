@@ -164,9 +164,9 @@ public class BuildingRepository {
     private NearbyDealRow mapNearbyRow(ResultSet rs, int rowNum) throws SQLException {
         return new NearbyDealRow(
                 rs.getLong("id"),
-                rs.getString("type"),
+                DealType.fromCode(rs.getString("type")),
                 YearMonth.from(rs.getObject("deal_date", LocalDate.class)),
-                rs.getString("contract"),
+                ContractType.fromCode(rs.getString("contract")),
                 rs.getBigDecimal("exclusive_area"),
                 rs.getInt("amount"),
                 rs.getObject("monthly_rent", Integer.class),

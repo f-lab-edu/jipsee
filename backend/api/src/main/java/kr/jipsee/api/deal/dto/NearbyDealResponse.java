@@ -19,10 +19,10 @@ public record NearbyDealResponse(
     public static NearbyDealResponse from(NearbyDealItem item) {
         return new NearbyDealResponse(
                 item.id(),
-                item.type(),
+                item.type().code(),
                 item.buildingName(),
                 YearMonthResponse.from(item.month()),
-                item.contract(),
+                item.contract() == null ? null : item.contract().code(),
                 item.exclusiveArea(),
                 item.amount(),
                 item.monthlyRent());
