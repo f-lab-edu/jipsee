@@ -56,7 +56,7 @@ export default function DealChart({ layout, deals, endYear }: DealChartProps) {
 							<line {...style.axisLine} />
 							{points.map((point) => (
 								<DealChartMarker
-									key={`${point.dealType}-${point.dealId}`}
+									key={point.dealId}
 									point={point}
 									layout={layout}
 								/>

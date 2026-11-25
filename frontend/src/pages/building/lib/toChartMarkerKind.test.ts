@@ -3,7 +3,7 @@ import type { BuildingDeal } from "@/entities/building/model/buildingDeal";
 import { toChartMarkerKind } from "@/pages/building/lib/toChartMarkerKind";
 
 const plainDeal: BuildingDeal = {
-	id: 1,
+	id: "jeonse-1",
 	month: { year: 2026, month: 8 },
 	type: "jeonse",
 	contract: "new",

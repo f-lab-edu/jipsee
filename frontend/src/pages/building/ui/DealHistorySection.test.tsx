@@ -5,7 +5,7 @@ import type { BuildingDetail } from "@/entities/building/model/buildingDetail";
 import DealHistorySection from "@/pages/building/ui/DealHistorySection";
 
 const wolse: BuildingDeal = {
-	id: 1,
+	id: "wolse-1",
 	month: { year: 2026, month: 5 },
 	type: "wolse",
 	contract: "new",
@@ -42,7 +42,10 @@ describe("DealHistorySection", () => {
 	});
 
 	it("월세 거래만 있으면 그래프와 범례 없이 목록만 출력함", () => {
-		renderSection({ ...baseDetail, deals: [wolse, { ...wolse, id: 2 }] });
+		renderSection({
+			...baseDetail,
+			deals: [wolse, { ...wolse, id: "wolse-2" }],
+		});
 
 		expect(screen.queryByRole("img")).toBeNull();
 		expect(screen.queryByText("월세는 목록에서 확인해요")).toBeNull();

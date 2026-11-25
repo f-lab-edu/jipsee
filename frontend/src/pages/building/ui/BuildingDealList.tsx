@@ -41,7 +41,7 @@ export default function BuildingDealList({
 		return (
 			<Box as="ul" data-area={area} {...style.list}>
 				{deals.map((deal) => (
-					<VStack as="li" key={`${deal.type}-${deal.id}`}>
+					<VStack as="li" key={deal.id}>
 						<BuildingDealItem
 							deal={deal}
 							showsStatusBadges={showsStatusBadges}
@@ -74,7 +74,7 @@ export default function BuildingDealList({
 			)}
 			{deals.map((deal) => (
 				<BuildingDealRow
-					key={`${deal.type}-${deal.id}`}
+					key={deal.id}
 					deal={deal}
 					columns={dealHistoryColumns}
 					showsStatusBadges={showsStatusBadges}
