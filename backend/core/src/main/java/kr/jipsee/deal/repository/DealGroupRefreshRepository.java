@@ -12,11 +12,6 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class DealGroupRefreshRepository {
 
-    /**
-     * 테이블별로 먼저 집계한 뒤 합산. name은 글자 포함 house_name 앞에 고정 폭 키를 연결한 문자열의 max로 선택
-     * 키는 계약일 10자, 출처 1자(전월세 1, 매매 0), id 20자(0으로 왼쪽 채움)로 거래마다 달라 이름이 순서에 영향을 주지 않음
-     * 최댓값이 계약일 내림차순, 전월세 우선, id 내림차순의 첫 행이며 키 31자 뒤가 이름
-     */
     private static final String INSERT_SELECT = """
             insert into deal_group_new (sigungu_code, legal_dong_name, lot_number, name, last_deal_date, latest_new_jeonse_date)
             select sigungu_code, legal_dong_name, lot_number,
