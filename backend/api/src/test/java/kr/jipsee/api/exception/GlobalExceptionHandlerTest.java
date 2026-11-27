@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import kr.jipsee.global.exception.BusinessException;
 import kr.jipsee.global.exception.ErrorCode;
@@ -20,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,6 +48,11 @@ class GlobalExceptionHandlerTest {
             return "ok";
         }
 
+        @GetMapping("/test/model")
+        String model(@ModelAttribute @Valid ModelRequest request) {
+            return "ok";
+        }
+
         @GetMapping("/test/business")
         String business() {
             throw new BusinessException(ErrorCode.INVALID_REQUEST);
@@ -55,6 +63,13 @@ class GlobalExceptionHandlerTest {
             throw new IllegalStateException("내부 정보");
         }
     }
+
+    record ModelRequest(
+            @Min(value = 1, payload = ValidationPayload.KeywordTooShort.class)
+            Integer withPayload,
+
+            @Positive Integer withoutPayload,
+            Integer number) {}
 
     private static HttpStatus expectedStatus(ErrorCode errorCode) {
         return switch (errorCode) {
@@ -87,6 +102,36 @@ class GlobalExceptionHandlerTest {
 
             // then
             assertErrorResponse(result, ErrorCode.VALIDATION_FAILED);
+        }
+
+        @Test
+        @DisplayName("제약에 payload가 있으면 payload에 매핑된 ErrorCode를 반환함")
+        void 제약에_payload가_있으면_payload에_매핑된_ErrorCode를_반환함() throws Exception {
+            // when
+            var result = mockMvc.perform(get("/test/model").param("withPayload", "0"));
+
+            // then
+            assertErrorResponse(result, ErrorCode.KEYWORD_TOO_SHORT);
+        }
+
+        @Test
+        @DisplayName("제약에 payload가 없으면 VALIDATION_FAILED를 반환함")
+        void 제약에_payload가_없으면_VALIDATION_FAILED를_반환함() throws Exception {
+            // when
+            var result = mockMvc.perform(get("/test/model").param("withoutPayload", "-1"));
+
+            // then
+            assertErrorResponse(result, ErrorCode.VALIDATION_FAILED);
+        }
+
+        @Test
+        @DisplayName("모델 속성의 타입이 맞지 않으면 INVALID_REQUEST를 반환함")
+        void 모델_속성의_타입이_맞지_않으면_INVALID_REQUEST를_반환함() throws Exception {
+            // when
+            var result = mockMvc.perform(get("/test/model").param("number", "a"));
+
+            // then
+            assertErrorResponse(result, ErrorCode.INVALID_REQUEST);
         }
 
         @Test

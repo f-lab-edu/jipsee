@@ -1,9 +1,11 @@
 package kr.jipsee.api.deal.controller;
 
-import java.util.Set;
+import jakarta.validation.Valid;
 import kr.jipsee.api.common.ApiResponse;
 import kr.jipsee.api.deal.dto.BuildingDetailResponse;
+import kr.jipsee.api.deal.dto.BuildingSearchRequest;
 import kr.jipsee.api.deal.dto.BuildingSearchResponse;
+import kr.jipsee.api.deal.dto.NearbyDealsRequest;
 import kr.jipsee.api.deal.dto.NearbyDealsResponse;
 import kr.jipsee.deal.dto.BuildingKey;
 import kr.jipsee.deal.dto.DealType;
@@ -13,8 +15,8 @@ import kr.jipsee.global.exception.BusinessException;
 import kr.jipsee.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** 건물 조회 */
@@ -22,31 +24,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class BuildingController {
 
-    private static final Set<Integer> PERIODS = Set.of(6, 12, 24);
-    private static final Set<DealType> TYPES = Set.of(DealType.JEONSE, DealType.WOLSE);
-    private static final int KEYWORD_MIN_LENGTH = 2;
-    private static final int KEYWORD_MAX_LENGTH = 100;
-    private static final int KEYWORD_MAX_WORDS = 10;
-
     private final BuildingService buildingService;
     private final BuildingSearchService buildingSearchService;
 
-    /** 건물 검색. keyword는 앞뒤 공백을 제거하며 page는 0부터 시작 */
+    /** 건물 검색. 요청 검사는 BuildingSearchRequest가 수행 */
     @GetMapping("/buildings")
-    public ApiResponse<BuildingSearchResponse> search(
-            @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "0") int page) {
-        String trimmed = keyword == null ? "" : keyword.strip();
-        if (trimmed.length() < KEYWORD_MIN_LENGTH) {
-            throw new BusinessException(ErrorCode.KEYWORD_TOO_SHORT);
-        }
-        if (trimmed.length() > KEYWORD_MAX_LENGTH || trimmed.split("\\s+").length > KEYWORD_MAX_WORDS) {
-            throw new BusinessException(ErrorCode.INVALID_REQUEST);
-        }
-        if (page < 0) {
-            throw new BusinessException(ErrorCode.INVALID_REQUEST);
-        }
-
-        return ApiResponse.of(BuildingSearchResponse.from(buildingSearchService.search(trimmed, page)));
+    public ApiResponse<BuildingSearchResponse> search(@Valid @ModelAttribute BuildingSearchRequest request) {
+        return ApiResponse.of(
+                BuildingSearchResponse.from(buildingSearchService.search(request.keyword(), request.page())));
     }
 
     /** 건물 상세 조회. id 형식이 맞지 않으면 BUILDING_NOT_FOUND 반환 */
@@ -57,29 +42,13 @@ public class BuildingController {
         return ApiResponse.of(BuildingDetailResponse.from(buildingService.find(key)));
     }
 
-    /** 주변 전월세 거래 조회 */
+    /** 주변 전월세 거래 조회. 요청 검사는 NearbyDealsRequest가 수행하며 id 형식 검사보다 먼저 수행됨 */
     @GetMapping("/buildings/{id}/nearby-deals")
     public ApiResponse<NearbyDealsResponse> getNearbyDeals(
-            @PathVariable String id,
-            @RequestParam(defaultValue = "12") int period,
-            @RequestParam(defaultValue = "jeonse") String type,
-            @RequestParam(defaultValue = "0") int page) {
-        DealType dealType = parseDealType(type);
-        if (!PERIODS.contains(period) || !TYPES.contains(dealType) || page < 0) {
-            throw new BusinessException(ErrorCode.INVALID_REQUEST);
-        }
-
+            @PathVariable String id, @Valid @ModelAttribute NearbyDealsRequest request) {
         BuildingKey key = BuildingKey.parse(id).orElseThrow(() -> new BusinessException(ErrorCode.BUILDING_NOT_FOUND));
 
-        return ApiResponse.of(NearbyDealsResponse.from(
-                buildingService.findNearbyDeals(key, period, dealType == DealType.JEONSE, page)));
-    }
-
-    private DealType parseDealType(String type) {
-        try {
-            return DealType.fromCode(type);
-        } catch (IllegalArgumentException e) {
-            throw new BusinessException(ErrorCode.INVALID_REQUEST);
-        }
+        return ApiResponse.of(NearbyDealsResponse.from(buildingService.findNearbyDeals(
+                key, request.period(), request.dealType() == DealType.JEONSE, request.page())));
     }
 }

@@ -9,12 +9,12 @@ Gradle 멀티 모듈(`core`, `api`, `batch`)로 구성함. 패키지 루트는 `
 | 모듈 | 두는 것 | 두지 않는 것 |
 |---|---|---|
 | `core` | 도메인 패키지(`kr.jipsee.<도메인>`)의 `entity`, `dto`(서비스와 리포지토리가 주고받는 데이터), `repository`, `service`, 법정동 사전(`kr.jipsee.region`, `bjd.csv`), `kr.jipsee.global`(업무 개념이 없고 둘 이상의 모듈이 공유하는 코드: `TimeZones`, `exception`의 `BusinessException`, `ErrorCode`, `ErrorKind`). 실행하지 않는 일반 jar. 테스트 공용 코드는 `testFixtures` | 컨트롤러, 응답 dto, `ErrorResponse`, `GlobalExceptionHandler`, Job, 외부 API 클라이언트, spring-web과 배치 의존 |
-| `api` | `kr.jipsee.api...`: 컨트롤러, 응답 전용 `dto`, 예외 처리(`kr.jipsee.api.exception`의 `ErrorResponse`, `GlobalExceptionHandler`), 지표 설정. 진입점 `JipseeApiApplication`(`bootJar`) | Job, 외부 API 클라이언트, `DATA_GO_KR_KEY` |
+| `api` | `kr.jipsee.api...`: 컨트롤러, 요청 `dto`(`*Request`)와 응답 `dto`(`*Response`), 요청 검사용 커스텀 제약과 `ConstraintValidator`(`kr.jipsee.api.deal.validation`), 예외 처리(`kr.jipsee.api.exception`의 `ErrorResponse`, `GlobalExceptionHandler`, `ValidationPayload`), 지표 설정. 진입점 `JipseeApiApplication`(`bootJar`) | Job, 외부 API 클라이언트, `DATA_GO_KR_KEY` |
 | `batch` | `kr.jipsee.batch...`: Job 단위 패키지(`batch.deal`)의 Job 설정, Reader, Processor, Writer, Tasklet, 공통(`batch.common`)의 `BatchJobRunner`, 외부 API `client`(`batch.deal.client`), 공공데이터 호출 기반(`batch.publicdata`). 진입점 `JipseeBatchApplication`(`bootJar`) | 컨트롤러, 웹 서버 |
 
 - api와 batch는 서로 의존하지 않고 core에만 의존. core는 api와 batch를 import하지 않음
 - 어떤 패키지도 두 모듈이 함께 갖지 않음. 진입점 클래스(`JipseeApiApplication`, `JipseeBatchApplication`)와 테스트 루트는 `kr.jipsee`에 위치
-- core 서비스의 `Optional`은 빈 결과가 정상 응답인 경우(검색, 배치 조회)에만 사용. 조회 대상이 반드시 있어야 하는 조회는 `BusinessException(ErrorCode.X_NOT_FOUND)`(`kr.jipsee.global.exception`)를 던지고, api의 `GlobalExceptionHandler`가 `ErrorKind`를 HTTP 상태로 변환. 불변 조건 위반은 `IllegalStateException`이며 500으로 응답. 요청 검사(400)는 api 컨트롤러가 수행
+- core 서비스의 `Optional`은 빈 결과가 정상 응답인 경우(검색, 배치 조회)에만 사용. 조회 대상이 반드시 있어야 하는 조회는 `BusinessException(ErrorCode.X_NOT_FOUND)`(`kr.jipsee.global.exception`)를 던지고, api의 `GlobalExceptionHandler`가 `ErrorKind`를 HTTP 상태로 변환. 불변 조건 위반은 `IllegalStateException`이며 500으로 응답. 요청 검사(400)는 api 요청 DTO(`*Request` record)의 Bean Validation이 수행하고 컨트롤러는 `@Valid @ModelAttribute`로 바인딩만 함. 제약마다 `payload`로 `kr.jipsee.api.exception.ValidationPayload`의 표식을 지정하면 `GlobalExceptionHandler`가 첫 오류의 payload로 `ErrorCode`를 정하며, payload가 없으면 `VALIDATION_FAILED`, 타입 불일치는 `INVALID_REQUEST`. 검사 순서는 `@GroupSequence`로 지정
 - `ErrorCode`는 spring-web에 의존하지 않고 `ErrorKind`를 가짐. `ErrorKind`에서 `HttpStatus`로의 변환은 `GlobalExceptionHandler` 한 곳에서만 수행
 - 테스트는 대상 클래스와 같은 모듈에 위치. 컨트롤러 테스트는 api, 서비스와 리포지토리 통합 테스트는 core, Job과 클라이언트 테스트는 batch
 - core `testFixtures`의 `application-test.yml`에 batch 전용 공공데이터 키(`jipsee.public-data.api.service-key`)가 있으므로 api 테스트는 `DATA_GO_KR_KEY` 의존을 감지하지 못함
@@ -25,7 +25,7 @@ Gradle 멀티 모듈(`core`, `api`, `batch`)로 구성함. 패키지 루트는 `
 
 - core 최상위 패키지는 업무 도메인(`deal`, `region`)과 기반 코드 `global`. 코드가 생길 때만 생성. api와 batch 최상위 패키지는 각각 `api`, `batch`
 - `batch` 패키지는 Job 단위 하위 패키지(`batch.deal`)와 공통(`batch.common`)으로 구분. Job과 Step 설정, Reader, Processor, Writer, Tasklet, `BatchJobRunner`를 배치. 배치 코드는 core의 `service`와 batch의 `client`를 호출. Job 실행은 Jenkins가 담당하며 앱 내부 스케줄러는 없음
-- 도메인 하위 패키지는 클래스가 많을 때만 분리: `controller`(REST 컨트롤러, api), `service`(트랜잭션 경계), `repository`(DB 접근, JdbcTemplate 클래스도 `*Repository`), `client`(외부 API 호출과 응답 변환, batch), `entity`(JPA 엔티티), `dto`, `config`, `exception`. 현재 `deal`은 `dto`, `repository`, `service`로 분리하고 `region`은 단일 패키지
+- 도메인 하위 패키지는 클래스가 많을 때만 분리: `controller`(REST 컨트롤러, api), `validation`(커스텀 제약, api), `service`(트랜잭션 경계), `repository`(DB 접근, JdbcTemplate 클래스도 `*Repository`), `client`(외부 API 호출과 응답 변환, batch), `entity`(JPA 엔티티), `dto`, `config`, `exception`. 현재 `deal`은 `dto`, `repository`, `service`로 분리(api의 `deal`은 `controller`, `dto`, `validation`)하고 `region`은 단일 패키지
 - `kr.jipsee.global`에는 업무 개념이 없고 둘 이상의 모듈이 공유하는 코드만 배치(`TimeZones`, 예외 기반 `exception`). 한 모듈만 쓰는 기반 코드는 그 모듈의 접두사 패키지에 배치(공공데이터 호출 기반 `kr.jipsee.batch.publicdata`, 예외 처리 `kr.jipsee.api.exception`). 법정동 사전은 `region` 도메인
 
 ## 규칙
