@@ -3,9 +3,11 @@ package kr.jipsee.api.deal.controller;
 import java.util.Set;
 import kr.jipsee.api.common.ApiResponse;
 import kr.jipsee.api.deal.dto.BuildingDetailResponse;
+import kr.jipsee.api.deal.dto.BuildingSearchResponse;
 import kr.jipsee.api.deal.dto.NearbyDealsResponse;
 import kr.jipsee.deal.dto.BuildingKey;
 import kr.jipsee.deal.dto.DealType;
+import kr.jipsee.deal.service.BuildingSearchService;
 import kr.jipsee.deal.service.BuildingService;
 import kr.jipsee.global.exception.BusinessException;
 import kr.jipsee.global.exception.ErrorCode;
@@ -22,8 +24,30 @@ public class BuildingController {
 
     private static final Set<Integer> PERIODS = Set.of(6, 12, 24);
     private static final Set<DealType> TYPES = Set.of(DealType.JEONSE, DealType.WOLSE);
+    private static final int KEYWORD_MIN_LENGTH = 2;
+    private static final int KEYWORD_MAX_LENGTH = 100;
+    private static final int KEYWORD_MAX_WORDS = 10;
 
     private final BuildingService buildingService;
+    private final BuildingSearchService buildingSearchService;
+
+    /** 건물 검색. keyword는 앞뒤 공백을 제거하며 page는 0부터 시작 */
+    @GetMapping("/buildings")
+    public ApiResponse<BuildingSearchResponse> search(
+            @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "0") int page) {
+        String trimmed = keyword == null ? "" : keyword.strip();
+        if (trimmed.length() < KEYWORD_MIN_LENGTH) {
+            throw new BusinessException(ErrorCode.KEYWORD_TOO_SHORT);
+        }
+        if (trimmed.length() > KEYWORD_MAX_LENGTH || trimmed.split("\\s+").length > KEYWORD_MAX_WORDS) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+        if (page < 0) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+
+        return ApiResponse.of(BuildingSearchResponse.from(buildingSearchService.search(trimmed, page)));
+    }
 
     /** 건물 상세 조회. id 형식이 맞지 않으면 BUILDING_NOT_FOUND 반환 */
     @GetMapping("/buildings/{id}")

@@ -18,6 +18,7 @@ public enum ErrorCode {
     INVALID_REQUEST(ErrorKind.INVALID, "요청 형식이 올바르지 않습니다."),
     PATH_NOT_FOUND(ErrorKind.NOT_FOUND, "요청한 주소를 찾을 수 없습니다."),
     BUILDING_NOT_FOUND(ErrorKind.NOT_FOUND, "요청한 건물을 찾을 수 없습니다."),
+    KEYWORD_TOO_SHORT(ErrorKind.INVALID, "검색어는 두 글자 이상 입력해야 합니다."),
     METHOD_NOT_ALLOWED(ErrorKind.METHOD_NOT_ALLOWED, "지원하지 않는 요청 방식입니다."),
     NOT_ACCEPTABLE(ErrorKind.NOT_ACCEPTABLE, "지원하지 않는 응답 형식입니다."),
     UNSUPPORTED_MEDIA_TYPE(ErrorKind.UNSUPPORTED_MEDIA_TYPE, "지원하지 않는 요청 본문 형식입니다.");
