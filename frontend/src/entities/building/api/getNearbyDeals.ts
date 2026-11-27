@@ -1,16 +1,19 @@
+import { fetchNearbyDeals } from "@/entities/building/api/fetchNearbyDeals";
 import { nearbyDealsMock } from "@/entities/building/api/nearbyDealsMock";
 import type { NearbyDealsCondition } from "@/entities/building/model/nearbyDealsCondition";
 import type { NearbyDealsResult } from "@/entities/building/model/nearbyDealsResult";
+import { hasApiUrl } from "@/shared/api/hasApiUrl";
 
 const PAGE_SIZE = 20;
 
 /**
  * 건물 > 같은 법정동 주변 전월세 거래 조회
  *
- * - 조건의 유형에 맞는 거래 중 page번째 20건과 다음 페이지 유무, 전체 건수 반환
+ * - API_URL이 있으면 백엔드를 조회하고 응답 오류와 호출 실패는 거래 없음 반환
+ * - API_URL이 없으면 목업이 조회를 대신함
+ * - 목업은 조건의 유형에 맞는 거래 중 page번째 20건과 다음 페이지 유무, 전체 건수 반환
  * - 목업에 없는 건물이면 거래 없음 반환
  * - 기간은 목업이 사용하지 않음
- * - 백엔드가 없어 목업이 조회를 대신함
  *
  * @param page 0부터 시작하는 페이지 번호
  */
@@ -19,6 +22,10 @@ export async function getNearbyDeals(
 	condition: NearbyDealsCondition,
 	page = 0,
 ): Promise<NearbyDealsResult> {
+	if (hasApiUrl()) {
+		return fetchNearbyDeals(buildingId, condition, page);
+	}
+
 	const deals = nearbyDealsMock[buildingId]?.[condition.type] ?? [];
 	const start = page * PAGE_SIZE;
 

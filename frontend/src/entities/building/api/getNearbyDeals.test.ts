@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getNearbyDeals } from "@/entities/building/api/getNearbyDeals";
 import { nearbyDealsOptions } from "@/entities/building/config/nearbyDealsOptions";
 
@@ -35,5 +35,74 @@ describe("getNearbyDeals", () => {
 				true,
 			);
 		}
+	});
+
+	describe("API_URL이 있으면", () => {
+		const fetchMock = vi.fn();
+		const body = {
+			deals: [
+				{
+					id: 7,
+					type: "wolse",
+					buildingName: "한강빌라",
+					month: { year: 2026, month: 7 },
+					contract: "new",
+					exclusiveArea: 40,
+					amount: 1000,
+					monthlyRent: 60,
+				},
+			],
+			hasNext: true,
+			totalCount: 21,
+		};
+
+		beforeEach(() => {
+			vi.stubEnv("API_URL", "http://backend.test/");
+			fetchMock.mockReset();
+			vi.stubGlobal("fetch", fetchMock);
+		});
+
+		afterEach(() => {
+			vi.unstubAllEnvs();
+			vi.unstubAllGlobals();
+		});
+
+		it("기간, 유형, 페이지를 쿼리로 백엔드를 조회하고 data 필드를 반환함", async () => {
+			fetchMock.mockResolvedValue(Response.json({ data: body }));
+
+			const result = await getNearbyDeals(
+				"11440-망원동-12-3",
+				wolseCondition,
+				1,
+			);
+
+			expect(fetchMock.mock.calls[0][0]).toBe(
+				`http://backend.test/buildings/${encodeURIComponent("11440-망원동-12-3")}/nearby-deals?period=${wolseCondition.period}&type=wolse&page=1`,
+			);
+			expect(result).toEqual(body);
+		});
+
+		it.each([400, 404, 429, 500])(
+			"%s 응답이면 거래 없음을 반환함",
+			async (status) => {
+				fetchMock.mockResolvedValue(Response.json({}, { status }));
+
+				expect(
+					await getNearbyDeals("11440-망원동-12-3", jeonseCondition),
+				).toEqual({ deals: [], hasNext: false, totalCount: 0 });
+			},
+		);
+
+		it("호출에 실패하면 거래 없음을 반환함", async () => {
+			fetchMock.mockRejectedValue(new Error("network"));
+
+			expect(
+				await getNearbyDeals("11440-망원동-12-3", jeonseCondition),
+			).toEqual({
+				deals: [],
+				hasNext: false,
+				totalCount: 0,
+			});
+		});
 	});
 });
