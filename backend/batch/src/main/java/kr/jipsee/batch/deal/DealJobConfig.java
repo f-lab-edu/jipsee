@@ -9,6 +9,7 @@ import kr.jipsee.batch.deal.client.RtmsRhRentClient;
 import kr.jipsee.batch.deal.client.RtmsRhTradeClient;
 import kr.jipsee.deal.dto.CollectSource;
 import kr.jipsee.deal.service.CollectStatusService;
+import kr.jipsee.deal.service.DealGroupRefreshService;
 import kr.jipsee.deal.service.DealReplacer;
 import kr.jipsee.deal.service.RentDealService;
 import kr.jipsee.deal.service.SaleDealService;
@@ -48,12 +49,14 @@ public class DealJobConfig {
                 .build();
     }
 
-    /** 매매 일일 수집 Job. 식별 파라미터는 collectDate */
+    /** 매매 일일 수집 Job. 수집, 수집 시각 갱신, deal_group 갱신 순서. 식별 파라미터는 collectDate */
     @Bean
-    Job dailySaleCollectJob(JobRepository jobRepository, Step dailySaleStep, Step saleLoadedAtStep) {
+    Job dailySaleCollectJob(
+            JobRepository jobRepository, Step dailySaleStep, Step saleLoadedAtStep, Step dealGroupRefreshStep) {
         return new JobBuilder(DAILY_SALE_JOB, jobRepository)
                 .start(dailySaleStep)
                 .next(saleLoadedAtStep)
+                .next(dealGroupRefreshStep)
                 .build();
     }
 
@@ -189,6 +192,17 @@ public class DealJobConfig {
                 collectStatusService,
                 clock,
                 CollectSource.SALE_DEAL);
+    }
+
+    /** 건물 검색용 deal_group을 전체 재생성하는 Step. 매매 일일 수집 Job의 마지막에 실행 */
+    @Bean
+    Step dealGroupRefreshStep(
+            JobRepository jobRepository,
+            PlatformTransactionManager transactionManager,
+            DealGroupRefreshService dealGroupRefreshService) {
+        return new StepBuilder("dealGroupRefreshStep", jobRepository)
+                .tasklet(new DealGroupRefreshTasklet(dealGroupRefreshService), transactionManager)
+                .build();
     }
 
     /** 키 하나를 chunk 하나, 트랜잭션 하나로 처리하는 수집 Step 생성 */

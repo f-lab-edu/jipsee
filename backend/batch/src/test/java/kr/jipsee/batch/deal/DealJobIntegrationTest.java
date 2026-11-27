@@ -25,6 +25,7 @@ import kr.jipsee.batch.publicdata.PublicDataPage;
 import kr.jipsee.deal.dto.RentDealRow;
 import kr.jipsee.deal.dto.SaleDealRow;
 import kr.jipsee.deal.service.CollectStatusService;
+import kr.jipsee.deal.service.DealGroupRefreshService;
 import kr.jipsee.region.RegionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -82,6 +83,9 @@ class DealJobIntegrationTest {
     @MockitoSpyBean
     CollectStatusService collectStatusService;
 
+    @MockitoSpyBean
+    DealGroupRefreshService dealGroupRefreshService;
+
     @BeforeEach
     void setUp() {
         for (String table : List.of(
@@ -96,6 +100,7 @@ class DealJobIntegrationTest {
         jdbcTemplate.update("delete from rent_deal");
         jdbcTemplate.update("delete from sale_deal");
         jdbcTemplate.update("delete from collect_status");
+        jdbcTemplate.update("delete from deal_group");
         given(regionService.sigunguCodes()).willReturn(CODES);
         given(rtmsRhRentClient.fetch(anyString(), any(YearMonth.class), anyInt()))
                 .willAnswer(invocation -> {
@@ -151,6 +156,10 @@ class DealJobIntegrationTest {
     private int stepExecutionCount(String stepName) {
         return jdbcTemplate.queryForObject(
                 "select count(*) from BATCH_STEP_EXECUTION where STEP_NAME = ?", Integer.class, stepName);
+    }
+
+    private static JobParameters collectDate(String value) {
+        return new JobParametersBuilder().addString("collectDate", value).toJobParameters();
     }
 
     private static JobParameters endMonth(String value) {
@@ -328,5 +337,72 @@ class DealJobIntegrationTest {
         then(rtmsRhTradeClient).should(times(1)).fetch("11170", YearMonth.of(2026, 6), 1);
         then(rtmsRhRentClient).should(never()).fetch(anyString(), eq(YearMonth.of(2026, 5)), anyInt());
         assertThat(sources()).containsExactlyInAnyOrder("RENT_DEAL", "SALE_DEAL");
+    }
+
+    @Test
+    @DisplayName("매매 일일 Job은 수집 뒤에 deal_group을 갱신하고 다른 Job은 deal_group을 갱신하지 않음")
+    void 매매_일일_Job은_수집_뒤에_deal_group을_갱신하고_다른_Job은_deal_group을_갱신하지_않음() throws Exception {
+        // given
+        JobParameters daily = collectDate("2026-11-04");
+
+        // when
+        jobOperator.start(dailyRentCollectJob, daily);
+        jobOperator.start(initialRentLoadJob, endMonth("2011-02"));
+        jobOperator.start(initialSaleLoadJob, endMonth("2011-02"));
+
+        // then
+        assertThat(stepExecutionCount("dealGroupRefreshStep")).isZero();
+        assertThat(count("deal_group")).isZero();
+
+        // when
+        JobExecution sale = jobOperator.start(dailySaleCollectJob, daily);
+
+        // then
+        assertThat(sale.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+        assertThat(stepExecutionCount("dealGroupRefreshStep")).isEqualTo(1);
+        assertThat(count("deal_group")).isEqualTo(6); // 전월세 3개 건물과 매매 3개 건물
+    }
+
+    @Test
+    @DisplayName("수집 Step이 실패하면 deal_group 갱신 Step을 실행하지 않음")
+    void 수집_Step이_실패하면_deal_group_갱신_Step을_실행하지_않음() throws Exception {
+        // given
+        given(rtmsRhTradeClient.fetch(anyString(), any(YearMonth.class), anyInt()))
+                .willThrow(new PublicDataApiException("테스트용 실패"));
+
+        // when
+        JobExecution failed = jobOperator.start(dailySaleCollectJob, collectDate("2026-11-04"));
+
+        // then
+        assertThat(failed.getStatus()).isEqualTo(BatchStatus.FAILED);
+        assertThat(stepExecutionCount("dealGroupRefreshStep")).isZero();
+    }
+
+    @Test
+    @DisplayName("deal_group 갱신이 실패하면 Job은 FAILED가 되고 같은 날 다시 시작하면 갱신 Step만 다시 실행함")
+    void deal_group_갱신이_실패하면_Job은_FAILED가_되고_같은_날_다시_시작하면_갱신_Step만_다시_실행함() throws Exception {
+        // given
+        JobParameters params = collectDate("2026-11-04");
+        willThrow(new IllegalStateException("테스트용 실패"))
+                .willCallRealMethod()
+                .given(dealGroupRefreshService)
+                .refresh();
+
+        // when
+        JobExecution failed = jobOperator.start(dailySaleCollectJob, params);
+
+        // then
+        assertThat(failed.getStatus()).isEqualTo(BatchStatus.FAILED);
+        assertThat(stepStatus("dealGroupRefreshStep")).isEqualTo("FAILED");
+
+        // when
+        JobExecution resumed = jobOperator.start(dailySaleCollectJob, params);
+
+        // then
+        assertThat(resumed.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+        assertThat(stepExecutionCount("dailySaleStep")).isEqualTo(1);
+        assertThat(stepExecutionCount("saleLoadedAtStep")).isEqualTo(1);
+        assertThat(stepExecutionCount("dealGroupRefreshStep")).isEqualTo(2);
+        assertThat(count("deal_group")).isEqualTo(3);
     }
 }
