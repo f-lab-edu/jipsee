@@ -7,6 +7,7 @@ import kr.jipsee.batch.common.CollectStatusTasklet;
 import kr.jipsee.batch.deal.client.RtmsApiClient;
 import kr.jipsee.batch.deal.client.RtmsRhRentClient;
 import kr.jipsee.batch.deal.client.RtmsRhTradeClient;
+import kr.jipsee.deal.dto.CollectSource;
 import kr.jipsee.deal.service.CollectStatusService;
 import kr.jipsee.deal.service.DealReplacer;
 import kr.jipsee.deal.service.RentDealService;
@@ -37,8 +38,6 @@ public class DealJobConfig {
 
     private static final YearMonth RENT_FIRST_MONTH = YearMonth.of(2011, 1);
     private static final YearMonth SALE_FIRST_MONTH = YearMonth.of(2006, 1);
-    private static final String RENT_SOURCE = "RENT_DEAL";
-    private static final String SALE_SOURCE = "SALE_DEAL";
 
     /** 전월세 일일 수집 Job. 식별 파라미터는 collectDate */
     @Bean
@@ -168,7 +167,12 @@ public class DealJobConfig {
             CollectStatusService collectStatusService,
             Clock clock) {
         return loadedAtStep(
-                "rentLoadedAtStep", jobRepository, transactionManager, collectStatusService, clock, RENT_SOURCE);
+                "rentLoadedAtStep",
+                jobRepository,
+                transactionManager,
+                collectStatusService,
+                clock,
+                CollectSource.RENT_DEAL);
     }
 
     /** SALE_DEAL의 마지막 수집 시각을 갱신하는 Step. 수집 Step 다음에 실행 */
@@ -179,7 +183,12 @@ public class DealJobConfig {
             CollectStatusService collectStatusService,
             Clock clock) {
         return loadedAtStep(
-                "saleLoadedAtStep", jobRepository, transactionManager, collectStatusService, clock, SALE_SOURCE);
+                "saleLoadedAtStep",
+                jobRepository,
+                transactionManager,
+                collectStatusService,
+                clock,
+                CollectSource.SALE_DEAL);
     }
 
     /** 키 하나를 chunk 하나, 트랜잭션 하나로 처리하는 수집 Step 생성 */

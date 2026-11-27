@@ -8,7 +8,7 @@ public class OrderController {
     private OrderRepository orderRepository;  // direct repo, no service layer
 
     @PostMapping
-    public Order createOrder(@RequestBody CreateOrderRequest request) { // returns entity directly
+    public Order createOrder(@RequestBody CreateOrderRequest request) { // returns entity directly, not wrapped in ApiResponse
         Order order = new Order();   // no factory method
         order.setEmail(request.getEmail());
         return orderRepository.save(order); // no 201 status
@@ -20,7 +20,7 @@ public class OrderController {
         if (!order.isPresent()) {
             return Map.of("error", "not found"); // ad-hoc error, no status code
         }
-        return Map.of("data", order.get()); // raw map, entity leakage
+        return Map.of("data", order.get()); // hand-built map instead of ApiResponse, entity leakage
     }
 
     @GetMapping

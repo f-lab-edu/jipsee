@@ -3,9 +3,12 @@ package kr.jipsee.deal.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import kr.jipsee.TestcontainersConfiguration;
+import kr.jipsee.deal.dto.CollectStatusRow;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -60,5 +63,69 @@ class CollectStatusRepositoryTest {
         // then
         assertThat(dataSource).isZero();
         assertThat(collectStatus).isEqualTo(1);
+    }
+
+    private void insert(String source, LocalDateTime loadedAt) {
+        jdbcTemplate.update("insert into collect_status (source, loaded_at) values (?, ?)", source, loadedAt);
+    }
+
+    @Nested
+    @DisplayName("findAll")
+    class FindAll {
+
+        @Test
+        @DisplayName("SALE_DEAL을 먼저 저장해도 RENT_DEAL, SALE_DEAL 순서로 조회함")
+        void SALE_DEAL을_먼저_저장해도_RENT_DEAL_SALE_DEAL_순서로_조회함() {
+            // given
+            insert("SALE_DEAL", LocalDateTime.of(2026, 11, 19, 4, 4));
+            insert("RENT_DEAL", LocalDateTime.of(2026, 11, 19, 4, 2));
+
+            // when
+            List<CollectStatusRow> rows = collectStatusRepository.findAll();
+
+            // then
+            assertThat(rows).extracting(CollectStatusRow::source).containsExactly("RENT_DEAL", "SALE_DEAL");
+        }
+
+        @Test
+        @DisplayName("RENT_DEAL, SALE_DEAL이 아닌 출처는 제외함")
+        void RENT_DEAL_SALE_DEAL이_아닌_출처는_제외함() {
+            // given
+            insert("RENT_DEAL", LocalDateTime.of(2026, 11, 19, 4, 2));
+            insert("BUILDING_REGISTER", LocalDateTime.of(2026, 11, 19, 4, 3));
+            insert("LAW", LocalDateTime.of(2026, 11, 19, 4, 5));
+
+            // when
+            List<CollectStatusRow> rows = collectStatusRepository.findAll();
+
+            // then
+            assertThat(rows).extracting(CollectStatusRow::source).containsExactly("RENT_DEAL");
+        }
+
+        @Test
+        @DisplayName("저장한 loaded_at을 그대로 조회함")
+        void 저장한_loaded_at을_그대로_조회함() {
+            // given
+            LocalDateTime loadedAt = LocalDateTime.of(2026, 11, 19, 4, 2, 26);
+            insert("RENT_DEAL", loadedAt);
+
+            // when
+            List<CollectStatusRow> rows = collectStatusRepository.findAll();
+
+            // then
+            assertThat(rows)
+                    .singleElement()
+                    .satisfies(row -> assertThat(row.loadedAt()).isEqualTo(loadedAt));
+        }
+
+        @Test
+        @DisplayName("행이 없으면 빈 목록을 반환함")
+        void 행이_없으면_빈_목록을_반환함() {
+            // when
+            List<CollectStatusRow> rows = collectStatusRepository.findAll();
+
+            // then
+            assertThat(rows).isEmpty();
+        }
     }
 }
