@@ -38,7 +38,8 @@ class DealJobNamesTest {
     @DisplayName("각 Job의 Step 이름이 옛 이름 그대로이고 순서도 같음")
     void 각_Job의_Step_이름이_옛_이름_그대로이고_순서도_같음() {
         assertThat(stepNames("dailyRentCollectJob")).containsExactly("dailyRentStep", "rentLoadedAtStep");
-        assertThat(stepNames("dailySaleCollectJob")).containsExactly("dailySaleStep", "saleLoadedAtStep");
+        assertThat(stepNames("dailySaleCollectJob"))
+                .containsExactly("dailySaleStep", "saleLoadedAtStep", "dealGroupRefreshStep");
         assertThat(stepNames("initialRentLoadJob")).containsExactly("initialRentStep", "rentLoadedAtStep");
         assertThat(stepNames("initialSaleLoadJob")).containsExactly("initialSaleStep", "saleLoadedAtStep");
     }

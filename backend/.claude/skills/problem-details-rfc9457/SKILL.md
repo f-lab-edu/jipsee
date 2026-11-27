@@ -35,7 +35,7 @@ Build every error body with `ErrorResponse.of(errorCode, httpStatus)`; the handl
 
 `BusinessException`, `ErrorCode`, and `ErrorKind` are in `core` (`kr.jipsee.global.exception`) and must not depend on spring-web.
 `ErrorResponse` and `GlobalExceptionHandler` are in `api` (`kr.jipsee.api.exception`).
-Templates: `templates/ErrorCode.java`, `templates/ErrorKind.java`, `templates/BusinessException.java`,
+Templates (`templates/GlobalExceptionHandler.java` has `toValidationErrorCode` and `PAYLOAD_ERROR_CODES`): `templates/ErrorCode.java`, `templates/ErrorKind.java`, `templates/BusinessException.java`,
 `templates/ErrorResponse.java`, `templates/GlobalExceptionHandler.java`.
 
 ```java
@@ -103,7 +103,15 @@ Which layer throws it:
 - A `core` service throws `BusinessException(ErrorCode.X_NOT_FOUND)` when the lookup target must exist (detail, update, delete by id).
 - A `core` service returns `Optional` (or an empty result) only where an empty result is a legitimate answer (search, batch lookups).
 - A violated invariant is `IllegalStateException`, which the handler maps to 500 `INTERNAL_ERROR`.
-- Request validation (400) is done by the api controller.
+- Request validation (400) is declared on the api request DTO with Bean Validation (`@Valid @ModelAttribute`), never inline in the controller. Each constraint names its `ErrorCode` through `payload`:
+
+```java
+public record BuildingSearchRequest(
+        @Size(min = 2, groups = KeywordRules.class, payload = ValidationPayload.KeywordTooShort.class) String keyword,
+        @Min(value = 0, payload = ValidationPayload.InvalidRequest.class) Integer page) {}
+```
+
+  `ValidationPayload` (api, `kr.jipsee.api.exception`) holds the marker interfaces and the handler's `PAYLOAD_ERROR_CODES` maps each to an `ErrorCode`, so `ErrorCode` stays free of spring-web. The handler resolves the first error of the `MethodArgumentNotValidException`: a `typeMismatch` binding failure gives `INVALID_REQUEST`, a violation with a mapped payload gives that code, anything else gives `VALIDATION_FAILED`. Order checks with `@GroupSequence` (violations of a later group are not reported while an earlier group fails).
 
 ```java
 // core service: the target must exist
@@ -178,8 +186,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private ErrorCode toErrorCode(Exception exception, HttpStatusCode statusCode) {
-        if (exception instanceof MethodArgumentNotValidException
-                || exception instanceof HandlerMethodValidationException) {
+        if (exception instanceof MethodArgumentNotValidException notValid) {
+            return toValidationErrorCode(notValid.getAllErrors());
+        }
+        if (exception instanceof HandlerMethodValidationException) {
             return ErrorCode.VALIDATION_FAILED;
         }
 
@@ -213,6 +223,7 @@ Success returns the body directly; errors return `ProblemDetail`.
 - Agent uses custom error envelope alongside ProblemDetail — pick one standard
 - Agent sets `title`, `instance`, `timestamp`, or a `type` URI — Spring fills `title` and `instance`; the rest is not part of the contract
 - Agent builds `ProblemDetail` directly or calls `setProperty("code", ...)`: use `ErrorResponse.of(errorCode, httpStatus)` through the handler's `toErrorResponse`
+- Agent validates the request inline in the controller and throws `BusinessException` — declare Bean Validation on the request DTO with a `payload` marker and add the marker to `PAYLOAD_ERROR_CODES`
 - Agent adds `@ExceptionHandler` methods for Spring MVC exceptions (validation, 404, 405, unreadable body) — `handleExceptionInternal` already maps them; add a case to `toErrorCode` instead
 - Agent returns 200 with error in body — always use the correct HTTP status code
 - Agent creates handler without extending `ResponseEntityExceptionHandler` — extend it to get Spring's built-in exception handling for free

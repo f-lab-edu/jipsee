@@ -17,10 +17,13 @@ import java.util.List;
 import kr.jipsee.deal.dto.BuildingInfo;
 import kr.jipsee.deal.dto.BuildingKey;
 import kr.jipsee.deal.dto.ContractType;
+import kr.jipsee.deal.dto.DealGroupSearchPage;
+import kr.jipsee.deal.dto.DealGroupSummary;
 import kr.jipsee.deal.dto.DealType;
 import kr.jipsee.deal.dto.GroupDeal;
 import kr.jipsee.deal.dto.NearbyDealItem;
 import kr.jipsee.deal.dto.NearbyDeals;
+import kr.jipsee.deal.service.BuildingSearchService;
 import kr.jipsee.deal.service.BuildingService;
 import kr.jipsee.global.exception.BusinessException;
 import kr.jipsee.global.exception.ErrorCode;
@@ -44,6 +47,9 @@ class BuildingControllerTest {
 
     @MockitoBean
     BuildingService buildingService;
+
+    @MockitoBean
+    BuildingSearchService buildingSearchService;
 
     private static BuildingInfo info(BuildingKey key, String name) {
         GroupDeal deal = new GroupDeal(
@@ -348,6 +354,190 @@ class BuildingControllerTest {
 
             // then
             assertBuildingNotFound(result);
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /buildings")
+    class Search {
+
+        private static final BuildingKey KEY = new BuildingKey("11440", "망원동", "123-4");
+
+        private DealGroupSearchPage page(String name, YearMonth latestNewJeonseMonth, boolean hasNext) {
+            return new DealGroupSearchPage(
+                    List.of(new DealGroupSummary(KEY, name, "마포구 망원동 123-4", latestNewJeonseMonth)), hasNext);
+        }
+
+        private void assertError(ResultActions result, String code) throws Exception {
+            result.andExpect(status().isBadRequest())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                    .andExpect(jsonPath("$.code").value(code));
+        }
+
+        @Test
+        @DisplayName("응답의 id는 문자열, latestNewJeonseMonth는 연월 객체, hasNext는 boolean임")
+        void 응답의_id는_문자열_latestNewJeonseMonth는_연월_객체_hasNext는_boolean임() throws Exception {
+            // given
+            given(buildingSearchService.search("망원", 0)).willReturn(page("망원 OO빌라", YearMonth.of(2026, 10), true));
+
+            // when
+            ResultActions result = mockMvc.perform(get("/buildings").param("keyword", "망원"));
+
+            // then
+            result.andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.buildings[0].id").value("11440-망원동-123-4"))
+                    .andExpect(jsonPath("$.data.buildings[0].name").value("망원 OO빌라"))
+                    .andExpect(jsonPath("$.data.buildings[0].lotAddress").value("마포구 망원동 123-4"))
+                    .andExpect(jsonPath("$.data.buildings[0].latestNewJeonseMonth.year")
+                            .value(2026))
+                    .andExpect(jsonPath("$.data.buildings[0].latestNewJeonseMonth.month")
+                            .value(10))
+                    .andExpect(jsonPath("$.data.hasNext").value(true));
+        }
+
+        @Test
+        @DisplayName("null 필드도 키를 유지함")
+        void null_필드도_키를_유지함() throws Exception {
+            // given
+            given(buildingSearchService.search("망원", 0)).willReturn(page(null, null, false));
+
+            // when
+            ResultActions result = mockMvc.perform(get("/buildings").param("keyword", "망원"));
+
+            // then
+            result.andExpect(jsonPath("$.data.buildings[0].name").value(nullValue()))
+                    .andExpect(
+                            jsonPath("$.data.buildings[0].latestNewJeonseMonth").value(nullValue()));
+        }
+
+        @Test
+        @DisplayName("결과가 없으면 빈 buildings와 hasNext false를 반환함")
+        void 결과가_없으면_빈_buildings와_hasNext_false를_반환함() throws Exception {
+            // given
+            given(buildingSearchService.search("망원", 3)).willReturn(new DealGroupSearchPage(List.of(), false));
+
+            // when
+            ResultActions result =
+                    mockMvc.perform(get("/buildings").param("keyword", "망원").param("page", "3"));
+
+            // then
+            result.andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.buildings").isEmpty())
+                    .andExpect(jsonPath("$.data.hasNext").value(false));
+        }
+
+        @Test
+        @DisplayName("keyword는 앞뒤 공백을 제거해서 page와 함께 서비스에 전달함")
+        void keyword는_앞뒤_공백을_제거해서_page와_함께_서비스에_전달함() throws Exception {
+            // given
+            given(buildingSearchService.search("망원 빌라", 2)).willReturn(page("망원 OO빌라", null, false));
+
+            // when
+            ResultActions result = mockMvc.perform(
+                    get("/buildings").param("keyword", "  망원 빌라 ").param("page", "2"));
+
+            // then
+            result.andExpect(status().isOk());
+            then(buildingSearchService).should().search("망원 빌라", 2);
+        }
+
+        @Test
+        @DisplayName("keyword가 100자이고 10단어면 통과함")
+        void keyword가_100자이고_10단어면_통과함() throws Exception {
+            // given
+            String hundredChars = "가".repeat(100);
+            String tenWords = "가 나 다 라 마 바 사 아 자 차";
+            given(buildingSearchService.search(any(), anyInt())).willReturn(page(null, null, false));
+
+            // when
+            ResultActions chars = mockMvc.perform(get("/buildings").param("keyword", hundredChars));
+            ResultActions words = mockMvc.perform(get("/buildings").param("keyword", tenWords));
+
+            // then
+            chars.andExpect(status().isOk());
+            words.andExpect(status().isOk());
+        }
+
+        @Test
+        @DisplayName("keyword가 없으면 서비스를 호출하지 않고 400 KEYWORD_TOO_SHORT를 반환함")
+        void keyword가_없으면_서비스를_호출하지_않고_400_KEYWORD_TOO_SHORT를_반환함() throws Exception {
+            // when
+            ResultActions result = mockMvc.perform(get("/buildings"));
+
+            // then
+            assertError(result, "KEYWORD_TOO_SHORT");
+            result.andExpect(jsonPath("$.detail").value("검색어는 두 글자 이상 입력해야 합니다."));
+            then(buildingSearchService).shouldHaveNoInteractions();
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"", "   ", "가", " 가 "})
+        @DisplayName("keyword가 공백이거나 앞뒤 공백 제거 후 2자 미만이면 서비스를 호출하지 않고 400 KEYWORD_TOO_SHORT를 반환함")
+        void keyword가_공백이거나_앞뒤_공백_제거_후_2자_미만이면_서비스를_호출하지_않고_400_KEYWORD_TOO_SHORT를_반환함(String keyword)
+                throws Exception {
+            // when
+            ResultActions result = mockMvc.perform(get("/buildings").param("keyword", keyword));
+
+            // then
+            assertError(result, "KEYWORD_TOO_SHORT");
+            then(buildingSearchService).shouldHaveNoInteractions();
+        }
+
+        @Test
+        @DisplayName("keyword가 100자를 넘으면 서비스를 호출하지 않고 400 INVALID_REQUEST를 반환함")
+        void keyword가_100자를_넘으면_서비스를_호출하지_않고_400_INVALID_REQUEST를_반환함() throws Exception {
+            // when
+            ResultActions result = mockMvc.perform(get("/buildings").param("keyword", "가".repeat(101)));
+
+            // then
+            assertError(result, "INVALID_REQUEST");
+            then(buildingSearchService).shouldHaveNoInteractions();
+        }
+
+        @Test
+        @DisplayName("keyword가 11단어면 서비스를 호출하지 않고 400 INVALID_REQUEST를 반환함")
+        void keyword가_11단어면_서비스를_호출하지_않고_400_INVALID_REQUEST를_반환함() throws Exception {
+            // when
+            ResultActions result = mockMvc.perform(get("/buildings").param("keyword", "가 나 다 라 마 바 사 아 자 차 카"));
+
+            // then
+            assertError(result, "INVALID_REQUEST");
+            then(buildingSearchService).shouldHaveNoInteractions();
+        }
+
+        @Test
+        @DisplayName("page가 음수면 서비스를 호출하지 않고 400 INVALID_REQUEST를 반환함")
+        void page가_음수면_서비스를_호출하지_않고_400_INVALID_REQUEST를_반환함() throws Exception {
+            // when
+            ResultActions result =
+                    mockMvc.perform(get("/buildings").param("keyword", "망원").param("page", "-1"));
+
+            // then
+            assertError(result, "INVALID_REQUEST");
+            then(buildingSearchService).shouldHaveNoInteractions();
+        }
+
+        @Test
+        @DisplayName("page가 정수가 아니면 서비스를 호출하지 않고 400 INVALID_REQUEST를 반환함")
+        void page가_정수가_아니면_서비스를_호출하지_않고_400_INVALID_REQUEST를_반환함() throws Exception {
+            // when
+            ResultActions result =
+                    mockMvc.perform(get("/buildings").param("keyword", "망원").param("page", "a"));
+
+            // then
+            assertError(result, "INVALID_REQUEST");
+            then(buildingSearchService).shouldHaveNoInteractions();
+        }
+
+        @Test
+        @DisplayName("keyword와 page가 모두 잘못되면 keyword 길이 검사가 먼저임")
+        void keyword와_page가_모두_잘못되면_keyword_길이_검사가_먼저임() throws Exception {
+            // when
+            ResultActions result =
+                    mockMvc.perform(get("/buildings").param("keyword", "가").param("page", "-1"));
+
+            // then
+            assertError(result, "KEYWORD_TOO_SHORT");
         }
     }
 }

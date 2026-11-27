@@ -13,8 +13,8 @@ Wrap every success body as `ApiResponse.of(payload)` (`kr.jipsee.api.common`), s
 
 - Controller → Service → Repository, one direction only. No Facade or UseCase layer.
 - Services (`core` module) return domain DTOs. Entities never leave the service layer, and services never throw HTTP errors. Where the lookup target must exist, the service throws `BusinessException(ErrorCode.X_NOT_FOUND)` (`kr.jipsee.global.exception`, `core`); the api handler turns it into 404. `Optional` is returned only where an empty result is a legitimate answer (search, batch lookups).
-- Controllers (`api` module, `kr.jipsee.api...`) map the domain DTO to a response DTO. Request validation (400) is done in the controller.
-- DTOs are records. Response DTOs expose static `from()` / `of()` factories that take the domain DTO. No mapper library (MapStruct etc.).
+- Controllers (`api` module, `kr.jipsee.api...`) map the domain DTO to a response DTO. Request validation (400) is done by Bean Validation on the request DTO (`*Request` record, bound with `@Valid @ModelAttribute`), not inline in the controller; see problem-details-rfc9457 for how the failure maps to an `ErrorCode`.
+- DTOs are records. Request DTOs end in `Request` and may normalize input (defaults, trimming) in the compact constructor. Response DTOs expose static `from()` / `of()` factories that take the domain DTO. No mapper library (MapStruct etc.).
 
 ## HTTP Status Mapping
 
