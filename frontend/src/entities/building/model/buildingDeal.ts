@@ -4,7 +4,8 @@ import type { YearMonth } from "@/shared/lib/dates/yearMonth";
 import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 
 export type BuildingDeal = {
-	id: number;
+	// {type}-{원본 id} 형식
+	id: string;
 	month: YearMonth;
 	type: RentDealType | "sale";
 	contract: Nullable<DealContract>;

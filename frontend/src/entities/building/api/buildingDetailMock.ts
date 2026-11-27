@@ -5,7 +5,7 @@ import type {
 
 const sharedDeals: BuildingDealResponse[] = [
 	{
-		id: 1,
+		id: "jeonse-1",
 		month: { year: 2026, month: 8 },
 		type: "jeonse",
 		contract: "new",
@@ -15,7 +15,7 @@ const sharedDeals: BuildingDealResponse[] = [
 		cancelled: false,
 	},
 	{
-		id: 2,
+		id: "wolse-2",
 		month: { year: 2026, month: 5 },
 		type: "wolse",
 		contract: "new",
@@ -25,7 +25,7 @@ const sharedDeals: BuildingDealResponse[] = [
 		cancelled: false,
 	},
 	{
-		id: 3,
+		id: "sale-3",
 		month: { year: 2025, month: 11 },
 		type: "sale",
 		contract: null,
@@ -35,7 +35,7 @@ const sharedDeals: BuildingDealResponse[] = [
 		cancelled: true,
 	},
 	{
-		id: 4,
+		id: "jeonse-4",
 		month: { year: 2025, month: 6 },
 		type: "jeonse",
 		contract: "renewal",
@@ -45,7 +45,7 @@ const sharedDeals: BuildingDealResponse[] = [
 		cancelled: false,
 	},
 	{
-		id: 5,
+		id: "jeonse-5",
 		month: { year: 2024, month: 9 },
 		type: "jeonse",
 		contract: "new",
@@ -55,7 +55,7 @@ const sharedDeals: BuildingDealResponse[] = [
 		cancelled: false,
 	},
 	{
-		id: 6,
+		id: "sale-6",
 		month: { year: 2024, month: 2 },
 		type: "sale",
 		contract: null,
@@ -65,7 +65,7 @@ const sharedDeals: BuildingDealResponse[] = [
 		cancelled: false,
 	},
 	{
-		id: 7,
+		id: "jeonse-7",
 		month: { year: 2023, month: 7 },
 		type: "jeonse",
 		contract: "new",
@@ -95,7 +95,7 @@ export const buildingDetailMock: BuildingDetailResponse[] = [
 		address: "마포구 망원동 16-2",
 		deals: [
 			{
-				id: 1,
+				id: "jeonse-1",
 				month: { year: 2026, month: 3 },
 				type: "jeonse",
 				contract: "new",
@@ -105,7 +105,7 @@ export const buildingDetailMock: BuildingDetailResponse[] = [
 				cancelled: false,
 			},
 			{
-				id: 2,
+				id: "jeonse-2",
 				month: { year: 2024, month: 10 },
 				type: "jeonse",
 				contract: "renewal",
@@ -115,7 +115,7 @@ export const buildingDetailMock: BuildingDetailResponse[] = [
 				cancelled: false,
 			},
 			{
-				id: 3,
+				id: "jeonse-3",
 				month: { year: 2023, month: 5 },
 				type: "jeonse",
 				contract: "new",

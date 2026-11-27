@@ -11,6 +11,7 @@ import NearbyDealList from "@/pages/building/ui/NearbyDealList";
 import NearbyDealsNotice from "@/pages/building/ui/NearbyDealsNotice";
 import NearbyDealsSummary from "@/pages/building/ui/NearbyDealsSummary";
 import type { YearMonth } from "@/shared/lib/dates/yearMonth";
+import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import type { ResponsiveVariant } from "@/shared/model/responsiveVariant";
 
 interface NearbyDealsSectionProps {
@@ -18,7 +19,7 @@ interface NearbyDealsSectionProps {
 	buildingId: string;
 	condition: NearbyDealsCondition;
 	result: NearbyDealsResult;
-	rentDealBaseMonth: YearMonth;
+	rentDealBaseMonth: Nullable<YearMonth>;
 }
 
 /**

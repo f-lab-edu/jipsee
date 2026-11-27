@@ -4,7 +4,7 @@ import type { BuildingDeal } from "@/entities/building/model/buildingDeal";
 import DealChart from "@/pages/building/ui/DealChart";
 
 const jeonse: BuildingDeal = {
-	id: 1,
+	id: "jeonse-1",
 	month: { year: 2026, month: 8 },
 	type: "jeonse",
 	contract: "new",
@@ -15,7 +15,7 @@ const jeonse: BuildingDeal = {
 };
 const wolse: BuildingDeal = {
 	...jeonse,
-	id: 2,
+	id: "wolse-2",
 	type: "wolse",
 	amount: 3000,
 	monthlyRent: 50,

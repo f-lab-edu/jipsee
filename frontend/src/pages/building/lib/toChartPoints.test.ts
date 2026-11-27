@@ -25,15 +25,9 @@ describe("toChartPoints", () => {
 
 	it("기본 건물의 점 위치가 캔버스 계산과 같음", () => {
 		const points = toPoints(defaultBuilding);
-		const latestJeonse = points.find(
-			({ dealType, dealId }) => dealType === "jeonse" && dealId === 1,
-		);
-		const oldestJeonse = points.find(
-			({ dealType, dealId }) => dealType === "jeonse" && dealId === 7,
-		);
-		const sale = points.find(
-			({ dealType, dealId }) => dealType === "sale" && dealId === 3,
-		);
+		const latestJeonse = points.find(({ dealId }) => dealId === "jeonse-1");
+		const oldestJeonse = points.find(({ dealId }) => dealId === "jeonse-7");
+		const sale = points.find(({ dealId }) => dealId === "sale-3");
 
 		expect(latestJeonse?.xPercent).toBeCloseTo(91.49, 2);
 		expect(latestJeonse?.yPercent).toBeCloseTo(58.33, 2);
@@ -48,10 +42,10 @@ describe("toChartPoints", () => {
 			({ dealType, dealId, markerKind }) => [dealType, dealId, markerKind],
 		);
 
-		expect(kinds).toContainEqual(["jeonse", 1, "default"]);
-		expect(kinds).toContainEqual(["sale", 3, "cancelled"]);
-		expect(kinds).toContainEqual(["jeonse", 4, "renewal"]);
-		expect(kinds).toContainEqual(["jeonse", 5, "default"]);
+		expect(kinds).toContainEqual(["jeonse", "jeonse-1", "default"]);
+		expect(kinds).toContainEqual(["sale", "sale-3", "cancelled"]);
+		expect(kinds).toContainEqual(["jeonse", "jeonse-4", "renewal"]);
+		expect(kinds).toContainEqual(["jeonse", "jeonse-5", "default"]);
 	});
 
 	it("월세 거래만 있으면 점이 없음", () => {

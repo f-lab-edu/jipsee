@@ -1,5 +1,6 @@
 import { Box, Icon } from "@seed-design/react";
 import type { YearMonth } from "@/shared/lib/dates/yearMonth";
+import type { Nullable } from "@/shared/lib/utilityTypes/nullable";
 import ResponsiveLayout from "@/shared/ui/ResponsiveLayout";
 import { baseMonthNoticeStyles } from "@/widgets/searchGuide/config/baseMonthNoticeStyles";
 import BaseMonthNoticeContent from "@/widgets/searchGuide/ui/BaseMonthNoticeContent";
@@ -7,7 +8,7 @@ import BaseMonthNoticeIcon from "@/widgets/searchGuide/ui/BaseMonthNoticeIcon";
 
 interface BaseMonthNoticeProps {
 	testId: string;
-	baseMonth: YearMonth;
+	baseMonth: Nullable<YearMonth>;
 }
 
 /**

@@ -7,7 +7,7 @@ import { toChartDeals } from "@/pages/building/lib/toChartDeals";
 const defaultBuilding = buildingDetailMock[0];
 
 const baseDeal: BuildingDeal = {
-	id: 1,
+	id: "jeonse-1",
 	month: { year: 2026, month: 1 },
 	type: "jeonse",
 	contract: "new",

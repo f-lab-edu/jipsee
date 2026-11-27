@@ -3,13 +3,13 @@ import { toChartLabel } from "@/pages/building/lib/toChartLabel";
 import type { ChartPoint } from "@/pages/building/model/chartPoint";
 
 const jeonse: ChartPoint = {
-	dealId: 1,
+	dealId: "jeonse-1",
 	dealType: "jeonse",
 	markerKind: "default",
 	xPercent: 0,
 	yPercent: 0,
 };
-const sale: ChartPoint = { ...jeonse, dealId: 2, dealType: "sale" };
+const sale: ChartPoint = { ...jeonse, dealId: "sale-2", dealType: "sale" };
 
 describe("toChartLabel", () => {
 	it("전세와 매매 건수를 세어 문구를 만듦", () => {

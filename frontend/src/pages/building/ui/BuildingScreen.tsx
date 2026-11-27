@@ -20,7 +20,7 @@ interface BuildingScreenProps {
 	detail: BuildingDetail;
 	condition: NearbyDealsCondition;
 	nearby: NearbyDealsResult;
-	rentDealBaseMonth: YearMonth;
+	rentDealBaseMonth: Nullable<YearMonth>;
 	session: Nullable<Session>;
 }
 

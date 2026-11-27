@@ -12,7 +12,8 @@ export interface BuildingDetailResponse {
 }
 
 export interface BuildingDealResponse {
-	id: number;
+	// {type}-{원본 id} 형식
+	id: string;
 	month: YearMonth;
 	type: RentDealType | "sale";
 	contract: Nullable<DealContract>;
