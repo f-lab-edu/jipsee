@@ -47,6 +47,48 @@ class RegionServiceTest {
     }
 
     @Test
+    @DisplayName("실제 CSV의 시군구명을 반환함")
+    void 실제_CSV의_시군구명을_반환함() {
+        // given
+        RegionService service = new RegionService(new LegalDongCsvRepository());
+
+        // when & then
+        assertThat(service.sigunguName("11440")).isEqualTo("마포구");
+        assertThat(service.sigunguName("11380")).isEqualTo("은평구");
+        assertThat(service.sigunguName("11620")).isEqualTo("관악구");
+    }
+
+    @Test
+    @DisplayName("하위 구가 있는 시의 구는 공백 없는 표기를 반환함")
+    void 하위_구가_있는_시의_구는_공백_없는_표기를_반환함() {
+        // given
+        RegionService service = new RegionService(new LegalDongCsvRepository());
+
+        // when
+        String name = service.sigunguName("41111");
+
+        // then
+        assertThat(name).isEqualTo("수원시장안구");
+    }
+
+    @Test
+    @DisplayName("시군구 코드 목록에서 빠진 상위 시의 이름도 반환함")
+    void 시군구_코드_목록에서_빠진_상위_시의_이름도_반환함() {
+        // given
+        given(repository.findAll())
+                .willReturn(List.of(
+                        new LegalDongRow("4111000000", "경기도", "수원시", "", ""),
+                        new LegalDongRow("4111100000", "경기도", "수원시 장안구", "", "")));
+        RegionService service = new RegionService(repository);
+
+        // when
+        String name = service.sigunguName("41110");
+
+        // then
+        assertThat(name).isEqualTo("수원시");
+    }
+
+    @Test
     @DisplayName("CSV는 생성할 때 한 번만 읽음")
     void CSV는_생성할_때_한_번만_읽음() {
         given(repository.findAll()).willReturn(List.of(new LegalDongRow("1111000000", "서울특별시", "종로구", "", "")));

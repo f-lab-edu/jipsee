@@ -60,7 +60,7 @@ class GlobalExceptionHandlerTest {
         return switch (errorCode) {
             case INTERNAL_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
             case VALIDATION_FAILED, INVALID_REQUEST -> HttpStatus.BAD_REQUEST;
-            case PATH_NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case PATH_NOT_FOUND, BUILDING_NOT_FOUND -> HttpStatus.NOT_FOUND;
             case METHOD_NOT_ALLOWED -> HttpStatus.METHOD_NOT_ALLOWED;
             case NOT_ACCEPTABLE -> HttpStatus.NOT_ACCEPTABLE;
             case UNSUPPORTED_MEDIA_TYPE -> HttpStatus.UNSUPPORTED_MEDIA_TYPE;
