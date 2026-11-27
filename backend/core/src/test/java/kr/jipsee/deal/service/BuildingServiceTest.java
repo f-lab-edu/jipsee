@@ -105,6 +105,22 @@ class BuildingServiceTest {
         }
 
         @Test
+        @DisplayName("시군구명을 찾을 수 없으면 IllegalStateException을 던짐")
+        void 시군구명을_찾을_수_없으면_IllegalStateException을_던짐() {
+            // given
+            BuildingKey key = new BuildingKey("99999", "망원동", "519");
+            given(buildingRepository.findHistory(key))
+                    .willReturn(Optional.of(new DealHistory(key, "망원 OO빌라", List.of(deal(1)))));
+            given(regionService.sigunguName("99999")).willReturn(null);
+
+            // when
+            Throwable thrown = catchThrowable(() -> buildingService.find(key));
+
+            // then
+            assertThat(thrown).isInstanceOf(IllegalStateException.class).hasMessageContaining("99999");
+        }
+
+        @Test
         @DisplayName("이력이 없으면 BUILDING_NOT_FOUND를 던지고 시군구명을 조회하지 않음")
         void 이력이_없으면_BUILDING_NOT_FOUND를_던지고_시군구명을_조회하지_않음() {
             // given
