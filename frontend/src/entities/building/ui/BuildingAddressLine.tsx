@@ -12,7 +12,7 @@ interface BuildingAddressLineProps {
  *
  * - 작은 표시와 주소를 한 줄에 출력
  *
- * @param label 지번 또는 도로명 표시
+ * @param label 지번 표시
  */
 export default function BuildingAddressLine({
 	label,

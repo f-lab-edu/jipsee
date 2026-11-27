@@ -6,7 +6,6 @@ const building: BuildingSummary = {
 	id: "11440-망원동-12-3",
 	name: "망원빌라",
 	lotAddress: "마포구 망원동 12-3",
-	roadAddress: null,
 	latestNewJeonseMonth: { year: 2026, month: 6 },
 };
 

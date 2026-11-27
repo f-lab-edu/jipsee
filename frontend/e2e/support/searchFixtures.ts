@@ -15,20 +15,7 @@ export const HOME_TITLE = "연립, 다세대 주택의 전월세 실거래가";
 // 목업 검색 결과의 규모와 건물. 목업은 KEYWORD에 47건(번호 1, 2, 4~48)을 20건씩 나누어 줌
 export const PAGE_SIZE = 20;
 export const TOTAL = 47;
-// 건물명과 도로명 주소가 모두 있음
-export const FULL = {
-	id: 1,
-	name: "망원빌라",
-	lot: "마포구 망원동 12-3",
-	road: "마포구 월드컵로25길 12",
-};
-// 도로명 주소가 null임
-export const NO_ROAD = { id: 2, lot: "마포구 망원동 12-5" };
 // 건물명이 없어 지번이 제목임
-export const NO_NAME = {
-	id: 4,
-	lot: "마포구 망원동 16-2",
-	road: "마포구 포은로8길 5",
-};
-// 건물명과 도로명 주소가 모두 없음. 둘째 페이지에 있음
+export const NO_NAME = { id: 4, lot: "마포구 망원동 16-2" };
+// 건물명이 없어 지번이 제목임. 둘째 페이지에 있음
 export const BARE = { id: 35, lot: "마포구 망원동 59-1" };

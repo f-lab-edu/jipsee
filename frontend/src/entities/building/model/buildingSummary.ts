@@ -5,8 +5,6 @@ export type BuildingSummary = {
 	id: string;
 	name: Nullable<string>;
 	lotAddress: string;
-	// null이면 도로명 주소가 없음
-	roadAddress: Nullable<string>;
 	// null이면 최근 12개월 동안 신규 전세가 없음
 	latestNewJeonseMonth: Nullable<YearMonth>;
 };

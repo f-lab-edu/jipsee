@@ -10,12 +10,10 @@ import { readHead } from "./support/readHead";
 import { readPngSize } from "./support/readPngSize";
 import {
 	BARE,
-	FULL,
 	HOME_TITLE,
 	KEYWORD,
 	NO_NAME,
 	NO_RESULT_KEYWORD,
-	NO_ROAD,
 	OTHER_KEYWORD,
 	PAGE_SIZE,
 	SEARCH_PATH,
@@ -466,8 +464,8 @@ for (const { label, viewport, layout } of SCREENS) {
 	});
 }
 
-// 검색 결과 더 보기와 주소 두 줄. 기대값은 2026-11-14 오류와 페이지 나눔 설계 5절, 6절과 캔버스 보드 S1P*에서 가져옴
-// 목업은 "망원동"에 47건(번호 1, 2, 4~48)이 걸려 20건, 20건, 7건으로 나뉨. 번호 35는 건물명과 도로명 주소가 모두 없음
+// 검색 결과 더 보기와 주소 줄. 기대값은 2026-11-14 오류와 페이지 나눔 설계 5절, 6절과 캔버스 보드 S1P*에서 가져옴
+// 목업은 "망원동"에 47건(번호 1, 2, 4~48)이 걸려 20건, 20건, 7건으로 나뉨. 번호 35는 건물명이 없음
 const MORE_LAYOUTS = [
 	{ label: "모바일", viewport: MOBILE, layout: "mobile" },
 	{ label: "데스크톱", viewport: DESKTOP, layout: "desktop" },
@@ -649,45 +647,7 @@ for (const { label, viewport, layout } of MORE_LAYOUTS) {
 			await expect(moreButton).toHaveCount(0);
 		});
 
-		test(`${caseId("S1P", 10)} ${label} 건물명과 도로명 주소가 모두 있으면 지번 줄 다음에 도로명 줄이 있음`, async ({
-			page,
-		}) => {
-			await gotoAndSettle(page, SEARCH_PATH);
-			const item = itemOf(searchResult(page, layout).items, FULL.id);
-			await expect(item.getByText(FULL.name, { exact: true })).toBeVisible();
-			const lot = item.getByText("지번", { exact: true });
-			const road = item.getByText("도로명", { exact: true });
-			await expect(lot).toBeVisible();
-			await expect(road).toBeVisible();
-			await expect(item).toContainText(FULL.lot);
-			await expect(item).toContainText(FULL.road);
-			const lotBox = await lot.boundingBox();
-			const roadBox = await road.boundingBox();
-			expect
-				.soft(roadBox?.y ?? 0, "도로명 줄이 지번 줄 아래")
-				.toBeGreaterThan(lotBox?.y ?? 0);
-			const lotText = await item
-				.getByText(FULL.lot, { exact: true })
-				.boundingBox();
-			const roadText = await item
-				.getByText(FULL.road, { exact: true })
-				.boundingBox();
-			expect.soft(roadText?.x, "두 주소의 시작 위치가 같음").toBe(lotText?.x);
-			const labelBox = await road.locator("..").boundingBox();
-			expect.soft(labelBox?.width, "표시 상자 폭 44").toBe(44);
-		});
-
-		test(`${caseId("S1P", 11)} ${label} 도로명 주소가 null이면 지번 줄만 있음`, async ({
-			page,
-		}) => {
-			await gotoAndSettle(page, SEARCH_PATH);
-			const item = itemOf(searchResult(page, layout).items, NO_ROAD.id);
-			await expect(item.getByText("지번", { exact: true })).toBeVisible();
-			await expect(item.getByText("도로명", { exact: true })).toHaveCount(0);
-			await expect(item).toContainText(NO_ROAD.lot);
-		});
-
-		test(`${caseId("S1P", 12)} ${label} 건물명이 없으면 지번이 제목이고 도로명 줄만 있으며 둘 다 없으면 제목만 있음`, async ({
+		test(`${caseId("S1P", 12)} ${label} 건물명이 없으면 지번이 제목이고 지번 줄이 없음`, async ({
 			page,
 		}) => {
 			await gotoAndSettle(page, SEARCH_PATH);
@@ -697,14 +657,11 @@ for (const { label, viewport, layout } of MORE_LAYOUTS) {
 				nameless.getByText(NO_NAME.lot, { exact: true }),
 			).toHaveCount(1);
 			await expect(nameless.getByText("지번", { exact: true })).toHaveCount(0);
-			await expect(nameless.getByText("도로명", { exact: true })).toBeVisible();
-			await expect(nameless).toContainText(NO_NAME.road);
 			await moreButton.click();
 			const bare = itemOf(items, BARE.id);
 			await expect(bare).toHaveCount(1);
 			await expect(bare.getByText(BARE.lot, { exact: true })).toHaveCount(1);
 			await expect(bare.getByText("지번", { exact: true })).toHaveCount(0);
-			await expect(bare.getByText("도로명", { exact: true })).toHaveCount(0);
 		});
 
 		test(`${caseId("S1P", 13)} ${label} 더 보기 버튼은 높이 48, 모서리 12, 글자 15 굵기 700이고 ${layout === "mobile" ? "폭이 열을 꽉 채움" : "폭 240으로 가운데에 놓임"}`, async ({
