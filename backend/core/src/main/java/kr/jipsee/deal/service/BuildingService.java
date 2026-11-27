@@ -96,9 +96,13 @@ public class BuildingService {
                 row.monthlyRent());
     }
 
-    /** 시군구명, 법정동명, 지번으로 주소 조립. 지번이 null이면 지번 제외 */
+    /** 시군구명, 법정동명, 지번으로 주소 조립. 지번이 null이면 지번 제외. 시군구명이 없으면 IllegalStateException 발생 */
     private String address(String sigunguCode, String legalDongName, String lotNumber) {
-        String base = regionService.sigunguName(sigunguCode) + " " + legalDongName;
+        String sigunguName = regionService.sigunguName(sigunguCode);
+        if (sigunguName == null) {
+            throw new IllegalStateException("시군구명을 찾을 수 없음: " + sigunguCode);
+        }
+        String base = sigunguName + " " + legalDongName;
 
         return lotNumber == null ? base : base + " " + lotNumber;
     }
