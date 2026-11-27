@@ -60,7 +60,7 @@ export default function SearchForm({
 								<Icon svg={<SearchIcon />} {...style.leadingIcon} />
 							</Box>
 							<TextFieldInput
-								placeholder="도로명 주소, 지번 주소, 건물명 등을 검색해주세요."
+								placeholder="지번 주소, 건물명 등을 검색해주세요."
 								aria-label="건물 검색"
 								enterKeyHint="search"
 								{...style.input}
