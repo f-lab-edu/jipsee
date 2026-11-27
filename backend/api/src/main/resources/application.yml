@@ -24,3 +24,9 @@ management:
   endpoint:
     health:
       show-details: never
+
+jipsee:
+  cors:
+    allowed-origins:
+      - https://jipsee.link
+      - https://www.jipsee.link
