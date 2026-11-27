@@ -23,7 +23,7 @@ Oct 18, 2026 / @윤상준
 | --------- | --------------------------------------------------------------- |
 | DB        | MySQL 8.4 LTS                                                   |
 | 시각      | DATETIME 타입에 KST로 저장함 (JVM은 Asia/Seoul, MySQL은 +09:00) |
-| 검색      | 요약 테이블 `deal_group`의 `name`에 FULLTEXT ngram 사용. 일일 수집 뒤 배치 Step이 `deal_group`을 갱신하므로 검색 결과는 최대 하루 늦게 반영됨 |
+| 검색      | 요약 테이블 `deal_group`의 `name`에 FULLTEXT ngram 사용(`ngram_token_size` 2). 불용어는 인덱스 생성 시점에 정해지므로 갱신 때 세션 값을 OFF로 지정함. 일일 수집 뒤 배치 Step이 `deal_group`을 갱신하므로 검색 결과는 최대 하루 늦게 반영됨 |
 
 ### 프론트엔드
 
@@ -82,16 +82,17 @@ Oct 18, 2026 / @윤상준
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | 검색 결과 단위 | 시군구 코드, 법정동명, 지번이 같은 거래를 거래 묶음 1건으로 반환. 묶음은 `deal_group`에 저장하며 일일 수집 뒤 배치 Step이 갱신함           |
 | 묶음 id        | `{sigungu_code}-{legal_dong_name}-{lot_number}` 문자열 (예: `11440-망원동-123-4`)                                                            |
-| 검색어 길이    | 앞뒤 공백을 제외한 검색어 전체가 2글자 이상                                                                                                  |
+| 검색어 길이    | 앞뒤 공백을 제외한 검색어 전체가 2글자 이상이며 100자 이하, 단어 10개 이하 |
 | 단어 분류      | 앱이 법정동 사전(`bjd.csv`)으로 검색어를 단어별로 분류                                                                                     |
 | 지번 단어      | `lot_number` REGEXP `(^\|[^0-9-])<단어>([^0-9]\|$)`로 검색. 지번 뒤에 숫자가 이어지면 제외 (12 검색 시 123은 제외, 12-5는 포함)            |
 | 시군구, 법정동 | 사전의 시군구명 또는 읍면동명과 전체가 일치하면 `sigungu_code`, `legal_dong_name` 조건으로 검색                                            |
-| 그 밖의 단어   | 2글자 이상이면 `house_name` FULLTEXT ngram으로, 1글자면 `house_name` LIKE로 검색                                                           |
+| 그 밖의 단어   | 2글자 이상이면(영문 포함) `deal_group.name`의 FULLTEXT ngram `match`와 `locate` 후처리로, 1글자면 `locate`로 검색 |
 | 조건 결합      | 모든 단어의 조건을 AND로 결합                                                                                                              |
-| 후보 행 상한   | `rent_deal`, `sale_deal` 각각에서 일치한 행을 관련도순으로 최대 5,000행까지 사용                                                           |
-| 묶기, 페이지   | 일치한 행만 묶음 키로 묶고, 20건 단위로 조회하며 응답에 `hasNext` 포함                                                                   |
-| 묶음 이름      | 결과의 묶음 이름은 일치한 행이 아니라 묶음의 전체 거래로 정함. 계약일이 가장 늦은 거래의 `house_name`이며 `docs/erd.md`의 묶음 이름과 같은 규칙 |
-| 인덱스         | `rent_deal`, `sale_deal`에 `(sigungu_code, legal_dong_name, lot_number, deal_date)`와 `house_name` FULLTEXT ngram 추가. 기존 `(sigungu_code, deal_date)`는 재수집의 삭제 대상 조회에 유지 |
+| 후보 상한      | 없음. 후보가 거래 행이 아닌 `deal_group` 건물 행이라 상한이 필요 없음. 정렬은 `last_deal_date` 내림차순, 같으면 기본 키 순 |
+| 페이지         | 20건 단위. 21행을 조회해 `hasNext`를 판정하고 `offset`은 `page * 20`. 응답에 `hasNext` 포함 |
+| 묶음 이름      | `deal_group.name`. 글자(한글, 영문)가 있는 `house_name` 중 계약일이 가장 늦은 거래의 값이며 `docs/erd.md`의 묶음 이름과 같은 규칙. 글자 있는 이름이 없으면 null |
+| 묶음 갱신      | `dailySaleCollectJob`의 마지막 Step `dealGroupRefreshStep`이 `deal_group_new`를 만들어 거래 테이블에서 전체 재생성한 뒤 `rename table`로 교체함. 이름은 테이블별 `group by`에서 계약일, 출처(전월세 우선), id를 고정 폭으로 이어 붙인 문자열의 `max`로 선택함. 수집 Step이 한도 초과로 끝난 날은 실행하지 않아 전날 상태를 유지함 |
+| 인덱스         | `rent_deal`, `sale_deal`은 `(sigungu_code, legal_dong_name, lot_number, deal_date)`(상세 거래 이력, 주변 거래, `deal_group` 갱신 집계)와 `(sigungu_code, deal_date)`(재수집의 삭제 대상 조회)를 유지하고, V17의 `house_name` FULLTEXT는 V19에서 삭제함. `deal_group`은 기본 키 `(sigungu_code, legal_dong_name, lot_number)`와 `name` FULLTEXT ngram(V18) |
 
 ### 건물 상세
 
